@@ -20,7 +20,7 @@
                     </div>
                     <div class="sheet">
                         <span class="label">退款总金额：</span>
-                        <span class="value text-yellow">{{ formatMoney(detail.money) }}</span>
+                        <span class="value text-red">￥{{ formatMoney(detail.money) }}</span>
                     </div>
                     <div class="sheet">
                         <span class="label">申请时间：</span>
@@ -156,8 +156,8 @@
 
             <div class="substance">
                 <div class="radio-wrap">
-                    <el-radio v-model="radio" label="1">备选项</el-radio>
-                    <el-radio v-model="radio" label="2">备选项</el-radio>
+                    <el-radio v-model="refundType" label="1">原路返回</el-radio>
+                    <el-radio v-model="refundType" label="2">手动打款</el-radio>
                 </div>
                 <div class="divider"></div>
                 <div class="certificate">
@@ -187,7 +187,7 @@ export default {
             list: null,
             logList: null,
             listLoading: false,
-            radio: ''
+            refundType: 1
         };
     },
 
