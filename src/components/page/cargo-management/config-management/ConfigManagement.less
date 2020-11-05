@@ -1,0 +1,182 @@
+.config-management-container{
+  .container{
+    padding: 30px 0 15px;
+    min-width: 900px;
+  }
+  .p-t-0 {
+    padding-top: 0;
+  }
+  .tabs-and-add{
+    position: relative;
+    .el-tab-pane{
+      position: relative;
+    }
+    .img-drop-down{
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 10px;
+      right: 5px;
+      background: transparent url(../../../../assets/img/drop-down.svg) no-repeat 50% 50%;
+    }
+    .reason-list{
+      position: absolute;
+      top: 50px;
+      left: 22px;
+      width: 126px;
+      //height: 102px;
+      max-height: 200px;
+      background: #FFFFFF;
+      box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+      border-radius: 2px;
+      overflow: hidden;
+      ul,li{
+        list-style: none;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.65);
+        line-height: 34px;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      li{
+        padding-left: 16px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        &:hover{
+          background: rgba(24, 144, 255, .7);
+          color: #fff;
+        }
+      }
+      .is_selected{
+        background: #1890FF;
+        color: #fff;
+      }
+    }
+    .el-tabs__item.is-active{
+      color: #1890FF;
+      font-weight:500;
+      box-shadow: none;
+      -webkit-box-shadow: none;
+      border: none;
+      .img-drop-down{
+        background: url(../../../../assets/img/drop-down-selected.svg) no-repeat 50% 50%;
+      }
+    }
+    .el-tabs__item.is-active.is-focus{
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      border: none !important;
+    }
+    /*选项卡切换*/
+    .el-tabs__nav{
+      height: 60px;
+      line-height: 60px;
+    }
+    .el-tabs__item{
+      padding: 0 25px;
+      font-weight:400;
+      font-size: 16px;
+      font-family:PingFangSC-Regular,PingFang SC;
+      color:#595959;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .el-tabs--top .el-tabs__item.is-top:nth-child(2){
+      padding-left: 24px;
+      padding-right: 35px;
+    }
+    .el-tabs--top .el-tabs__item.is-top:nth-child(6),.el-tabs--top .el-tabs__item.is-top:nth-child(7){
+      padding-right: 35px;
+    }
+    .el-tabs--top .el-tabs__item.is-top:last-child{
+      padding-left: 40px;
+      //transform: translateX(20px);
+    }
+    .el-tabs__active-bar{
+      background-color: #1890FF;
+    }
+    .el-tabs__nav-wrap{
+      height: 60px;
+      overflow: inherit;
+    }
+    .el-tabs__nav-scroll{
+      height: 60px;
+      overflow: inherit;
+    }
+    .el-tabs__nav-wrap::after{
+      height: 1px;
+      background-color: #E8E8E8;
+    }
+    .el-tabs__header{
+      margin: 0 0 25px;
+    }
+    /*按钮-新增*/
+    .btn-add{
+      position: absolute;
+      top: 14px;
+      right: 30px;
+      font-size: 14px !important;
+      padding: 8px 15px !important;
+    }
+  }
+  .el-table .cell{
+    padding-left: 24px;
+  }
+  .attrDialog{
+
+  }
+  .attr-form{
+    padding-top: 20px;
+  }
+  .el-dialog .el-dialog__body{
+    //padding: 20px 24px 24px 24px !important;
+  }
+  .add-floor-box{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 20px;
+    span{
+      display: inline-block;
+      line-height: 25px;
+    }
+    .shelf-capacity{
+      background: rgba(255, 77, 79, 0.05);
+      border-radius: 14px;
+      color: #FF4D4F;
+      height: 25px;
+      padding: 0 12px;
+    }
+    .add-floor{
+      color: #1890FF;
+      cursor: pointer;
+      display: flex;
+      i{
+        font-size: 20px;
+        line-height: 25px;
+      }
+      .add-text{
+        font-size: 14px;
+        margin-left: 5px;
+      }
+    }
+  }
+  .floors-box{
+    .el-input{
+      width: 214px !important;
+    }
+    .el-button--small{
+      margin-left: 12px;
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+  }
+  .add-shelf-dialog{
+    .el-radio__label,.el-dialog__body,.el-form-item__label{
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.85);
+    }
+  }
+}

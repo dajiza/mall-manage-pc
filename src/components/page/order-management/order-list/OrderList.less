@@ -1,0 +1,435 @@
+.m-t-16 {
+    margin-top: 16px;
+}
+.p-t-0 {
+    padding-top: 0;
+}
+.order-list-container {
+    .container-table-has-search{
+        padding: 0 0 15px;
+        .global-table-title{
+            padding-left: 20px;
+            padding-right: 30px;
+            box-sizing: border-box;
+        }
+        .el-table td:first-child>.cell, .el-table th:first-child>.cell{
+            padding-left: 24px !important;
+        }
+    }
+    .handle-box {
+        /*margin-bottom: 20px;*/
+        float: left;
+    }
+    .btn-right {
+        float: right;
+        //margin-left: 38px;
+    }
+    .margin-right0 {
+        margin-right: 0 !important;
+    }
+    .marginRight55{
+        margin-right: 54px;
+    }
+    /*搜索每行容器*/
+    .search-item-box{
+        border-bottom: 1px dashed #E9E9E9;
+        padding-top: 16px;
+        &:first-child{
+            padding-top:0;
+        }
+        &:last-child{
+            border-bottom:none;
+            .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+                margin-bottom: 9px;
+            }
+        }
+        .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+            margin-bottom: 16px;
+        }
+        .el-form--inline .el-form-item{
+            &:last-child{
+                margin-right: 0 !important;
+            }
+        }
+        .el-form-item__content{
+            width: 180px;
+        }
+        .el-form-item__label{
+            padding: 0;
+        }
+        .select-input{
+            .el-form-item__content{
+                width: 165px;
+            }
+        }
+        .w152{
+            .el-form-item__content{
+                width: 152px;
+            }
+        }
+    }
+    .handle-select {
+        width: 120px;
+    }
+
+    .handle-input {
+        width: 180px;
+        display: inline-block;
+    }
+    .table {
+        width: 100%;
+        font-size: 14px;
+    }
+    .table-td-thumb {
+        display: block;
+        margin: auto;
+        width: 40px;
+        height: 40px;
+    }
+    .input-title {
+        color: rgba(0, 0, 0, 0.85);
+        font-size: 14px;
+    }
+    .cursor-class {
+        cursor: pointer;
+    }
+    .remark-box {
+        margin: 0;
+    }
+    .el-table__fixed-right::before, .el-table__fixed::before{
+        height: 0;
+    }
+    .el-table--scrollable-x .el-table__body-wrapper{
+        min-height: 300px !important;
+    }
+    .el-table__body-wrapper{
+        min-height: 300px !important;
+    }
+    .empty-list-box{
+        min-height: 300px;
+        width: 200px;
+        position: absolute;
+        top: 117px;
+        left: 50%;
+        z-index: 99;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        .empty-list{
+
+        }
+    }
+}
+.order-detail-container{
+    .global-table-title{
+        .title{
+            align-items:flex-end;
+            .split-order{
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #FF4D4F;
+            }
+        }
+    }
+    .remark-text-color {
+        color: rgba(245,108,108,1) !important;
+    }
+    .container-box{
+        background: #FFFFFF;
+        border-radius: 2px;
+        .info-title{
+            padding: 0 20px;
+            border-bottom: 1px solid #E9E9E9;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+        }
+        .info-content{
+            padding: 0 32px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            line-height: 22px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.85);
+            .info-content-box{
+                display: flex;
+                padding: 24px 0;
+                box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                .info-content-item{
+                    width: 33%;
+                    display: flex;
+                    .label,.info-value{
+
+                        vertical-align: top;
+                    }
+                    .info-value{
+                        width: calc(100% - 120px);
+                        color: rgba(0, 0, 0, 0.65);
+                        display: inline-block;
+                    }
+                }
+                .info-remarks{
+                    width: 100%;
+                }
+            }
+            .logistics-address{
+                width: 100%;
+                display: flex;
+                padding-bottom: 34px;
+                .label{
+                    width:72px;
+                }
+                .info-value{
+                    flex: 1;
+                    color: rgba(0, 0, 0, 0.65);
+                }
+            }
+        }
+    }
+    .container-order-status{
+        height: 80px;
+        line-height: 80px;
+        font-size: 20px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+        padding: 0 24px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
+    .order-info-container{
+        padding: 0 24px 15px;
+        position: relative;
+        .line{
+            position: absolute;
+            top: 62px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #E9E9E9;
+        }
+        .el-table{
+            margin-top: 16px;
+        }
+        .order-base-info{
+            padding-top: 36px;
+            padding-bottom: 10px;
+            .order-code-time{
+                float: left;
+                margin-right: 20px;
+                .code-time{
+                    margin-bottom: 8px;
+                    .info-item{
+                        float: left;
+                        width: 280px;
+                        .label,.info-value{
+                            font-size: 14px;
+                            font-family: PingFangSC-Regular, PingFang SC;
+                            font-weight: 400;
+                            color: rgba(0, 0, 0, 0.85);
+                            line-height: 22px;
+                            vertical-align: top;
+                            display: inline-block;
+                        }
+                        .info-value{
+                            width: calc(100% - 120px);
+                            color: rgba(0, 0, 0, 0.65);
+                            display: inline-block;
+                        }
+                    }
+                }
+
+            }
+            .order-amount{
+                float: left;
+                .order-amount-item{
+                    float: left;
+                    margin-right: 30px;
+                    &:last-child{
+                        margin-right: 0;
+                    }
+                    .amount-name{
+                        font-size: 14px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        font-weight: 400;
+                        color: rgba(0, 0, 0, 0.45);
+                        line-height: 22px;
+                    }
+                    .amount-value{
+                        font-size: 20px;
+                        font-family: HelveticaNeue;
+                        color: #FF4D4F;
+                        line-height: 28px;
+                        margin-top: 4px;
+                    }
+                }
+                .shipping{
+                    .amount-value{
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        color: rgba(0, 0, 0, 0.85);
+                        line-height: 28px;
+                    }
+                }
+            }
+        }
+    }
+    .product-img{
+        width: 80px;
+        height: 60px;
+        display: inline-block;
+        vertical-align: bottom;
+        cursor: pointer;
+        object-fit:cover;
+    }
+    .empty-list{
+        min-height: 400px;
+    }
+    .order-detail-info{
+        .btn-adjustment{
+            margin-top: 4px;
+            margin-left: 0 !important;
+        }
+        .el-button--danger{
+            background: #FF4D4F;
+            border-color: #FF4D4F;
+            font-weight: 400;
+        }
+        .el-button--danger:hover {
+            background: #f78989;
+            border-color: #f78989;
+        }
+    }
+}
+.logistics-info-dialog{
+    .el-dialog__body {
+        padding: 27px 24px !important;
+        .logistics-info-box{
+            p{
+                font-size: 14px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: rgba(0, 0, 0, 0.85);
+                line-height: 22px;
+            }
+            .logistics-no{
+                padding-top: 22px !important;
+            }
+        }
+    }
+    .el-dialog__footer{
+        padding: 10px 16px !important;
+    }
+}
+.order-list-container,.order-detail-container{
+    /*表格-订单状态*/
+    .order-status{
+        height: 26px;
+        line-height: 26px;
+        border-radius: 15px;
+        display: inline-block;
+        padding: 0 9px;
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.85);
+    }
+    // 待付款
+    .order-pending-payment{
+        background: rgba(24, 144, 255, 0.4);
+    }
+    // 已付款
+    .order-paid{
+        background: #1890FF;
+    }
+
+    // 待发货
+    .order-to-be-delivered{
+        //background: #1890FF;
+        background: #A151FF;
+    }
+
+    // 已发货
+    .order-shipped{
+        background: #8093FF;
+    }
+
+    // 已取消
+    .order-cancelled{
+        background: #FF4D4F;
+    }
+    // 退款中-退款成功
+    .order-refunding,.order-refund-successfully{
+        background: #FAAD14;
+    }
+    .order-successfully{
+        background: #52C41A;
+    }
+    .flex-column{
+        flex-direction: column;
+    }
+}
+.order-err-container{
+    position: relative;
+    .handle-box{
+        float: left;
+        .el-form-item__label{
+            padding: 0;
+        }
+        .w160{
+            .el-form-item__content{
+                width: 152px;
+            }
+        }
+        .w380{
+            .el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
+                width: 380px;
+            }
+        }
+        .marginRight40{
+            margin-right: 40px;
+        }
+    }
+    .btn-right {
+        float: right;
+        //margin-left: 38px;
+    }
+    .global-table-title{
+        padding: 0 20px !important;
+    }
+    .btn-print{
+        left: 24px;
+    }
+    .empty-list{
+        min-height: 300px;
+    }
+    .product-img{
+        width: 80px;
+        height: 60px;
+        display: inline-block;
+        vertical-align: bottom;
+        cursor: pointer;
+        object-fit:cover;
+    }
+    .adjustment-dialog{
+    }
+    .adjustment-dialog-title{
+        span{
+            display: inline-block;
+            background: #1890FF;
+        }
+    }
+    .container-table-has-search{
+        padding: 30px 0 15px;
+    }
+    .empty-list{
+        min-height: 300px;
+    }
+}
+.manual-adjust-dialog{
+    .empty-list{
+        min-height: 300px;
+    }
+}
