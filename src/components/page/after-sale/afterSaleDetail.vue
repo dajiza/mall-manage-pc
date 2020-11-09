@@ -96,7 +96,7 @@
             </div>
         </div>
         <!-- 操作日志 -->
-        <div class="wrap goods">
+        <div class="wrap goods" v-if="showLog">
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">操作日志</div>
@@ -130,7 +130,8 @@
                     </el-table-column>
                     <el-table-column label="理由/凭证">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.reason }}</span>
+                            <span v-if="!scope.row.imgs">{{ scope.row.reason }}</span>
+                            <img class="certificate-img" :src="scope.row.imgs" alt="" v-if="scope.row.imgs" @click="imgPreview(scope.row.imgs)" />
                         </template>
                     </el-table-column>
                     <el-table-column label="操作人">
@@ -147,7 +148,7 @@
             </div>
         </div>
         <!-- 选择退款方式 -->
-        <div class="wrap goods">
+        <div class="wrap goods" v-if="showRefund">
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">选择退款方式</div>
@@ -159,25 +160,126 @@
                     <el-radio v-model="refundType" label="1">原路返回</el-radio>
                     <el-radio v-model="refundType" label="2">手动打款</el-radio>
                 </div>
-                <div class="divider"></div>
-                <div class="certificate">
-                    <div class="sheet sheet-img">
+                <div class="divider" v-if="refundType == 2"></div>
+                <div class="certificate" v-if="refundType == 2">
+                    <div class="sheet sheet-certificate">
                         <span class="label">打款凭证：</span>
+                        <div class="upload">
+                            <!-- <el-upload
+                                action="https://jsonplaceholder.typicode.com/posts/"
+                                list-type="picture-card"
+                                :on-preview="handlePictureCardPreview"
+                                :on-remove="handleRemove"
+                            >
+                                <i class="el-icon-plus"></i>
+                            </el-upload> -->
+                            <el-upload
+                                list-type="picture-card"
+                                class="upload-demo"
+                                :action="uploadImgUrl"
+                                :headers="header"
+                                :before-upload="beforeUpload"
+                                :on-success="uploadImgSuccess"
+                                :on-error="uploadImgError"
+                                :on-remove="handleRemove"
+                                :on-exceed="handleExceed"
+                                :limit="1"
+                            >
+                                <i class="el-icon-plus"></i>
+                            </el-upload>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <el-button class="" size="" type="primary" @click="handleFilter">提交</el-button>
+
+        <!-- 客户发回物流信息 -->
+        <div class="wrap goods" v-if="showChangeCustomer">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">客户发回物流信息</div>
+            </div>
+            <div class="divider"></div>
+
+            <div class="substance">
+                <div class="express">
+                    <div class="sheet">
+                        <span class="label">快递公司：</span>
+                        <span class="value">{{ detail.logistics_company_name }}</span>
+                    </div>
+                    <div class="sheet">
+                        <span class="label">快递单号：</span>
+                        <span class="value">{{ detail.logistics_no }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 平台发货物流信息 -->
+        <div class="wrap goods" v-if="showChangeSeller">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">客户发回物流信息</div>
+            </div>
+            <div class="divider"></div>
+
+            <div class="substance">
+                <div class="express">
+                    <el-form :inline="true" size="small" label-position="right" label-width="100px">
+                        <el-form-item label="快递公司：">
+                            <!-- <el-select v-model="value" placeholder="请选择">
+                                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select> -->
+                        </el-form-item>
+                        <el-form-item label="快递单号：">
+                            <el-input v-model="input" placeholder="请输入内容"></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </div>
+        </div>
+        <div class="brn-wrap">
+            <!-- 退款提交 -->
+            <el-popconfirm class="confirm" title="确定提交" @onConfirm="submitRefund">
+                <el-button slot="reference" class="" size="" type="primary" v-if="showRefund">提交</el-button>
+            </el-popconfirm>
+            <!-- 审核 -->
+            <el-popconfirm class="confirm" title="确定审核同意" @onConfirm="checkApply('1')">
+                <el-button slot="reference" class="" size="" type="primary" v-if="showCheck">同意</el-button>
+            </el-popconfirm>
+            <el-popconfirm class="confirm" title="确定审核拒绝" @onConfirm="checkApply('0')">
+                <el-button slot="reference" class="" size="" type="danger" v-if="showCheck">拒绝</el-button>
+            </el-popconfirm>
+            <!-- 客户发回物流信息 -->
+            <el-button class="" size="" type="primary" @click="handleFilter" v-if="showChangeCustomer">同意</el-button>
+            <el-button class="" size="" type="danger" @click="handleFilter" v-if="showChangeCustomer">拒绝</el-button>
+        </div>
+        <!-- 申请拒绝理由 -->
+        <el-dialog title="拒绝理由" :visible.sync="reasonVisible" width="30%" :before-close="beforeClose">
+            <el-input v-model="reasonRefuse" placeholder="请输入拒绝理由"></el-input>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="reasonVisible = false">取 消</el-button>
+                <el-button type="primary" @click="checkRefuse">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 操作记录凭证 预览-->
+        <el-dialog :visible.sync="imgVisible">
+            <img width="100%" :src="imgCertificate" alt="" />
+        </el-dialog>
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail, queryAfterSaleLog } from '@/api/afterSale';
+import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund } from '@/api/afterSale';
 import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant';
+import { getToken } from '@/utils/auth';
+
 import { formatMoney } from '@/plugin/tool';
 
 export default {
     data() {
         return {
+            input: '',
+
             id: '',
 
             REFUND_TYPE,
@@ -187,17 +289,37 @@ export default {
             list: null,
             logList: null,
             listLoading: false,
-            refundType: 1
+            refundType: '1', //1 原路 2 财务打款
+            dialogImageUrl: '',
+            dialogVisible: false,
+
+            reasonVisible: false, //申请拒绝理由弹窗
+            reasonRefuse: '', //拒绝理由
+
+            showLog: true, //操作日志
+            showCheck: false, //审核按钮
+            showRefund: false, //退款方式
+            showChangeCustomer: false, //换货 客户发回物流
+            showChangeSeller: false, //换货 平台发货物流信息填写
+
+            imgVisible: false,
+            imgCertificate: '',
+            filePic: '',
+            header: {}
         };
     },
 
     created() {
-        this.id = this.$route.params.id || 61;
+        this.id = this.$route.params.id || 51;
         console.log('GOOGLE: this.id', this.id);
+        // 图片上传地址
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
+        this.header['token'] = getToken();
         this.getDetail();
         this.getLog();
     },
     mounted() {},
+    inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
         getDetail() {
@@ -209,12 +331,32 @@ export default {
             queryAfterSaleDetail(params)
                 .then(res => {
                     console.log('GOOGLE: res', res);
+                    // 处理用户上传凭证图片
                     if (res.data.imgs != '') {
                         res.data.imgs = res.data.imgs.split(',');
                     }
                     this.detail = res.data;
+                    // 处理商品显示
                     this.list = [];
                     this.list.push(res.data);
+                    // 处理模块显示
+                    const type = res.data.type;
+                    const status = res.data.status;
+                    // showLog: true, //操作日志
+                    // showCheck: false, //审核按钮
+                    // showRefund: false, //退款方式
+                    // showChangeCustomer: false, //换货 客户发回物流
+                    // showChangeSeller: false //换货 平台发货物流信息填写
+                    if (status == 0) {
+                        this.showLog = false;
+                        this.showCheck = true;
+                    } else if (status == 1) {
+                        this.showRefund = true;
+                    } else if (status == 5 && type == 2) {
+                        this.showChangeCustomer = true;
+                    } else if (status == 6 && type == 2) {
+                        this.showChangeSeller = true;
+                    }
                 })
                 .catch(err => {});
         },
@@ -230,7 +372,231 @@ export default {
                 })
                 .catch(err => {});
         },
+        // 审核同意/拒绝 按钮
+        checkApply(result) {
+            if (result == 0) {
+                this.reasonVisible = true;
+                return;
+            }
+            let params = {
+                order_apply_id: this.id,
+                result: result, //审核结果：0拒绝；1同意',
+                reason: '审核同意'
+            };
 
+            putApplyApprove(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '审核同意成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                        this.reload();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
+                    console.log('GOOGLE: putApplyApprove', res);
+                })
+                .catch(err => {});
+        },
+
+        // 审核拒绝 弹窗
+        checkRefuse() {
+            if (this.reasonRefuse == '') {
+                this.$notify({
+                    title: '请填写拒绝理由',
+                    type: 'warning',
+                    duration: 5000
+                });
+                return;
+            }
+
+            let params = {
+                order_apply_id: this.id,
+                result: '0', //审核结果：0拒绝；1同意',
+                reason: this.reasonRefuse
+            };
+            putApplyApprove(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '审核拒绝成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
+                    this.reload();
+
+                    console.log('GOOGLE: putApplyApprove', res);
+                })
+                .catch(err => {});
+        },
+        // 提交退款
+        submitRefund() {
+            console.log(this.refundType);
+            if (this.refundType == 1) {
+                this.refundVx();
+            } else if (this.refundType == 2) {
+                this.refundFinancial();
+            }
+        },
+        // 原路退款
+        refundVx() {
+            let params = {
+                order_apply_id: Number(this.detail.id),
+                order_no: this.detail.order_no.toString(),
+                apply_no: this.detail.apply_no.toString(),
+                order_money: Number(this.detail.order_money), //整个订单的总金额，支付时金额
+                apply_money: Number(this.detail.money), //申请的退款金额
+                shop_id: Number(this.detail.shop_id)
+            };
+            putRefundVx(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '原路退款成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                        this.reload();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
+
+                    console.log('GOOGLE: putRefundVx', res);
+                })
+                .catch(err => {});
+        },
+        // 财务退款
+        refundFinancial() {
+            console.log(this.filePic);
+            if (this.filePic.length > 0) {
+                let params = {
+                    order_apply_id: this.detail.id,
+                    imgs: this.filePic[0].response.data.file_url
+                };
+
+                putRefund(params)
+                    .then(res => {
+                        if (res.code == 200) {
+                            this.$notify({
+                                title: '财务退款成功',
+                                type: 'success',
+                                duration: 5000
+                            });
+                            this.reload();
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                type: 'warning',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(err => {});
+            } else {
+                this.$notify({
+                    title: '请上传凭证',
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                });
+            }
+        },
+        // 图片上传前检测
+        beforeUpload(file) {
+            if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
+                this.upload_loading = this.uploadLoading('上传中');
+                this.uploadVisible = false;
+            } else {
+                if (file.size > 1024 * 1024 * 5) {
+                    this.$notify({
+                        title: '照片大小应不超过5M',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    });
+                } else {
+                    this.$notify({
+                        title: '照片格式只支持JPG、PNG',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    });
+                }
+                return false;
+            }
+        },
+
+        // 单张图片上传成功回调
+        uploadImgSuccess(response, file, fileList) {
+            if (response.code === 200) {
+                this.$notify({
+                    title: '操作成功',
+                    message: '',
+                    type: 'success',
+                    duration: 500
+                });
+                this.upload_loading.close();
+                this.filePic = fileList;
+            } else {
+                this.upload_loading.close();
+                this.$notify({
+                    title: response.msg,
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                });
+            }
+        },
+
+        // 单张图片上传失败回调
+        uploadImgError(err, file, fileList) {
+            this.upload_loading.close();
+            this.$notify({
+                title: '上传失败',
+                message: '',
+                type: 'error',
+                duration: 5000
+            });
+        },
+        handleExceed(files, fileList) {
+            this.$notify({
+                title: '只能上传一张图片',
+                message: '',
+                type: 'warning',
+                duration: 5000
+            });
+        },
+        handleRemove(file, fileList) {
+            console.log(file, fileList);
+            this.filePic = fileList;
+        },
+        imgPreview(img) {
+            this.imgVisible = true;
+            this.imgCertificate = img;
+        },
+
+        // 理由弹框关闭
+        beforeClose() {
+            this.reasonRefuse = '';
+            this.reasonVisible = false;
+        },
         // 搜索
         handleFilter() {
             this.listQuery.page = 1;
@@ -242,14 +608,8 @@ export default {
             this.$refs[formName].resetFields();
             this.handleFilter();
         },
-        // 分页方法
-        handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
-        },
-        handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
+        handleRemove(file, fileList) {
+            console.log(file, fileList);
         }
     }
 };
@@ -314,6 +674,12 @@ export default {
             width: 80px;
             height: 60px;
         }
+        .express {
+            display: flex;
+            .sheet {
+                margin-right: 240px;
+            }
+        }
         .status {
             display: flex;
             align-items: center;
@@ -328,6 +694,31 @@ export default {
                 border-radius: 4px;
             }
         }
+        // .thimg {
+        //     height: 148px;
+        //     position: absolute;
+        //     left: 150px;
+        // }
+        // .upload-demo {
+        //     position: relative;
+        // }
+        .sheet-certificate {
+            .upload {
+                margin-top: 20px;
+            }
+        }
+        .certificate-img {
+            height: 60px;
+        }
+    }
+}
+.brn-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+    .confirm {
+        margin-right: 20px;
+        // padding-right: 20px;
     }
 }
 </style>

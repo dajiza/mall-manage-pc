@@ -44,14 +44,14 @@
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
-                    <el-button class="text-red" v-if="scope.row.status == 0" type="text" size="" @click.native="gotoDetail(scope.row.id)">详情</el-button>
+                    <el-button class="text-red" v-if="scope.row.status == 0" type="text" size="" @click.native="gotoDetail(scope.row.id)">审核</el-button>
                     <el-button
                         class="text-blue"
                         v-if="scope.row.status == 2 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
                         type="text"
                         size=""
                         @click.native="gotoDetail(scope.row.id)"
-                        >审核</el-button
+                        >详情</el-button
                     >
                     <el-button
                         class="text-yellow"

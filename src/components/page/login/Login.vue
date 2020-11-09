@@ -4,7 +4,7 @@
             <div class="ms-login">
                 <div class="ms-title">
                     <img class="login-logo" src="../../../assets/img/login-logo.svg" alt="" />
-                    <span>川水仓库管理系统</span>
+                    <span>川水商城管理系统</span>
                 </div>
                 <el-form :model="loginForm" :rules="rules" ref="login" label-width="0px" class="ms-content">
                     <el-form-item prop="username">

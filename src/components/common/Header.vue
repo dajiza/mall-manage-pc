@@ -7,7 +7,7 @@
         </div>
         <div class="logo">
             <img class="menu-logo" src="../../assets/img/menu-logo.svg" />
-            川水仓库管理系统
+            川水商城管理系统
         </div>
         <div class="header-right">
             <div class="header-user-con">
@@ -51,7 +51,14 @@
             </div>
         </div>
         <!-- 修改密码弹出框 -->
-        <el-dialog title="修改密码" :visible.sync="changePasswordVisible" width="380px" destroy-on-close="destroy-on-close" :before-close="changePasswordClose" :close-on-click-modal="false">
+        <el-dialog
+            title="修改密码"
+            :visible.sync="changePasswordVisible"
+            width="380px"
+            destroy-on-close="destroy-on-close"
+            :before-close="changePasswordClose"
+            :close-on-click-modal="false"
+        >
             <el-form ref="changePasswordForm" :rules="changePasswordRules" :model="changePasswordForm">
                 <el-form-item label="新密码" prop="password">
                     <el-input v-model="changePasswordForm.password" placeholder="输入新密码" show-password="show-password"></el-input>
