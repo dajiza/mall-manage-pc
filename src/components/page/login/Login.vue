@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { getAuthCode, verifyCode, loginApi, getConfigInfo } from '../../../api/login';
+import { getAuthCode, verifyCode, loginApi, getConfigInfo, queryCaptcha, verifyCaptcha } from '../../../api/login';
 import { setToken, getToken, setAdminId, getAdminId } from '../../../utils/auth';
 import { getUserDetail } from '../../../api/user';
 import { getHasCheckedAuthList } from '../../../api/role';

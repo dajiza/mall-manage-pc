@@ -130,8 +130,12 @@
                     </el-table-column>
                     <el-table-column label="理由/凭证">
                         <template slot-scope="scope">
-                            <span v-if="!scope.row.imgs">{{ scope.row.reason }}</span>
-                            <img class="certificate-img" :src="scope.row.imgs" alt="" v-if="scope.row.imgs" @click="imgPreview(scope.row.imgs)" />
+                            <span v-if="scope.row.step == 1">{{ scope.row.reason }}</span>
+                            <img class="certificate-img" :src="scope.row.imgs" alt="" v-if="scope.row.step == 3" @click="imgPreview(scope.row.imgs)" />
+                            <div class="text" v-if="scope.row.step == 4">快递公司:{{ scope.row.logistics_company_name }}</div>
+                            <div class="text" v-if="scope.row.step == 4">快递单号:{{ scope.row.logistics_no }}</div>
+                            <div class="text" v-if="scope.row.step == 2">快递公司:{{ detail.logistics_company_name }}</div>
+                            <div class="text" v-if="scope.row.step == 2">快递单号:{{ detail.logistics_no }}</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作人">
@@ -226,12 +230,12 @@
                 <div class="express">
                     <el-form :inline="true" size="small" label-position="right" label-width="100px">
                         <el-form-item label="快递公司：">
-                            <!-- <el-select v-model="value" placeholder="请选择">
-                                <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select> -->
+                            <el-select v-model="sdId" placeholder="请选择">
+                                <el-option v-for="item in sdList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                            </el-select>
                         </el-form-item>
                         <el-form-item label="快递单号：">
-                            <el-input v-model="input" placeholder="请输入内容"></el-input>
+                            <el-input v-model="sdNo" placeholder="请输入内容"></el-input>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -246,22 +250,32 @@
             <el-popconfirm class="confirm" title="确定审核同意" @onConfirm="checkApply('1')">
                 <el-button slot="reference" class="" size="" type="primary" v-if="showCheck">同意</el-button>
             </el-popconfirm>
-            <el-popconfirm class="confirm" title="确定审核拒绝" @onConfirm="checkApply('0')">
-                <el-button slot="reference" class="" size="" type="danger" v-if="showCheck">拒绝</el-button>
+            <el-button slot="reference" class="" size="" type="danger" v-if="showCheck" @click="checkApply('0')">拒绝</el-button>
+            <!-- 客户发回物流 确认收货操作 -->
+            <el-popconfirm class="confirm" title="确定" @onConfirm="receiptApply('1')">
+                <el-button slot="reference" class="" size="" type="primary" v-if="showChangeCustomer">同意</el-button>
             </el-popconfirm>
-            <!-- 客户发回物流信息 -->
-            <el-button class="" size="" type="primary" @click="handleFilter" v-if="showChangeCustomer">同意</el-button>
-            <el-button class="" size="" type="danger" @click="handleFilter" v-if="showChangeCustomer">拒绝</el-button>
+            <el-button slot="reference" class="" size="" type="danger" v-if="showChangeCustomer" @click="receiptApply('0')">拒绝</el-button>
+
+            <!-- 商家重新发货操作 -->
+            <el-popconfirm class="confirm" title="确定" @onConfirm="resend">
+                <el-button slot="reference" class="" size="" type="primary" v-if="showChangeSeller">发货</el-button>
+            </el-popconfirm>
+            <el-button slot="reference" class="" size="" type="danger" v-if="showChangeSeller" @click="receiptApply('0')">拒绝</el-button>
         </div>
-        <!-- 申请拒绝理由 -->
+        <!-- 退货申请 收货申请 拒绝理由 -->
         <el-dialog title="拒绝理由" :visible.sync="reasonVisible" width="30%" :before-close="beforeClose">
             <el-input v-model="reasonRefuse" placeholder="请输入拒绝理由"></el-input>
 
             <span slot="footer" class="dialog-footer">
-                <el-button @click="reasonVisible = false">取 消</el-button>
-                <el-button type="primary" @click="checkRefuse">确 定</el-button>
+                <el-button @click="beforeClose">取 消</el-button>
+                <!-- 退货申请 -->
+                <el-button type="primary" @click="checkRefuse" v-if="showCheck">确 定</el-button>
+                <!-- 收货申请 -->
+                <el-button type="primary" @click="receiptApplyRefuse" v-if="showChangeCustomer">确 定</el-button>
             </span>
         </el-dialog>
+
         <!-- 操作记录凭证 预览-->
         <el-dialog :visible.sync="imgVisible">
             <img width="100%" :src="imgCertificate" alt="" />
@@ -269,7 +283,7 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund } from '@/api/afterSale';
+import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt, querySDList, putResand } from '@/api/afterSale';
 import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant';
 import { getToken } from '@/utils/auth';
 
@@ -278,8 +292,6 @@ import { formatMoney } from '@/plugin/tool';
 export default {
     data() {
         return {
-            input: '',
-
             id: '',
 
             REFUND_TYPE,
@@ -302,6 +314,10 @@ export default {
             showChangeCustomer: false, //换货 客户发回物流
             showChangeSeller: false, //换货 平台发货物流信息填写
 
+            sdList: [],
+            sdId: '',
+            sdNo: '',
+
             imgVisible: false,
             imgCertificate: '',
             filePic: '',
@@ -310,8 +326,7 @@ export default {
     },
 
     created() {
-        this.id = this.$route.params.id || 51;
-        console.log('GOOGLE: this.id', this.id);
+        this.id = this.$route.params.id || 54;
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
         this.header['token'] = getToken();
@@ -342,20 +357,17 @@ export default {
                     // 处理模块显示
                     const type = res.data.type;
                     const status = res.data.status;
-                    // showLog: true, //操作日志
-                    // showCheck: false, //审核按钮
-                    // showRefund: false, //退款方式
-                    // showChangeCustomer: false, //换货 客户发回物流
-                    // showChangeSeller: false //换货 平台发货物流信息填写
+
                     if (status == 0) {
                         this.showLog = false;
                         this.showCheck = true;
                     } else if (status == 1) {
                         this.showRefund = true;
-                    } else if (status == 5 && type == 2) {
+                    } else if (status == 5) {
                         this.showChangeCustomer = true;
-                    } else if (status == 6 && type == 2) {
+                    } else if (status == 6) {
                         this.showChangeSeller = true;
+                        this.getSDList();
                     }
                 })
                 .catch(err => {});
@@ -367,8 +379,52 @@ export default {
 
             queryAfterSaleLog(params)
                 .then(res => {
-                    console.log('GOOGLE: getLog', res);
                     this.logList = res.data;
+                })
+                .catch(err => {});
+        },
+        // 快递公司列表
+        getSDList() {
+            querySDList()
+                .then(res => {
+                    this.sdList = res.data;
+                })
+                .catch(err => {});
+        },
+        // 商家重新发货
+        resend() {
+            if (!this.sdId || !this.sdNo) {
+                this.$notify({
+                    title: '请填写快递公司和单号',
+                    type: 'warning',
+                    duration: 5000
+                });
+                return;
+            }
+            let logistics = this.sdList.filter(item => item.id == this.sdId);
+
+            let params = {
+                order_apply_id: Number(this.detail.id), //apply表ID字段
+                logistics_company_name: logistics[0].name,
+                logistics_no: this.sdNo,
+                logistics_company_id: this.sdId
+            };
+            putResand(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '重新发货成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                        this.reload();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
                 })
                 .catch(err => {});
         },
@@ -379,9 +435,9 @@ export default {
                 return;
             }
             let params = {
-                order_apply_id: this.id,
+                order_apply_id: Number(this.detail.id),
                 result: result, //审核结果：0拒绝；1同意',
-                reason: '审核同意'
+                reason: '  '
             };
 
             putApplyApprove(params)
@@ -400,7 +456,6 @@ export default {
                             duration: 5000
                         });
                     }
-                    console.log('GOOGLE: putApplyApprove', res);
                 })
                 .catch(err => {});
         },
@@ -417,7 +472,7 @@ export default {
             }
 
             let params = {
-                order_apply_id: this.id,
+                order_apply_id: Number(this.detail.id),
                 result: '0', //审核结果：0拒绝；1同意',
                 reason: this.reasonRefuse
             };
@@ -437,19 +492,81 @@ export default {
                         });
                     }
                     this.reload();
-
-                    console.log('GOOGLE: putApplyApprove', res);
                 })
                 .catch(err => {});
         },
         // 提交退款
         submitRefund() {
-            console.log(this.refundType);
             if (this.refundType == 1) {
                 this.refundVx();
             } else if (this.refundType == 2) {
                 this.refundFinancial();
             }
+        },
+        // 买家退货 确认/拒绝收货
+        receiptApply(result) {
+            if (result == 0) {
+                this.reasonVisible = true;
+                return;
+            }
+            let params = {
+                order_apply_id: Number(this.detail.id),
+                result: '1', //审核结果：0拒绝；1同意',
+                reason: '  '
+            };
+            putReturnReceipt(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '确认收货成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                        this.reload();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
+                })
+                .catch(err => {});
+        },
+        // 审核拒绝 弹窗
+        receiptApplyRefuse() {
+            if (this.reasonRefuse == '') {
+                this.$notify({
+                    title: '请填写拒绝理由',
+                    type: 'warning',
+                    duration: 5000
+                });
+                return;
+            }
+            let params = {
+                order_apply_id: Number(this.detail.id),
+                result: '0', //审核结果：0拒绝；1同意',
+                reason: this.reasonRefuse
+            };
+
+            putReturnReceipt(params)
+                .then(res => {
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '拒绝收货成功',
+                            type: 'success',
+                            duration: 5000
+                        });
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        });
+                    }
+                    this.reload();
+                })
+                .catch(err => {});
         },
         // 原路退款
         refundVx() {
@@ -477,17 +594,14 @@ export default {
                             duration: 5000
                         });
                     }
-
-                    console.log('GOOGLE: putRefundVx', res);
                 })
                 .catch(err => {});
         },
         // 财务退款
         refundFinancial() {
-            console.log(this.filePic);
             if (this.filePic.length > 0) {
                 let params = {
-                    order_apply_id: this.detail.id,
+                    order_apply_id: Number(this.detail.id),
                     imgs: this.filePic[0].response.data.file_url
                 };
 
@@ -584,7 +698,6 @@ export default {
             });
         },
         handleRemove(file, fileList) {
-            console.log(file, fileList);
             this.filePic = fileList;
         },
         imgPreview(img) {
@@ -604,12 +717,8 @@ export default {
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
             this.$refs[formName].resetFields();
             this.handleFilter();
-        },
-        handleRemove(file, fileList) {
-            console.log(file, fileList);
         }
     }
 };

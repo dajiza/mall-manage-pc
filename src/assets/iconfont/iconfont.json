@@ -1,0 +1,128 @@
+{
+  "id": "2191107",
+  "name": "川小布后台管理",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "18121568",
+      "name": "商品管理icon-选中(3)",
+      "font_class": "money",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "18121569",
+      "name": "商品管理icon-选中(1)",
+      "font_class": "list",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "18121570",
+      "name": "错icon(1)",
+      "font_class": "close-white",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "18121571",
+      "name": "商品管理icon-选中(4)",
+      "font_class": "user-add",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "18121572",
+      "name": "展开按钮",
+      "font_class": "open",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "18121573",
+      "name": "展开箭头",
+      "font_class": "up",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "18121574",
+      "name": "商品管理icon-选中(7)",
+      "font_class": "setting",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "18121575",
+      "name": "展开箭头(5)",
+      "font_class": "down",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "18121576",
+      "name": "商品管理icon-选中(6)",
+      "font_class": "users",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "18121578",
+      "name": "商品管理icon-选中(2)",
+      "font_class": "img",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "18121581",
+      "name": "展开箭头(2)",
+      "font_class": "up-opacity",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "18121583",
+      "name": "首页icon-选中",
+      "font_class": "home",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "18121584",
+      "name": "商品管理icon-选中(5)",
+      "font_class": "wholesale",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "18121564",
+      "name": "后退按钮",
+      "font_class": "back",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "18121565",
+      "name": "错icon",
+      "font_class": "close",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "18121566",
+      "name": "商品管理icon-选中",
+      "font_class": "goods",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "18121567",
+      "name": "前进按钮",
+      "font_class": "forward",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

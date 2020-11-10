@@ -28,6 +28,16 @@ export default new Router({
                     meta: { title: '售后申请处理', name: 'afterSaleList' }
                 },
                 {
+                    path: '/freight',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freight.vue'),
+                    meta: { title: '运费模板', name: 'afterSfreightleList' }
+                },
+                {
+                    path: '/freightCreat',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freightCreat.vue'),
+                    meta: { title: '新增模板', name: 'freightCreat' }
+                },
+                {
                     path: '/afterSaleDetail',
                     name: 'afterSaleDetail',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/after-sale/afterSaleDetail.vue'),

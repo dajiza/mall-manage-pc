@@ -7,7 +7,7 @@
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.order_no"></el-input>
                 </el-form-item>
                 <el-form-item label="退款类型" prop="type">
-                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择">
+                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -18,7 +18,7 @@
                 </el-form-item>
                 <el-form-item label="售后原因" prop="reason_id">
                     <el-select class="filter-item" v-model="formFilter.reason_id" placeholder="请选择">
-                        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                        <el-option v-for="item in reasonList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="申请时间" prop="createdTime">
@@ -47,7 +47,7 @@
                     <el-button class="text-red" v-if="scope.row.status == 0" type="text" size="" @click.native="gotoDetail(scope.row.id)">审核</el-button>
                     <el-button
                         class="text-blue"
-                        v-if="scope.row.status == 2 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
+                        v-if="scope.row.status == 2 || scope.row.status == 4 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
                         type="text"
                         size=""
                         @click.native="gotoDetail(scope.row.id)"
@@ -55,7 +55,7 @@
                     >
                     <el-button
                         class="text-yellow"
-                        v-if="scope.row.status == 1 || scope.row.status == 4 || scope.row.status == 5 || scope.row.status == 6"
+                        v-if="scope.row.status == 1 || scope.row.status == 5 || scope.row.status == 6"
                         type="text"
                         size=""
                         @click.native="gotoDetail(scope.row.id)"
@@ -66,11 +66,6 @@
             <el-table-column label="订单号" width="">
                 <template slot-scope="scope">
                     <span>{{ scope.row.order_no }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="nnn" width="">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.order_detail_num }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="退款金额(元)">
@@ -133,18 +128,13 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleList } from '@/api/afterSale';
+import { queryAfterSaleList, queryReasonList } from '@/api/afterSale';
 import { REFUND_TYPE, REFUND_STATUS } from '@/plugin/constant';
 import { formatMoney } from '@/plugin/tool';
 
 export default {
     data() {
         return {
-            value: '',
-            options: [
-                { value: '4321334', label: '123' },
-                { value: '132', label: '32121' }
-            ],
             REFUND_TYPE,
             REFUND_STATUS,
             list: null,
@@ -158,7 +148,8 @@ export default {
             typeList: [
                 { value: '0', label: '仅退款' },
                 { value: '1', label: '退货退款' },
-                { value: '2', label: '换货' }
+                { value: '2', label: '换货' },
+                { value: '3', label: '后台关闭' }
             ],
             statusList: [
                 { value: '0', label: '待审核' },
@@ -172,7 +163,7 @@ export default {
                 { value: '8', label: '拒绝打款' },
                 { value: '9', label: '商家已重新发货' }
             ],
-            reasonList: '',
+            reasonList: [],
 
             formFilter: {
                 type: '', //不检索传“”
@@ -210,6 +201,28 @@ export default {
                     console.log('GOOGLE: res', res);
                     this.list = res.data.lists;
                     this.total = res.data.total;
+                })
+                .catch(err => {});
+        },
+        onChangeType(event) {
+            this.getReasonList(event);
+            this.formFilter.reason_id = '';
+        },
+        getReasonList(type) {
+            let params = {
+                type: Number(type) // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由
+            };
+
+            queryReasonList(params)
+                .then(res => {
+                    this.reasonList = res.data.map(item => {
+                        return {
+                            id: item.id.toString(),
+                            name: item.name,
+                            type: item.type
+                        };
+                    });
+                    console.log('GOOGLE: res', res);
                 })
                 .catch(err => {});
         },

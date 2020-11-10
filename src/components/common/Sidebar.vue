@@ -30,7 +30,8 @@
                 <template v-if="item.subs">
                     <el-submenu :index="item.name" :key="item.name">
                         <template slot="title">
-                            <i :class="back_icon(item.display_name)"></i>
+                            <i :class="item.icon"></i>
+                            <!-- <i :class="back_icon(item.display_name)"></i> -->
                             <span slot="title">{{ item.display_name }}</span>
                         </template>
                         <template v-for="subItem in item.subs">
@@ -64,67 +65,34 @@ export default {
             items: [],
             all_menu: [
                 {
-                    icon: 'el-icon-s-home',
+                    icon: 'iconfont icon-home',
                     name: 'dashboard',
                     display_name: '系统首页'
                 },
+
                 {
-                    icon: 'el-icon-rank',
-                    name: 'after-sale-management',
-                    display_name: '售后',
+                    icon: 'iconfont icon-goods',
+                    name: 'goods-management',
+                    display_name: '商品管理',
                     subs: [
                         {
-                            name: 'afterSaleList',
-                            display_name: '售后处理申请'
+                            name: 'freight',
+                            display_name: '运费模板'
                         }
                     ]
                 },
                 {
-                    icon: 'el-icon-rank',
-                    name: 'cargo-management',
-                    display_name: '货物管理',
-                    subs: [
-                        {
-                            name: 'product-list',
-                            display_name: '产品列表'
-                        },
-                        {
-                            name: 'product-category',
-                            display_name: '产品分类'
-                        },
-                        {
-                            name: 'product-label',
-                            display_name: '产品标签'
-                        },
-                        {
-                            name: 'photo-detection',
-                            display_name: '照片检测'
-                        },
-                        {
-                            name: 'config-management',
-                            display_name: '配置管理'
-                        }
-                    ]
-                },
-                {
-                    icon: 'el-icon-s-home',
-                    name: 'shelf-management',
-                    display_name: '货架管理',
-                    subs: [
-                        {
-                            name: 'shelf-list',
-                            display_name: '货架列表'
-                        }
-                    ]
-                },
-                {
-                    icon: 'el-icon-s-order',
+                    icon: 'iconfont icon-list',
                     name: 'order-management',
                     display_name: '订单管理',
                     subs: [
                         {
                             name: 'order-list',
                             display_name: '订单列表'
+                        },
+                        {
+                            name: 'afterSaleList',
+                            display_name: '售后处理申请'
                         },
                         {
                             name: 'cut-cloth',
@@ -145,7 +113,7 @@ export default {
                     ]
                 },
                 {
-                    icon: 'el-icon-setting',
+                    icon: 'iconfont icon-setting',
                     name: 'system-setting',
                     display_name: '系统设置',
                     subs: [
@@ -189,6 +157,7 @@ export default {
                     } else if (data === '系统设置') {
                         icon_class = 'menu-setting-icon';
                     }
+
                     return icon_class;
                 }
             };

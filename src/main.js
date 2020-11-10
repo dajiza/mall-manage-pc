@@ -8,6 +8,7 @@ import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 import './assets/init.less'; //全局样式
 import { setToken, getToken } from './utils/auth';
 import './assets/css/icon.css';
+import './assets/iconfont/iconfont.css';
 // import './components/common/directives';
 import 'babel-polyfill';
 import Print from './utils/print.js';

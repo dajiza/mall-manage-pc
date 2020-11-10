@@ -17,3 +17,15 @@ export const putRefundVx = params => post('/backend/order-refund-vx', params);
 
 // 退款-财务打款
 export const putRefund = params => post('/backend/order-refund', params);
+
+// 退货申请确认收货
+export const putReturnReceipt = params => post('/backend/order-return-receive', params);
+
+// 订单理由列表-商城后台
+export const queryReasonList = params => post('/backend/order-reason-list', params);
+
+// 快递公司列表-商城后台
+export const querySDList = params => post('/backend/sd-company-list-all');
+
+// 换货-重新发货
+export const putResand = params => post('/backend/order-apply-resand', params);
