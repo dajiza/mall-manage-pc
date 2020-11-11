@@ -9,8 +9,22 @@
         <div class="list">
             <div class="item" v-for="(item, index) in list" :key="item.id">
                 <div class="title">
-                    <span class="name">{{ item.name }}</span>
+                    <div class="title-left">
+                        <span class="name">{{ item.name }}</span>
+                        <div class="is-default" v-show="item.is_default === 2">默认</div>
+                        <div class="is-free" v-show="item.is_free === 2">
+                            <div class="icon-tip"></div>
+                            <span class="tip-text">指定条件包邮</span>
+                        </div>
+                    </div>
                     <div class="btn">
+                        <el-button
+                                class="title-btn"
+                                type="text"
+                                v-show="item.is_default !== 2"
+                                @click="handleSetDefault(index, item)"
+                        >设为默认</el-button>
+                        <div class="line" v-show="item.is_default !== 2"></div>
                         <el-button class="title-btn" type="text">复制模板</el-button>
                         <div class="line"></div>
                         <el-button class="title-btn" type="text">修改</el-button>
@@ -53,14 +67,14 @@
     </div>
 </template>
 <script>
-import { queryFreightList, deleteFreight } from '@/api/freight';
+import { queryFreightList, deleteFreight, updateDefaultFreight } from '@/api/freight';
 import { formatMoney } from '@/plugin/tool';
 
 export default {
     data() {
         return {
             list: null,
-            total: 0
+            total: 0,
         };
     },
 
@@ -86,14 +100,19 @@ export default {
     methods: {
         formatMoney: formatMoney,
         getList() {
+            const rLoading = this.openLoading();
             queryFreightList()
                 .then(res => {
+                    rLoading.close();
                     console.log('GOOGLE: res', res);
                     this.list = res.data;
                 })
                 .catch(err => {});
         },
-        // 按钮- 删除
+
+        /**
+         * 删除 运费模版
+         */
         handleDelete(index, row){
             // 二次确认删除
             this.$confirm('确定要删除该模版吗？', '', {
@@ -103,8 +122,10 @@ export default {
             }).then(() => {
                 let params = {};
                 params['id'] = row.id;
-                deleteFreight()
+                const rLoading = this.openLoading();
+                deleteFreight(params)
                     .then(res => {
+                        rLoading.close();
                         if(res.code === 200){
                             this.$notify({
                                 title: '删除成功',
@@ -124,6 +145,34 @@ export default {
                     .catch(err => {});
             }).catch(() => {});
 
+        },
+
+        /**
+         * 设为默认
+         */
+        handleSetDefault(index, item){
+            let params = {};
+            params['id'] = item.id;
+            updateDefaultFreight(params)
+                .then(res => {
+                    if(res.code === 200){
+                        this.$notify({
+                            title: '操作成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        this.getList();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
+                    }
+                })
+                .catch(err => {});
         },
     }
 };
@@ -155,6 +204,51 @@ export default {
             border: 1px solid #bae7ff;
             background: #e6f7ff;
             color: rgba(0, 0, 0, 0.8);
+            .title-left{
+                display: flex;
+                align-items: center;
+                .name{
+                    font-size: 14px;
+                    font-family: PingFangSC-Semibold, PingFang SC;
+                    font-weight: 600;
+                    color: rgba(0, 0, 0, 0.8);
+                    line-height: 20px;
+                }
+                .is-default{
+                    width: 40px;
+                    height: 20px;
+                    background: #52C41A;
+                    border-radius: 11px;
+                    text-align: center;
+                    margin-left: 12px;
+                    font-size: 12px;
+                    font-family: PingFangSC-Regular, PingFang SC;
+                    font-weight: 400;
+                    color: #FFFFFF;
+                    line-height: 20px;
+                }
+                .is-free{
+                    margin-left: 30px;
+                    display: flex;
+                    align-items: center;
+                    .icon-tip{
+                        display: inline-block;
+                        width: 17px;
+                        height: 16px;
+                        background: url('../../../assets/img/Shape.png') no-repeat center center;
+                        background-size: 100%;
+                        vertical-align: text-bottom;
+                        margin-right: 5px;
+                    }
+                    .tip-text{
+                        font-size: 14px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        font-weight: 400;
+                        color: rgba(0, 0, 0, 0.8);
+                        line-height: 20px;
+                    }
+                }
+            }
             .btn {
                 display: flex;
                 align-items: center;

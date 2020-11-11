@@ -8,3 +8,6 @@ export const creatFreight = params => post('/backend/freight-create', params);
 
 // 删除运费模版
 export const deleteFreight = params => post('/backend/freight-delete', params);
+
+// 设为默认
+export const updateDefaultFreight = params => post('/backend/freight-default', params);
