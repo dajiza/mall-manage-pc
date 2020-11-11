@@ -7,7 +7,7 @@
             </router-link>
         </div>
         <div class="list">
-            <div class="item" v-for="item in list">
+            <div class="item" v-for="(item, index) in list" :key="item.id">
                 <div class="title">
                     <span class="name">{{ item.name }}</span>
                     <div class="btn">
@@ -15,34 +15,36 @@
                         <div class="line"></div>
                         <el-button class="title-btn" type="text">修改</el-button>
                         <div class="line"></div>
-                        <el-button class="title-btn" type="text">删除</el-button>
-                        <div class="line"></div>
+                        <el-button class="title-btn" type="text"
+                                   @click="handleDelete(index, item)">删除</el-button>
+                        <!--<div class="line"></div>-->
                     </div>
                 </div>
                 <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
                     <el-table-column label="运送到">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_name }}</span>
+                            <span v-if="scope.row.is_default === 2">默认其它</span>
+                            <span v-else>{{ backArea(scope.row.place) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="首件数(件)">
+                    <el-table-column label="首件数(件)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_name }}</span>
+                            <span>{{ scope.row.first_num }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="运费(元)">
+                    <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_name }}</span>
+                            <span>{{ scope.row.first_money }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="续件数(件)">
+                    <el-table-column label="续件数(件)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_name }}</span>
+                            <span>{{ scope.row.continue_num }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="运费(元)">
+                    <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_name }}</span>
+                            <span>{{ scope.row.continue_money }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -51,7 +53,7 @@
     </div>
 </template>
 <script>
-import { queryFreightList } from '@/api/freight';
+import { queryFreightList, deleteFreight } from '@/api/freight';
 import { formatMoney } from '@/plugin/tool';
 
 export default {
@@ -66,6 +68,21 @@ export default {
     mounted() {
         this.getList();
     },
+    computed:{
+        backArea: function () {
+            return (data) => {
+                let includeArea = '',includeAreaArr = [];
+
+                if(data){
+                    data.forEach((ev)=>{
+                        includeAreaArr.push(ev.area_name);
+                    })
+                    includeArea = includeAreaArr.join(',');
+                }
+                return includeArea;
+            }
+        },
+    },
     methods: {
         formatMoney: formatMoney,
         getList() {
@@ -75,7 +92,39 @@ export default {
                     this.list = res.data;
                 })
                 .catch(err => {});
-        }
+        },
+        // 按钮- 删除
+        handleDelete(index, row){
+            // 二次确认删除
+            this.$confirm('确定要删除该模版吗？', '', {
+                customClass: 'message-delete',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                let params = {};
+                params['id'] = row.id;
+                deleteFreight()
+                    .then(res => {
+                        if(res.code === 200){
+                            this.$notify({
+                                title: '删除成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            });
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(err => {});
+            }).catch(() => {});
+
+        },
     }
 };
 </script>
@@ -109,6 +158,7 @@ export default {
             .btn {
                 display: flex;
                 align-items: center;
+                padding-right: 9px;
                 .title-btn {
                     color: rgba(0, 0, 0, 0.65);
                 }
