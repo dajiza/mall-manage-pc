@@ -70,6 +70,21 @@ export default {
                 },
                 {
                     icon: 'el-icon-rank',
+                    name: 'goods-management',
+                    display_name: '商品管理',
+                    subs: [
+                        {
+                            name: 'otherCategory',
+                            display_name: '其它商品分类'
+                        },
+                        {
+                            name: 'goodsLabel',
+                            display_name: '商品标签'
+                        }
+                    ]
+                },
+                {
+                    icon: 'el-icon-rank',
                     name: 'after-sale-management',
                     display_name: '售后',
                     subs: [

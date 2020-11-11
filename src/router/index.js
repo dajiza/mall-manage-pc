@@ -34,6 +34,17 @@ export default new Router({
                     meta: { title: '售后申请详情' }
                 },
                 {
+                    path: '/otherCategory',
+                    name: 'otherCategory',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/other-category/otherCategory.vue'),
+                    meta: { title: '其它商品分类' }
+                },
+                {
+                    path: '/goodsLabel',
+                    component: () => import(/* webpackChunkName: "table" */ '../components/page/goods-label/goodsLabel.vue'),
+                    meta: { title: '商品标签', name: 'goodsLabel' }
+                },
+                {
                     path: '/product-list',
                     component: () => import(/* webpackChunkName: "table" */ '../components/page/cargo-management/product-list/ProductList.vue'),
                     meta: { title: '产品列表', name: 'productList' }
