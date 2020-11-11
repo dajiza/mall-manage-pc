@@ -58,7 +58,7 @@
                             {{ index }}
                             <el-checkbox v-model="checkListNum[index]"></el-checkbox>
                             <div class="city">
-                                {{ item.place.map(item => item.area_name).join('、') }}
+                                {{ item.place.map(item => item.area_name).join('、') || '未添加地区' }}
                             </div>
                             <el-button class="" type="text">编辑</el-button>
                         </div>
@@ -154,15 +154,15 @@ export default {
             isMultipleOperate: true,
             checkListNum: [false],
             // 空白
-            detailBlank: {
-                is_default: 1,
-                is_free: 0,
-                first_num: 0,
-                first_money: 0,
-                continue_num: 0,
-                continue_money: 0,
-                place: []
-            },
+            // detailBlank: {
+            //     is_default: 1,
+            //     is_free: 0,
+            //     first_num: 0,
+            //     first_money: 0,
+            //     continue_num: 0,
+            //     continue_money: 0,
+            //     place: []
+            // },
             info: {
                 name: '我的模版6677',
                 is_default: 1,
@@ -254,9 +254,25 @@ export default {
         // 批量删除
         deleteMultiple(index) {
             console.log('GOOGLE: this.checkListNum', this.checkListNum);
+            for (let i = 0; i < this.checkListNum.length; i++) {
+                const element = this.checkListNum[i];
+                if (element) {
+                    this.info.detail.splice(i, 1);
+                    this.checkListNum.splice(i, 1);
+                    i--;
+                }
+            }
         },
         addDefault() {
-            this.info.detail.push(this.detailBlank);
+            this.info.detail.push({
+                is_default: 1,
+                is_free: 0,
+                first_num: 0,
+                first_money: 0,
+                continue_num: 0,
+                continue_money: 0,
+                place: []
+            });
             this.checkListNum.push(false);
         }
     }
@@ -271,9 +287,7 @@ export default {
 .freight-form {
     padding: 40px;
     background: #fff;
-    .el-form-item {
-        margin-bottom: 0;
-    }
+
     .default {
         display: flex;
         align-items: center;
@@ -281,6 +295,9 @@ export default {
         // height: 50px;
         background: #ebf4ff;
         box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+        .el-form-item {
+            margin-bottom: 0;
+        }
 
         & /deep/ .el-form-item__error {
             margin-left: 10px;
@@ -300,6 +317,9 @@ export default {
         }
     }
     .table {
+        .el-form-item {
+            margin-bottom: 0;
+        }
         .th {
             display: flex;
             align-items: center;
