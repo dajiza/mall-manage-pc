@@ -76,6 +76,14 @@ export default {
                     display_name: '商品管理',
                     subs: [
                         {
+                            name: 'otherCategory',
+                            display_name: '其它商品分类'
+                        },
+                        {
+                            name: 'goodsLabel',
+                            display_name: '商品标签'
+                        },
+                        {
                             name: 'freight',
                             display_name: '运费模板'
                         }
