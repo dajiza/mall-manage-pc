@@ -18,6 +18,9 @@ import commUtil from './utils/commUtil';
 import { signOut } from './utils/loginOut';
 import 'default-passive-events';
 import TableHeaderColor from './plugin/tableHeader'; // 引入
+//引入lodash
+import _ from 'lodash';
+Vue.prototype._ = _;
 Vue.use(TableHeaderColor); // 添加
 import less from 'less';
 Vue.use(less);

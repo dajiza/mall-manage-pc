@@ -34,6 +34,7 @@ export default new Router({
                 },
                 {
                     path: '/freightCreat',
+                    name: 'freightCreat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freightCreat.vue'),
                     meta: { title: '新增模板', name: 'freightCreat' }
                 },

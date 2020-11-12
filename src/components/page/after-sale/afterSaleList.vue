@@ -229,7 +229,6 @@ export default {
 
         gotoDetail(id) {
             this.$router.push({
-                // path: '/goods/goods_edit',
                 name: 'afterSaleDetail',
                 params: {
                     id: id

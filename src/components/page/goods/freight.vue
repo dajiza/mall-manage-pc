@@ -12,25 +12,19 @@
                     <div class="title-left">
                         <span class="name">{{ item.name }}</span>
                         <div class="is-default" v-show="item.is_default === 2">默认</div>
-                        <div class="is-free" v-show="item.is_free === 2">
+                        <div class="is-free" v-show="item.is_free === 1 && item.is_strategy === 2">
                             <div class="icon-tip"></div>
                             <span class="tip-text">指定条件包邮</span>
                         </div>
                     </div>
                     <div class="btn">
-                        <el-button
-                                class="title-btn"
-                                type="text"
-                                v-show="item.is_default !== 2"
-                                @click="handleSetDefault(index, item)"
-                        >设为默认</el-button>
+                        <el-button class="title-btn" type="text" v-show="item.is_default !== 2" @click="handleSetDefault(index, item)">设为默认</el-button>
                         <div class="line" v-show="item.is_default !== 2"></div>
-                        <el-button class="title-btn" type="text">复制模板</el-button>
+                        <el-button class="title-btn" type="text" @click="copy(item.id)">复制模板</el-button>
                         <div class="line"></div>
-                        <el-button class="title-btn" type="text">修改</el-button>
+                        <el-button class="title-btn" type="text" @click="edit(item.id)">修改</el-button>
                         <div class="line"></div>
-                        <el-button class="title-btn" type="text"
-                                   @click="handleDelete(index, item)">删除</el-button>
+                        <el-button class="title-btn" type="text" @click="handleDelete(index, item)">删除</el-button>
                         <!--<div class="line"></div>-->
                     </div>
                 </div>
@@ -74,7 +68,7 @@ export default {
     data() {
         return {
             list: null,
-            total: 0,
+            total: 0
         };
     },
 
@@ -82,20 +76,21 @@ export default {
     mounted() {
         this.getList();
     },
-    computed:{
-        backArea: function () {
-            return (data) => {
-                let includeArea = '',includeAreaArr = [];
+    computed: {
+        backArea: function() {
+            return data => {
+                let includeArea = '',
+                    includeAreaArr = [];
 
-                if(data){
-                    data.forEach((ev)=>{
+                if (data) {
+                    data.forEach(ev => {
                         includeAreaArr.push(ev.area_name);
-                    })
+                    });
                     includeArea = includeAreaArr.join(',');
                 }
                 return includeArea;
-            }
-        },
+            };
+        }
     },
     methods: {
         formatMoney: formatMoney,
@@ -109,55 +104,74 @@ export default {
                 })
                 .catch(err => {});
         },
+        edit(id) {
+            this.$router.push({
+                name: 'freightCreat',
+                params: {
+                    id: id
+                }
+            });
+        },
+        copy(id) {
+            this.$router.push({
+                name: 'freightCreat',
+                params: {
+                    id: id,
+                    mark: 'copy'
+                }
+            });
+        },
 
         /**
          * 删除 运费模版
          */
-        handleDelete(index, row){
+        handleDelete(index, row) {
             // 二次确认删除
             this.$confirm('确定要删除该模版吗？', '', {
                 customClass: 'message-delete',
                 type: 'warning',
                 center: true
-            }).then(() => {
-                let params = {};
-                params['id'] = row.id;
-                const rLoading = this.openLoading();
-                deleteFreight(params)
-                    .then(res => {
-                        rLoading.close();
-                        if(res.code === 200){
-                            this.$notify({
-                                title: '删除成功',
-                                message: '',
-                                type: 'success',
-                                duration: 3000
-                            });
-                        } else {
-                            this.$notify({
-                                title: res.msg,
-                                message: '',
-                                type: 'error',
-                                duration: 5000
-                            });
-                        }
-                    })
-                    .catch(err => {});
-            }).catch(() => {});
-
+            })
+                .then(() => {
+                    let params = {};
+                    params['id'] = row.id;
+                    const rLoading = this.openLoading();
+                    deleteFreight(params)
+                        .then(res => {
+                            rLoading.close();
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '删除成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                });
+                                this.getList();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                });
+                            }
+                        })
+                        .catch(err => {});
+                })
+                .catch(() => {});
         },
 
         /**
          * 设为默认
          */
-        handleSetDefault(index, item){
+        handleSetDefault(index, item) {
             let params = {
                 is_default: 2
             };
             params['id'] = item.id;
             updateDefaultFreight(params)
                 .then(res => {
-                    if(res.code === 200){
+                    if (res.code === 200) {
                         this.$notify({
                             title: '操作成功',
                             message: '',
@@ -175,7 +189,7 @@ export default {
                     }
                 })
                 .catch(err => {});
-        },
+        }
     }
 };
 </script>
@@ -206,47 +220,47 @@ export default {
             border: 1px solid #bae7ff;
             background: #e6f7ff;
             color: rgba(0, 0, 0, 0.8);
-            .title-left{
+            .title-left {
                 display: flex;
                 align-items: center;
-                .name{
+                .name {
+                    color: rgba(0, 0, 0, 0.8);
+                    font-weight: 600;
                     font-size: 14px;
                     font-family: PingFangSC-Semibold, PingFang SC;
-                    font-weight: 600;
-                    color: rgba(0, 0, 0, 0.8);
                     line-height: 20px;
                 }
-                .is-default{
+                .is-default {
+                    margin-left: 12px;
                     width: 40px;
                     height: 20px;
-                    background: #52C41A;
                     border-radius: 11px;
+                    background: #52c41a;
+                    color: #ffffff;
                     text-align: center;
-                    margin-left: 12px;
+                    font-weight: 400;
                     font-size: 12px;
                     font-family: PingFangSC-Regular, PingFang SC;
-                    font-weight: 400;
-                    color: #FFFFFF;
                     line-height: 20px;
                 }
-                .is-free{
-                    margin-left: 30px;
+                .is-free {
                     display: flex;
                     align-items: center;
-                    .icon-tip{
+                    margin-left: 30px;
+                    .icon-tip {
                         display: inline-block;
+                        margin-right: 5px;
                         width: 17px;
                         height: 16px;
                         background: url('../../../assets/img/Shape.png') no-repeat center center;
                         background-size: 100%;
                         vertical-align: text-bottom;
-                        margin-right: 5px;
                     }
-                    .tip-text{
+                    .tip-text {
+                        color: rgba(0, 0, 0, 0.8);
+                        font-weight: 400;
                         font-size: 14px;
                         font-family: PingFangSC-Regular, PingFang SC;
-                        font-weight: 400;
-                        color: rgba(0, 0, 0, 0.8);
                         line-height: 20px;
                     }
                 }

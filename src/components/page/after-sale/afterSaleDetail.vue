@@ -326,7 +326,7 @@ export default {
     },
 
     created() {
-        this.id = this.$route.params.id || 54;
+        this.id = this.$route.params.id;
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
         this.header['token'] = getToken();
