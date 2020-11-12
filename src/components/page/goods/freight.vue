@@ -151,7 +151,9 @@ export default {
          * 设为默认
          */
         handleSetDefault(index, item){
-            let params = {};
+            let params = {
+                is_default: 2
+            };
             params['id'] = item.id;
             updateDefaultFreight(params)
                 .then(res => {

@@ -85,7 +85,7 @@
 </template>
 <script>
 // import './OperationRecord.less';
-import { getGoodsList } from '../../../../api/productList';
+// import { getGoodsList } from '../../../../api/productList';
 import { getOrderErrProcess } from '../../../../api/orderList';
 import EmptyList from '../../../common/empty-list/EmptyList';
 export default {

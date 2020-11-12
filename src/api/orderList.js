@@ -1,8 +1,4 @@
-import {
-    get,
-    post,
-    put
-} from './util';
+import { get, post, put } from './util';
 
 // 订单列表
 export const getOrderList = params => post('/backend/order-list', params)

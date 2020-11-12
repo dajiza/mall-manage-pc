@@ -272,7 +272,7 @@
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import Adjustment from './AdjustmentModule';
-    import { getGoodsList } from '../../../../api/productList';
+    // import { getGoodsList } from '../../../../api/productList';
     export default {
         name: 'OrderDetail',
         data() {

@@ -1,46 +1,18 @@
 <template>
     <div class="sidebar">
+        <div class="logo">
+            <img class="menu-logo" src="../../assets/img/menu-logo.svg" />
+            <span class="marginLeft10" v-show="!collapse">川水商城管理系统</span>
+        </div>
         <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router>
-            <!--<template v-for="item in items">
-                <template v-if="item.subs">
-                    <el-submenu :index="item.name" :key="item.name">
-                        <template slot="title">
-                            <i :class="item.icon"></i>
-                            <span slot="title">{{ item.title }}</span>
-                        </template>
-                        <template v-for="subItem in item.subs">
-                            <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
-                                <template slot="title">{{ subItem.title }}</template>
-                                <el-menu-item v-for="(threeItem, i) in subItem.subs" :key="i" :index="threeItem.index">{{
-                                    threeItem.title
-                                }}</el-menu-item>
-                            </el-submenu>
-                            <el-menu-item v-else :index="subItem.index" :key="subItem.index">{{ subItem.title }}</el-menu-item>
-                        </template>
-                    </el-submenu>
-                </template>
-                <template v-else>
-                    <el-menu-item :index="item.index" :key="item.index">
-                        <i :class="item.icon"></i>
-                        <span slot="title">{{ item.title }}</span>
-                    </el-menu-item>
-                </template>
-            </template>-->
             <template v-for="item in items">
                 <template v-if="item.subs">
                     <el-submenu :index="item.name" :key="item.name">
                         <template slot="title">
                             <i :class="item.icon"></i>
-                            <!-- <i :class="back_icon(item.display_name)"></i> -->
-                            <span slot="title">{{ item.display_name }}</span>
+                            <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
                         </template>
                         <template v-for="subItem in item.subs">
-                            <!--<el-submenu v-if="subItem.subs" :index="subItem.name" :key="subItem.name">
-                                <template slot="title">{{ subItem.display_name }}</template>
-                                <el-menu-item v-for="(threeItem, i) in subItem.subs" :key="i" :index="threeItem.name">{{
-                                    threeItem.display_name
-                                    }}</el-menu-item>
-                            </el-submenu>-->
                             <el-menu-item :index="subItem.name" :key="subItem.index">{{ subItem.display_name }}</el-menu-item>
                         </template>
                     </el-submenu>
@@ -48,7 +20,7 @@
                 <template v-else>
                     <el-menu-item :index="item.name" :key="item.name">
                         <i :class="item.icon"></i>
-                        <span slot="title">{{ item.display_name }}</span>
+                        <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
                     </el-menu-item>
                 </template>
             </template>
@@ -79,13 +51,17 @@ export default {
                             name: 'otherCategory',
                             display_name: '其它商品分类'
                         },
-                        {
+                        /*{
                             name: 'goodsLabel',
                             display_name: '商品标签'
-                        },
+                        },*/
                         {
                             name: 'freight',
                             display_name: '运费模板'
+                        },
+                        {
+                            name:'customAttributes',
+                            display_name: '自定义属性'
                         }
                     ]
                 },
@@ -101,22 +77,6 @@ export default {
                         {
                             name: 'afterSaleList',
                             display_name: '售后处理申请'
-                        },
-                        {
-                            name: 'cut-cloth',
-                            display_name: '裁布'
-                        },
-                        {
-                            name: 'distribution',
-                            display_name: '配货管理'
-                        },
-                        {
-                            name: 'order-delivery',
-                            display_name: '打单发货'
-                        },
-                        {
-                            name: 'order-sent',
-                            display_name: '已发订单'
                         }
                     ]
                 },
@@ -136,10 +96,6 @@ export default {
                         {
                             name: 'authority-management',
                             display_name: '权限管理'
-                        },
-                        {
-                            name: 'parameter-configuration',
-                            display_name: '参数配置'
                         }
                     ]
                 }
@@ -152,24 +108,6 @@ export default {
         onRoutes() {
             return this.$route.path.replace('/', '');
         },
-        back_icon: function() {
-            return data => {
-                let icon_class = '';
-                if (data) {
-                    if (data === '货物管理') {
-                        icon_class = 'menu-cargo-icon';
-                    } else if (data === '货架管理') {
-                        icon_class = 'menu-shelf-icon';
-                    } else if (data === '订单管理') {
-                        icon_class = 'menu-order-icon';
-                    } else if (data === '系统设置') {
-                        icon_class = 'menu-setting-icon';
-                    }
-
-                    return icon_class;
-                }
-            };
-        }
     },
     created() {
         // 通过 Event Bus 进行组件间通信，来折叠侧边栏
@@ -190,7 +128,7 @@ export default {
                     new_arr.splice(index, 1);
                 }
             });
-            new_arr.unshift({ icon: 'el-icon-s-home', name: 'dashboard', display_name: '系统首页' });
+            new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });
             this.items = new_arr;
         }
     },
@@ -236,15 +174,15 @@ export default {
 <style>
 .sidebar {
     position: absolute;
-    top: 60px;
+    top: 0;
     bottom: 0;
     left: 0;
     z-index: 1;
     display: block;
     overflow-y: scroll;
     /* width: 208px; */
-    background: #001529 !important;
-    box-shadow: 2px 0px 6px 0px rgba(0, 21, 41, 0.35) !important;
+    background: #FFFFFF !important;
+    box-shadow: 2px 0 6px 0 rgba(0, 21, 41, 0.12) !important;
 }
 .sidebar::-webkit-scrollbar {
     width: 0;
@@ -253,51 +191,8 @@ export default {
     width: 208px;
 }
 .sidebar > ul {
-    height: 100%;
-    background: #001529 !important;
-    box-shadow: 2px 0px 6px 0px rgba(0, 21, 41, 0.35) !important;
-}
-.menu-cargo-icon,
-.menu-shelf-icon,
-.menu-order-icon,
-.menu-setting-icon {
-    display: inline-block;
-    margin-right: 5px;
-    width: 16px;
-    height: 16px;
-    background-size: 100%;
-}
-.is-opened .menu-cargo-icon,
-.el-submenu__title:hover .menu-cargo-icon {
-    background: url('../../assets/img/menu-icon/menu-cargo-icon.svg') no-repeat 50%;
-}
-.menu-cargo-icon {
-    background: url('../../assets/img/menu-icon/menu-product.svg') no-repeat 50%;
-}
-.menu-shelf-icon {
-    background: url('../../assets/img/menu-icon/menu-shelf-icon.svg') no-repeat 50%;
-}
-.is-opened .menu-shelf-icon,
-.el-submenu__title:hover .menu-shelf-icon {
-    background: url('../../assets/img/menu-icon/menu-shelf-close.svg') no-repeat 50%;
-}
-.menu-order-icon {
-    background: url('../../assets/img/menu-icon/menu-order-icon.svg') no-repeat 50%;
-}
-.is-opened .menu-order-icon,
-.el-submenu__title:hover .menu-order-icon {
-    background: url('../../assets/img/menu-icon/menu-order-close.svg') no-repeat 50%;
-}
-.menu-setting-icon {
-    background: url('../../assets/img/menu-icon/menu-setting-icon.svg') no-repeat 50%;
-}
-.is-opened .menu-setting-icon,
-.el-submenu__title:hover .menu-setting-icon {
-    background: url('../../assets/img/menu-icon/menu-setting-close.svg') no-repeat 50%;
-}
-
-.el-submenu.is-active .el-submenu__title {
-    /*border-bottom-color: #409EFF;*/
+    height: calc(100% - 60px);
+    background: #FFFFFF !important;
 }
 
 .el-submenu__title,
@@ -305,54 +200,95 @@ export default {
     box-sizing: content-box !important;
     margin-bottom: 4px !important;
     height: 40px !important;
-    color: rgba(255, 255, 255, 0.65) !important;
+    color: rgba(0,0,0,.65) !important;
     line-height: 40px !important;
 }
 .el-menu-item {
-    border-top: 4px solid #000d17;
-    background: #000d17 !important;
+    margin-top: 4px;
+}
+.el-menu-item:first-child{
+    margin-top: 0;
 }
 .el-submenu__title {
     padding: 0 16px !important;
-    border-top: 4px solid #001529;
-    background: #001529 !important;
+    border-top: 4px solid #fff;
+    background: #fff !important;
 }
 .sidebar-el-menu > .el-menu-item:first-child {
     padding: 0 16px !important;
     border-top: none !important;
-    background: #001529 !important;
+    /*background: #fff !important;*/
 }
 .sidebar-el-menu > .el-menu-item.is-active:first-child {
-    background: #1890ff !important;
+    background: #fff !important;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+}
+.sidebar-el-menu > .el-menu-item:first-child:not(.is-active):focus,
+.sidebar-el-menu > .el-menu-item:first-child:not(.is-active):hover {
+    color: #1890FF !important;
 }
 .sidebar-el-menu > .el-menu-item:first-child i {
     width: 16px;
     font-size: 16px;
 }
 .el-menu-item.is-active {
-    background-color: #1890ff !important;
-    color: #fff !important;
+    background-color: #E6F7FF !important;
+    color: #1890FF !important;
+    position: relative;
+    border-right: 2px solid #1890FF;
 }
 .el-menu-item:not(.is-active):focus,
 .el-menu-item:not(.is-active):hover {
-    background-color: #0b253d !important;
-    color: #fff !important;
+    background-color: #F2FBFF !important;
+    color: rgba(0,0,0,.65) !important;
 }
 .el-menu-item:hover i {
     color: inherit !important;
 }
 .el-submenu__title:hover {
-    background-color: #0b253d !important;
+    color: rgba(0,0,0,.65) !important;
+    background-color: #F2FBFF !important;
 }
 .el-submenu__title:hover,
 .el-submenu__title:hover i,
 .is-opened .el-submenu__title,
 .is-opened .el-submenu__title i {
-    /*background-color: rgb(50, 65, 87)!important;*/
-    color: #fff !important;
+    color: #1890FF !important;
+    font-family: PingFangSC-Medium, PingFang SC;
+    font-weight: 500;
+}
+.is-active .el-submenu__title i{
+    color: #1890FF !important;
 }
 .el-menu,
 .is-opened .el-menu {
-    background-color: #000d17 !important;
+    background-color: #fff !important;
+}
+.el-menu{
+    border-right: none;
+}
+.marginLeft10{
+    margin-left: 10px;
+}
+.el-submenu .el-menu-item{
+    min-width: 0;
+}
+.logo{
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    padding-left: 14px;
+    /*width: 208px;*/
+    height: 60px;
+    background-color: #fff;
+    color: #002140;
+    font-size: 17px;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
+    line-height: 60px;
+}
+.el-submenu.is-active .el-submenu__title{
+    color: #1890FF !important;
 }
 </style>

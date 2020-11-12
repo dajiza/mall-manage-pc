@@ -1,13 +1,9 @@
 <template>
     <div class="header">
         <!-- 折叠按钮 -->
-        <div class="collapse-btn" @click="collapseChage">
+        <div class="collapse-btn" :class="{'left64':collapse}" @click="collapseChage">
             <i v-if="!collapse" class="el-icon-s-fold"></i>
             <i v-else class="el-icon-s-unfold"></i>
-        </div>
-        <div class="logo">
-            <img class="menu-logo" src="../../assets/img/menu-logo.svg" />
-            川水商城管理系统
         </div>
         <div class="header-right">
             <div class="header-user-con">
@@ -41,9 +37,6 @@
                         <i class="el-icon-caret-bottom"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
-                        <!--a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
-                            <el-dropdown-item>项目仓库</el-dropdown-item>
-                        </a>-->
                         <el-dropdown-item divided command="updatePassword">修改密码</el-dropdown-item>
                         <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
@@ -230,11 +223,19 @@ export default {
 }
 .collapse-btn {
     position: absolute;
+    top: 0;
+    left: 208px;
     z-index: 10;
     float: left;
     padding: 0 21px;
     line-height: 48px !important;
     cursor: pointer;
+    background: #0b253d;
+    -webkit-transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out;
+}
+.left64{
+    left: 64px;
 }
 .header .logo {
     position: absolute;
@@ -247,9 +248,12 @@ export default {
     padding-left: 14px;
     width: 208px;
     height: 60px;
-    background-color: #001529;
-    box-shadow: 2px 0px 6px 0px rgba(0, 21, 41, 0.35);
+    background-color: #fff;
+    box-shadow: 2px 0px 6px 0px rgba(0, 21, 41, 0.12);
+    color: #002140;
     font-size: 17px;
+    font-family: PingFangSC-Semibold, PingFang SC;
+    font-weight: 600;
     line-height: 60px;
 }
 .header .logo .menu-logo {

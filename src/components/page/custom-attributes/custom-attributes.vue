@@ -4,22 +4,17 @@
             <div class="global-table-title">
                 <div class="title">
                     <i></i>
-                    <span>其他商品分类</span>
+                    <span>自定义属性</span>
                 </div>
-                <el-button type="primary" v-hasPermission="'category-add'" @click="handleCreateAuthority">新增分类</el-button>
+                <el-button type="primary" v-hasPermission="'category-add'" @click="handleCreateAuthority">新增属性</el-button>
             </div>
             <el-table
                     :data="tableData"
                     style="width: 100%"
             >
-                <el-table-column label="图片" width="140">
+                <el-table-column label="自定义属性名称">
                     <template slot-scope="scope">
-                        <img class="product-img" :src="getImg(scope.row.category_img)" alt="" @click="viewBigImg(scope.row.category_img)">
-                    </template>
-                </el-table-column>
-                <el-table-column label="分类名称" prop="display_name">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.name}}</span>
+                        <span>{{scope.row.title}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="160" align="left">
@@ -50,32 +45,8 @@
         <el-dialog :title="formTitle" :visible.sync="editVisible" width="380px"
                    :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
             <el-form ref="formBox" :model="form" :rules="rules" label-width="90px">
-                <el-form-item label="类别名称:" prop="name">
-                    <el-input placeholder="请输入" autofocus="autofocus" v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="上传图片:" style="width:160px;height: 160px">
-                    <el-upload
-                            class="avatar-uploader"
-                            :action="uploadImgUrl"
-                            :on-success="handleAvatarSuccess"
-                            :on-error="uploadError"
-                            :before-upload="beforeAvatarUpload"
-                            :on-remove="handleRemove"
-                            :show-file-list="false"
-                            :headers="header"
-                    >
-                        <img
-                                v-if="imageUrl"
-                                :src="imageUrl"
-                                class="avatar"
-                        />
-                        <div v-else class="avatar-uploader-icon">
-                            <div class="avatar-wrap">
-                                <img src="../../../assets/img/Icon-Plus.svg" alt="">
-                            </div>
-                            <span class="add-img-text">上传图片</span>
-                        </div>
-                    </el-upload>
+                <el-form-item label="属性名称:" prop="title">
+                    <el-input placeholder="请输入" autofocus="autofocus" v-model="form.title"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -83,24 +54,15 @@
                 <el-button type="primary" @click="saveEdit">确 定</el-button>
             </span>
         </el-dialog>
-        <!--大图预览-->
-        <transition name="el-fade-in-linear">
-            <el-image-viewer
-                    v-if="dialogVisible"
-                    :on-close="closeViewer"
-                    :url-list="imgSrcList" />
-        </transition>
     </div>
 </template>
 
 <script>
-    import {queryCategoryList, addCategory, editCategory, deleteCategory} from '../../../api/otherCategory';
+    import {queryCustomAttrList, addCustomAttr, editCustomAttr, deleteCustomAttr} from '../../../api/customAttributes';
     import EmptyList from '../../common/empty-list/EmptyList';
-    import './otherCategory.less';
-    import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
-    import { getToken } from '../../../utils/auth';
+    import './custom-attributes.less';
     export default {
-        name: 'otherCategory',
+        name: 'customAttributes',
         data() {
             return {
                 pageIndex: 1,
@@ -110,10 +72,10 @@
                 tableData: [],
                 editVisible: false,
                 form: {
-                    name: '',
+                    title: '',
                 },
                 rules: {
-                    name: [
+                    title: [
                         { required: true, message: '请输入类别名称', trigger: 'blur' },
                         { max: 100, message: '最多输入100个字符', trigger: 'blur' }
                     ]
@@ -121,50 +83,28 @@
                 formTitle: '',
                 current_id:-1,
                 tableHeight: 'calc(100% - 62px - 26px)',
-                uploadImgUrl:'',  //   图片上传地址
-                back_img_url:'',  //   上传后台返回图片地址（不完整）
-                header:{},
-                token:'',
-                imageUrl: '',  // 展示小图 （可访问，尺寸限制240）
-                completeImageUrl:'',  // 完整图片url（可访问，不加尺寸限制）
-                dialogVisible: false,
-                imgSrcList:[],
             };
         },
-        components: {
-            EmptyList,
-            ElImageViewer
+        components:{
+            EmptyList
         },
         created() {
-            // 图片上传地址
-            this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
-            this.token = getToken();
-            this.header['token'] = getToken();
+
         },
         mounted() {
-            // 获取 分类列表数据
+            // 获取 属性列表数据
             this.getData();
-        },
-        computed: {
-            //  拼接图片地址
-            getImg: function () {
-                return (data) => {
-                    if(data){
-                        return data + '!/fw/' + 80;
-                    }
-                }
-            },
         },
         methods: {
 
-            // 获取 分类列表数据
+            // 获取 属性列表数据
             getData() {
                 let params = {
                     page: this.pageIndex,
                     limit: this.pageLimit
                 };
                 const rLoading = this.openLoading();
-                queryCategoryList(params).then(res => {
+                queryCustomAttrList(params).then(res => {
                     rLoading.close();
                     if(res.code === 200){
                         if(res.data){
@@ -185,25 +125,22 @@
                 });
             },
 
-            // 按钮-新增分类
+            // 按钮-新增属性
             handleCreateAuthority() {
-                this.formTitle = '新增分类';
-                this.imageUrl = '';
+                this.formTitle = '新增属性';
                 this.editVisible = true;
                 this.$nextTick(()=>{
                     let new_obj = {};
-                    new_obj['name'] = '';
+                    new_obj['title'] = '';
                     // 触发更新
                     this.form = Object.assign({}, this.form,new_obj);
                 })
             },
 
-            // 按钮-编辑分类/编辑下级
+            // 按钮-编辑
             handleEdit(index, row) {
                 this.current_id = row.id;
-                this.completeImageUrl = row.category_img;
-                this.imageUrl = this.completeImageUrl + '!/fw/200';
-                this.formTitle = '编辑分类';
+                this.formTitle = '编辑属性';
                 this.editVisible = true;
                 this.$nextTick(()=> {
                     const new_obj = JSON.parse(JSON.stringify(row));
@@ -215,7 +152,7 @@
             // 按钮-删除操作
             handleDelete(index, row) {
                 // 二次确认删除
-                this.$confirm('确定要删除该分类吗？', '', {
+                this.$confirm('确定要删除该属性吗？', '', {
                     customClass: 'message-delete',
                     type: 'warning',
                     center: true
@@ -232,36 +169,24 @@
                 let request = {};
                 this.$refs['formBox'].validate(valid => {
                     if (valid) {
-                        // 新增分类
-                        if(this.completeImageUrl === ''){
-                            this.$notify({
-                                title: '请上传图片',
-                                message: '',
-                                type: 'error',
-                                duration: 3000
-                            });
-                            return false
+                        // 新增属性
+                        request['title'] = this.form.title;
+                        if (this.formTitle === '新增属性') {
+                            this.categoryAdd(request);
                         }else {
-                            request['name'] = this.form.name;
-                            request['category_img'] = this.completeImageUrl;
-                            if (this.formTitle === '新增分类') {
-                                this.categoryAdd(request);
-                            }else {
-                                request['id'] = this.current_id;
-                                this.categoryEdit(request);
-                            }
+                            request['id'] = this.current_id;
+                            this.categoryEdit(request);
                         }
-
                     } else {
                         return false;
                     }
                 });
             },
 
-            // 请求-新增分类
+            // 请求-新增属性
             categoryAdd(params){
                 const rLoading = this.openLoading();
-                addCategory(params).then(res => {
+                addCustomAttr(params).then(res => {
                     rLoading.close();
                     if(res.code === 200){
                         this.editVisible = false;
@@ -283,10 +208,10 @@
                 });
             },
 
-            // 请求-编辑分类
+            // 请求-编辑属性
             categoryEdit(params){
                 const rLoading = this.openLoading();
-                editCategory(params).then(res => {
+                editCustomAttr(params).then(res => {
                     rLoading.close();
                     if(res.code === 200){
                         this.editVisible = false;
@@ -308,10 +233,10 @@
                 });
             },
 
-            // 请求-删除分类
+            // 请求-删除属性
             categoryDelete(params){
                 const rLoading = this.openLoading();
-                deleteCategory(params).then(res => {
+                deleteCustomAttr(params).then(res => {
                     rLoading.close();
                     if(res.code === 200){
                         // 如果当前页大于1 且 当前页只有1条时  删除后 页码-1
@@ -343,66 +268,11 @@
                 this.editVisible = false;
             },
 
-            // 图片上传成功
-            handleAvatarSuccess(response, file) {
-                // this.imageUrl = URL.createObjectURL(file.raw);
-                this.uploadingTip.close();
-                if(response.code === 200){
-                    this.back_img_url = response.data.file_url;
-                    this.completeImageUrl = response.data.file_url;
-                    this.imageUrl = response.data.file_url + '!/fw/200';
-                    this.bigImgUrl = response.data.file_url + '!/fw/640';
-                }else {
-                    this.$notify({ title: response.msg, message: '', type: 'error', duration: 3000 });
-                }
-            },
-
-            // 上传失败
-            uploadError(){
-                this.uploadingTip.close();
-                this.$notify({ title: '上传失败', message: '', type: 'error', duration: 3000 });
-            },
-            // 图片上传前检测
-            beforeAvatarUpload(file) {
-                if(file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg'){
-                    this.uploadingTip = this.uploadLoading('上传中');
-                }else {
-                    this.$notify({
-                        title: '图片格式只支持JPG、PNG',
-                        message: '',
-                        type: 'error',
-                        duration: 3000
-                    });
-                    return false
-                }
-            },
-            handleRemove(file, fileList) {
-                this.imageUrl = '';
-            },
-
             // 按钮-分页导航
             handlePageChange(val) {
                 this.pageIndex = val;
                 this.getData();
             },
-
-            // 查看大图
-            viewBigImg(pic_url){
-                if(pic_url){
-                    this.bigImgUrl =  pic_url + '!/fw/640';
-                    // this.$refs.bigImg.show();
-                    this.imgSrcList = [];
-                    this.imgSrcList.push(this.bigImgUrl);
-                    this.dialogVisible = true;
-                }
-            },
-
-            // 关闭大图
-            closeViewer(){
-                this.dialogVisible = false;
-            }
-
-
         }
     };
 </script>
