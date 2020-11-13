@@ -48,6 +48,10 @@ export default {
                     display_name: '商品管理',
                     subs: [
                         {
+                            name: 'goodsList',
+                            display_name: '商品列表'
+                        },
+                        {
                             name: 'otherCategory',
                             display_name: '其它商品分类'
                         },
@@ -60,7 +64,7 @@ export default {
                             display_name: '运费模板'
                         },
                         {
-                            name:'customAttributes',
+                            name: 'customAttributes',
                             display_name: '自定义属性'
                         }
                     ]
@@ -107,7 +111,7 @@ export default {
     computed: {
         onRoutes() {
             return this.$route.path.replace('/', '');
-        },
+        }
     },
     created() {
         // 通过 Event Bus 进行组件间通信，来折叠侧边栏
@@ -181,7 +185,7 @@ export default {
     display: block;
     overflow-y: scroll;
     /* width: 208px; */
-    background: #FFFFFF !important;
+    background: #ffffff !important;
     box-shadow: 2px 0 6px 0 rgba(0, 21, 41, 0.12) !important;
 }
 .sidebar::-webkit-scrollbar {
@@ -192,7 +196,7 @@ export default {
 }
 .sidebar > ul {
     height: calc(100% - 60px);
-    background: #FFFFFF !important;
+    background: #ffffff !important;
 }
 
 .el-submenu__title,
@@ -200,13 +204,13 @@ export default {
     box-sizing: content-box !important;
     margin-bottom: 4px !important;
     height: 40px !important;
-    color: rgba(0,0,0,.65) !important;
+    color: rgba(0, 0, 0, 0.65) !important;
     line-height: 40px !important;
 }
 .el-menu-item {
     margin-top: 4px;
 }
-.el-menu-item:first-child{
+.el-menu-item:first-child {
     margin-top: 0;
 }
 .el-submenu__title {
@@ -221,60 +225,60 @@ export default {
 }
 .sidebar-el-menu > .el-menu-item.is-active:first-child {
     background: #fff !important;
-    font-family: PingFangSC-Medium, PingFang SC;
     font-weight: 500;
+    font-family: PingFangSC-Medium, PingFang SC;
 }
 .sidebar-el-menu > .el-menu-item:first-child:not(.is-active):focus,
 .sidebar-el-menu > .el-menu-item:first-child:not(.is-active):hover {
-    color: #1890FF !important;
+    color: #1890ff !important;
 }
 .sidebar-el-menu > .el-menu-item:first-child i {
     width: 16px;
     font-size: 16px;
 }
 .el-menu-item.is-active {
-    background-color: #E6F7FF !important;
-    color: #1890FF !important;
     position: relative;
-    border-right: 2px solid #1890FF;
+    border-right: 2px solid #1890ff;
+    background-color: #e6f7ff !important;
+    color: #1890ff !important;
 }
 .el-menu-item:not(.is-active):focus,
 .el-menu-item:not(.is-active):hover {
-    background-color: #F2FBFF !important;
-    color: rgba(0,0,0,.65) !important;
+    background-color: #f2fbff !important;
+    color: rgba(0, 0, 0, 0.65) !important;
 }
 .el-menu-item:hover i {
     color: inherit !important;
 }
 .el-submenu__title:hover {
-    color: rgba(0,0,0,.65) !important;
-    background-color: #F2FBFF !important;
+    background-color: #f2fbff !important;
+    color: rgba(0, 0, 0, 0.65) !important;
 }
 .el-submenu__title:hover,
 .el-submenu__title:hover i,
 .is-opened .el-submenu__title,
 .is-opened .el-submenu__title i {
-    color: #1890FF !important;
-    font-family: PingFangSC-Medium, PingFang SC;
+    color: #1890ff !important;
     font-weight: 500;
+    font-family: PingFangSC-Medium, PingFang SC;
 }
-.is-active .el-submenu__title i{
-    color: #1890FF !important;
+.is-active .el-submenu__title i {
+    color: #1890ff !important;
 }
 .el-menu,
 .is-opened .el-menu {
     background-color: #fff !important;
 }
-.el-menu{
+.el-menu {
     border-right: none;
 }
-.marginLeft10{
+.marginLeft10 {
     margin-left: 10px;
 }
-.el-submenu .el-menu-item{
+.el-submenu .el-menu-item {
     min-width: 0;
 }
-.logo{
+.logo {
     display: flex;
     align-items: center;
     box-sizing: border-box;
@@ -283,12 +287,12 @@ export default {
     height: 60px;
     background-color: #fff;
     color: #002140;
+    font-weight: 600;
     font-size: 17px;
     font-family: PingFangSC-Semibold, PingFang SC;
-    font-weight: 600;
     line-height: 60px;
 }
-.el-submenu.is-active .el-submenu__title{
-    color: #1890FF !important;
+.el-submenu.is-active .el-submenu__title {
+    color: #1890ff !important;
 }
 </style>

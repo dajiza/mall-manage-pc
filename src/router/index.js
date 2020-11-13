@@ -23,9 +23,9 @@ export default new Router({
                     meta: { title: '系统首页', name: 'dashboard' }
                 },
                 {
-                    path: '/afterSaleList',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/after-sale/afterSaleList.vue'),
-                    meta: { title: '售后申请处理', name: 'afterSaleList' }
+                    path: '/goodsList',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsList.vue'),
+                    meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
                     path: '/freight',
@@ -37,6 +37,11 @@ export default new Router({
                     name: 'freightCreat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freightCreat.vue'),
                     meta: { title: '新增模板', name: 'freightCreat' }
+                },
+                {
+                    path: '/afterSaleList',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/after-sale/afterSaleList.vue'),
+                    meta: { title: '售后申请处理', name: 'afterSaleList' }
                 },
                 {
                     path: '/afterSaleDetail',
