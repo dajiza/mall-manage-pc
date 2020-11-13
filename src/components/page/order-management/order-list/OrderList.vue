@@ -7,7 +7,7 @@
                     <el-form-item label="订单号：" prop="order_no" class="marginRight55">
                         <el-input v-model="searchForm.order_no" placeholder="请输入"></el-input>
                     </el-form-item>
-                    <el-form-item label="订单状态：" prop="status" class="marginRight55">
+                    <el-form-item label="订单状态：" prop="status" class="marginRight55 select-input">
                         <el-select v-model="searchForm.status" placeholder="请选择" clearable>
                             <el-option
                                     v-for="state in orderStatusOptions"
@@ -27,7 +27,7 @@
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="购买渠道：" prop="channel_id" class="margin-right0 select-input">
+                    <el-form-item label="购买渠道：" prop="channel_id" class="marginRight55 select-input">
                         <el-select v-model="searchForm.channel_id" placeholder="请选择" clearable>
                             <el-option
                                     v-for="state in channelOptions"
@@ -42,20 +42,20 @@
                     <el-form-item label="收货人姓名：" prop="logistics_name" class="marginRight55 w152">
                         <el-input v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
                     </el-form-item>
-                    <el-form-item label="代理店铺：" prop="shop_id" class="marginRight55">
-                        <el-select v-model="searchForm.shop_id" placeholder="请选择" clearable>
+                    <el-form-item label="异常类型：" prop="unusual_type" class="marginRight55 select-input">
+                        <el-select v-model="searchForm.unusual_type" placeholder="请选择" clearable>
                             <el-option
-                                    v-for="state in shopOptions"
+                                    v-for="state in unusualTypeOptions"
                                     :key="state.id"
                                     :value="state.id"
                                     :label="state.name"
                             />
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="异常类型：" prop="unusual_type" class="marginRight55 select-input">
-                        <el-select v-model="searchForm.unusual_type" placeholder="请选择" clearable>
+                    <el-form-item label="代理店铺：" prop="shop_id" class="margin-right0 select-input">
+                        <el-select v-model="searchForm.shop_id" placeholder="请选择" clearable>
                             <el-option
-                                    v-for="state in unusualTypeOptions"
+                                    v-for="state in shopOptions"
                                     :key="state.id"
                                     :value="state.id"
                                     :label="state.name"
@@ -102,20 +102,31 @@
                     v-loading="loading"
                     :data="tableData"
                     ref="multipleTable"
+                    class="order-list-table"
             >
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
-                        <el-button type="primary" v-hasPermission="'order-detail'" @click="handleViewDetail(scope.$index,scope.row)">查看</el-button>
+                        <el-button
+                                type="text"
+                                class="view-detail" v-hasPermission="'order-cut-list'"
+                                @click="handleViewDetail(scope.$index, scope.row)"
+                        >查看</el-button>
+                        <el-button
+                                type="text"
+                                class="cancel-order delete-color" v-hasPermission="'order-cut-list'"
+                                @click="handleViewDetail(scope.$index, scope.row)"
+                                v-show="scope.row.status === 0"
+                        >取消订单</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column prop="order_no" label="订单号" width="180"></el-table-column>
+                <el-table-column prop="order_no" label="订单号" width="220"></el-table-column>
                 <el-table-column prop="status" label="订单状态" width="150">
                     <template slot-scope="scope">
                         <span class="order-status" :class="orderStatusClass(scope.row.status)"
                         >{{orderStatus(scope.row.status)}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="err_type" label="异常类型" width="150">
+                <el-table-column prop="err_type" label="异常类型" width="160">
                     <template slot-scope="scope">
                         {{order_err(scope.row.err_type)}}
                     </template>
@@ -124,25 +135,29 @@
                 <el-table-column prop="shop_name" label="代理店铺" width="200"></el-table-column>
                 <el-table-column prop="price_total" label="订单总计(元)" width="120">
                     <template slot-scope="scope">
-                        {{order_err(scope.row.price_total/100)}}
+                        {{(scope.row.price_total_detail/100) | rounding}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_total_real" label="实际金额(元)" width="120">
+                <el-table-column prop="price_total_real" label="运费(元)" width="120">
                     <template slot-scope="scope">
-                        {{order_err(scope.row.price_total_real/100)}}
+                        <span v-if="scope.row.logistics_money > 0">{{(scope.row.logistics_money/100) | rounding}}</span>
+                        <span v-else>无运费</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="created_time" label="创建时间" width="180"></el-table-column>
-                <el-table-column prop="paid_time" label="支付时间" width="180"></el-table-column>
+                <el-table-column prop="price_total_real" label="折扣优惠(元)" width="120">
+                    <template slot-scope="scope"></template>
+                </el-table-column>
+                <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
+                    <template slot-scope="scope">
+                        {{(scope.row.price_total_real/100) | rounding}}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
+                <el-table-column prop="paid_time" label="付款时间" width="180"></el-table-column>
                 <el-table-column prop="logistics_name" label="收货人姓名" width="140"></el-table-column>
                 <el-table-column prop="logistics_phone" label="手机号码" width="140"></el-table-column>
-                <el-table-column prop="message" label="用户留言" width="160"></el-table-column>
-                <el-table-column prop="used_integral" label="消耗积分" width="120"></el-table-column>
-                <el-table-column prop="channel_name" label="购买渠道" width="140"></el-table-column>
-                <el-table-column prop="order_type" label="订单类型" width="140" v-if="false">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.order_type === 0 ? '正常订单':'其它订单'}}</span>
-                    </template>
+                <el-table-column prop="channel_name" label="购买渠道" width="140">
+                    <template slot-scope="scope"></template>
                 </el-table-column>
                 <template slot="empty">
                     <EmptyList v-show="false"></EmptyList>
@@ -250,21 +265,13 @@
                     }else if((data === 1)){
                         return '已付款'
                     }else if((data === 2)){
-                        return '待发货'
+                        return '处理中'
                     }else if((data === 3)){
                         return '已发货'
-                    }else if((data === 4)){
-                        return '已取消'
-                    }else if((data === 5)){
-                        return '申请仅退款'
-                    }else if((data === 6)){
-                        return '申请退货退款'
-                    }else if((data === 7)){
-                        return '退货中'
                     }else if((data === 9)){
-                        return '已关闭'
+                        return '交易关闭'
                     }else if((data === 10)){
-                        return '已完成'
+                        return '交易成功'
                     }
                 }
             },
@@ -304,19 +311,15 @@
         created() {
             // 订单状态 下拉列表  订单状态 0待付款  1已付款  2处理中；3已发货；4取消；5申请仅退款； 6申请退货退款 ；7退货中；8仅退款关闭 ；9退货关闭；10完成；
             this.orderStatusOptions = [
-                { id: 0, name: '待付款' },
-                { id: 1, name: '已付款' },
-                { id: 2, name: '待发货' },
-                { id: 3, name: '已发货' },
-                { id: 4, name: '已取消' },
-                { id: 5, name: '申请仅退款' },
-                { id: 6, name: '申请退货退款' },
-                { id: 7, name: '退货中' },
-                { id: 9, name: '已关闭' },
-                { id: 10, name: '已完成' },
+                { id: '0', name: '待付款' },
+                { id: '1', name: '已付款' },
+                { id: '2', name: '处理中' },
+                { id: '3', name: '已发货' },
+                { id: '9', name: '交易关闭' },
+                { id: '10', name: '交易成功' }
             ];
             this.unusualTypeOptions = [
-                { id: 1, name:'裁布异常'}
+                { id: '1', name:'裁布异常'}
             ];
             // 店铺 下拉列表
             /*this.shopOptions = [
@@ -350,16 +353,14 @@
                 let params = {
                     page: this.pageInfo.pageIndex,
                     limit: this.pageInfo.pageSize,
-                    id: -1,
-                    order_no: this.searchParams.order_no ? Number(this.searchParams.order_no) : '',
-                    user_id: -1,
-                    status: this.searchParams.status !=='' ? Number(this.searchParams.status) : -1,
-                    shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
-                    channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
+                    order_no: this.searchParams.order_no ? this.searchParams.order_no : '',
+                    status: this.searchParams.status !=='' ? this.searchParams.status : -1,
+                    shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
+                    channel_id: this.searchParams.channel_id ? this.searchParams.channel_id : -1,
                     logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
                     paid_time_le: this.searchParams.paid_time_le ? this.searchParams.paid_time_le : '',
                     paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge: '',
-                    err_type: this.searchParams.unusual_type !== '' ? Number(this.searchParams.unusual_type) : -1
+                    err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '0'
                 };
                 const rLoading = this.openLoading();
                 getOrderList(params)
