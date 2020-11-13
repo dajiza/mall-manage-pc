@@ -152,12 +152,12 @@
                         <span>{{(Number(scope.row.price) * Number(scope.row.num) - scope.row.off_2 - scope.row.off_1)/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="order_type" label="订单类型" width="100">
+                <!--<el-table-column prop="order_type" label="订单类型" width="100">
                     <template slot-scope="scope">
                         <span>{{scope.row.order_type === 0 ? '正常订单':'其它订单'}}</span>
                     </template>
-                </el-table-column>
-                <el-table-column prop="used_integral" label="消耗积分" width="100"></el-table-column>
+                </el-table-column>-->
+                <<!--el-table-column prop="used_integral" label="消耗积分" width="100"></el-table-column>-->
                 <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
