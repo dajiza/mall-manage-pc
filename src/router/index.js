@@ -71,10 +71,14 @@ export default new Router({
                 },
                 {
                     path: '/order-err-operate',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/order-management/order-list/OrderErrOperate.vue'),
+                    component: () => import(/* webpackChunkName: "order-err-operate" */ '../components/page/order-management/order-list/OrderErrOperate.vue'),
                     meta: { title: '手动调整列表', name: 'orderErrOperate' }
                 },
-
+                {
+                    path: '/mall-order-after-reason',
+                    component: () => import(/* webpackChunkName: "order-after-reason" */ '../components/page/order-management/afterSaleReason.vue'),
+                    meta: { title: '售后原因设置', name: 'afterSaleReason' }
+                },
                 {
                     path: '/user-management',
                     component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/user-management/UserList.vue'),
