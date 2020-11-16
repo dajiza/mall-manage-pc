@@ -41,20 +41,19 @@ export default {
                     name: 'dashboard',
                     display_name: '系统首页'
                 },
-
                 {
                     icon: 'iconfont icon-goods',
                     name: 'goods-management',
                     display_name: '商品管理',
                     subs: [
-                        {
-                            name: 'goodsList',
-                            display_name: '商品列表'
-                        },
-                        {
-                            name: 'otherCategory',
-                            display_name: '其它商品分类'
-                        },
+                        // {
+                        //     name: 'goodsList',
+                        //     display_name: '商品列表'
+                        // },
+                        // {
+                        //     name: 'otherCategory',
+                        //     display_name: '其它商品分类'
+                        // },
                         /*{
                             name: 'goodsLabel',
                             display_name: '商品标签'
@@ -62,11 +61,11 @@ export default {
                         {
                             name: 'freight',
                             display_name: '运费模板'
-                        },
-                        {
-                            name: 'customAttributes',
-                            display_name: '自定义属性'
                         }
+                        // {
+                        //     name: 'customAttributes',
+                        //     display_name: '自定义属性'
+                        // }
                     ]
                 },
                 {
@@ -87,26 +86,26 @@ export default {
                             display_name: '售后原因设置'
                         }
                     ]
-                },
-                {
-                    icon: 'iconfont icon-setting',
-                    name: 'system-setting',
-                    display_name: '系统设置',
-                    subs: [
-                        {
-                            name: 'user-management',
-                            display_name: '用户管理'
-                        },
-                        {
-                            name: 'role-management',
-                            display_name: '角色管理'
-                        },
-                        {
-                            name: 'authority-management',
-                            display_name: '权限管理'
-                        }
-                    ]
                 }
+                // {
+                //     icon: 'iconfont icon-setting',
+                //     name: 'system-setting',
+                //     display_name: '系统设置',
+                //     subs: [
+                //         {
+                //             name: 'user-management',
+                //             display_name: '用户管理'
+                //         },
+                //         {
+                //             name: 'role-management',
+                //             display_name: '角色管理'
+                //         },
+                //         {
+                //             name: 'authority-management',
+                //             display_name: '权限管理'
+                //         }
+                //     ]
+                // }
             ],
             is_admin: 0,
             role_auth_list: []

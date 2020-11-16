@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <!-- 折叠按钮 -->
-        <!-- <div class="collapse-btn" :class="{'left64':collapse}" @click="collapseChage">
+        <!-- <div class="collapse-btn" :class="{ left64: collapse }" @click="collapseChage">
             <i v-if="!collapse" class="el-icon-s-fold"></i>
             <i v-else class="el-icon-s-unfold"></i>
         </div> -->
