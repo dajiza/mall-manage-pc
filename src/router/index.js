@@ -73,16 +73,11 @@ export default new Router({
                 {
                     path: '/order-detail',
                     component: () => import(/* webpackChunkName: "table" */ '../components/page/order-management/order-list/OrderDetail.vue'),
-                    meta: { title: '查看订单', name: 'orderDetail' }
-                },
-                {
-                    path: '/order-err-operate',
-                    component: () => import(/* webpackChunkName: "order-err-operate" */ '../components/page/order-management/order-list/OrderErrOperate.vue'),
-                    meta: { title: '手动调整列表', name: 'orderErrOperate' }
+                    meta: { title: '订单详情', name: 'orderDetail' }
                 },
                 {
                     path: '/mall-order-after-reason',
-                    component: () => import(/* webpackChunkName: "order-after-reason" */ '../components/page/order-management/afterSaleReason.vue'),
+                    component: () => import(/* webpackChunkName: "order-after-reason" */ '../components/page/after-sale/afterSaleReason.vue'),
                     meta: { title: '售后原因设置', name: 'afterSaleReason' }
                 },
                 {

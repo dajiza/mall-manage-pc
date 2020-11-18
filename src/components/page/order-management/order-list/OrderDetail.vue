@@ -87,19 +87,37 @@
                     <i></i>
                     <span>订单信息</span>
                 </div>
-                <el-button class="btn-refund" type="danger" @click="handleRefundAll()">全部退款</el-button>
+                <el-button
+                    class="btn-refund"
+                    type="danger"
+                    v-if="false"
+                    @click="handleRefundAll()"
+                >全部退款</el-button>
             </div>
             <el-table
-                    :data="order_info.detail"
-                    ref="multipleTable"
-                    class="order-detail-info"
+                :data="order_info.detail"
+                ref="multipleTable"
+                class="order-detail-info"
             >
-                <el-table-column :fixed="true" label="操作" width="130">
+                <el-table-column
+                    :fixed="true"
+                    label="操作"
+                    width="130"
+                    v-if="order_info.status === 0 || order_info.logistics_no"
+                >
                     <template slot-scope="scope">
-                        <el-button type="primary" v-show="scope.row.err_type === 0" :disabled="!(scope.row.status === 3 || scope.row.status === 10)" @click="handleViewLogistics(scope.$index,scope.row)">查看物流</el-button>
-                        <div v-show="scope.row.err_type === 1" >
-                            <el-button class="btn-refund" type="danger" @click="handleRefund(scope.$index,scope.row)" :disabled="true">发起退款</el-button>
-                            <el-button class="btn-adjustment" v-hasPermission="'order-err-handle'" type="primary" @click="handleAdjustmentModule(scope.$index,scope.row)">手动调整</el-button>
+                        <div v-show="order_info.status === 0">
+                            <el-button
+                                type="primary"
+                                @click="handleUpdatePrice(scope.$index,scope.row)"
+                            >修改价格</el-button>
+                        </div>
+                        <div v-show="order_info.logistics_no">
+                            <el-button
+                                type="primary"
+                                v-show="scope.row.err_type === 0"
+                                :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
+                                @click="handleViewLogistics(scope.$index,scope.row)">查看物流</el-button>
                         </div>
                     </template>
                 </el-table-column>
@@ -108,8 +126,8 @@
                         <img class="product-img" :src="getImg(scope.row.product_img)" alt="" @click="viewBigImg(scope.row.product_img)">
                     </template>
                 </el-table-column>
-                <el-table-column prop="product_name" label="产品名称" width="220"></el-table-column>
-                <el-table-column prop="goods_name" label="商品名称" width="220"></el-table-column>
+                <el-table-column prop="product_name" label="产品名称" width="200"></el-table-column>
+                <el-table-column prop="goods_name" label="商品名称" width="200"></el-table-column>
                 <el-table-column label="规格" width="160">
                     <template slot-scope="scope">
                         <p v-for="(item,i) in back_goods_attr(scope.row.goods_attr)">{{item['Title']}}：{{item['Value']}}</p>
@@ -118,46 +136,57 @@
                 <el-table-column prop="status" label="订单状态" width="133">
                     <template slot-scope="scope">
                         <span class="order-status" :class="orderStatusClass(scope.row.status)"
-                        >{{orderStatus(scope.row.status)}}</span>
+                        >{{scope.row.status_name}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price" label="单价(元)" width="100">
+                <el-table-column prop="price" label="单价(元)">
                     <template slot-scope="scope">
                         <span>{{(scope.row.price/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="num" label="数量" width="80"></el-table-column>
-                <el-table-column label="总价(元)" width="100">
+                <el-table-column prop="num" label="数量"></el-table-column>
+                <el-table-column label="总价(元)">
                     <template slot-scope="scope">
                         <span>{{(Number(scope.row.price/100) * Number(scope.row.num)) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140">
+                <el-table-column v-if="false" prop="off_2" label="折扣优惠(元)" width="140">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_1" label="优惠券(元)" width="120">
+                <el-table-column prop="price_real" label="改价(元)">
                     <template slot-scope="scope">
-                        <span>{{scope.row.off_1/100 | rounding}}</span>
+                        <div class="change-price">
+                            <span>{{ scope.row.price_sum_change/1000 | rounding}}</span>
+                            <el-popover
+                                    popper-class="update-list-popover"
+                                    placement="top-end"
+                                    width="540"
+                                    trigger="click">
+                                <div class="popover-title">改价记录</div>
+                                <el-table style="margin: 16px 0 36px" :data="priceUpdateData">
+                                    <el-table-column width="100" property="date" label="改价(元)">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{childrenScope.row.change_price/100 | rounding}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="160" property="reason_name" label="改价原因"></el-table-column>
+                                    <el-table-column width="100" property="user_name" label="操作人"></el-table-column>
+                                    <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
+                                </el-table>
+                                <div class="remark-tip-wrap" slot="reference">
+                                    <i class="remark-tip-img cursor-class"></i>
+                                </div>
+                            </el-popover>
+                        </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="all_amount" label="小记(元)" width="100">
+                <el-table-column prop="price_real" label="实付(元)">
                     <template slot-scope="scope">
-                        <span>{{(Number(scope.row.price) * Number(scope.row.num) - scope.row.off_2 - scope.row.off_1)/100 | rounding}}</span>
+                        <span>{{(Number(scope.row.price_real) * Number(scope.row.num) - scope.row.off_2 - scope.row.off_1)/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_real" label="实付(元)" width="100">
-                    <template slot-scope="scope">
-                        <span>{{(Number(scope.row.price) * Number(scope.row.num) - scope.row.off_2 - scope.row.off_1)/100 | rounding}}</span>
-                    </template>
-                </el-table-column>
-                <!--<el-table-column prop="order_type" label="订单类型" width="100">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.order_type === 0 ? '正常订单':'其它订单'}}</span>
-                    </template>
-                </el-table-column>-->
-                <<!--el-table-column prop="used_integral" label="消耗积分" width="100"></el-table-column>-->
                 <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
@@ -187,9 +216,35 @@
                 </div>
                 <div class="order-amount clearfix">
                     <div class="order-amount-item shipping">
-                        <div class="amount-name">运费</div>
-                        <div class="amount-value" v-show="order_info.logistics_money > 0">{{order_info.logistics_money/100 | rounding}}</div>
-                        <div class="amount-value" v-show="!order_info.logistics_money">无运费</div>
+                        <div class="amount-name" @click="updateShipping">
+                            <span>运费</span>
+                            <img class="update-icon" src="../../../../assets/img/updateIcon.svg" v-show="order_info.status === 0" alt="" />
+                        </div>
+                        <div class="amount-value">
+                            <el-popover
+                                    popper-class="logistics-update-list-popover"
+                                    placement="top"
+                                    width="540"
+                                    trigger="click">
+                                <div class="popover-title">改运费记录</div>
+                                <el-table style="margin: 16px 0 36px" :data="FreightUpdateList">
+                                    <el-table-column width="100" property="date" label="改价(元)">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{childrenScope.row.change_price/100 | rounding}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="160" property="reason_name" label="改价原因"></el-table-column>
+                                    <el-table-column width="100" property="user_name" label="操作人"></el-table-column>
+                                    <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
+                                </el-table>
+                                <i
+                                    class="remark-tip-img cursor-class marginRight8"
+                                    slot="reference"
+                                ></i>
+                            </el-popover>
+                            <span v-show="order_info.logistics_money > 0">¥ {{order_info.logistics_money/100 | rounding}}</span>
+                            <span v-show="!order_info.logistics_money">¥ 0.00</span>
+                        </div>
                     </div>
                     <div class="order-amount-item total-order">
                         <div class="amount-name">订单总计</div>
@@ -254,12 +309,30 @@
                 <el-button type="primary" @click="logisticsVisible = false">好 的</el-button>
             </span>
         </el-dialog>
-        <!-- 手动调整弹出框 -->
-        <Adjustment
-                v-if="recordModalInfo.visible"
-                :recordModalInfo="recordModalInfo"
-                @handleCloseRecordModal="handleCloseRecordModal"
-        />
+        <!-- 修改价格弹出框 -->
+        <el-dialog :title="dialogTitle" :visible.sync="priceUpdateVisible" width="380px"
+                   :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
+            <el-form ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
+                <el-form-item label="现价:" prop="price">
+                    <el-input
+                        placeholder="请输入金额"
+                        :precision="2"
+                        autofocus="autofocus"
+                        v-model="priceUpdateForm.price"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="修改原因:" prop="reason">
+                    <el-input
+                        placeholder="请输入"
+                        v-model="priceUpdateForm.reason"
+                    ></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogClose">取 消</el-button>
+                <el-button type="primary" @click="sureUpdate">确 定</el-button>
+            </span>
+        </el-dialog>
         <transition name="el-fade-in-linear">
             <BigImg ref="bigImg" :imgUrl="bigImgUrl"></BigImg>
         </transition>
@@ -268,11 +341,10 @@
 
 <script>
     import './OrderList.less';
-    import { getOrderDetail, getAddRemarks } from '../../../../api/orderList';
+    import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail } from '../../../../api/orderList';
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import Adjustment from './AdjustmentModule';
-    // import { getGoodsList } from '../../../../api/productList';
     export default {
         name: 'OrderDetail',
         data() {
@@ -300,12 +372,6 @@
                 logisticsVisible:false,
                 view_logistics_company_name:'',
                 view_logistics_no:'',
-                recordModalInfo: {
-                    visible: false,
-                    product_unit:'',
-                    product_id: -1,
-                    order_detail_id:-1
-                }, // 手动调整信息
                 goodsData:[],
                 goodsPageInfo: {
                     pageIndex: 1,
@@ -313,6 +379,29 @@
                 },
                 product_unit:'',
                 need_num:0,
+                priceUpdateVisible: false, // 价格
+                dialogTitle:'修改价格',
+                priceUpdateForm:{
+                    price:'',
+                    reason:''
+                },
+                priceUpdateFormRules: {
+                    price: [
+                        { required: true, message: '请输入金额', trigger: 'blur' },
+                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                    ],
+                    reason: [
+                        { required: true, message: '请输入修改原因', trigger: 'blur' },
+                        { max: 100, message: '最多可输入100个字符', trigger: 'blur' }
+                    ]
+                },
+                priceUpdateData: [
+                    {change_price: 1000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'},
+                    {change_price: -2000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'},
+                    {change_price: 3000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'}
+                ],
+                FreightUpdateList:[], // 运费更改列表
+                loadingTip:{},
             }
         },
         components: {
@@ -356,7 +445,7 @@
                     }else if((data === 9)){
                         return '已关闭'
                     }else if((data === 10)){
-                        return '已完成'
+                        return '交易成功'
                     }else if((data === 11)){
                         return '未付款关闭'
                     }
@@ -424,10 +513,12 @@
                     order_no:''
                 }
                 const rLoading = this.openLoading();
+                // this.loadingTip = this.uploadLoading('加载中');
                 getOrderDetail(params)
                     .then((res) => {
                         rLoading.close();
                         if (res.code === 200) {
+                            this.getFreightUpdateList(); // 请求运费修改列表
                             if (res.data) {
                                 this.order_info = res.data;
                             } else {
@@ -444,6 +535,28 @@
                     })
                     .catch(() => {});
             },
+
+            // 运费修改列表
+            getFreightUpdateList(){
+                const params = {
+                    order_id: Number(this.$route.query.order_id)
+                }
+                queryFreightChangeList(params)
+                    .then((res) => {
+                        if (res.code === 200) {
+                            this.FreightUpdateList = res.data || [];
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
+
             // 按钮-添加留言
             handleAddRemarks(){
                 if(this.order_info.remark){
@@ -486,7 +599,7 @@
 
             // 请求 -添加留言
 
-            // 添加留言弹唇膏关闭
+            // 添加留言弹框关闭
             remarksClose(){
                 this.$refs['remarksFormBox'].resetFields();
                 this.$refs['remarksFormBox'].clearValidate();
@@ -506,7 +619,7 @@
             // 查看物流
             handleViewLogistics(index,row){
                 this.view_logistics_company_name = row.logistics_company_name;
-                this.view_logistics_no = row.logistics_unique;
+                this.view_logistics_no = row.logistics_no;
                 this.logisticsVisible = true;
             },
 
@@ -517,28 +630,84 @@
             // 全部退款
             handleRefundAll(){},
 
-            // 手动调整弹出框
-            handleAdjustmentModule(index, row){
-                this.product_unit = row.product_unit;
-                this.need_num = row.num;
-                // 请求货物列表
-                this.recordModalInfo = Object.assign({}, this.recordModalInfo,
-                    {
-                        visible: true,
-                        product_code: row.product_code,
-                        product_unit: this.product_unit,
-                        order_no: row.order_no,
-                        need_num: this.need_num,
-                        product_id:row.product_id,
-                        order_detail_id:row.id
-                    });
+            // 确定修改
+            sureUpdate(){
+                this.$refs['formBox'].validate(valid => {
+                    if (valid) {
+                        const params = {
+                            now_price: this.priceUpdateForm.price,
+                            reason: this.priceUpdateForm.reason_name
+                        };
+                        if (this.dialogTitle === '修改运费') {
+                            params['order_id'] = Number(this.$route.query.order_id);
+                            const rLoading = this.openLoading();
+                            updateFreight(params)
+                                .then((res) => {
+                                    rLoading.close();
+                                    if (res.code === 200) {
+                                        this.$notify({
+                                            title: '运费修改成功',
+                                            message: '',
+                                            type: 'success',
+                                            duration: 3000
+                                        });
+                                        this.dialogClose();
+                                        this.getOrderInfo();
+                                    } else {
+                                        this.$notify({
+                                            title: res.msg,
+                                            message: '',
+                                            type: 'error',
+                                            duration: 5000
+                                        });
+                                    }
+                                })
+                                .catch(() => {});
+                        } else {
+
+                        }
+                    } else {
+                        return false;
+                    }
+                });
             },
 
-            // 手动调整 弹窗关闭回调
-            handleCloseRecordModal(visible) {
-                this.$set(this.recordModalInfo, 'visible', visible);
-                this.getOrderInfo();
+            // 修改订单价格
+            handleUpdatePrice(){
+                this.dialogTitle = '修改订单价格';
+                this.priceUpdateVisible = true;
             },
+
+            // 弹框关闭前操作
+            dialogClose(){
+                this.$refs['formBox'].clearValidate();
+                this.$refs['formBox'].resetFields();
+                this.priceUpdateVisible = false;
+            },
+
+            // 修改运费
+            updateShipping(){
+                this.dialogTitle = '修改运费';
+                this.priceUpdateVisible = true;
+            },
+
         }
     };
 </script>
+<style>
+.update-list-popover,.logistics-update-list-popover{
+    padding: 0!important;
+}
+.update-list-popover{
+    transform: translateX(8px);
+}
+.update-list-popover .popover-title, .logistics-update-list-popover .popover-title{
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    padding-left: 8px;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+</style>

@@ -74,10 +74,10 @@ export default {
                     name: 'order-management',
                     display_name: '订单管理',
                     subs: [
-                        /*{
+                        {
                             name: 'order-list',
                             display_name: '订单列表'
-                        },*/
+                        },
                         {
                             name: 'afterSaleList',
                             display_name: '售后处理申请'

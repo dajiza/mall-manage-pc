@@ -96,7 +96,6 @@
                     <i></i>
                     <span>订单列表</span>
                 </div>
-                <el-button @click="go_unusual_list">手动调整列表</el-button>
             </div>
             <el-table
                     v-loading="loading"
@@ -108,13 +107,14 @@
                     <template slot-scope="scope">
                         <el-button
                                 type="text"
-                                class="view-detail" v-hasPermission="'order-cut-list'"
+                                class="view-detail"
                                 @click="handleViewDetail(scope.$index, scope.row)"
-                        >查看</el-button>
+                        >查看订单</el-button>
+                        <!-- v-hasPermission="'order-cut-list'" -->
                         <el-button
                                 type="text"
-                                class="cancel-order delete-color" v-hasPermission="'order-cut-list'"
-                                @click="handleViewDetail(scope.$index, scope.row)"
+                                class="cancel-order delete-color"
+                                @click="handleCancelOrder(scope.$index, scope.row)"
                                 v-show="scope.row.status === 0"
                         >取消订单</el-button>
                     </template>
@@ -181,7 +181,7 @@
 </template>
 
 <script>
-    import { getOrderList } from '../../../../api/orderList';
+    import { getOrderList, queryCancelOrder } from '../../../../api/orderList';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import './OrderList.less';
     export default {
@@ -446,6 +446,42 @@
 
             },
 
+            // 取消订单
+            handleCancelOrder(index, row){
+                // 二次确认
+                this.$confirm('确定要取消该订单吗？', '', {
+                    customClass: 'message-delete',
+                    type: 'warning',
+                    center: true
+                }).then(() => {
+                    let params = {
+                        user_id: row.user_id,
+                        shop_id: row.shop_id,
+                        order_id: row.id
+                    };
+                    const rLoading = this.openLoading();
+                    queryCancelOrder(params).then((res) => {
+                            rLoading.close();
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '订单取消成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                });
+                                this.getListData();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                });
+                            }
+                        }).catch(() => {});
+                }).catch(() => {});
+            },
+
             //时间格式化
             getInitTime(val){
                 if(val){
@@ -498,12 +534,6 @@
                 }
                 this.getListData();
             },
-
-            // 跳转到手动调整列表
-            go_unusual_list(){
-                // /order-err-operate
-                this.$router.push({path:'/order-err-operate'});
-            }
         }
     };
 </script>
