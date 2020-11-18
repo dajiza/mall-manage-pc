@@ -22,23 +22,37 @@
                 <div class="default">
                     <div class="caption">默认其他运费</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.first_num" :rules="rulesRequired">
-                        <el-input class="default-input" placeholder="" v-model="info.detail[0].first_num"></el-input>
+                        <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_num"></el-input>
                     </el-form-item>
                     <div class="quantifier">件内</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.first_money" :rules="rulesRequired">
-                        <el-input class="default-input" placeholder="" v-model="info.detail[0].first_money"></el-input>
+                        <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_money"></el-input>
                     </el-form-item>
                     <div class="quantifier">元</div>
                     <div class="label">每增加</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.continue_num" :rules="rulesRequired">
-                        <el-input class="default-input" placeholder="" v-model="info.detail[0].continue_num"></el-input>
+                        <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].continue_num"></el-input>
                     </el-form-item>
                     <div class="quantifier">件</div>
                     <div class="label">增加运费</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.continue_money" :rules="rulesRequired">
-                        <el-input class="default-input" placeholder="" v-model="info.detail[0].continue_money"></el-input>
+                        <el-input
+                            class="default-input"
+                            placeholder=""
+                            :disabled="info.detail[0].is_free == 2"
+                            v-model="info.detail[0].continue_money"
+                        ></el-input>
                     </el-form-item>
                     <div class="quantifier">元</div>
+                    <el-checkbox
+                        class="firstCheck"
+                        v-model="info.detail[0].is_free"
+                        :true-label="2"
+                        :false-label="1"
+                        @change="val => handleFirstCheckChange(val)"
+                    >
+                        包邮
+                    </el-checkbox>
                 </div>
                 <div class="table" v-if="info.detail.length > 1">
                     <div class="th">
@@ -123,7 +137,7 @@
                         <div class="row row-first">选择地区</div>
                         <div class="row">包邮条件</div>
                         <div class="row">金额/数量</div>
-                        <div class="row"><el-button class="" type="text" @click="addCondition">新增</el-button></div>
+                        <div class="row delete-row"><el-button class="" type="text" @click="addCondition">新增</el-button></div>
                     </div>
                     <div class="tr" v-for="(item, index) in info.strategy">
                         <div class="row row-first">
@@ -145,7 +159,7 @@
                             <div class="label">包邮</div>
                         </div>
 
-                        <div class="row">
+                        <div class="row delete-row">
                             <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteCondition(index)">
                                 <el-button slot="reference" class="" type="text">删除</el-button>
                             </el-popconfirm>
@@ -184,7 +198,7 @@ export default {
                 detail: [
                     {
                         is_default: 2,
-                        is_free: 1,
+                        is_free: 1, //是否包邮，1:否，2是
                         first_num: 0,
                         first_money: 0,
                         continue_num: 0,
@@ -346,10 +360,21 @@ export default {
                 }
             });
         },
+        // check 首条默认 单选
+        handleFirstCheckChange(val) {
+            if (!val) {
+                return;
+            }
+
+            this.info.detail[0].first_num = this.info.detail[0].first_num || 0;
+            this.info.detail[0].first_money = this.info.detail[0].first_money || 0;
+            this.info.detail[0].continue_num = this.info.detail[0].continue_num || 0;
+            this.info.detail[0].continue_money = this.info.detail[0].continue_money || 0;
+        },
         addDefault() {
             this.info.detail.push({
                 is_default: 1,
-                is_free: false,
+                is_free: 1,
                 first_num: 0,
                 first_money: 0,
                 continue_num: 0,
@@ -537,10 +562,14 @@ export default {
         align-items: center;
         box-sizing: border-box;
         padding: 15px 20px;
-        max-width: 800px;
+        max-width: 850px;
         // height: 50px;
         background: #ebf4ff;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+        .firstCheck {
+            flex: 1;
+            text-align: right;
+        }
+        // box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
         .el-form-item {
             margin-bottom: 0;
         }
@@ -563,7 +592,7 @@ export default {
         }
     }
     .table {
-        max-width: 800px;
+        max-width: 850px;
 
         .el-form-item {
             margin-bottom: 0;
@@ -630,7 +659,10 @@ export default {
     background: #fff;
     .table {
         margin-top: 20px;
-        max-width: 800px;
+        max-width: 850px;
+        .delete-row {
+            text-align: right;
+        }
         & /deep/ .el-form-item__error {
             margin-left: 10px;
         }
