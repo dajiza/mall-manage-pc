@@ -328,9 +328,8 @@ export default {
             // this.checkedCities = val ? cityOptions : [];
             this.checkAll = val;
             for (let i = 1; i < this.checkListNum.length; i++) {
-                this.$set(this.info, i, val);
+                this.$set(this.checkListNum, i, val);
             }
-            console.log('GOOGLE: val', val);
         },
         // check 单选
         handleCheckChange(val, indexSign) {

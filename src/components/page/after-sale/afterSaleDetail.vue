@@ -142,7 +142,7 @@
                     </el-table-column>
                     <el-table-column label="操作人">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.user_id }}</span>
+                            <span>{{ scope.row.user_name }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作时间">
