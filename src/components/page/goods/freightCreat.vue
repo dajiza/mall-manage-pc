@@ -462,7 +462,7 @@ export default {
                                         duration: 3000
                                     });
                                     this.$router.push({
-                                        path: 'freight'
+                                        path: 'mall-backend-freight'
                                     });
                                 } else {
                                     this.$notify({
@@ -485,7 +485,7 @@ export default {
                                         duration: 3000
                                     });
                                     this.$router.push({
-                                        path: 'freight'
+                                        path: 'mall-backend-freight'
                                     });
                                 } else {
                                     this.$notify({
