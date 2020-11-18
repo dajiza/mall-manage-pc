@@ -56,7 +56,7 @@
                     </el-table-column>
                     <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.first_money }}</span>
+                            <span>{{ scope.row.first_money / 100 }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="续件数(件)" width="120">
@@ -66,7 +66,7 @@
                     </el-table-column>
                     <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.continue_money }}</span>
+                            <span>{{ scope.row.continue_money / 100 }}</span>
                         </template>
                     </el-table-column>
                 </el-table>

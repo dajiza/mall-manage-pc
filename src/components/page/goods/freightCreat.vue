@@ -264,6 +264,11 @@ export default {
                     var detail = res.data;
                     console.log('GOOGLE: detail', detail);
                     // format 金额
+                    for (let i = 0; i < detail.detail.length; i++) {
+                        const element = detail.detail[i];
+                        element.first_money = Number(element.first_money) / 100;
+                        element.continue_money = Number(element.continue_money) / 100;
+                    }
                     if (detail.strategy) {
                         for (let i = 0; i < detail.strategy.length; i++) {
                             const element = detail.strategy[i];
@@ -398,9 +403,9 @@ export default {
                             const element = params.detail[i];
                             element.is_default = Number(element.is_default);
                             element.first_num = Number(element.first_num);
-                            element.first_money = Number(element.first_money);
+                            element.first_money = Number(element.first_money) * 100;
                             element.continue_num = Number(element.continue_num);
-                            element.continue_money = Number(element.continue_money);
+                            element.continue_money = Number(element.continue_money) * 100;
                             if (i == 0) {
                                 continue;
                             }
@@ -425,6 +430,7 @@ export default {
                             } else {
                                 for (let i = 0; i < params.strategy.length; i++) {
                                     const element = params.strategy[i];
+
                                     if (element.place.length == 0) {
                                         let index = i + 1;
                                         this.$notify({

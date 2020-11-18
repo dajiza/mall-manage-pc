@@ -35,7 +35,7 @@
                 <div class="sheet sheet-img">
                     <span class="label">退款凭证：</span>
                     <div class="img-list">
-                        <img class="apply-img" :src="item" v-for="item in detail.imgs" :key="item" />
+                        <img class="apply-img" :src="item" v-for="item in detail.imgs" :key="item" @click="proofPreview(item)" />
                     </div>
                 </div>
             </div>
@@ -132,10 +132,12 @@
                         <template slot-scope="scope">
                             <span v-if="scope.row.step == 1">{{ scope.row.reason }}</span>
                             <img class="certificate-img" :src="scope.row.imgs" alt="" v-if="scope.row.step == 3" @click="imgPreview(scope.row.imgs)" />
-                            <div class="text" v-if="scope.row.step == 4">快递公司:{{ scope.row.logistics_company_name }}</div>
-                            <div class="text" v-if="scope.row.step == 4">快递单号:{{ scope.row.logistics_no }}</div>
-                            <div class="text" v-if="scope.row.step == 2">快递公司:{{ detail.logistics_company_name }}</div>
-                            <div class="text" v-if="scope.row.step == 2">快递单号:{{ detail.logistics_no }}</div>
+                            <div class="text" v-if="scope.row.step == 4 && scope.row.result == 1">快递公司:{{ scope.row.logistics_company_name }}</div>
+                            <div class="text" v-if="scope.row.step == 4 && scope.row.result == 1">快递单号:{{ scope.row.logistics_no }}</div>
+                            <div class="text" v-if="scope.row.step == 4 && scope.row.result == 0">{{ scope.row.reason }}</div>
+                            <div class="text" v-if="scope.row.step == 2 && scope.row.result == 1">快递公司:{{ detail.logistics_company_name }}</div>
+                            <div class="text" v-if="scope.row.step == 2 && scope.row.result == 1">快递单号:{{ detail.logistics_no }}</div>
+                            <div class="text" v-if="scope.row.step == 2 && scope.row.result == 0">{{ scope.row.reason }}</div>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作人">
@@ -280,6 +282,10 @@
         <el-dialog :visible.sync="imgVisible">
             <img width="100%" :src="imgCertificate" alt="" />
         </el-dialog>
+        <!-- 退款凭证 预览-->
+        <el-dialog :visible.sync="proofVisible">
+            <img width="100%" :src="imgProof" alt="" />
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -318,6 +324,8 @@ export default {
             sdId: '',
             sdNo: '',
 
+            proofVisible: false,
+            imgProof: '',
             imgVisible: false,
             imgCertificate: '',
             filePic: '',
@@ -704,6 +712,10 @@ export default {
             this.imgVisible = true;
             this.imgCertificate = img;
         },
+        proofPreview(img) {
+            this.proofVisible = true;
+            this.imgProof = img;
+        },
 
         // 理由弹框关闭
         beforeClose() {
@@ -767,6 +779,7 @@ export default {
             margin-right: 12px;
             width: 120px;
             height: 120px;
+            cursor: pointer;
         }
     }
 }
