@@ -23,9 +23,15 @@ export default new Router({
                     meta: { title: '系统首页', name: 'dashboard' }
                 },
                 {
-                    path: '/goodsList',
+                    path: '/goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsList.vue'),
                     meta: { title: '商品列表', name: 'goodsList' }
+                },
+                {
+                    path: '/goods-creat',
+                    name: 'goods-creat',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
+                    meta: { title: '新增商品', name: 'goodsCreat' }
                 },
                 {
                     path: '/freight',
@@ -33,19 +39,19 @@ export default new Router({
                     meta: { title: '运费模板', name: 'afterSfreightleList' }
                 },
                 {
-                    path: '/freightCreat',
-                    name: 'freightCreat',
+                    path: '/freight-creat',
+                    name: 'freight-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freightCreat.vue'),
                     meta: { title: '新增模板', name: 'freightCreat' }
                 },
                 {
-                    path: '/afterSaleList',
+                    path: '/after-sale-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/after-sale/afterSaleList.vue'),
                     meta: { title: '售后申请处理', name: 'afterSaleList' }
                 },
                 {
-                    path: '/afterSaleDetail',
-                    name: 'afterSaleDetail',
+                    path: '/after-sale-detail',
+                    name: 'after-sale-detail',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/after-sale/afterSaleDetail.vue'),
                     meta: { title: '售后申请详情' }
                 },

@@ -516,11 +516,6 @@ export default {
 };
 </script>
 <style scoped="scoped" lang="less">
-.divider {
-    width: 100%;
-    height: 1px;
-    background: #e9e9e9;
-}
 .freight-form {
     padding: 40px;
     background: #fff;

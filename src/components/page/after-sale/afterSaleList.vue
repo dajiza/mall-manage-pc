@@ -229,7 +229,7 @@ export default {
 
         gotoDetail(id) {
             this.$router.push({
-                name: 'afterSaleDetail',
+                name: 'after-sale-detail',
                 params: {
                     id: id
                 }

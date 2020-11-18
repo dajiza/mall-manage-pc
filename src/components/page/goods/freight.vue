@@ -2,7 +2,7 @@
     <div class="app-container">
         <div class="page-title">
             运费模板
-            <router-link class="" to="./freightCreat">
+            <router-link class="" to="./freight-creat">
                 <el-button size="small" type="primary" icon="el-icon-plus">新增模板</el-button>
             </router-link>
         </div>
@@ -106,7 +106,7 @@ export default {
         },
         edit(id) {
             this.$router.push({
-                name: 'freightCreat',
+                name: 'freight-creat',
                 params: {
                     id: id
                 }
@@ -114,7 +114,7 @@ export default {
         },
         copy(id) {
             this.$router.push({
-                name: 'freightCreat',
+                name: 'freight-creat',
                 params: {
                     id: id,
                     mark: 'copy'

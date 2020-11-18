@@ -661,7 +661,7 @@ export default {
         uploadImgSuccess(response, file, fileList) {
             if (response.code === 200) {
                 this.$notify({
-                    title: '操作成功',
+                    title: '上传成功',
                     message: '',
                     type: 'success',
                     duration: 500
@@ -736,11 +736,7 @@ export default {
     font-size: 20px;
     line-height: 80px;
 }
-.divider {
-    width: 100%;
-    height: 1px;
-    background: #e9e9e9;
-}
+
 .wrap {
     margin-top: 16px;
     border-radius: 2px;

@@ -48,7 +48,7 @@ export default {
                     display_name: '商品管理',
                     subs: [
                         {
-                            name: 'goodsList',
+                            name: 'goods-list',
                             display_name: '商品列表'
                         },
                         {
@@ -79,7 +79,7 @@ export default {
                             display_name: '订单列表'
                         },*/
                         {
-                            name: 'afterSaleList',
+                            name: 'after-sale-list',
                             display_name: '售后处理申请'
                         },
                         {
