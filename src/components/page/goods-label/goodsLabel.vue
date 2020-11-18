@@ -1,12 +1,33 @@
 <template>
     <div class="product-label-page">
         <div class="container clearfix top-search" ref="searchBox">
+            <el-form :model="searchForm" :inline="true" ref="searchForm" class="search-box">
+                <el-form-item label="标签名称：" >
+                    <el-input v-model="searchForm.searchLabel" placeholder="请输入" class="input-with-search">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="分类属性：" >
+                    <el-select v-model="searchForm.category_type" placeholder="请选择" class="input-with-search" @change="handleCategorySelect">
+                        <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="展示平台：" class="margin-right0">
+                    <el-select v-model="searchForm.label_type" placeholder="请选择" class="input-with-search" @change="handleDisplayPlatformSelect">
+                        <el-option v-for="state in labelShowTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <div class="search-btn-bottom btn-right">
+                    <el-button type="" @click="handleSearchReset('searchForm')">重置</el-button>
+                    <el-button type="primary"
+                               @click="handleSearch('searchForm')">搜索</el-button>
+                </div>
+            </el-form>
             <div class="category-wrap" ref="desc">
                 <div class="category-level">一级分类:</div>
                 <div class="category-list" :class="{'packUpHeight': showExchangeButton && !isOpen}">
                     <div v-for="(item,index) in categoryList" :key="item.id" class="category-item"
                          :class="{'is-select': selectedCategoryId === item.id}"
-                         @click="selectCategory(item.id)">
+                         @click="selectCategory(item)">
                         <span>{{item.name}}</span>
                         <div v-show="index > 0 " class="edit-icon-box" v-hasPermission="'tag-category-edit'" @click.stop="handleEditCategory(item)">
                             <div class="edit-icon" :class="{'edit-choose': selectedCategoryId === item.id}"></div>
@@ -23,15 +44,6 @@
                     </div>
                 </div>
             </div>
-            <el-form :model="searchForm" :inline="true" ref="searchForm" label-width="80px">
-                <el-form-item label="输入搜索:" prop="account">
-                    <el-input v-model="searchForm.searchLabel" placeholder="请输入"
-                              class="input-with-search" @keyup.enter.native="handleSearch('searchForm')">
-                        <el-button type="primary" slot="append"
-                                   @click="handleSearch('searchForm')">搜索</el-button>
-                    </el-input>
-                </el-form-item>
-            </el-form>
         </div>
         <div class="container m-t-16 p-t-0 container-table-has-search">
             <div class="global-table-title">
@@ -40,10 +52,6 @@
                     <span>产品标签</span>
                 </div>
                 <div>
-                    <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
-                        <el-radio-button label="cloth">布</el-radio-button>
-                        <el-radio-button label="others">其它</el-radio-button>
-                    </el-radio-group>
                     <el-button type="success" v-hasPermission="'tag-category-add'" @click="addCategory">新增分类</el-button>
                     <el-button type="primary" v-hasPermission="'tag-add'" @click="handleAddTags">新增标签</el-button>
                 </div>
@@ -81,6 +89,11 @@
                 <el-form-item label="分类名称:" prop="name">
                     <el-input placeholder="请输入分类名称" autofocus="autofocus" v-model="categoryForm.name"></el-input>
                 </el-form-item>
+                <el-form-item label="展示平台:" prop="label_type">
+                    <el-select v-model="categoryForm.label_type" multiple :disabled="categoryTitle === '编辑分类'" placeholder="请选择" class="handle-select">
+                        <el-option v-for="state in labelShowTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="分类属性:" prop="category_type">
                     <el-select v-model="categoryForm.category_type" :disabled="categoryTitle === '编辑分类'" placeholder="请选择分类属性" class="handle-select">
                         <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
@@ -102,7 +115,7 @@
                     <el-input placeholder="请输入" autofocus="autofocus" v-model="labelForm.name"></el-input>
                 </el-form-item>
                 <el-form-item label="父级:" prop="category_id">
-                    <el-select v-model="labelForm.category_id" placeholder="请选择" class="handle-select">
+                    <el-select v-model="labelForm.category_id" placeholder="请选择" :disabled="tagsFormTitle === '编辑标签'" class="handle-select">
                         <el-option v-for="state in categoryOptions" :key="state.key" :value="state.key" :label="state.name" />
                     </el-select>
                 </el-form-item>
@@ -138,16 +151,20 @@ export default {
             categoryVisible:false,     // 分类弹窗-新增
             pageTotal: 0,
             searchForm:{
-                searchLabel:''
+                searchLabel:'',
+                category_type:'1',//1 布  2 其它
+                label_type:'2' //  1 后台  2 小程序
             },
             categoryForm:{
                 name: '',
-                category_type:''
+                category_type:'',//1 布  2 其它
+                label_type:[] //  1 后台  2 小程序
             },
             categoryRules: {
                 name: [{ required: true, message: '请输入分类名称', trigger: 'blur' },
                     { max: 20, message: '最多输入20个字符', trigger: 'blur' }],
-                category_type:[{ required: true, message: '请选择', trigger: 'blur' }]
+                category_type:[{ required: true, message: '请选择', trigger: 'blur' }],
+                label_type:[{ required: true, message: '请选择', trigger: 'blur' }]
             },
             labelForm: {
                 name: '',
@@ -167,13 +184,18 @@ export default {
             selectedCategoryId: -1,
             showExchangeButton: false,
             isOpen: true,
-            searchContent:'-1',
+            searchContent:'',
             delCategoryId: -1, // 点击删除分类 的分类id
-            tabPosition:'cloth',   //  布还是其它
-            selectedType: 0,   // 标签所属种类  0 布  1 其它
+            // tabPosition:'cloth',   //  布还是其它
+            selectedType: 1,   // 标签所属种类  1 布  2 其它
+            displayPlatform:2, //  1 后台  2 小程序
             typeOptions:[
-                {id:'0',name:'布'},
-                {id:'1',name:'其它'},
+                {id:'1',name:'布'},
+                {id:'2',name:'其它'},
+            ],
+            labelShowTypeOptions:[
+                {id:'1',name:'后台'},
+                {id:'2',name:'小程序'}
             ]
         };
     },
@@ -210,8 +232,10 @@ export default {
     methods: {
         // 请求 -- 获取标签分类列表
         getTagsCategoryList(){
+            //根据商品分类以及展示平台请求标签分类列表
             const params = {
-                type: this.selectedType
+                type: this.selectedType,
+                display_platform: this.displayPlatform
             };
             const rLoading = this.openLoading();
             getLabelCategoryList(params).then((res) => {
@@ -242,12 +266,13 @@ export default {
         },
 
         // 请求 -- 获取标签列表
-        getTagsList(){
+        getTagsList(displayPlatform){
             const params = {
                 page: this.pageInfo.pageIndex || 1,
                 limit: this.pageInfo.pageSize || 10,
-                category_id: this.selectedCategoryId,
-                name: this.searchContent || '-1',
+                display_platform: (displayPlatform) ? displayPlatform : this.displayPlatform,
+                tag_category_id: this.selectedCategoryId,
+                tag_name: this.searchContent || '',
                 type: this.selectedType
             };
             const rLoading = this.openLoading();
@@ -435,21 +460,39 @@ export default {
         handleSearch() {
             this.searchContent = this.searchForm.searchLabel;
             this.$set(this.pageInfo, 'pageIndex', 1);
-            this.getTagsList();
-            // 搜索框是否有值， 当搜索框有值时 搜索成功后 ，分类显示到，当前搜索值所在分类
-            // this.selectedCategoryId = ？？;
+            this.selectedCategoryId = -1;
+            this.getTagsCategoryList();
         },
 
-        // 按钮-切换状态
-        tabClick(){
-            this.selectedCategoryId = -1;
-            if(this.tabPosition === 'cloth'){
-                this.selectedType = 0;
-            }else if(this.tabPosition === 'others'){
-                this.selectedType = 1;
-            }
+        handleTagsSearch(category){
+            this.searchContent = this.searchForm.searchLabel;
             this.$set(this.pageInfo, 'pageIndex', 1);
-            this.getTagsCategoryList();
+            this.getTagsList(category.display_platform)
+        },
+
+        // 触发搜索按钮
+        handleSearchReset() {
+            this.searchForm.category_type = '1'
+            this.searchForm.label_type = '2'
+            this.displayPlatform = 2
+        },
+
+        // 分类-切换状态
+        handleCategorySelect(){
+            if(this.searchForm.category_type === '1'){
+                this.selectedType = 1;
+            }else if(this.searchForm.category_type === '2'){
+                this.selectedType = 2;
+            }
+        },
+
+        // 展示平台-切换状态
+        handleDisplayPlatformSelect(){
+            if(this.searchForm.label_type === '1'){
+                this.displayPlatform = 1;
+            }else if(this.searchForm.label_type === '2'){
+                this.displayPlatform = 2;
+            }
         },
 
         // 按钮-新增大类
@@ -458,10 +501,15 @@ export default {
             this.categoryVisible = true;
             this.$nextTick(()=>{
                 this.$set(this.categoryForm, 'name' , '')
-                if(this.selectedType > 0){
+                if(this.selectedType === 1){
                     this.$set(this.categoryForm, 'category_type' , '1')
-                }else {
-                    this.$set(this.categoryForm, 'category_type' , '0')
+                }else if(this.selectedType === 2){
+                    this.$set(this.categoryForm, 'category_type' , '2')
+                }
+                if(this.displayPlatform === 1){
+                    this.$set(this.categoryForm, 'label_type' , ['1'])
+                }else if(this.displayPlatform === 2){
+                    this.$set(this.categoryForm, 'label_type' , ['2'])
                 }
             });
         },
@@ -473,13 +521,14 @@ export default {
             this.$nextTick(()=>{
                 // let new_obj = {};
                 // new_obj['name'] = item.name;
-                if(this.selectedType > 0){
+                if(this.selectedType === 1){
                     this.$set(this.categoryForm, 'category_type' , '1')
-                }else {
-                    this.$set(this.categoryForm, 'category_type' , '0')
+                }else if(this.selectedType === 2){
+                    this.$set(this.categoryForm, 'category_type' , '2')
                 }
                 // 触发更新
                 this.$set(this.categoryForm, 'name' , item.name)
+                this.$set(this.categoryForm, 'label_type' , [(item.display_platform+'')])
                 // this.categoryForm = Object.assign({}, this.categoryForm, new_obj);
             });
         },
@@ -492,11 +541,15 @@ export default {
                     params['name'] = this.categoryForm.name;
                     // ajax
                     if(this.categoryTitle === '新增分类'){
-                        if(this.categoryForm.category_type > 0){
+                        if(this.categoryForm.category_type === '1'){
                             params['type'] = 1;
+                        }else if(this.categoryForm.category_type === '2'){
+                            params['type'] = 2;
                         }else {
-                            params['type'] = 0;
+                            params['type'] = -1;
                         }
+                        const displayPlatform = this.categoryForm.label_type.toString()
+                        params['display_platform'] = displayPlatform;
                         this.addTagsCategory(params);
                     }else {
                         params['id'] = this.categoryId;
@@ -543,7 +596,7 @@ export default {
             this.labelVisible = true;
             this.$nextTick(()=> {
                 const new_obj = {};
-                new_obj['category_id'] = row.category_id;
+                new_obj['category_id'] = row.tag_category_id;
                 new_obj['name'] = row.name;
                 // 触发更新
                 this.labelForm = Object.assign({}, this.labelForm,new_obj);
@@ -592,7 +645,7 @@ export default {
                 if (valid) {
                     let params = {};
                     params['name'] = this.labelForm.name;
-                    params['category_id'] = this.labelForm.category_id;
+                    params['tag_category_id'] = this.labelForm.category_id;
                     if (this.tagsFormTitle === '新增标签') {
                         this.addTags(params);
                     }else{
@@ -626,12 +679,12 @@ export default {
         },
 
         //  -- 切换分类
-        selectCategory(id){
-            this.selectedCategoryId = id;
+        selectCategory(category){
+            this.selectedCategoryId = category.id;
             this.$set(this.searchForm,'searchLabel','');
             this.searchContent = '';
             // 搜索请求
-            this.handleSearch();
+            this.handleTagsSearch(category)
         },
 
         // 展开或者收起分类
