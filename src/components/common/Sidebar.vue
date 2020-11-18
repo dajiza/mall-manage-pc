@@ -9,7 +9,7 @@
                 <template v-if="item.subs">
                     <el-submenu :index="item.name" :key="item.name">
                         <template slot="title">
-                            <i :class="item.icon"></i>
+                            <i class="iconfont" :class="item.icon"></i>
                             <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
                         </template>
                         <template v-for="subItem in item.subs">
@@ -19,7 +19,7 @@
                 </template>
                 <template v-else>
                     <el-menu-item :index="item.name" :key="item.name">
-                        <i :class="item.icon"></i>
+                        <i class="iconfont" :class="item.icon"></i>
                         <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
                     </el-menu-item>
                 </template>
@@ -43,7 +43,7 @@ export default {
                 },
                 {
                     icon: 'iconfont icon-goods',
-                    name: 'goods-management',
+                    name: 'mall-backend-goods-management',
                     display_name: '商品管理',
                     subs: [
                         // {
@@ -51,7 +51,7 @@ export default {
                         //     display_name: '商品列表'
                         // },
                         // {
-                        //     name: 'otherCategory',
+                        //     name: 'mall-backend-other-category',
                         //     display_name: '其它商品分类'
                         // },
                         /*{
@@ -59,18 +59,18 @@ export default {
                             display_name: '商品标签'
                         },*/
                         {
-                            name: 'freight',
+                            name: 'mall-backend-freight',
                             display_name: '运费模板'
                         }
                         // {
-                        //     name: 'customAttributes',
+                        //     name: 'mall-backend-custom-attributes',
                         //     display_name: '自定义属性'
                         // }
                     ]
                 },
                 {
                     icon: 'iconfont icon-list',
-                    name: 'order-management',
+                    name: 'mall-backend-order-management',
                     display_name: '订单管理',
                     subs: [
                         /*{
@@ -78,11 +78,11 @@ export default {
                             display_name: '订单列表'
                         },*/
                         {
-                            name: 'afterSaleList',
+                            name: 'mall-backend-afterSaleList',
                             display_name: '售后处理申请'
                         },
                         {
-                            name: 'mall-order-after-reason',
+                            name: 'mall-backend-order-after-reason',
                             display_name: '售后原因设置'
                         }
                     ]
@@ -93,16 +93,8 @@ export default {
                 //     display_name: '系统设置',
                 //     subs: [
                 //         {
-                //             name: 'user-management',
-                //             display_name: '用户管理'
-                //         },
-                //         {
-                //             name: 'role-management',
-                //             display_name: '角色管理'
-                //         },
-                //         {
-                //             name: 'authority-management',
-                //             display_name: '权限管理'
+                //             name: 'mall-backend-parameter-setting',
+                //             display_name: '参数配置'
                 //         }
                 //     ]
                 // }
@@ -129,12 +121,23 @@ export default {
         } else {
             // 不是超级管理员,根据分配的权限显示菜单
             this.role_auth_list = JSON.parse(localStorage.getItem('roleAuthList'));
-            const new_arr = this.processData(this.role_auth_list);
-            new_arr.forEach((ev, index) => {
-                if (ev.display_name === 'Android') {
-                    new_arr.splice(index, 1);
+            const all_arr = this.processData(this.role_auth_list);
+            console.log('all_arr', all_arr);
+            let new_arr = [];
+            all_arr.forEach((ev, index) => {
+                console.log('ev.display_name', ev.display_name);
+                // if (ev.display_name === 'Android') {
+                //     all_arr.splice(index, 1);
+                // }
+                if (ev.display_name === '商城后台系统') {
+                    console.log('yes');
+                    ev.subs.forEach((item)=>{
+                        item['icon'] = this.addIcon(item.display_name);
+                        new_arr.push(item);
+                    })
                 }
             });
+            console.log('new_arr', new_arr);
             new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });
             this.items = new_arr;
         }
@@ -173,6 +176,19 @@ export default {
                 }
             });
             return dealOptions;
+        },
+        addIcon(data){
+            let icon_class = '';
+            if(data){
+                if(data === '商品管理'){
+                    icon_class = 'icon-goods';
+                }else if(data === '订单管理'){
+                    icon_class = 'icon-list';
+                }else if(data === '系统设置'){
+                    icon_class = 'icon-setting';
+                }
+                return icon_class;
+            }
         }
     }
 };

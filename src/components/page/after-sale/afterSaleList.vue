@@ -44,23 +44,33 @@
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
-                    <el-button class="text-red" v-if="scope.row.status == 0" type="text" size="" @click.native="gotoDetail(scope.row.id)">审核</el-button>
-                    <el-button
-                        class="text-blue"
-                        v-if="scope.row.status == 2 || scope.row.status == 4 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
-                        type="text"
-                        size=""
-                        @click.native="gotoDetail(scope.row.id)"
-                        >详情</el-button
-                    >
-                    <el-button
-                        class="text-yellow"
-                        v-if="scope.row.status == 1 || scope.row.status == 5 || scope.row.status == 6"
-                        type="text"
-                        size=""
-                        @click.native="gotoDetail(scope.row.id)"
-                        >处理</el-button
-                    >
+                    <div v-hasPermission="'mall-backend-after-sale-audit'">
+                        <el-button
+                            class="text-red"
+                            type="text"
+                            size=""
+                            v-if="scope.row.status == 0"
+                            @click.native="gotoDetail(scope.row.id)"
+                        >审核</el-button>
+                    </div>
+                    <div v-hasPermission="'mall-backend-afterSaleDetail'">
+                        <el-button
+                            class="text-blue"
+                            type="text"
+                            size=""
+                            v-if="scope.row.status == 2 || scope.row.status == 4 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
+                            @click.native="gotoDetail(scope.row.id)"
+                        >详情</el-button>
+                    </div>
+                    <div v-hasPermission="'mall-backend-after-sale-process'">
+                        <el-button
+                            class="text-yellow"
+                            type="text"
+                            size=""
+                            v-if="scope.row.status == 1 || scope.row.status == 5 || scope.row.status == 6"
+                            @click.native="gotoDetail(scope.row.id)"
+                        >处理</el-button>
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="订单号" width="">

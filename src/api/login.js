@@ -1,7 +1,7 @@
 import { get, post, put } from './util';
 
 // 获取配置信息
-export const getConfigInfo = params => post('/backend/admin-detail', params);
+export const getConfigInfo = params => post('/backend/get-index-config', params);
 
 // 获取验证码
 export const getAuthCode = params => post('/backend/get-captcha', params);

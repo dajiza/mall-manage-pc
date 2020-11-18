@@ -54,12 +54,20 @@ Vue.directive('hasPermission', {
                     item.subs.map(v => {
                         if (v.subs && v.subs.length) {
                             v.subs.map(s => {
-                                permissions.push(s.name);
+                                if (s.subs && s.subs.length) {
+                                    s.subs.map(k => {
+                                        permissions.push(k.name);
+                                    });
+                                }
+
+                                // permissions.push(s.name);
                             });
                         }
                     });
                 }
             });
+            console.log('permissions', permissions);
+            console.log('binding.value', binding.value);
             if (typeof binding.value === 'string') {
                 // console.log('单个判断');
                 if (!permissions.includes(binding.value)) {
@@ -133,12 +141,18 @@ router.beforeEach((to, from, next) => {
                         if (v.subs && v.subs.length) {
                             v.subs.map(s => {
                                 permissions.push(s.name);
+                                if (s.subs && s.subs.length) {
+                                    s.subs.map(k => {
+                                        permissions.push(k.name);
+                                    });
+                                }
                             });
                         }
                     });
                 }
             });
             permissions.push('dashboard');
+            // console.log('permissions', permissions);
             const path_url = to.path.replace('/', '');
             // console.log('permissions', permissions);
             // console.log('path_url', path_url);
