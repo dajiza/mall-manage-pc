@@ -74,7 +74,7 @@
 
                 <el-table-column label="产品名称" width="240">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.name }}</span>
+                        <span>{{ scope.row.status }}{{ scope.row.name }}{{ scope.row.id }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="品牌">
@@ -147,21 +147,22 @@
         <div slot="footer" class="dialog-footer">
             <el-button @click="close">取 消</el-button>
             <el-button type="primary" @click="save">确定</el-button>
+            <el-button type="primary" @click="dd">y</el-button>
+            <el-button type="primary" @click="cc">n</el-button>
         </div>
     </el-dialog>
 </template>
 
 <script>
-import { getAllAttrList, queryProduceList, getLabelAllList } from '@/api/goods';
+import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail } from '@/api/goods';
 
 export default {
     name: 'CheckList',
     props: {
-        // isShow: Boolean
-        // initArea: {
-        //     type: Array,
-        //     default: []
-        // }
+        checkedSku: {
+            type: Array,
+            default: []
+        }
     },
     data() {
         return {
@@ -222,6 +223,15 @@ export default {
         opened() {
             this.getAllAttr();
             this.getList();
+            this.$refs.multipleTable.clearSelection();
+            let list = this.checkedSku.map(item => {
+                return {
+                    id: item.storehouse_pid
+                };
+            });
+            list.forEach(row => {
+                this.$refs.multipleTable.toggleRowSelection(row);
+            });
         },
         toggleSelection() {
             this.checkedList.forEach(row => {
@@ -250,7 +260,6 @@ export default {
             // });
         },
         cancelSelection(row) {
-            console.log('GOOGLE: row', row);
             if (row) {
                 this.$refs.multipleTable.toggleRowSelection(row, false);
                 // this.checkedList.forEach(row => {
@@ -274,7 +283,6 @@ export default {
             params['page'] = this.listQuery.page;
             queryProduceList(params)
                 .then(async res => {
-                    console.log('GOOGLE: res', res);
                     this.list = res.data.list;
                     this.total = res.data.total;
                     this.refreshSelection();
@@ -283,7 +291,6 @@ export default {
                 .catch(err => {});
         },
         handleSelectionChange(val) {
-            console.log('GOOGLE: checkbox', val);
             this.checkedList = val;
         },
         // 搜索
@@ -489,63 +496,94 @@ export default {
         close() {
             this.isShow = false;
         },
-        save() {
+        async save() {
             let listClone = _.cloneDeep(this.checkedList);
-            let skuList = listClone.map(item => {
-                return {
-                    storehouse_pid: item.id, //所选的仓库产品id
-                    title: item.name,
-                    min_price: item.price_out,
-                    display_price: item.price_out,
-                    sku_img: item.img,
-                    stock_warning: 1,
-                    stock_total: item.stock_total,
-                    stock_apply: item.stock_apply,
-                    attr_origin: item.attr_origin_name,
-                    attr_brand: item.attr_brand_name,
-                    attr_color: item.attr_color_name,
-                    attr_material: item.attr_material_name,
-                    attr_unit: item.attr_unit_name,
-                    attr_pattern: item.attr_pattern_name,
-                    status: item.status,
-                    tag_names: item.tag_names,
-                    category_name: item.category_name,
-                    attr_list: [
-                        {
-                            attr_id: item.attr_brand,
-                            attr_title: '品牌',
-                            attr_value: item.attr_brand_name
-                        },
-                        {
-                            attr_id: item.attr_color,
-                            attr_title: '颜色',
-                            attr_value: item.attr_color_name
-                        },
-                        {
-                            attr_id: item.attr_material,
-                            attr_title: '材质',
-                            attr_value: item.attr_material_name
-                        },
-                        {
-                            attr_id: item.attr_origin,
-                            attr_title: '产地',
-                            attr_value: item.attr_origin_name
-                        },
-                        {
-                            attr_id: item.attr_pattern,
-                            attr_title: '花纹',
-                            attr_value: item.attr_origin_name
-                        },
-                        {
-                            attr_id: item.attr_unit,
-                            attr_title: '单位',
-                            attr_value: item.attr_unit_name
-                        }
-                    ]
-                };
-            });
+
+            let skuList = await Promise.all(
+                listClone.map(async m => {
+                    let item = {};
+                    if (m.title) {
+                        item = m;
+                    } else {
+                        // 外部传入只有id,回传前查询相应返回
+                        item = await this.queryDetail(m.id);
+                    }
+                    return {
+                        storehouse_pid: item.id, //所选的仓库产品id
+                        title: item.name,
+                        min_price: item.price_out / 100,
+                        display_price: item.price_out / 100,
+                        sku_img: item.img,
+                        stock_warning: 1,
+                        stock_total: item.stock_total,
+                        stock_apply: item.stock_apply,
+                        attr_origin: item.attr_origin_name,
+                        attr_brand: item.attr_brand_name,
+                        attr_color: item.attr_color_name,
+                        attr_material: item.attr_material_name,
+                        attr_unit: item.attr_unit_name,
+                        attr_pattern: item.attr_pattern_name,
+                        status: item.status,
+                        tag_names: item.tag_names,
+                        category_name: item.category_name,
+                        attr_list: [
+                            {
+                                attr_id: item.attr_brand,
+                                attr_title: '品牌',
+                                attr_value: item.attr_brand_name
+                            },
+                            {
+                                attr_id: item.attr_color,
+                                attr_title: '颜色',
+                                attr_value: item.attr_color_name
+                            },
+                            {
+                                attr_id: item.attr_material,
+                                attr_title: '材质',
+                                attr_value: item.attr_material_name
+                            },
+                            {
+                                attr_id: item.attr_origin,
+                                attr_title: '产地',
+                                attr_value: item.attr_origin_name
+                            },
+                            {
+                                attr_id: item.attr_pattern,
+                                attr_title: '花纹',
+                                attr_value: item.attr_origin_name
+                            },
+                            {
+                                attr_id: item.attr_unit,
+                                attr_title: '单位',
+                                attr_value: item.attr_unit_name
+                            }
+                        ]
+                    };
+                })
+            );
             this.$emit('check-sku', skuList);
+            this.checkedList = [];
+            this.$refs.multipleTable.toggleAllSelection(false);
             this.isShow = false;
+        },
+
+        queryDetail(skuId) {
+            let params = { sku_id: skuId };
+            return new Promise(function(resolve, reject) {
+                queryProduceDetail(params)
+                    .then(res => {
+                        resolve(res.data);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            });
+        },
+        dd() {
+            this.$refs.multipleTable.toggleAllSelection(true);
+        },
+        cc() {
+            this.$refs.multipleTable.clearSelection();
         }
     }
 };

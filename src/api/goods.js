@@ -23,3 +23,6 @@ export const queryProduceList = params => post('/backend/store-house-product-lis
 
 // 商城后台标签列表(不分页)
 export const getLabelAllList = params => post('/backend/tag-list-all', params);
+
+// 仓库产品详情
+export const queryProduceDetail = params => post('/backend/store-house-product-detail', params);

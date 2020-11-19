@@ -75,10 +75,10 @@
                     fit
                     highlight-current-row
                 >
-                    <el-table-column label="操作" width="120">
+                    <el-table-column label="操作" width="160">
                         <template slot-scope="scope">
-                            <el-button class="opt-btn" type="primary" size="small" @click.native="gotoDetail(scope.row.id)">删除SKU</el-button>
-                            <el-button class="opt-btn" type="danger" size="small" @click.native="gotoDetail(scope.row.id)">设为主商品</el-button>
+                            <el-button class="opt-btn" type="primary" size="small" @click.native="deleteSku(scope.$index)">删除SKU</el-button>
+                            <el-button class="opt-btn" type="danger" size="small" @click.native="setTimg(scope.row, scope.$index)">设为主商品</el-button>
                         </template>
                     </el-table-column>
                     <el-table-column label="状态" width="">
@@ -196,7 +196,7 @@
             </div>
         </el-form>
         <!-- 仓库产品 -->
-        <store-product-list ref="productList" @check-sku="getSku"></store-product-list>
+        <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list"></store-product-list>
         <!-- 图片预览 -->
         <el-dialog :visible.sync="dialogVisible">
             <img width="100%" :src="dialogImageUrl" alt="" />
@@ -241,7 +241,7 @@ export default {
                 freight_id: 1, //运费模版id
                 sku_list: [
                     {
-                        storehouse_pid: 60, //所选的仓库产品id
+                        storehouse_pid: 84, //所选的仓库产品id
                         title: '这是sku title', //sku名称 maxlenth =200
                         min_price: 1000, //最低价格 单位分
                         display_price: 2000, //展示价格 单位分
@@ -253,6 +253,7 @@ export default {
                         attr_unit: '米',
                         attr_pattern: '花纹',
                         status: 2, //1下架；2上架
+                        tag_names: [1, 2],
                         attr_list: [
                             //选择的sku展示的sku属性
                             {
@@ -273,35 +274,13 @@ export default {
                         ]
                     },
                     {
-                        storehouse_pid: 60, //所选的仓库产品id
-                        title: '这是sku title',
-                        min_price: 800,
-                        display_price: 880,
-                        sku_img: 'https://storehouse-upyun.chuanshui.cn/2020-08-19/0rY89WZdNBm4BDlN/386ZRRCVeHfzZLict3TqmgwmK0oevpqE.jpg',
-                        stock_warning: 10,
-                        attr_brand: '品牌',
-                        attr_color: '颜色',
-                        attr_material: '材质',
-                        attr_unit: '米',
-                        attr_pattern: '花纹',
-                        status: 2,
-                        attr_list: [
-                            {
-                                attr_id: 8,
-                                attr_title: '款式',
-                                attr_value: '这是款式'
-                            },
-                            {
-                                attr_id: 1,
-                                attr_title: '品牌',
-                                attr_value: '一家'
-                            },
-                            {
-                                attr_id: 2,
-                                attr_title: '颜色',
-                                attr_value: '蓝色'
-                            }
-                        ]
+                        storehouse_pid: 78 //所选的仓库产品id
+                    },
+                    {
+                        storehouse_pid: 73 //所选的仓库产品id
+                    },
+                    {
+                        storehouse_pid: 71 //所选的仓库产品id
                     }
                 ]
             },
@@ -418,6 +397,20 @@ export default {
         },
         addSku() {
             this.$refs.productList.show();
+        },
+        // 删除sku
+        deleteSku(index) {
+            console.log('GOOGLE: index', index);
+            this.goods.sku_list.splice(index, 1);
+        },
+        // 设为主商品
+        setTimg(row, index) {
+            console.log('GOOGLE: row', row);
+            console.log('GOOGLE: index', index);
+            this.goods.sku_list.unshift(row);
+            this.goods.sku_list.splice(index + 1, 1);
+
+            // this.goods.sku_list.splice(index, 1);
         },
         // 图片上传前检测
         beforeUpload(file) {
