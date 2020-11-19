@@ -341,13 +341,8 @@
             // this.getChannelData();
             // 获取订单列表数据
             this.getListData();
-            // 获取搜索容器高度
-            // const searchBoxHeight = this.$refs.searchBox.offsetHeight;
-            // const containerHasSearch = document.getElementsByClassName('container-table-has-search')[0];
-            // containerHasSearch.style.height = `calc(100% - 16px - ${searchBoxHeight}px)`;
         },
         methods: {
-
             // 请求-获取订单列表数据
             getListData() {
                 let params = {
@@ -387,28 +382,7 @@
             },
 
             // 请求-获取购买渠道列表数据
-            getChannelData() {
-                let params = {
-                    page: 1,
-                    limit: 999
-                };
-                getRoleList(params)
-                    .then((res) => {
-                        if (res.code === 200) {
-                            this.channelOptions = [];
-                            if (res.data.lists) {
-                                res.data.lists.forEach((ev, i) => {
-                                    this.channelOptions.push({
-                                        id: ev.id,
-                                        name: ev.name
-                                    });
-                                });
-                            }
-                        } else {
-                        }
-                    })
-                    .catch(() => {});
-            },
+            getChannelData() {},
 
             // 按钮 - 重置
             resetForm(formName) {

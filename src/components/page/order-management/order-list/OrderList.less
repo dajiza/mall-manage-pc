@@ -129,13 +129,25 @@
     }
 }
 .order-detail-container{
+    .w320{
+        width: 320px !important;
+    }
     .marginTop4{
         margin-top: 4px!important;
     }
     .change-price{
         display: flex;
         align-items: center;
-        justify-content: center;
+    }
+    .pos-absolute{
+        position: relative;
+        .remark-tip-img{
+            //visibility: hidden;
+            position: absolute;
+            z-index: -99;
+            left: -2000px;
+            top: -2000px;
+        }
     }
     .remark-tip-wrap{
         height: 25px;

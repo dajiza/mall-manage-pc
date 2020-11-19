@@ -158,14 +158,14 @@
                 <el-table-column prop="price_real" label="改价(元)">
                     <template slot-scope="scope">
                         <div class="change-price">
-                            <span>{{ scope.row.price_sum_change/1000 | rounding}}</span>
+                            <span>{{ scope.row.price_sum_change/100 | rounding}}</span>
                             <el-popover
                                     popper-class="update-list-popover"
                                     placement="top-end"
                                     width="540"
                                     trigger="click">
                                 <div class="popover-title">改价记录</div>
-                                <el-table style="margin: 16px 0 36px" :data="priceUpdateData">
+                                <el-table style="margin: 16px 0 36px" :data="orderPriceUpdateList">
                                     <el-table-column width="100" property="date" label="改价(元)">
                                         <template slot-scope="childrenScope">
                                             <span>{{childrenScope.row.change_price/100 | rounding}}</span>
@@ -175,16 +175,19 @@
                                     <el-table-column width="100" property="user_name" label="操作人"></el-table-column>
                                     <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
                                 </el-table>
-                                <div class="remark-tip-wrap" slot="reference">
+                                <div class="pos-absolute" ref="changeListTip" slot="reference">
                                     <i class="remark-tip-img cursor-class"></i>
                                 </div>
                             </el-popover>
+                            <div class="remark-tip-wrap" slot="reference" @click="getOrderPriceChangeList(scope.$index,scope.row)">
+                                <i class="remark-tip-img cursor-class"></i>
+                            </div>
                         </div>
                     </template>
                 </el-table-column>
                 <el-table-column prop="price_real" label="实付(元)">
                     <template slot-scope="scope">
-                        <span>{{(Number(scope.row.price_real) * Number(scope.row.num) - scope.row.off_2 - scope.row.off_1)/100 | rounding}}</span>
+                        <span>{{scope.row.price_sum_end/100 | rounding}}</span>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -208,7 +211,7 @@
                             <span class="label">下单时间：</span>
                             <span class="info-value">{{order_info.created_time}}</span>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item w320">
                             <span class="label">支付交易号：</span>
                             <span class="info-value">{{order_info.pay_no}}</span>
                         </div>
@@ -248,7 +251,7 @@
                     </div>
                     <div class="order-amount-item total-order">
                         <div class="amount-name">订单总计</div>
-                        <div class="amount-value">¥ {{order_info.price_total/100 | rounding}}</div>
+                        <div class="amount-value">¥ {{order_info.price_total_detail/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item coupon-total">
                         <div class="amount-name">优惠券总额</div>
@@ -260,7 +263,7 @@
                     </div>
                     <div class="order-amount-item buyer-pays">
                         <div class="amount-name">买家实付</div>
-                        <div class="amount-value">¥ {{Number(order_info.price_total_real + order_info.logistics_money)/100 | rounding}}</div>
+                        <div class="amount-value">¥ {{Number(order_info.price_total_real)/100 | rounding}}</div>
                     </div>
                 </div>
             </div>
@@ -313,7 +316,7 @@
         <el-dialog :title="dialogTitle" :visible.sync="priceUpdateVisible" width="380px"
                    :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
             <el-form ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
-                <el-form-item label="现价:" prop="price">
+                <el-form-item v-if="dialogTitle === '修改订单价格'" :label="moneyUpdateLabel" prop="price">
                     <el-input
                         placeholder="请输入金额"
                         :precision="2"
@@ -321,7 +324,15 @@
                         v-model="priceUpdateForm.price"
                     ></el-input>
                 </el-form-item>
-                <el-form-item label="修改原因:" prop="reason">
+                <el-form-item v-if="dialogTitle === '修改运费'" :label="moneyUpdateLabel" prop="shipping">
+                    <el-input
+                            placeholder="请输入金额"
+                            :precision="2"
+                            autofocus="autofocus"
+                            v-model="priceUpdateForm.shipping"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="修改原因" prop="reason">
                     <el-input
                         placeholder="请输入"
                         v-model="priceUpdateForm.reason"
@@ -341,13 +352,25 @@
 
 <script>
     import './OrderList.less';
+    import { queryConfigList } from '../../../../api/configManagement';
     import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail } from '../../../../api/orderList';
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
-    import Adjustment from './AdjustmentModule';
     export default {
         name: 'OrderDetail',
         data() {
+            var checkLastNum = (rule, value, callback) => {
+                // if (!value) {
+                //     return callback(new Error('请输入最终数量'));
+                // }
+                setTimeout(() => {
+                    if ( value * 100 < this.minPrice * 100) {
+                        callback(new Error('现价应不低于' + this.minPrice));
+                    } else {
+                        callback();
+                    }
+                }, 10);
+            };
             return{
                 pageInfo: {
                     name: '',
@@ -380,13 +403,19 @@
                 product_unit:'',
                 need_num:0,
                 priceUpdateVisible: false, // 价格
-                dialogTitle:'修改价格',
+                dialogTitle:'',
                 priceUpdateForm:{
-                    price:'',
+                    price:'',  // 订单价格
+                    shipping:'', // 运费
                     reason:''
                 },
                 priceUpdateFormRules: {
                     price: [
+                        { required: true, message: '请输入金额', trigger: 'blur' },
+                        { validator: checkLastNum, trigger: ['blur'] },
+                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                    ],
+                    shipping: [
                         { required: true, message: '请输入金额', trigger: 'blur' },
                         { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
                     ],
@@ -401,13 +430,17 @@
                     {change_price: 3000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'}
                 ],
                 FreightUpdateList:[], // 运费更改列表
+                orderPriceUpdateList:[], // 订单价格修改列表
                 loadingTip:{},
+                orderDetailId: -1,
+                MoneyChangeMax: 0,
+                moneyUpdateLabel: '',
+                minPrice: 0,
             }
         },
         components: {
             BigImg,
-            EmptyList,
-            Adjustment
+            EmptyList
         },
         computed: {
             //  拼接图片地址
@@ -501,11 +534,38 @@
         },
         created() {
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
+            this.getConfig();
         },
         mounted() {
             this.getOrderInfo();
         },
         methods:{
+            // 请求 - 获取配置
+            getConfig(){
+                queryConfigList({})
+                    .then((res) => {
+                        if (res.code === 200) {
+                            if (res.data){
+                                res.data.forEach((ev)=>{
+                                    if (ev.config_key === 'ORDER_MONEY_CHANGE_MAX'){
+                                        // 金额允许修改的最大百分比
+                                        this.MoneyChangeMax = ev.value;
+                                        // console.log('this.MoneyChangeMax', this.MoneyChangeMax);
+                                    }
+                                })
+                            }
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
+
             // 请求 - 详情信息
             getOrderInfo(){
                 const params = {
@@ -545,6 +605,28 @@
                     .then((res) => {
                         if (res.code === 200) {
                             this.FreightUpdateList = res.data || [];
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
+
+            // 订单价格修改列表
+            getOrderPriceChangeList(i,row){
+                const params = {
+                    order_detail_id: row.id
+                }
+                queryOrderDetailChangeList(params)
+                    .then((res) => {
+                        if (res.code === 200) {
+                            this.orderPriceUpdateList = res.data || [];
+                            this.$refs.changeListTip.click();
                         } else {
                             this.$notify({
                                 title: res.msg,
@@ -597,8 +679,6 @@
                 })
             },
 
-            // 请求 -添加留言
-
             // 添加留言弹框关闭
             remarksClose(){
                 this.$refs['remarksFormBox'].resetFields();
@@ -635,11 +715,11 @@
                 this.$refs['formBox'].validate(valid => {
                     if (valid) {
                         const params = {
-                            now_price: this.priceUpdateForm.price,
-                            reason: this.priceUpdateForm.reason_name
+                            reason_name: this.priceUpdateForm.reason
                         };
                         if (this.dialogTitle === '修改运费') {
                             params['order_id'] = Number(this.$route.query.order_id);
+                            params['new_price'] = Number(this.priceUpdateForm.shipping) * 100;
                             const rLoading = this.openLoading();
                             updateFreight(params)
                                 .then((res) => {
@@ -664,7 +744,32 @@
                                 })
                                 .catch(() => {});
                         } else {
-
+                            // 修改订单金额
+                            params['order_detail_id'] = Number(this.orderDetailId);
+                            params['new_price'] = Number(this.priceUpdateForm.price) * 100;
+                            const rLoading = this.openLoading();
+                            updateOrderDetail(params)
+                                .then((res) => {
+                                    rLoading.close();
+                                    if (res.code === 200) {
+                                        this.$notify({
+                                            title: '修改成功',
+                                            message: '',
+                                            type: 'success',
+                                            duration: 3000
+                                        });
+                                        this.dialogClose();
+                                        this.getOrderInfo();
+                                    } else {
+                                        this.$notify({
+                                            title: res.msg,
+                                            message: '',
+                                            type: 'error',
+                                            duration: 5000
+                                        });
+                                    }
+                                })
+                                .catch(() => {});
                         }
                     } else {
                         return false;
@@ -673,8 +778,17 @@
             },
 
             // 修改订单价格
-            handleUpdatePrice(){
+            handleUpdatePrice(i,row){
+                this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
+                const now_price = Number(row.price_sum_end);
+                const min = 100 - Number(this.MoneyChangeMax);
+                // const max = 100 + Number(this.MoneyChangeMax);
+                const min_price = ((min * now_price)/10000).toFixed(2);
+                // console.log('min_price', min_price);
+                this.minPrice = min_price;
+                const priceChangeTip = '修改后价格应不低于'+ min_price + '元';
+                this.moneyUpdateLabel = '现价（' + priceChangeTip +'）';
                 this.priceUpdateVisible = true;
             },
 
@@ -688,9 +802,51 @@
             // 修改运费
             updateShipping(){
                 this.dialogTitle = '修改运费';
+                this.moneyUpdateLabel = '现价'
                 this.priceUpdateVisible = true;
             },
 
+            numberAdd(a, b) {
+                let c, d, e;
+                try {
+                    c = a.toString().split(".")[1].length;
+                } catch (f) {
+                    c = 0;
+                }
+                try {
+                    d = b.toString().split(".")[1].length;
+                } catch (f) {
+                    d = 0;
+                }
+                return e = Math.pow(10, Math.max(c, d)), (this.numberMul(a, e) + this.numberMul(b, e)) / e;
+            },
+
+            numberSub(a, b) {
+                let c, d, e;
+                try {
+                    c = a.toString().split(".")[1].length;
+                } catch (f) {
+                    c = 0;
+                }
+                try {
+                    d = b.toString().split(".")[1].length;
+                } catch (f) {
+                    d = 0;
+                }
+                return e = Math.pow(10, Math.max(c, d)), (this.numberMul(a, e) - this.numberMul(b, e)) / e;
+            },
+            numberMul(a, b) {
+                let c = 0,
+                    d = a.toString(),
+                    e = b.toString();
+                try {
+                    c += d.split(".")[1].length;
+                } catch (f) {}
+                try {
+                    c += e.split(".")[1].length;
+                } catch (f) {}
+                return Number(d.replace(".", "")) * Number(e.replace(".", "")) / Math.pow(10, c);
+            }
         }
     };
 </script>

@@ -81,29 +81,9 @@ export default new Router({
                     meta: { title: '售后原因设置', name: 'afterSaleReason' }
                 },
                 {
-                    path: '/user-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/user-management/UserList.vue'),
-                    meta: { title: '用户管理', name: 'userList' }
-                },
-                {
-                    path: '/authority-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/authority-management/AuthorityManagement'),
-                    meta: { title: '权限管理', name: 'authorityManagement' }
-                },
-                {
-                    path: '/role-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/RoleManagement'),
-                    meta: { title: '角色管理', name: 'roleManagement' }
-                },
-                {
-                    path: '/role-create',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/RoleAdd'),
-                    meta: { title: '新建角色', name: 'addRole' }
-                },
-                {
-                    path: '/role-update',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/OperationRoleModule'),
-                    meta: { title: '编辑角色', name: 'editRole' }
+                    path: '/mall-backend-parameter-setting',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
+                    meta: { title: '参数配置', name: 'parameterSetting' }
                 },
                 {
                     path: '/404',
