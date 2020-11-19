@@ -7,7 +7,7 @@
         <div class="divider"></div>
 
         <el-form class="freight-form" :model="info" :rules="rules" ref="formRef" label-width="80px" label-position="left">
-            <el-form-item label="专题名称" prop="name">
+            <el-form-item label="模板名称" prop="name">
                 <el-input style="width:380px" placeholder="模板名称" v-model="info.name"></el-input>
             </el-form-item>
             <el-form-item label="是否包邮">
@@ -21,7 +21,7 @@
             <template v-if="info.is_free == 1">
                 <div class="default">
                     <div class="caption">默认其他运费</div>
-                    <el-form-item label="" label-width="0px" prop="detail.0.first_num" :rules="rulesRequired">
+                    <el-form-item label="" label-width="0px" prop="detail.0.first_num" :rules="rulesInt">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_num"></el-input>
                     </el-form-item>
                     <div class="quantifier">件内</div>
@@ -30,7 +30,7 @@
                     </el-form-item>
                     <div class="quantifier">元</div>
                     <div class="label">每增加</div>
-                    <el-form-item label="" label-width="0px" prop="detail.0.continue_num" :rules="rulesRequired">
+                    <el-form-item label="" label-width="0px" prop="detail.0.continue_num" :rules="rulesInt">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].continue_num"></el-input>
                     </el-form-item>
                     <div class="quantifier">件</div>
@@ -79,7 +79,7 @@
                         </div>
 
                         <div class="row">
-                            <el-form-item label="" label-width="0px" :prop="'detail.' + index + '.first_num'" :rules="rulesRequired">
+                            <el-form-item label="" label-width="0px" :prop="'detail.' + index + '.first_num'" :rules="rulesInt">
                                 <el-input class="row-input" placeholder="" :disabled="item.is_free == 2" v-model="item.first_num"></el-input>
                             </el-form-item>
                         </div>
@@ -89,7 +89,7 @@
                             </el-form-item>
                         </div>
                         <div class="row">
-                            <el-form-item label="" label-width="0px" :prop="'detail.' + index + '.continue_num'" :rules="rulesRequired">
+                            <el-form-item label="" label-width="0px" :prop="'detail.' + index + '.continue_num'" :rules="rulesInt">
                                 <el-input class="row-input" placeholder="" :disabled="item.is_free == 2" v-model="item.continue_num"></el-input>
                             </el-form-item>
                         </div>
@@ -199,9 +199,9 @@ export default {
                     {
                         is_default: 2,
                         is_free: 1, //是否包邮，1:否，2是
-                        first_num: 0,
+                        first_num: 1,
                         first_money: 0,
-                        continue_num: 0,
+                        continue_num: 1,
                         continue_money: 0
                     }
                     // {
@@ -259,7 +259,18 @@ export default {
                 // articleList: [{ required: true, message: '请选择测评文章', trigger: 'blur' }]
             },
             rulesNone: [],
-            rulesRequired: [{ required: true, message: '请输入内容', trigger: 'change' }]
+            rulesRequired: [{ required: true, message: '请输入内容', trigger: 'change' }],
+            rulesInt: [
+                { required: true, message: '请输入内容', trigger: 'change' },
+                {
+                    type: 'integer',
+                    message: '请输入非零整数',
+                    transform(value) {
+                        return Number(value);
+                    },
+                    min: 1
+                }
+            ]
         };
     },
     components: {
@@ -352,10 +363,10 @@ export default {
             }
             this.info.detail.map((item, index) => {
                 if (indexSign == index) {
-                    item.first_num = item.first_num || 0;
-                    item.first_money = item.first_money || 0;
-                    item.continue_num = item.continue_num || 0;
-                    item.continue_money = item.continue_money || 0;
+                    item.first_num = 1;
+                    item.first_money = item.first_money || 1;
+                    item.continue_num = 1;
+                    item.continue_money = item.continue_money || 1;
                     return item;
                 }
             });
@@ -366,18 +377,18 @@ export default {
                 return;
             }
 
-            this.info.detail[0].first_num = this.info.detail[0].first_num || 0;
-            this.info.detail[0].first_money = this.info.detail[0].first_money || 0;
-            this.info.detail[0].continue_num = this.info.detail[0].continue_num || 0;
-            this.info.detail[0].continue_money = this.info.detail[0].continue_money || 0;
+            this.info.detail[0].first_num = 1;
+            this.info.detail[0].first_money = this.info.detail[0].first_money || 1;
+            this.info.detail[0].continue_num = 1;
+            this.info.detail[0].continue_money = this.info.detail[0].continue_money || 1;
         },
         addDefault() {
             this.info.detail.push({
                 is_default: 1,
                 is_free: 1,
-                first_num: 0,
+                first_num: 1,
                 first_money: 0,
-                continue_num: 0,
+                continue_num: 1,
                 continue_money: 0,
                 place: []
             });

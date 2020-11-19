@@ -3,12 +3,7 @@
         <div class="page-title">
             运费模板
             <router-link class="" to="./mall-backend-freightCreat">
-                <el-button
-                    size="small"
-                    type="primary"
-                    icon="el-icon-plus"
-                    v-hasPermission="'mall-backend-freight-creat'"
-                >新增模板</el-button>
+                <el-button size="small" type="primary" icon="el-icon-plus" v-hasPermission="'mall-backend-freight-creat'">新增模板</el-button>
             </router-link>
         </div>
         <div class="list">
@@ -25,18 +20,9 @@
                     <div class="btn">
                         <el-button class="title-btn" type="text" v-show="item.is_default !== 2" @click="handleSetDefault(index, item)">设为默认</el-button>
                         <div class="line" v-show="item.is_default !== 2"></div>
-                        <el-button
-                            class="title-btn"
-                            type="text"
-                            v-hasPermission="'mall-backend-freight-copy'"
-                            @click="copy(item.id)">复制模板</el-button>
+                        <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-copy'" @click="copy(item.id)">复制模板</el-button>
                         <div class="line"></div>
-                        <el-button
-                            class="title-btn"
-                            type="text"
-                            v-hasPermission="'mall-backend-freight-update'"
-                            @click="edit(item.id)"
-                        >修改</el-button>
+                        <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-update'" @click="edit(item.id)">修改</el-button>
                         <div class="line"></div>
                         <el-button class="title-btn" type="text" @click="handleDelete(index, item)">删除</el-button>
                         <!--<div class="line"></div>-->
@@ -45,28 +31,29 @@
                 <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
                     <el-table-column label="运送到">
                         <template slot-scope="scope">
-                            <span v-if="scope.row.is_default === 2">默认其它</span>
-                            <span v-else>{{ backArea(scope.row.place) }}</span>
+                            <span class="area" v-if="scope.row.is_default === 2">默认其它</span>
+                            <span class="area" v-else>{{ backArea(scope.row.place) }}</span>
+                            <span class="tag" v-if="scope.row.is_free === 2">包邮</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="首件数(件)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.first_num }}</span>
+                            <span>{{ scope.row.is_free === 2 ? '0' : scope.row.first_num }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.first_money / 100 }}</span>
+                            <span>{{ scope.row.is_free === 2 ? '0' : scope.row.first_money / 100 }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="续件数(件)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.continue_num }}</span>
+                            <span>{{ scope.row.is_free === 2 ? '0' : scope.row.continue_num }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="运费(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.continue_money / 100 }}</span>
+                            <span>{{ scope.row.is_free === 2 ? '0' : scope.row.continue_money / 100 }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -222,6 +209,19 @@ export default {
     font-size: 20px;
 }
 .list {
+    .area {
+        margin-right: 20px;
+    }
+    .tag {
+        padding: 2px 8px;
+        border-radius: 11px;
+        background: #1890ff;
+        color: #ffffff;
+        white-space: nowrap;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 21px;
+    }
     .item {
         margin-top: 20px;
         border-radius: 2px;
