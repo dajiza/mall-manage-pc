@@ -68,39 +68,92 @@
             <div class="divider"></div>
             <div class="content">
                 <el-table
-                    :data="list"
+                    :data="goods.sku_list"
                     v-loading.body="listLoading"
                     :header-cell-style="$tableHeaderColor"
                     element-loading-text="Loading"
                     fit
                     highlight-current-row
                 >
-                    <el-table-column label="操作" width="">
+                    <el-table-column label="操作" width="120">
                         <template slot-scope="scope">
-                            <el-button class="text-red" v-if="scope.row.status == 0" type="text" size="" @click.native="gotoDetail(scope.row.id)"
-                                >审核</el-button
-                            >
-                            <el-button
-                                class="text-blue"
-                                v-if="scope.row.status == 2 || scope.row.status == 4 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
-                                type="text"
-                                size=""
-                                @click.native="gotoDetail(scope.row.id)"
-                                >详情</el-button
-                            >
-                            <el-button
-                                class="text-yellow"
-                                v-if="scope.row.status == 1 || scope.row.status == 5 || scope.row.status == 6"
-                                type="text"
-                                size=""
-                                @click.native="gotoDetail(scope.row.id)"
-                                >处理</el-button
-                            >
+                            <el-button class="opt-btn" type="primary" size="small" @click.native="gotoDetail(scope.row.id)">删除SKU</el-button>
+                            <el-button class="opt-btn" type="danger" size="small" @click.native="gotoDetail(scope.row.id)">设为主商品</el-button>
                         </template>
                     </el-table-column>
-                    <el-table-column label="订单号" width="">
+                    <el-table-column label="状态" width="">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.order_no }}</span>
+                            <span :class="scope.row.status == 0 ? 'text-red' : 'text-blue'">{{ scope.row.status == 0 ? '下架' : '上架' }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="SKU图片" width="130">
+                        <template slot-scope="scope">
+                            <img class="timg" :src="scope.row.sku_img" alt="" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="SKU名称" width="240">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.title }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="最低售价(元)" width="">
+                        <template slot-scope="scope">
+                            <el-input class="default-input" placeholder="" v-model="scope.row.min_price"></el-input>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="显示售价(元)" width="">
+                        <template slot-scope="scope">
+                            <el-input class="default-input" placeholder="" v-model="scope.row.display_price"></el-input>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="总库存" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.stock_total }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="可用库存" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.stock_apply }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="库存预警" width="">
+                        <template slot-scope="scope">
+                            <el-input class="default-input" placeholder="" v-model="scope.row.stock_warning"></el-input>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="品牌" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_brand }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="产地" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_origin }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="材质" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_material }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="颜色" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_color }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="花纹" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_pattern }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="分类" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.category_name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="标签" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.tag_names.join(',') }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -358,6 +411,7 @@ export default {
 
         getSku(e) {
             console.log('GOOGLE: e', e);
+            this.goods.sku_list = e;
         },
         handleCloseTag(tag) {
             console.log('GOOGLE: tag', tag);
@@ -473,6 +527,14 @@ export default {
 }
 .content {
     background: #fff;
+    .opt-btn {
+        margin: 0 0 10px 0;
+        width: 105px;
+    }
+    .timg {
+        width: 80px;
+        height: 60px;
+    }
     & /deep/ .el-form-item__label {
         color: #000000;
         font-weight: 500;
