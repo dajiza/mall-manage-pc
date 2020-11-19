@@ -79,42 +79,17 @@ export default new Router({
                 {
                     path: '/order-detail',
                     component: () => import(/* webpackChunkName: "table" */ '../components/page/order-management/order-list/OrderDetail.vue'),
-                    meta: { title: '查看订单', name: 'orderDetail' }
-                },
-                {
-                    path: '/order-err-operate',
-                    component: () => import(/* webpackChunkName: "order-err-operate" */ '../components/page/order-management/order-list/OrderErrOperate.vue'),
-                    meta: { title: '手动调整列表', name: 'orderErrOperate' }
+                    meta: { title: '订单详情', name: 'orderDetail' }
                 },
                 {
                     path: '/mall-order-after-reason',
-                    component: () => import(/* webpackChunkName: "order-after-reason" */ '../components/page/order-management/afterSaleReason.vue'),
+                    component: () => import(/* webpackChunkName: "order-after-reason" */ '../components/page/after-sale/afterSaleReason.vue'),
                     meta: { title: '售后原因设置', name: 'afterSaleReason' }
                 },
                 {
-                    path: '/user-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/user-management/UserList.vue'),
-                    meta: { title: '用户管理', name: 'userList' }
-                },
-                {
-                    path: '/authority-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/authority-management/AuthorityManagement'),
-                    meta: { title: '权限管理', name: 'authorityManagement' }
-                },
-                {
-                    path: '/role-management',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/RoleManagement'),
-                    meta: { title: '角色管理', name: 'roleManagement' }
-                },
-                {
-                    path: '/role-create',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/RoleAdd'),
-                    meta: { title: '新建角色', name: 'addRole' }
-                },
-                {
-                    path: '/role-update',
-                    component: () => import(/* webpackChunkName: "table" */ '../components/page/system-settings/role-management/OperationRoleModule'),
-                    meta: { title: '编辑角色', name: 'editRole' }
+                    path: '/mall-backend-parameter-setting',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
+                    meta: { title: '参数配置', name: 'parameterSetting' }
                 },
                 {
                     path: '/404',

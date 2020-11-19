@@ -74,10 +74,10 @@ export default {
                     name: 'order-management',
                     display_name: '订单管理',
                     subs: [
-                        /*{
+                        {
                             name: 'order-list',
                             display_name: '订单列表'
-                        },*/
+                        },
                         {
                             name: 'after-sale-list',
                             display_name: '售后处理申请'
@@ -94,16 +94,8 @@ export default {
                     display_name: '系统设置',
                     subs: [
                         {
-                            name: 'user-management',
-                            display_name: '用户管理'
-                        },
-                        {
-                            name: 'role-management',
-                            display_name: '角色管理'
-                        },
-                        {
-                            name: 'authority-management',
-                            display_name: '权限管理'
+                            name: 'mall-backend-parameter-setting',
+                            display_name: '参数配置'
                         }
                     ]
                 }
