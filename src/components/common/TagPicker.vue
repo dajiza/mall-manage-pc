@@ -247,7 +247,7 @@ export default {
         border-top: 1px solid #f0f0f0;
         border-bottom: 1px solid #f0f0f0;
         text-align: center;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 500;
         color: rgba(0, 0, 0, 0.85);
         line-height: 56px;
