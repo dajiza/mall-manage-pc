@@ -251,7 +251,7 @@
                     </div>
                     <div class="order-amount-item total-order">
                         <div class="amount-name">订单总计</div>
-                        <div class="amount-value">¥ {{order_info.price_total_detail/100 | rounding}}</div>
+                        <div class="amount-value">¥ {{order_info.price_total_detail_end/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item coupon-total">
                         <div class="amount-name">优惠券总额</div>
@@ -447,11 +447,7 @@
             getImg: function () {
                 return (data) => {
                     if(data){
-                        if(data.indexOf('http') === -1){
-                            return this.imgBaseUrl + data + '!/fw/' + 80;
-                        }else {
-                            return data + '!/fw/' + 80;
-                        }
+                        return data + '!/fw/' + 80;
                     }
                 }
             },
@@ -688,11 +684,7 @@
             // 查看大图
             viewBigImg(pic_url){
                 if(pic_url){
-                    if(pic_url.indexOf('http') === -1){
-                        this.bigImgUrl =  this.imgBaseUrl + pic_url + '!/fw/640';
-                    }else {
-                        this.bigImgUrl =  pic_url + '!/fw/640';
-                    }
+                    this.bigImgUrl =  pic_url + '!/fw/640';
                     this.$refs.bigImg.show();
                 }
             },
