@@ -54,7 +54,9 @@ Vue.directive('hasPermission', {
                     item.subs.map(v => {
                         if (v.subs && v.subs.length) {
                             v.subs.map(s => {
-                                permissions.push(s.name);
+                                s.subs.map(k => {
+                                    permissions.push(k.name);
+                                });
                             });
                         }
                     });
@@ -133,6 +135,11 @@ router.beforeEach((to, from, next) => {
                         if (v.subs && v.subs.length) {
                             v.subs.map(s => {
                                 permissions.push(s.name);
+                                if (s.subs && s.subs.length) {
+                                    s.subs.map(k => {
+                                        permissions.push(k.name);
+                                    });
+                                }
                             });
                         }
                     });

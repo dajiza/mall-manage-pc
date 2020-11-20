@@ -4,7 +4,7 @@ import {get,post,put} from './util';
 export const getRoleList = params =>post('/backend/role-list',params);
 
 // 角色已有权限
-export const getHasCheckedAuthList = (params) => post('/backend/role-permission-list',params);
+export const getHasCheckedAuthList = (params) => post('/backend/admin-role-permission-list',params);
 
 // 新增角色
 export const addRole = params =>post('/backend/role-create',params);

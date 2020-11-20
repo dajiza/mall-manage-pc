@@ -298,7 +298,7 @@ export default {
         }
     },
     created() {
-        this.getConfig();
+        // this.getConfig();
         this.getCookie();
     },
     mounted() {}
