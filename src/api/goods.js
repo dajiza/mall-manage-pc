@@ -26,3 +26,9 @@ export const getLabelAllList = params => post('/backend/tag-list-all', params);
 
 // 仓库产品详情
 export const queryProduceDetail = params => post('/backend/store-house-product-detail', params);
+
+// 自定义是属性的列表（所有，下拉使用）
+export const queryAttrList = params => post('/backend/consume-attr-list-all', params);
+
+// 店铺列表 代理店铺
+export const queryShopList = params => post('/backend/shop-list-all', params);

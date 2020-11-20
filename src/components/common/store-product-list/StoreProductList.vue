@@ -527,36 +527,36 @@ export default {
                         tag_names: item.tag_names,
                         category_name: item.category_name,
                         attr_list: [
-                            {
-                                attr_id: item.attr_brand,
-                                attr_title: '品牌',
-                                attr_value: item.attr_brand_name
-                            },
-                            {
-                                attr_id: item.attr_color,
-                                attr_title: '颜色',
-                                attr_value: item.attr_color_name
-                            },
-                            {
-                                attr_id: item.attr_material,
-                                attr_title: '材质',
-                                attr_value: item.attr_material_name
-                            },
-                            {
-                                attr_id: item.attr_origin,
-                                attr_title: '产地',
-                                attr_value: item.attr_origin_name
-                            },
-                            {
-                                attr_id: item.attr_pattern,
-                                attr_title: '花纹',
-                                attr_value: item.attr_origin_name
-                            },
-                            {
-                                attr_id: item.attr_unit,
-                                attr_title: '单位',
-                                attr_value: item.attr_unit_name
-                            }
+                            // {
+                            //     attr_id: item.attr_brand,
+                            //     attr_title: '品牌',
+                            //     attr_value: item.attr_brand_name
+                            // },
+                            // {
+                            //     attr_id: item.attr_color,
+                            //     attr_title: '颜色',
+                            //     attr_value: item.attr_color_name
+                            // },
+                            // {
+                            //     attr_id: item.attr_material,
+                            //     attr_title: '材质',
+                            //     attr_value: item.attr_material_name
+                            // },
+                            // {
+                            //     attr_id: item.attr_origin,
+                            //     attr_title: '产地',
+                            //     attr_value: item.attr_origin_name
+                            // },
+                            // {
+                            //     attr_id: item.attr_pattern,
+                            //     attr_title: '花纹',
+                            //     attr_value: item.attr_origin_name
+                            // },
+                            // {
+                            //     attr_id: item.attr_unit,
+                            //     attr_title: '单位',
+                            //     attr_value: item.attr_unit_name
+                            // }
                         ]
                     };
                 })
