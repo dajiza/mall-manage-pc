@@ -109,6 +109,11 @@ export default new Router({
             meta: { title: '登录', name: 'login' }
         },
         {
+            path: '/test',
+            component: () => import(/* webpackChunkName: "tag-test" */ '../components/page/test-demo/TagPickerDemo.vue'),
+            meta: { title: 'test', name: 'test' }
+        },
+        {
             path: '*',
             redirect: '/404'
         }
