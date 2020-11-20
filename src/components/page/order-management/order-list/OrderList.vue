@@ -133,12 +133,12 @@
                 </el-table-column>
                 <el-table-column prop="user_name" label="用户昵称" width="180"></el-table-column>
                 <el-table-column prop="shop_name" label="代理店铺" width="200"></el-table-column>
-                <el-table-column prop="price_total" label="订单总计(元)" width="120">
+                <el-table-column prop="price_total_detail_end" label="订单总计(元)" width="120">
                     <template slot-scope="scope">
-                        {{(scope.row.price_total_detail/100) | rounding}}
+                        {{(scope.row.price_total_detail_end/100) | rounding}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_total_real" label="运费(元)" width="120">
+                <el-table-column prop="logistics_money" label="运费(元)" width="120">
                     <template slot-scope="scope">
                         <span v-if="scope.row.logistics_money > 0">{{(scope.row.logistics_money/100) | rounding}}</span>
                         <span v-else>无运费</span>

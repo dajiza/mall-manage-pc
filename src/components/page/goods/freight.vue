@@ -2,8 +2,13 @@
     <div class="app-container">
         <div class="page-title">
             运费模板
-            <router-link class="" to="./freight-creat">
-                <el-button size="small" type="primary" icon="el-icon-plus">新增模板</el-button>
+            <router-link class="" to="./mall-backend-freightCreat">
+                <el-button
+                    size="small"
+                    type="primary"
+                    icon="el-icon-plus"
+                    v-hasPermission="'mall-backend-freight-creat'"
+                >新增模板</el-button>
             </router-link>
         </div>
         <div class="list">
@@ -20,9 +25,18 @@
                     <div class="btn">
                         <el-button class="title-btn" type="text" v-show="item.is_default !== 2" @click="handleSetDefault(index, item)">设为默认</el-button>
                         <div class="line" v-show="item.is_default !== 2"></div>
-                        <el-button class="title-btn" type="text" @click="copy(item.id)">复制模板</el-button>
+                        <el-button
+                            class="title-btn"
+                            type="text"
+                            v-hasPermission="'mall-backend-freight-copy'"
+                            @click="copy(item.id)">复制模板</el-button>
                         <div class="line"></div>
-                        <el-button class="title-btn" type="text" @click="edit(item.id)">修改</el-button>
+                        <el-button
+                            class="title-btn"
+                            type="text"
+                            v-hasPermission="'mall-backend-freight-update'"
+                            @click="edit(item.id)"
+                        >修改</el-button>
                         <div class="line"></div>
                         <el-button class="title-btn" type="text" @click="handleDelete(index, item)">删除</el-button>
                         <!--<div class="line"></div>-->
@@ -106,7 +120,7 @@ export default {
         },
         edit(id) {
             this.$router.push({
-                name: 'freight-creat',
+                name: 'freightCreat',
                 params: {
                     id: id
                 }
@@ -114,7 +128,7 @@ export default {
         },
         copy(id) {
             this.$router.push({
-                name: 'freight-creat',
+                name: 'freightCreat',
                 params: {
                     id: id,
                     mark: 'copy'

@@ -9,7 +9,7 @@
                     <el-tab-pane label="后台发起退款原因" name="后台发起退款原因"></el-tab-pane>
                 </el-tabs>
                 <div>
-                    <el-button class="btn-add" type="primary" @click="handleAdd">新增</el-button>
+                    <el-button class="btn-add" type="primary" v-hasPermission="'mall-backend-reason-create'" @click="handleAdd">新增</el-button>
                 </div>
             </div>
             <el-table v-loading="is_loading" :data="tableData" ref="multipleTable" :height="tableHeight">
@@ -17,12 +17,18 @@
                 <el-table-column label="操作" width="240">
                     <template slot-scope="scope">
                         <div style="display: inline-block">
-                            <el-button type="text" class="marginRight32"
-                                       @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                            <el-button
+                                type="text"
+                                class="marginRight32"
+                                v-hasPermission="'mall-backend-reason-update'"
+                                @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
                         </div>
                         <div style="display: inline-block">
-                            <el-button type="text" class="delete-color marginLeft0"
-                                       @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                            <el-button
+                                type="text"
+                                class="delete-color marginLeft0"
+                                v-hasPermission="'mall-backend-reason-delete'"
+                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                         </div>
                     </template>
                 </el-table-column>
