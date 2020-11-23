@@ -63,7 +63,11 @@
                         <i></i>
                         <span>订单备注</span>
                     </div>
-                        <el-button type="primary" v-hasPermission="'order-add-remark'" @click="handleAddRemarks">添加留言</el-button>
+                        <el-button
+                            type="primary"
+                            v-hasPermission="'mall-backend-add-remark'"
+                            @click="handleAddRemarks"
+                        >添加留言</el-button>
                 </div>
             </div>
             <div class="info-content">
@@ -109,15 +113,16 @@
                         <div v-show="order_info.status === 0">
                             <el-button
                                 type="primary"
+                                v-hasPermission="'mall-backend-order-detail-update'"
                                 @click="handleUpdatePrice(scope.$index,scope.row)"
                             >修改价格</el-button>
                         </div>
                         <div v-show="order_info.logistics_no">
                             <el-button
                                 type="primary"
-                                v-show="scope.row.err_type === 0"
                                 :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
-                                @click="handleViewLogistics(scope.$index,scope.row)">查看物流</el-button>
+                                @click="handleViewLogistics(scope.$index,scope.row)"
+                            >查看物流</el-button>
                         </div>
                     </template>
                 </el-table-column>
@@ -175,11 +180,20 @@
                                     <el-table-column width="100" property="user_name" label="操作人"></el-table-column>
                                     <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
                                 </el-table>
-                                <div class="pos-absolute" ref="changeListTip" slot="reference">
+                                <div
+                                    class="pos-absolute"
+                                    ref="changeListTip"
+                                    slot="reference"
+                                    v-hasPermission="'mall-backend-order-detail-change-list'"
+                                >
                                     <i class="remark-tip-img cursor-class"></i>
                                 </div>
                             </el-popover>
-                            <div class="remark-tip-wrap" slot="reference" @click="getOrderPriceChangeList(scope.$index,scope.row)">
+                            <div
+                                class="remark-tip-wrap"
+                                slot="reference"
+                                v-hasPermission="'mall-backend-order-detail-change-list'"
+                                @click="getOrderPriceChangeList(scope.$index,scope.row)">
                                 <i class="remark-tip-img cursor-class"></i>
                             </div>
                         </div>
@@ -219,9 +233,18 @@
                 </div>
                 <div class="order-amount clearfix">
                     <div class="order-amount-item shipping">
-                        <div class="amount-name" @click="updateShipping">
+                        <div class="amount-name">
                             <span>运费</span>
-                            <img class="update-icon" src="../../../../assets/img/updateIcon.svg" v-show="order_info.status === 0" alt="" />
+                            <div
+                                class="update-icon-box"
+                                v-show="order_info.status === 0"
+                                v-hasPermission="'mall-backend-order-freight-update'"
+                                @click="updateShipping">
+                                <img
+                                    class="update-icon"
+                                    src="../../../../assets/img/updateIcon.svg"
+                                    alt="" />
+                            </div>
                         </div>
                         <div class="amount-value">
                             <el-popover
@@ -243,6 +266,7 @@
                                 <i
                                     class="remark-tip-img cursor-class marginRight8"
                                     slot="reference"
+                                    v-hasPermission="'mall-backend-freight-change-list'"
                                 ></i>
                             </el-popover>
                             <span v-show="order_info.logistics_money > 0">¥ {{order_info.logistics_money/100 | rounding}}</span>

@@ -40,7 +40,7 @@
                         >保存</el-button>
                     </template>
                 </el-table-column>
-                <template  slot="empty" >
+                <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
             </el-table>

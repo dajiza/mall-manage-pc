@@ -29,10 +29,18 @@
                          :class="{'is-select': selectedCategoryId === item.id}"
                          @click="selectCategory(item)">
                         <span>{{item.name}}</span>
-                        <div v-show="index > 0 " class="edit-icon-box" v-hasPermission="'tag-category-edit'" @click.stop="handleEditCategory(item)">
+                        <div
+                            v-show="index > 0 "
+                            class="edit-icon-box"
+                            v-hasPermission="'mall-backend-tag-category-update'"
+                            @click.stop="handleEditCategory(item)">
                             <div class="edit-icon" :class="{'edit-choose': selectedCategoryId === item.id}"></div>
                         </div>
-                        <div v-show="index > 0 " class="delete-icon-box" v-hasPermission="'tag-category-del'" @click.stop="handleDeleteCategory(item)">
+                        <div
+                            v-show="index > 0 "
+                            class="delete-icon-box"
+                            v-hasPermission="'mall-backend-tag-category-delete'"
+                            @click.stop="handleDeleteCategory(item)">
                             <div class="delete-icon" :class="{'delete-choose': selectedCategoryId === item.id}"></div>
                         </div>
                     </div>
@@ -52,8 +60,14 @@
                     <span>产品标签</span>
                 </div>
                 <div>
-                    <el-button type="success" v-hasPermission="'tag-category-add'" @click="addCategory">新增分类</el-button>
-                    <el-button type="primary" v-hasPermission="'tag-add'" @click="handleAddTags">新增标签</el-button>
+                    <el-button
+                        type="success"
+                        v-hasPermission="'mall-backend-tag-category-create'"
+                        @click="addCategory">新增分类</el-button>
+                    <el-button
+                        type="primary"
+                        v-hasPermission="'mall-backend-tag-create'"
+                        @click="handleAddTags">新增标签</el-button>
                 </div>
             </div>
             <el-table :data="tableData" style="width: 100%">
@@ -61,8 +75,16 @@
                 <el-table-column label="父级" prop="category_name"></el-table-column>
                 <el-table-column label="操作" width="200" align="left">
                     <template slot-scope="scope">
-                        <el-button type="text" class="m-l-0 marginRight32" v-hasPermission="'tag-edit'" @click="handleEditLabel(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" class="delete-color m-l-0" v-hasPermission="'tag-del'" @click="handleDeleteTags(scope.$index, scope.row)">删除</el-button>
+                        <el-button
+                            type="text"
+                            class="m-l-0 marginRight32"
+                            v-hasPermission="'mall-backend-tag-update'"
+                            @click="handleEditLabel(scope.$index, scope.row)">编辑</el-button>
+                        <el-button
+                            type="text"
+                            class="delete-color m-l-0"
+                            v-hasPermission="'mall-backend-tag-delete'"
+                            @click="handleDeleteTags(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
                 <template  slot="empty" >
