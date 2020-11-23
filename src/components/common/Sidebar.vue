@@ -44,7 +44,7 @@ export default {
 
                 {
                     icon: 'iconfont icon-goods',
-                    name: 'goods-management',
+                    name: 'mall-backend-goods-management',
                     display_name: '商品管理',
                     subs: [
                         {
@@ -90,7 +90,7 @@ export default {
                 },
                 {
                     icon: 'iconfont icon-setting',
-                    name: 'system-setting',
+                    name: 'mall-backend-system-setting',
                     display_name: '系统设置',
                     subs: [
                         {
@@ -122,7 +122,7 @@ export default {
         } else {
             // 不是超级管理员,根据分配的权限显示菜单
             this.role_auth_list = JSON.parse(localStorage.getItem('roleAuthList'));
-            const all_arr = this.processData(this.role_auth_list);
+           /* const all_arr = this.processData(this.role_auth_list);
             let new_arr = [];
             all_arr.forEach((ev, index) => {
                 if (ev.display_name === '商城后台系统') {
@@ -133,8 +133,16 @@ export default {
                     })
                 }
             });
-            new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });
-            this.items = new_arr;
+            new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });*/
+            let roleAuthList = [];
+            this.role_auth_list.forEach((ev)=>{
+                roleAuthList.push(ev.name);
+            });
+
+            roleAuthList.unshift('dashboard');
+            const menuList = this.commonMenu(this.all_menu,roleAuthList);
+            const newList = this.filterMenu(menuList);
+            this.items = newList;
         }
     },
     mounted() {},
@@ -156,22 +164,6 @@ export default {
             });
             return dealOptions;
         },
-        processData2(data) {
-            let dealOptions = [];
-            // 给每个数据加children属性
-            data.forEach((ev, one) => {
-                ev.children = [];
-            });
-            data.forEach((ev, one) => {
-                let findIndex = data.findIndex(item => item.id === ev.pid);
-                if ((!ev.pid && ev.pid !== 0 && ev.pid !== false) || findIndex === -1) {
-                    dealOptions.push(ev);
-                } else {
-                    data[findIndex].children.push(ev);
-                }
-            });
-            return dealOptions;
-        },
         addIcon(data){
             let icon_class = '';
             if(data){
@@ -184,6 +176,29 @@ export default {
                 }
                 return icon_class;
             }
+        },
+        commonMenu(data1, data2) {
+            data1.map(item1 => {
+                data2.map(item2 => {
+                    if (item1.name === item2) {
+                        item1.is_show = true;
+                        if (item1.subs && item1.subs.length) {
+                            this.commonMenu(item1.subs, data2);
+                        }
+                    }
+                });
+                console.log('item1', item1);
+            });
+            return data1;
+        },
+        filterMenu(menuList){
+            return menuList.filter(item=>item.is_show).map(item => {
+                item = Object.assign({}, item);
+                if (item.subs) {
+                    item.subs = this.filterMenu(item.subs)
+                }
+                return item
+            })
         }
     }
 };

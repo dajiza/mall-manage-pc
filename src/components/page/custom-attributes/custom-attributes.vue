@@ -6,8 +6,10 @@
                     <i></i>
                     <span>自定义属性</span>
                 </div>
-                <!-- v-hasPermission="'category-add'" -->
-                <el-button type="primary" @click="handleCreateAuthority">新增属性</el-button>
+                <el-button
+                    type="primary"
+                    v-hasPermission="'mall-backend-consume-attr-create'"
+                    @click="handleCreateAuthority">新增属性</el-button>
             </div>
             <el-table
                     :data="tableData"
@@ -20,12 +22,16 @@
                 </el-table-column>
                 <el-table-column label="操作" width="160" align="left">
                     <template slot-scope="scope">
-                        <!-- v-hasPermission="'category-edit'" -->
-                        <el-button type="text" class="marginRight32 m-l-0"
-                                   @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <!-- v-hasPermission="'category-del'" -->
-                        <el-button type="text" class="delete-color m-l-0"
-                                   @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button
+                            type="text"
+                            class="marginRight32 m-l-0"
+                            v-hasPermission="'mall-backend-consume-attr-update'"
+                            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button
+                            type="text"
+                            class="delete-color m-l-0"
+                            v-hasPermission="'mall-backend-consume-attr-delete'"
+                            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
                 <template  slot="empty" >
