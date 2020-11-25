@@ -47,7 +47,7 @@ export default {
                     display_name: '商品管理',
                     subs: [
                         {
-                            name: 'goods-list',
+                            name: 'mall-backend-goods-list',
                             display_name: '商品列表'
                         },
                         {

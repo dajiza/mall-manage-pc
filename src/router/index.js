@@ -23,18 +23,18 @@ export default new Router({
                     meta: { title: '系统首页', name: 'dashboard' }
                 },
                 {
-                    path: '/goods-list',
+                    path: '/mall-backend-goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsList.vue'),
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
-                    path: '/goods-creat',
+                    path: '/mall-backend-goods-create',
                     name: 'goods-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
                     meta: { title: '新增商品', name: 'goodsCreat' }
                 },
                 {
-                    path: '/goods-preview',
+                    path: '/mall-backend-goods-preview',
                     name: 'goods-preview',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsPreview.vue'),
                     meta: { title: '查看商品', name: 'goodsPreview' }

@@ -1154,7 +1154,7 @@ export default {
                                         duration: 3000
                                     });
                                     // this.$router.push({
-                                    //     path: 'goods-list'
+                                    //     path: 'mall-backend-goods-list'
                                     // });
                                 } else {
                                     this.$notify({
@@ -1179,7 +1179,7 @@ export default {
                                         duration: 3000
                                     });
                                     this.$router.push({
-                                        path: 'goods-list'
+                                        path: 'mall-backend-goods-list'
                                     });
                                 } else {
                                     this.$notify({
@@ -1254,7 +1254,7 @@ export default {
         },
         gotoCreat() {
             this.$router.push({
-                path: 'goods-list'
+                path: 'mall-backend-goods-list'
             });
         },
         confirmType() {
