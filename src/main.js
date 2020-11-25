@@ -20,6 +20,10 @@ import 'default-passive-events';
 import TableHeaderColor from './plugin/tableHeader'; // 引入
 //引入lodash
 import _ from 'lodash';
+import VideoPlayer from 'vue-video-player';
+require('video.js/dist/video-js.css');
+require('vue-video-player/src/custom-theme.css');
+Vue.use(VideoPlayer);
 Vue.prototype._ = _;
 Vue.use(TableHeaderColor); // 添加
 import less from 'less';

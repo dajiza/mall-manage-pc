@@ -271,8 +271,15 @@
         <!-- 仓库产品 -->
         <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type"></store-product-list>
         <!-- 图片预览 -->
-        <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="" />
+        <el-dialog :visible.sync="dialogVisible" title="预览">
+            <img width="100%" :src="dialogImageUrl" alt="" v-if="dialogViewType == 1" />
+            <video-player
+                class="video-player vjs-custom-skin"
+                ref="videoPlayer"
+                :playsinline="true"
+                :options="playerOptions"
+                v-if="dialogViewType == 2"
+            ></video-player>
         </el-dialog>
         <el-dialog :visible.sync="dialogVisibleType" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" title="商品类型选择">
             <el-radio v-model="goods.type" :label="1">布料</el-radio>
@@ -462,6 +469,33 @@ export default {
                 status: '',
                 is_store_shortage: '',
                 allow_agent: ''
+            },
+            // 视频播放
+            playerOptions: {
+                playbackRates: [0.7, 1.0, 1.5, 2.0], //播放速度
+                autoplay: false, //如果true,浏览器准备好时开始回放。
+                muted: false, // 默认情况下将会消除任何音频。
+                loop: false, // 导致视频一结束就重新开始。
+                preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+                language: 'zh-CN',
+                aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+                fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+                sources: [
+                    {
+                        type: '',
+                        src: 'http://vjs.zencdn.net/v/oceans.mp4' //url地址
+                        // src: "" //url地址
+                    }
+                ],
+                poster: '', //你的封面地址
+                // width: document.documentElement.clientWidth,
+                notSupportedMessage: '此视频暂无法播放，请稍后再试', //允许覆盖Video.js无法播放媒体源时显示的默认信息。
+                controlBar: {
+                    timeDivider: true,
+                    durationDisplay: true,
+                    remainingTimeDisplay: false,
+                    fullscreenToggle: true //全屏按钮
+                }
             }
         };
     },
@@ -600,7 +634,8 @@ export default {
                     // format 图片
                     data.imgs = data.imgs.map(item => {
                         return {
-                            url: item.img_url,
+                            url: item.type == 2 ? this.imgVedio : item.img_url,
+                            vedioUrl: item.type == 2 ? item.img_url : null,
                             type: item.type
                         };
                     });
@@ -938,7 +973,16 @@ export default {
             this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0];
         },
         handlePictureCardPreview(file) {
-            this.dialogImageUrl = file.url;
+            console.log('GOOGLE: file', file);
+            if (file.response) {
+                this.dialogImageUrl = item.response.data.file_url;
+                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
+                this.dialogViewType = file.raw.type == 'video/mp4' ? 2 : 1;
+            } else {
+                this.dialogImageUrl = file.type == 2 ? file.vedioUrl : file.url;
+                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
+                this.dialogViewType = file.type;
+            }
             this.dialogVisible = true;
         },
 

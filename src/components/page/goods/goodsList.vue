@@ -57,12 +57,12 @@
             highlight-current-row
         >
             <el-table-column type="selection" width="55"> </el-table-column>
-            <el-table-column label="商品ID" width="">
+            <el-table-column label="商品ID" width="60">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="100" header-align="center">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
                         <el-button class="text-blue btn-opt" type="text" size="" @click.native="goodsEdit(scope.row.id)">编辑</el-button>
@@ -80,7 +80,7 @@
                             class="text-blue btn-opt"
                             type="text"
                             size=""
-                            v-if="scope.row.status == 2"
+                            v-if="scope.row.status == 1"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                             >上架</el-button
                         >
@@ -88,7 +88,7 @@
                             class="text-red btn-opt"
                             type="text"
                             size=""
-                            v-if="scope.row.status == 1"
+                            v-if="scope.row.status == 2"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                             >下架</el-button
                         >
