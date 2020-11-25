@@ -5,14 +5,15 @@
     padding-top: 0;
 }
 .order-list-container {
-    .container-table-has-search{
+    .container-table-has-search {
         padding: 0 0 15px;
-        .global-table-title{
-            padding-left: 20px;
-            padding-right: 30px;
+        .global-table-title {
             box-sizing: border-box;
+            padding-right: 30px;
+            padding-left: 20px;
         }
-        .el-table td:first-child>.cell, .el-table th:first-child>.cell{
+        .el-table td:first-child > .cell,
+        .el-table th:first-child > .cell {
             padding-left: 24px !important;
         }
     }
@@ -27,61 +28,62 @@
     .margin-right0 {
         margin-right: 0 !important;
     }
-    .marginRight55{
+    .marginRight55 {
         margin-right: 54px;
     }
     /*搜索每行容器*/
-    .search-item-box{
-        border-bottom: 1px dashed #E9E9E9;
-        padding-top: 16px;
-        &:first-child{
-            padding-top:0;
-        }
-        &:last-child{
-            border-bottom:none;
-            .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
-                margin-bottom: 9px;
-            }
-        }
-        .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
-            margin-bottom: 16px;
-        }
-        .el-form--inline .el-form-item{
-            &:last-child{
-                margin-right: 0 !important;
-            }
-        }
-        .el-form-item__content{
-            width: 180px;
-        }
-        .el-form-item__label{
-            padding: 0;
-        }
-        .select-input{
-            .el-form-item__content{
-                width: 165px;
-            }
-        }
-        .w152{
-            .el-form-item__content{
-                width: 152px;
-            }
-        }
-    }
+    // .search-item-box{
+    //     border-bottom: 1px dashed #E9E9E9;
+    //     padding-top: 16px;
+    //     &:first-child{
+    //         padding-top:0;
+    //     }
+    //     &:last-child{
+    //         border-bottom:none;
+    //         .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+    //             margin-bottom: 9px;
+    //         }
+    //     }
+    //     .el-form-item--mini.el-form-item, .el-form-item--small.el-form-item{
+    //         margin-bottom: 16px;
+    //     }
+    //     .el-form--inline .el-form-item{
+    //         &:last-child{
+    //             margin-right: 0 !important;
+    //         }
+    //     }
+    //     .el-form-item__content{
+    //         width: 180px;
+    //     }
+    //     .el-form-item__label{
+    //         padding: 0;
+    //     }
+    //     .select-input{
+    //         .el-form-item__content{
+    //             width: 165px;
+    //         }
+    //     }
+    //     .w152{
+    //         .el-form-item__content{
+    //             width: 152px;
+    //         }
+    //     }
+    // }
     .handle-select {
         width: 120px;
     }
 
     .handle-input {
-        width: 180px;
         display: inline-block;
+        width: 180px;
     }
     .table {
         width: 100%;
         font-size: 14px;
     }
-    .order-list-table{
-        .view-detail,.cancel-order{
+    .order-list-table {
+        .view-detail,
+        .cancel-order {
             margin-left: 8px;
         }
     }
@@ -101,223 +103,224 @@
     .remark-box {
         margin: 0;
     }
-    .el-table__fixed-right::before, .el-table__fixed::before{
+    .el-table__fixed-right::before,
+    .el-table__fixed::before {
         height: 0;
     }
-    .el-table--scrollable-x .el-table__body-wrapper{
+    .el-table--scrollable-x .el-table__body-wrapper {
         min-height: 300px !important;
     }
-    .el-table__body-wrapper{
+    .el-table__body-wrapper {
         min-height: 300px !important;
     }
-    .empty-list-box{
-        min-height: 300px;
-        width: 200px;
+    .empty-list-box {
         position: absolute;
         top: 117px;
         left: 50%;
         z-index: 99;
-        transform: translateX(-50%);
         display: flex;
         align-items: center;
-        .empty-list{
-
+        min-height: 300px;
+        width: 200px;
+        transform: translateX(-50%);
+        .empty-list {
         }
     }
-    .el-date-editor--datetimerange.el-input, .el-date-editor--datetimerange.el-input__inner{
+    .el-date-editor--datetimerange.el-input,
+    .el-date-editor--datetimerange.el-input__inner {
         //width: 380px;
     }
 }
-.order-detail-container{
-    .w320{
+.order-detail-container {
+    .w320 {
         width: 320px !important;
     }
-    .marginTop4{
-        margin-top: 4px!important;
+    .marginTop4 {
+        margin-top: 4px !important;
     }
-    .change-price{
+    .change-price {
         display: flex;
         align-items: center;
     }
-    .pos-absolute{
+    .pos-absolute {
         position: relative;
-        .remark-tip-img{
+        .remark-tip-img {
             //visibility: hidden;
             position: absolute;
-            z-index: -99;
-            left: -2000px;
             top: -2000px;
+            left: -2000px;
+            z-index: -99;
         }
     }
-    .remark-tip-wrap{
-        height: 25px;
-        width: 20px;
+    .remark-tip-wrap {
         display: flex;
         align-items: center;
         justify-content: center;
-        .remark-tip-img{
+        width: 20px;
+        height: 25px;
+        .remark-tip-img {
             margin-left: 6px;
         }
     }
-    .global-table-title{
-        .title{
-            align-items:flex-end;
-            .split-order{
+    .global-table-title {
+        .title {
+            align-items: flex-end;
+            .split-order {
+                color: #ff4d4f;
+                font-weight: 400;
                 font-size: 12px;
                 font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: #FF4D4F;
             }
         }
     }
     .remark-text-color {
-        color: rgba(245,108,108,1) !important;
+        color: rgba(245, 108, 108, 1) !important;
     }
-    .container-box{
-        background: #FFFFFF;
+    .container-box {
         border-radius: 2px;
-        .info-title{
+        background: #ffffff;
+        .info-title {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
             padding: 0 20px;
-            border-bottom: 1px solid #E9E9E9;
-            box-sizing: border-box;
-            -webkit-box-sizing: border-box;
+            border-bottom: 1px solid #e9e9e9;
         }
-        .info-content{
-            padding: 0 32px;
-            box-sizing: border-box;
+        .info-content {
             -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 0 32px;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 400;
             font-size: 14px;
             font-family: PingFangSC-Regular, PingFang SC;
             line-height: 22px;
-            font-weight: 400;
-            color: rgba(0, 0, 0, 0.85);
-            .info-content-box{
+            .info-content-box {
                 display: flex;
-                padding: 24px 0;
-                box-sizing: border-box;
                 -webkit-box-sizing: border-box;
-                .info-content-item{
-                    width: 33%;
+                box-sizing: border-box;
+                padding: 24px 0;
+                .info-content-item {
                     display: flex;
-                    .label,.info-value{
-
+                    width: 33%;
+                    .label,
+                    .info-value {
                         vertical-align: top;
                     }
-                    .info-value{
+                    .info-value {
+                        display: inline-block;
                         width: calc(100% - 120px);
                         color: rgba(0, 0, 0, 0.65);
-                        display: inline-block;
                     }
                 }
-                .info-remarks{
+                .info-remarks {
                     width: 100%;
                 }
             }
-            .logistics-address{
-                width: 100%;
+            .logistics-address {
                 display: flex;
                 padding-bottom: 34px;
-                .label{
-                    width:72px;
+                width: 100%;
+                .label {
+                    width: 72px;
                 }
-                .info-value{
+                .info-value {
                     flex: 1;
                     color: rgba(0, 0, 0, 0.65);
                 }
             }
         }
     }
-    .container-order-status{
+    .container-order-status {
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        padding: 0 24px;
         height: 80px;
-        line-height: 80px;
+        color: rgba(0, 0, 0, 0.85);
+        font-weight: 500;
         font-size: 20px;
         font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
-        padding: 0 24px;
-        box-sizing: border-box;
-        -webkit-box-sizing: border-box;
+        line-height: 80px;
     }
-    .order-info-container{
-        padding: 0 24px 15px;
+    .order-info-container {
         position: relative;
-        .line{
+        padding: 0 24px 15px;
+        .line {
             position: absolute;
             top: 62px;
             left: 0;
             width: 100%;
             height: 1px;
-            background: #E9E9E9;
+            background: #e9e9e9;
         }
-        .el-table{
+        .el-table {
             margin-top: 16px;
         }
-        .order-base-info{
+        .order-base-info {
             padding-top: 36px;
             padding-bottom: 10px;
-            .order-code-time{
+            .order-code-time {
                 float: left;
                 margin-right: 20px;
-                .code-time{
+                .code-time {
                     margin-bottom: 8px;
-                    .info-item{
+                    .info-item {
                         float: left;
                         width: 280px;
-                        .label,.info-value{
+                        .label,
+                        .info-value {
+                            display: inline-block;
+                            color: rgba(0, 0, 0, 0.85);
+                            vertical-align: top;
+                            font-weight: 400;
                             font-size: 14px;
                             font-family: PingFangSC-Regular, PingFang SC;
-                            font-weight: 400;
-                            color: rgba(0, 0, 0, 0.85);
                             line-height: 22px;
-                            vertical-align: top;
-                            display: inline-block;
                         }
-                        .info-value{
+                        .info-value {
+                            display: inline-block;
                             width: calc(100% - 120px);
                             color: rgba(0, 0, 0, 0.65);
-                            display: inline-block;
                         }
                     }
                 }
-
             }
-            .order-amount{
+            .order-amount {
                 float: left;
-                .order-amount-item{
+                .order-amount-item {
                     float: left;
                     margin-right: 30px;
-                    &:last-child{
+                    &:last-child {
                         margin-right: 0;
                     }
-                    .amount-name{
-                        font-size: 14px;
-                        font-family: PingFangSC-Regular, PingFang SC;
-                        font-weight: 400;
-                        color: rgba(0, 0, 0, 0.45);
-                        line-height: 22px;
+                    .amount-name {
                         display: flex;
                         align-items: center;
+                        color: rgba(0, 0, 0, 0.45);
+                        font-weight: 400;
+                        font-size: 14px;
+                        font-family: PingFangSC-Regular, PingFang SC;
+                        line-height: 22px;
                         cursor: pointer;
-                        .update-icon-box{
-                            width: 24px;
-                            height: 22px;
+                        .update-icon-box {
                             display: flex;
                             align-items: center;
+                            width: 24px;
+                            height: 22px;
                             //margin-left: 4px;
-                            .update-icon{
+                            .update-icon {
                                 margin-left: 4px;
                             }
                         }
                     }
-                    .amount-value{
-                        font-size: 20px;
-                        font-family: HelveticaNeue;
-                        color: #FF4D4F;
-                        line-height: 28px;
-                        margin-top: 4px;
+                    .amount-value {
                         display: flex;
                         align-items: center;
-                        .marginRight8{
+                        margin-top: 4px;
+                        color: #ff4d4f;
+                        font-size: 20px;
+                        font-family: HelveticaNeue;
+                        line-height: 28px;
+                        .marginRight8 {
                             margin-right: 8px;
                         }
                     }
@@ -332,103 +335,106 @@
             }
         }
     }
-    .product-img{
+    .product-img {
+        display: inline-block;
         width: 80px;
         height: 60px;
-        display: inline-block;
         vertical-align: bottom;
         cursor: pointer;
-        object-fit:cover;
+
+        object-fit: cover;
     }
-    .empty-list{
+    .empty-list {
         min-height: 400px;
     }
-    .order-detail-info{
-        .btn-adjustment{
+    .order-detail-info {
+        .btn-adjustment {
             margin-top: 4px;
             margin-left: 0 !important;
         }
-        .el-button--danger{
-            background: #FF4D4F;
-            border-color: #FF4D4F;
+        .el-button--danger {
+            border-color: #ff4d4f;
+            background: #ff4d4f;
             font-weight: 400;
         }
         .el-button--danger:hover {
-            background: #f78989;
             border-color: #f78989;
+            background: #f78989;
         }
     }
 }
-.logistics-info-dialog{
+.logistics-info-dialog {
     .el-dialog__body {
         padding: 27px 24px !important;
-        .logistics-info-box{
-            p{
+        .logistics-info-box {
+            p {
+                color: rgba(0, 0, 0, 0.85);
+                font-weight: 400;
                 font-size: 14px;
                 font-family: PingFangSC-Regular, PingFang SC;
-                font-weight: 400;
-                color: rgba(0, 0, 0, 0.85);
                 line-height: 22px;
             }
-            .logistics-no{
+            .logistics-no {
                 padding-top: 22px !important;
             }
         }
     }
-    .el-dialog__footer{
+    .el-dialog__footer {
         padding: 10px 16px !important;
     }
 }
-.order-list-container,.order-detail-container{
+.order-list-container,
+.order-detail-container {
     /*表格-订单状态*/
-    .order-status{
-        height: 26px;
-        line-height: 26px;
-        border-radius: 15px;
+    .order-status {
         display: inline-block;
         padding: 0 9px;
+        height: 26px;
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 400;
         font-size: 14px;
         font-family: PingFangSC-Regular, PingFang SC;
-        font-weight: 400;
-        color: rgba(255, 255, 255, 0.85);
+        line-height: 26px;
     }
     // 待付款
-    .order-pending-payment{
+    .order-pending-payment {
         background: rgba(24, 144, 255, 0.4);
     }
     // 已付款
-    .order-paid{
-        background: #1890FF;
+    .order-paid {
+        background: #1890ff;
     }
 
     // 待发货
-    .order-to-be-delivered{
+    .order-to-be-delivered {
         //background: #1890FF;
-        background: #A151FF;
+        background: #a151ff;
     }
 
     // 已发货
-    .order-shipped{
-        background: #8093FF;
+    .order-shipped {
+        background: #8093ff;
     }
 
     // 已取消
-    .order-cancelled{
-        background: #FF4D4F;
+    .order-cancelled {
+        background: #ff4d4f;
     }
     // 退款中-退款成功
-    .order-refunding,.order-refund-successfully{
-        background: #FAAD14;
+    .order-refunding,
+    .order-refund-successfully {
+        background: #faad14;
     }
-    .order-successfully{
-        background: #52C41A;
+    .order-successfully {
+        background: #52c41a;
     }
-    .flex-column{
+    .flex-column {
         flex-direction: column;
     }
 }
-.manual-adjust-dialog{
-    .empty-list{
+.manual-adjust-dialog {
+    .empty-list {
         min-height: 300px;
     }
 }

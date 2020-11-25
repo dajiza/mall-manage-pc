@@ -184,7 +184,7 @@
                     <el-table-column label="库存预警" width="120">
                         <template slot-scope="scope">
                             <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.stock_warning'" :rules="rulesInt">
-                                <el-input class="default-input" placeholder="库存预警" v-model="scope.row.stock_warning"></el-input>
+                                <el-input class="default-input" placeholder="库存预警" v-model.number="scope.row.stock_warning"></el-input>
                             </el-form-item>
                         </template>
                     </el-table-column>
