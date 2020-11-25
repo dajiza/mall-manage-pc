@@ -34,6 +34,12 @@ export default new Router({
                     meta: { title: '新增商品', name: 'goodsCreat' }
                 },
                 {
+                    path: '/goods-preview',
+                    name: 'goods-preview',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsPreview.vue'),
+                    meta: { title: '查看商品', name: 'goodsPreview' }
+                },
+                {
                     path: '/mall-backend-freight',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }
@@ -88,7 +94,10 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-parameter-setting',
-                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
+                    component: () =>
+                        import(
+                            /* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'
+                        ),
                     meta: { title: '参数配置', name: 'parameterSetting' }
                 },
                 {

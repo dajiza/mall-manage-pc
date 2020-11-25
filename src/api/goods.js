@@ -32,3 +32,12 @@ export const queryAttrList = params => post('/backend/consume-attr-list-all', pa
 
 // 店铺列表 代理店铺
 export const queryShopList = params => post('/backend/shop-list-all', params);
+
+// 商品的详情
+export const queryGoodsDetail = params => post('/backend/goods-detail', params);
+
+// 商品的修改
+export const updateGoods = params => post('/backend/goods-update', params);
+
+// 指定代理
+export const updateGoodsAssign = params => post('/backend/goods-assign-shop', params);

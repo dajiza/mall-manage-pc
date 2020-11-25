@@ -39,7 +39,7 @@
             <el-button type="warning" @click="updateStatusMultiple(1)">下架</el-button>
             <el-button type="primary" @click="updateIsAgentMultiple(2)">分销</el-button>
             <el-button type="warning" @click="updateIsAgentMultiple(1)">取消分销</el-button>
-            <el-button type="primary" @click="gotoCreat" class="creat-goods">新增商品</el-button>
+            <el-button type="primary" @click="goodsCreat" class="creat-goods">新增商品</el-button>
         </div>
         <div class="divider"></div>
 
@@ -65,9 +65,17 @@
             <el-table-column label="操作" width="100">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
-                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="gotoDetail(scope.row.id)">编辑</el-button>
-                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="gotoDetail(scope.row.id)">查看</el-button>
-                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="gotoDetail(scope.row.id)">指定代理</el-button>
+                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="goodsEdit(scope.row.id)">编辑</el-button>
+                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="goodsPreview(scope.row.id)">查看</el-button>
+                        <el-button
+                            class="text-blue btn-opt"
+                            type="text"
+                            size=""
+                            @click.native="goodsAssign(scope.row.id, scope.row)"
+                            v-if="scope.row.allow_agent == 1"
+                        >
+                            指定代理
+                        </el-button>
                         <el-button
                             class="text-blue btn-opt"
                             type="text"
@@ -190,10 +198,19 @@
             >
             </el-pagination>
         </div>
+        <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商">
+            <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width:280px" multiple>
+                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+            </el-select>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisibleAssign = false">取 消</el-button>
+                <el-button type="primary" @click="updateGoodsAssign">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
-import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus } from '@/api/goods';
+import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
 
 export default {
@@ -206,6 +223,10 @@ export default {
                 page: 1,
                 limit: 10
             },
+            goodsId: '',
+            shopList: [],
+            shopIds: [],
+            dialogVisibleAssign: false,
             checkedList: [], //表格选中列表
             // 分类 0 布料  否则为其他的商品分类
             categoryList: [
@@ -243,6 +264,7 @@ export default {
 
     created() {},
     mounted() {
+        this.queryShopList();
         this.getList();
     },
     methods: {
@@ -417,10 +439,64 @@ export default {
                 })
                 .catch(err => {});
         },
+        // 代理店铺列表
+        queryShopList() {
+            queryShopList()
+                .then(res => {
+                    this.shopList = res.data;
+                })
+                .catch(err => {});
+        },
+        goodsAssign(id, row) {
+            console.log('GOOGLE: row', row);
+            this.goodsId = id;
+            this.shopIds = row.agent_list == null ? [] : row.agent_list.map(item => item.ShopId);
+            this.dialogVisibleAssign = true;
+        },
+        // 更新代理
+        updateGoodsAssign() {
+            let params = {
+                goods_id: this.goodsId,
+                shop_ids: this.shopIds
+            };
+            updateGoodsAssign(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res);
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '代理设置成功',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        this.dialogVisibleAssign = false;
 
-        gotoCreat(id) {
+                        this.getList();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 3000
+                        });
+                    }
+                })
+                .catch(err => {});
+        },
+        goodsCreat() {
+            this.$router.push({
+                name: 'goods-creat'
+            });
+        },
+        goodsEdit(id) {
             this.$router.push({
                 name: 'goods-creat',
+                params: {
+                    id: id
+                }
+            });
+        },
+        goodsPreview(id) {
+            this.$router.push({
+                name: 'goods-preview',
                 params: {
                     id: id
                 }

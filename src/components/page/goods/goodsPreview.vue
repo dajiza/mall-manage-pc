@@ -12,7 +12,7 @@
                     <el-form-item label="首图 可上传图片">
                         <el-upload
                             list-type="picture-card"
-                            :class="timg.length > 0 ? 'hide-upload' : ''"
+                            class="hide-upload"
                             :action="uploadImgUrl"
                             :headers="header"
                             :before-upload="beforeUpload"
@@ -29,7 +29,7 @@
                     <el-form-item label="可上传图片/视频">
                         <el-upload
                             list-type="picture-card"
-                            :class="tfile.length > 4 ? 'hide-upload' : ''"
+                            class="hide-upload"
                             :action="uploadImgUrl"
                             :headers="header"
                             :before-upload="beforeUploadMultiple"
@@ -46,17 +46,8 @@
                             <div slot="file" slot-scope="{ file }">
                                 <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
                                 <span class="el-upload-list__item-actions">
-                                    <span class="el-upload-list__item-delete" @click="handlePictureLeft(file)">
-                                        <i class="el-icon-arrow-left"></i>
-                                    </span>
                                     <span class="el-upload-list__item-preview" @click="handlePictureCardPreview(file)">
                                         <i class="el-icon-zoom-in"></i>
-                                    </span>
-                                    <span class="el-upload-list__item-delete" @click="handleRemoveMultiple(file)">
-                                        <i class="el-icon-delete"></i>
-                                    </span>
-                                    <span class="el-upload-list__item-delete" @click="handlePictureRight(file)">
-                                        <i class="el-icon-arrow-right"></i>
                                     </span>
                                 </span>
                             </div>
@@ -64,7 +55,7 @@
                     </el-form-item>
                 </div>
                 <el-form-item label="名称" prop="title">
-                    <el-input style="width:280px" placeholder="名称" v-model="goods.title"></el-input>
+                    {{ goods.title }}
                 </el-form-item>
                 <el-form-item label="分类">
                     {{ goods.type == 1 ? '布类' : '其他' }}
@@ -78,14 +69,12 @@
                         :value="pickerTag"
                     ></v-tag-picker>
                     <div>
-                        <el-tag class="el-tag" type="warning" @close="handleCloseMiniApp(item)" closable v-for="item in miniProgramTags">{{
-                            item.label
-                        }}</el-tag>
+                        <el-tag class="el-tag" type="warning" @close="handleCloseMiniApp(item)" v-for="item in miniProgramTags">{{ item.label }}</el-tag>
                     </div>
                     <div>
-                        <el-tag class="el-tag" closable @close="handleCloseBack(item)" v-for="item in backendTags">{{ item.label }}</el-tag>
+                        <el-tag class="el-tag" @close="handleCloseBack(item)" v-for="item in backendTags">{{ item.label }}</el-tag>
                     </div>
-                    <el-button type="" size="mini" @click="dialogVisibleTag = true" icon="el-icon-plus">标签</el-button>
+                    <!-- <el-button type="" size="mini" @click="dialogVisibleTag = true" icon="el-icon-plus">标签</el-button> -->
                 </el-form-item>
             </div>
             <!-- 展示属性 -->
@@ -97,7 +86,7 @@
             <div class="content">
                 <el-form-item label="">
                     <el-checkbox-group v-model="basicChecked">
-                        <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id">
+                        <el-checkbox disabled v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id">
                             {{ item.title }}
                         </el-checkbox>
                     </el-checkbox-group>
@@ -108,7 +97,9 @@
                 </div> -->
                 <el-form-item label="自定义属性">
                     <el-checkbox-group v-model="consumeChecked">
-                        <el-checkbox v-for="item in consumeAttr" @change="handleConsumeBasic" :key="item.id" :label="item.id">{{ item.title }}</el-checkbox>
+                        <el-checkbox disabled v-for="item in consumeAttr" @change="handleConsumeBasic" :key="item.id" :label="item.id">{{
+                            item.title
+                        }}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
             </div>
@@ -116,7 +107,7 @@
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">SKU信息</div>
-                <el-button class="add-sku" type="success" @click="addSku">添加</el-button>
+                <!-- <el-button class="add-sku" type="success" @click="addSku">添加</el-button> -->
             </div>
             <div class="divider"></div>
             <div class="content content-table">
@@ -129,20 +120,17 @@
                     highlight-current-row
                     :cell-style="setCellColor"
                 >
-                    <el-table-column label="操作" width="160">
+                    <!-- <el-table-column label="操作" width="160">
                         <template slot-scope="scope">
                             <el-button class="opt-btn" type="danger" size="small" @click.native="deleteSku(scope.$index)" v-if="scope.row.sku_id == 0">
                                 删除SKU
                             </el-button>
                             <el-button class="opt-btn" type="primary" size="small" @click.native="setFirsetSku(scope.row, scope.$index)">设为主商品</el-button>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
                     <el-table-column label="状态" width="">
                         <template slot-scope="scope">
-                            <span
-                                :class="[scope.row.status == 1 ? 'text-red' : 'text-blue', 'cursor']"
-                                @click="setSkuStatus(scope.row, scope.row.status, scope.$index)"
-                            >
+                            <span :class="[scope.row.status == 1 ? 'text-red' : 'text-blue', 'cursor']">
                                 {{ scope.row.status == 1 ? '已下架' : '已上架' }}
                             </span>
                         </template>
@@ -159,16 +147,12 @@
                     </el-table-column>
                     <el-table-column label="最低售价(元)" width="120">
                         <template slot-scope="scope">
-                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.min_price'" :rules="rulesPrice">
-                                <el-input class="default-input" placeholder="最低售价" v-model="scope.row.min_price"></el-input>
-                            </el-form-item>
+                            <span>{{ scope.row.min_price }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="显示售价(元)" width="120">
                         <template slot-scope="scope">
-                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.display_price'" :rules="rulesPrice">
-                                <el-input class="default-input" placeholder="显示售价" v-model="scope.row.display_price"></el-input>
-                            </el-form-item>
+                            <span>{{ scope.row.display_price }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="总库存" width="">
@@ -183,17 +167,13 @@
                     </el-table-column>
                     <el-table-column label="库存预警" width="120">
                         <template slot-scope="scope">
-                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.stock_warning'" :rules="rulesInt">
-                                <el-input class="default-input" placeholder="库存预警" v-model="scope.row.stock_warning"></el-input>
-                            </el-form-item>
+                            <span>{{ scope.row.stock_warning }}</span>
                         </template>
                     </el-table-column>
                     <!-- 自定义属性 -->
                     <el-table-column :label="item.title" width="120" :property="item.id.toString()" v-for="(item, index) in attrDiyList" :key="item.id">
                         <template slot-scope="scope">
-                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.attrDiyValue.' + index" :rules="rulesRequired">
-                                <el-input class="default-input" placeholder="" v-model="scope.row.attrDiyValue[index]"></el-input>
-                            </el-form-item>
+                            <span>{{ scope.row.attrDiyValue[index] }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="ATTR_NAME[1]" width="" property="1">
@@ -247,26 +227,27 @@
             <div class="divider"></div>
             <div class="content">
                 <el-form-item label="是否分销商品">
-                    <el-radio v-model="goods.is_allow_agent" :label="2">是</el-radio>
-                    <el-radio v-model="goods.is_allow_agent" :label="1">否</el-radio>
+                    <el-radio disabled v-model="goods.is_allow_agent" :label="2">是</el-radio>
+                    <el-radio disabled v-model="goods.is_allow_agent" :label="1">否</el-radio>
                 </el-form-item>
 
                 <el-form-item label="是否上架商品">
-                    <el-radio v-model="goods.status" :label="2">是</el-radio>
-                    <el-radio v-model="goods.status" :label="1">否</el-radio>
+                    <el-radio disabled v-model="goods.status" :label="2">是</el-radio>
+                    <el-radio disabled v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
                 <el-form-item label="虚拟销量" prop="display_sales">
-                    <el-input style="width:200px" placeholder="虚拟销量" v-model.number="goods.display_sales"></el-input>
+                    {{ goods.display_sales }}
                 </el-form-item>
                 <div>
                     <el-form-item label="邮费模板" prop="freight_id">
-                        <el-select class="filter-item" v-model="goods.freight_id" placeholder="请选择" style="width:280px">
+                        <el-select disabled class="filter-item" v-model="goods.freight_id" placeholder="请选择" style="width:280px">
                             <el-option v-for="item in freightList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                 </div>
                 <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
                     <el-select
+                        disabled
                         class="filter-item"
                         :disabled="goods.is_allow_agent == 2"
                         v-model="goods.allow_shop_ids"
@@ -283,9 +264,9 @@
                 </el-form-item>
             </div>
         </el-form>
-        <div class="submit-wrap">
+        <!-- <div class="submit-wrap">
             <el-button class="submit-btn" type="primary" size="small" @click.native="submit">提交</el-button>
-        </div>
+        </div> -->
 
         <!-- 仓库产品 -->
         <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type"></store-product-list>
@@ -499,12 +480,7 @@ export default {
         this.header['token'] = getToken();
     },
     mounted() {
-        let id = this.$route.params.id;
-        if (!id) {
-            this.dialogVisibleType = true;
-        } else {
-            this.initData();
-        }
+        this.initData();
     },
     methods: {
         formatMoney: formatMoney,
@@ -632,9 +608,10 @@ export default {
                     data.imgs.splice(0, 1);
                     this.tfile = data.imgs;
                     // format attr_list 及价格 title字段名 store_house_id=>storehouse_pid
-                    console.log('GOOGLE: sku_list', data['sku_list']);
+                    console.log('GOOGLE: length', data['sku_list'].length);
                     for (let i = 0; i < data['sku_list'].length; i++) {
                         const skuItem = data['sku_list'][i];
+                        console.log('GOOGLE: skuItem', skuItem);
                         skuItem.min_price = skuItem.min_price / 100;
                         skuItem.display_price = skuItem.display_price / 100;
                         skuItem['attrDiyValue'] = ['', '', ''];
@@ -642,7 +619,6 @@ export default {
                         skuItem['title'] = skuItem['sku_title'];
                         const attrList = skuItem['sku_attr_list'];
                         console.log('GOOGLE: attrList', attrList);
-                        console.log('GOOGLE: attrListlength', attrList.length);
                         let diyAttrIndex = 0;
                         for (let j = 0; j < attrList.length; j++) {
                             const attrItem = attrList[j];
@@ -650,22 +626,17 @@ export default {
                                 if (attrItem.attr_id <= 6) {
                                     this.basicChecked.push(attrItem.attr_id);
                                 } else {
-                                    this.attrDiyList.push({
-                                        id: attrItem.attr_id,
-                                        title: attrItem.attr_title
-                                    });
                                     this.consumeChecked.push(attrItem.attr_id);
                                 }
                             }
-
-                            console.log('GOOGLE: attrItem', attrItem);
                             if (attrItem.attr_id > 6) {
                                 skuItem['attrDiyValue'][diyAttrIndex] = attrItem.attr_value;
                                 diyAttrIndex++;
                             }
-                            console.log('GOOGLE: attrDiyValue', skuItem['attrDiyValue']);
                         }
                     }
+                    console.log('GOOGLE: this.basicChecked', this.basicChecked);
+                    console.log('GOOGLE: this.consumeChecked', this.consumeChecked);
 
                     this.goods = data;
                     console.log('GOOGLE: this.goods', this.goods);
@@ -726,7 +697,6 @@ export default {
                     });
                     return myAttr;
                 });
-                console.log('GOOGLE: this.attrDiyList', this.attrDiyList);
             }
         },
         getSku(pList) {

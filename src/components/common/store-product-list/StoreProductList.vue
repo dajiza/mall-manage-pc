@@ -24,17 +24,17 @@
                             <el-option v-for="item in brandData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="材质" prop="attr_material">
+                    <el-form-item label="材质" prop="attr_material" v-if="type == 1">
                         <el-select class="filter-item" v-model="formFilter.attr_material" placeholder="请选择">
                             <el-option v-for="item in materialData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="产地" prop="attr_origin">
+                    <el-form-item label="产地" prop="attr_origin" v-if="type == 1">
                         <el-select class="filter-item" v-model="formFilter.attr_origin" placeholder="请选择">
                             <el-option v-for="item in placeOfOriginData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="颜色" prop="attr_color">
+                    <el-form-item label="颜色" prop="attr_color" v-if="type == 1">
                         <el-select class="filter-item" v-model="formFilter.attr_color" placeholder="请选择">
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
@@ -74,7 +74,7 @@
 
                 <el-table-column label="产品名称" width="240">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.status }}{{ scope.row.name }}{{ scope.row.id }}</span>
+                        <span>{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="品牌">
@@ -147,8 +147,6 @@
         <div slot="footer" class="dialog-footer">
             <el-button @click="close">取 消</el-button>
             <el-button type="primary" @click="save">确定</el-button>
-            <el-button type="primary" @click="dd">y</el-button>
-            <el-button type="primary" @click="cc">n</el-button>
         </div>
     </el-dialog>
 </template>
@@ -162,6 +160,10 @@ export default {
         checkedSku: {
             type: Array,
             default: []
+        },
+        type: {
+            type: Number,
+            default: 1
         }
     },
     data() {
@@ -171,7 +173,7 @@ export default {
             listLoading: false,
             listQuery: {
                 page: 1,
-                limit: 3
+                limit: 10
             },
             isShow: false,
             checkedList: [],
@@ -181,7 +183,7 @@ export default {
                 category_id: '', //产品分类
                 tag_ids: '', //标签
                 tag_id: '', //标签
-                type: '', //'0布 1其他',
+                type: 0, //'0布 1其他',
                 product_code: '',
 
                 attr_brand: '',
@@ -272,6 +274,7 @@ export default {
         getList() {
             this.listLoading = true;
             let params = this.$refs['formFilter'].model;
+            params['type'] = this.type == 1 ? 0 : 1;
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1]);
                 // params['tag_ids'].push(params.tag_id);
@@ -505,10 +508,11 @@ export default {
                     if (m.title) {
                         item = m;
                     } else {
-                        // 外部传入只有id,回传前查询相应返回
+                        // 商品创建页面传入sku id列表,回传前查询详情数据返回
                         item = await this.queryDetail(m.id);
                     }
                     return {
+                        sku_id: 0,
                         storehouse_pid: item.id, //所选的仓库产品id
                         title: item.name,
                         min_price: item.price_out / 100,
@@ -516,16 +520,17 @@ export default {
                         sku_img: item.img,
                         stock_warning: 1,
                         stock_total: item.stock_total,
-                        stock_apply: item.stock_apply,
+                        stock_available: item.stock_available,
                         attr_origin: item.attr_origin_name,
                         attr_brand: item.attr_brand_name,
                         attr_color: item.attr_color_name,
                         attr_material: item.attr_material_name,
                         attr_unit: item.attr_unit_name,
                         attr_pattern: item.attr_pattern_name,
-                        status: item.status,
-                        tag_names: item.tag_names,
-                        category_name: item.category_name,
+                        status: item.stock_available > 0 ? 2 : 1,
+                        // tag_names: item.tag_names,
+                        // category_name: item.category_name,
+                        attrDiyValue: ['', '', ''],
                         attr_list: [
                             // {
                             //     attr_id: item.attr_brand,
@@ -578,12 +583,6 @@ export default {
                         reject(err);
                     });
             });
-        },
-        dd() {
-            this.$refs.multipleTable.toggleAllSelection(true);
-        },
-        cc() {
-            this.$refs.multipleTable.clearSelection();
         }
     }
 };

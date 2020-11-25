@@ -93,7 +93,6 @@ export default {
                     isIndeterminate: checkedCount > 0 && checkedCount < newChildren.length
                 });
             });
-            console.log(option);
             return option;
         },
         backendTagsOption: function() {
@@ -119,7 +118,6 @@ export default {
                     isIndeterminate: checkedCount > 0 && checkedCount < newChildren.length
                 });
             });
-            console.log(option);
             return option;
         },
         checkedTags: function() {
@@ -194,7 +192,6 @@ export default {
                     });
                 }
             });
-            console.log(pickerTags);
             return pickerTags;
         },
         reset() {
@@ -208,48 +205,48 @@ export default {
 .tab-picker-dialog {
     .dialog-header {
         display: block;
-        text-align: center;
-        font-size: 18px;
-        font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
-        line-height: 56px;
         height: 56px;
+        color: rgba(0, 0, 0, 0.85);
+        text-align: center;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 56px;
     }
     .el-dialog__header {
         padding: 0 !important;
     }
     .el-dialog__body {
-        padding: 0 !important;
-        height: 450px !important;
         overflow: hidden;
         overflow-y: auto;
+        padding: 0 !important;
+        height: 450px !important;
     }
     .product-label-container {
         background: #f0f0f0;
         .mini-program-cascader-two {
             .el-checkbox__input.is-checked .el-checkbox__inner,
             .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-                background-color: #fa8c16;
                 border-color: #fa8c16;
+                background-color: #fa8c16;
             }
         }
         .backend-cascader-two {
             .el-checkbox__input.is-checked .el-checkbox__inner,
             .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-                background-color: #1890ff;
                 border-color: #1890ff;
+                background-color: #1890ff;
             }
         }
     }
     .product-label-title {
         height: 56px;
-        background: #ffffff;
         border-top: 1px solid #f0f0f0;
         border-bottom: 1px solid #f0f0f0;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 500;
+        background: #ffffff;
         color: rgba(0, 0, 0, 0.85);
+        text-align: center;
+        font-weight: 500;
+        font-size: 16px;
         line-height: 56px;
     }
 }
