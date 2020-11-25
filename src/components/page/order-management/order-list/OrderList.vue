@@ -106,16 +106,17 @@
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
                         <el-button
-                                type="text"
-                                class="view-detail"
-                                @click="handleViewDetail(scope.$index, scope.row)"
+                            type="text"
+                            class="view-detail"
+                            v-hasPermission="'mall-backend-order-detail'"
+                            @click="handleViewDetail(scope.$index, scope.row)"
                         >查看订单</el-button>
-                        <!-- v-hasPermission="'order-cut-list'" -->
                         <el-button
-                                type="text"
-                                class="cancel-order delete-color"
-                                @click="handleCancelOrder(scope.$index, scope.row)"
-                                v-show="scope.row.status === 0"
+                            type="text"
+                            class="cancel-order delete-color"
+                            v-show="scope.row.status === 0"
+                            v-hasPermission="'mall-backend-order-cancel'"
+                            @click="handleCancelOrder(scope.$index, scope.row)"
                         >取消订单</el-button>
                     </template>
                 </el-table-column>
@@ -416,7 +417,7 @@
 
             // 按钮-查看订单详情
             handleViewDetail(index, row){
-                this.$router.push({ path: '/order-detail', query: { order_id: row.id.toString() } });
+                this.$router.push({ path: '/mall-backend-order-detail', query: { order_id: row.id.toString() } });
 
             },
 
