@@ -499,7 +499,7 @@ export default {
         this.header['token'] = getToken();
     },
     mounted() {
-        let id = this.$route.params.id;
+        let id = this.$route.params.id || 213;
         if (!id) {
             this.dialogVisibleType = true;
         } else {
@@ -570,7 +570,7 @@ export default {
         },
         // 编辑获取详情
         getDetail() {
-            let id = this.$route.params.id;
+            let id = this.$route.params.id || 213;
             console.log('GOOGLE: id', id);
             if (!id) {
                 return;
@@ -624,7 +624,8 @@ export default {
                     // format 图片
                     data.imgs = data.imgs.map(item => {
                         return {
-                            url: item.img_url,
+                            url: item.type == 2 ? this.imgVedio : item.img_url,
+                            vedioUrl: item.type == 2 ? item.img_url : null,
                             type: item.type
                         };
                     });
@@ -968,6 +969,8 @@ export default {
             this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0];
         },
         handlePictureCardPreview(file) {
+            console.log('GOOGLE: file', file);
+
             this.dialogImageUrl = file.url;
             this.dialogVisible = true;
         },
@@ -1025,9 +1028,15 @@ export default {
                             url = item.response.data.file_url;
                             type = item.raw.type == 'video/mp4' ? 2 : 1;
                         } else {
-                            url = item.url;
-                            type = item.type;
+                            if (item.type == 2) {
+                                url = item.vedioUrl;
+                                type = item.type;
+                            } else {
+                                url = item.url;
+                                type = item.type;
+                            }
                         }
+                        // 倒序sort
                         length--;
                         return {
                             img_url: url,
@@ -1043,7 +1052,7 @@ export default {
                     let attrLength = this.consumeChecked.length + this.basicChecked.length;
                     if (attrLength == 0 || attrLength > 3) {
                         this.$notify({
-                            title: '请选择1-3条展示属性',
+                            title: '请选择至少1条展示属性',
                             message: '',
                             type: 'warning',
                             duration: 5000
@@ -1133,7 +1142,7 @@ export default {
                     this.$notify({
                         title: '请填写完成数据后提交',
                         message: '',
-                        type: 'error',
+                        type: 'warning',
                         duration: 5000
                     });
                 }
