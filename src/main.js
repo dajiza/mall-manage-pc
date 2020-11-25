@@ -70,8 +70,8 @@ Vue.directive('hasPermission', {
                     });
                 }
             });
-            console.log('permissions', permissions);
-            console.log('binding.value', binding.value);
+            // console.log('permissions', permissions);
+            // console.log('binding.value', binding.value);
             if (typeof binding.value === 'string') {
                 // console.log('单个判断');
                 if (!permissions.includes(binding.value)) {
