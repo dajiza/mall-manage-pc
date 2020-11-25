@@ -4,7 +4,7 @@
             <!-- 新增商品 -->
             <div class="table-title">
                 <div class="line"></div>
-                <div class="text">新增商品</div>
+                <div class="text">{{ goods.goods_id ? '编辑' : '新增' }}商品</div>
             </div>
             <div class="divider"></div>
             <div class="content">
@@ -1167,9 +1167,9 @@ export default {
                                         type: 'success',
                                         duration: 3000
                                     });
-                                    // this.$router.push({
-                                    //     path: 'goods-list'
-                                    // });
+                                    this.$router.push({
+                                        path: 'goods-list'
+                                    });
                                 } else {
                                     this.$notify({
                                         title: res.msg,

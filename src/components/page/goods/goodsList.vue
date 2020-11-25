@@ -115,7 +115,7 @@
             </el-table-column>
             <el-table-column label="主图" width="128">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.img" alt="" />
+                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="200">
@@ -147,7 +147,7 @@
                     <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false" highlight-current-row>
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img" alt="" />
+                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" width="200">
