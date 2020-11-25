@@ -47,7 +47,7 @@ export default {
                     display_name: '商品管理',
                     subs: [
                         {
-                            name: 'goods-list',
+                            name: 'mall-backend-goods-list',
                             display_name: '商品列表'
                         },
                         {
@@ -136,23 +136,6 @@ export default {
         } else {
             // 不是超级管理员,根据分配的权限显示菜单
             this.role_auth_list = JSON.parse(localStorage.getItem('roleAuthList'));
-            const all_arr = this.processData(this.role_auth_list);
-            console.log('all_arr', all_arr);
-            let new_arr = [];
-            all_arr.forEach((ev, index) => {
-                console.log('ev.display_name', ev.display_name);
-                // if (ev.display_name === 'Android') {
-                //     all_arr.splice(index, 1);
-                // }
-                if (ev.display_name === '商城后台系统') {
-                    console.log('yes');
-                    ev.subs.forEach(item => {
-                        item['icon'] = this.addIcon(item.display_name);
-                        new_arr.push(item);
-                    });
-                }
-            });
-            new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });
             let roleAuthList = [];
             this.role_auth_list.forEach(ev => {
                 roleAuthList.push(ev.name);

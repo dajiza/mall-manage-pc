@@ -35,11 +35,32 @@
             </el-form>
         </div>
         <div class="operate">
-            <el-button type="primary" @click="updateStatusMultiple(2)">上架</el-button>
-            <el-button type="warning" @click="updateStatusMultiple(1)">下架</el-button>
-            <el-button type="primary" @click="updateIsAgentMultiple(2)">分销</el-button>
-            <el-button type="warning" @click="updateIsAgentMultiple(1)">取消分销</el-button>
-            <el-button type="primary" @click="goodsCreat" class="creat-goods">新增商品</el-button>
+            <el-button
+                type="primary"
+                v-hasPermission="'mall-backend-goods-dismounting'"
+                @click="updateStatusMultiple(2)"
+            >上架</el-button>
+            <el-button
+                type="warning"
+                v-hasPermission="'mall-backend-goods-dismounting'"
+                @click="updateStatusMultiple(1)"
+            >下架</el-button>
+            <el-button
+                type="primary"
+                v-hasPermission="'mall-backend-goods-distribution'"
+                @click="updateIsAgentMultiple(2)"
+            >分销</el-button>
+            <el-button
+                type="warning"
+                v-hasPermission="'mall-backend-goods-distribution'"
+                @click="updateIsAgentMultiple(1)"
+            >取消分销</el-button>
+            <el-button
+                type="primary"
+                @click="goodsCreat"
+                class="creat-goods"
+                v-hasPermission="'mall-backend-goods-add'"
+            >新增商品</el-button>
         </div>
         <div class="divider"></div>
 
@@ -65,14 +86,23 @@
             <el-table-column label="操作" width="100" header-align="center">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
-                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="goodsEdit(scope.row.id)">编辑</el-button>
-                        <el-button class="text-blue btn-opt" type="text" size="" @click.native="goodsPreview(scope.row.id)">查看</el-button>
+                        <el-button
+                            class="text-blue btn-opt"
+                            type="text" size=""
+                            v-hasPermission="'mall-backend-goods-update'"
+                            @click.native="goodsEdit(scope.row.id)">编辑</el-button>
+                        <el-button
+                            class="text-blue btn-opt"
+                            type="text" size=""
+                            v-hasPermission="'mall-backend-goods-preview'"
+                            @click.native="goodsPreview(scope.row.id)">查看</el-button>
                         <el-button
                             class="text-blue btn-opt"
                             type="text"
                             size=""
                             @click.native="goodsAssign(scope.row.id, scope.row)"
-                            v-if="scope.row.allow_agent == 1"
+                            v-show="scope.row.allow_agent == 1"
+                            v-hasPermission="'mall-backend-goods-assign-shop'"
                         >
                             指定代理
                         </el-button>
@@ -80,7 +110,8 @@
                             class="text-blue btn-opt"
                             type="text"
                             size=""
-                            v-if="scope.row.status == 1"
+                            v-show="scope.row.status == 1"
+                            v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                             >上架</el-button
                         >
@@ -88,7 +119,8 @@
                             class="text-red btn-opt"
                             type="text"
                             size=""
-                            v-if="scope.row.status == 2"
+                            v-show="scope.row.status == 2"
+                            v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                             >下架</el-button
                         >
@@ -98,12 +130,13 @@
             <el-table-column label="是否分销" width="100">
                 <template slot-scope="scope">
                     <el-switch
-                        v-model="scope.row.allow_agent"
-                        @change="updateIsAgent(scope.row.id, scope.row.allow_agent)"
-                        :active-value="2"
-                        :inactive-value="1"
-                        active-color="#1890FF"
-                        inactive-color="#BFBFBF"
+                            v-model="scope.row.allow_agent"
+                            v-hasPermission="'mall-backend-goods-distribution'"
+                            @change="updateIsAgent(scope.row.id, scope.row.allow_agent)"
+                            :active-value="2"
+                            :inactive-value="1"
+                            active-color="#1890FF"
+                            inactive-color="#BFBFBF"
                     >
                     </el-switch>
                 </template>

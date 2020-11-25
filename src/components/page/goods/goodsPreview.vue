@@ -887,7 +887,7 @@ export default {
         },
         gotoCreat() {
             this.$router.push({
-                path: 'goods-list'
+                path: 'mall-backend-goods-list'
             });
         },
         confirmType() {
