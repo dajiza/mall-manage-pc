@@ -167,13 +167,13 @@
                         </el-table-column>
                         <el-table-column label="可用库存" width="100">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.stock_apply }}</span>
+                                <span>{{ scope.row.stock_available }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="库存预警" width="90">
                             <template slot-scope="scope">
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_apply <= scope.row.stock_warning">低库存</div>
-                                <div class="type-tag type-blue" v-if="scope.row.stock_apply > scope.row.stock_warning">正常</div>
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
+                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -305,11 +305,12 @@ export default {
                             let parameters = { sku_id: sku.storehouse_pid };
                             let data = await queryStoreProduct(parameters);
                             sku.stock_total = data.data.stock_total;
-                            sku.stock_apply = data.data.stock_apply;
+                            sku.stock_available = data.data.stock_available;
                         }
                     }
 
                     this.list = res.data.lists;
+                    console.log('GOOGLE: this.list', this.list);
                     this.total = res.data.total;
                     this.listLoading = false;
                 })

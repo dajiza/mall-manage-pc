@@ -67,7 +67,9 @@
                     <el-input style="width:280px" placeholder="名称" v-model="goods.title"></el-input>
                 </el-form-item>
                 <el-form-item label="分类">
-                    {{ goods.type == 1 ? '布类' : '其他' }}
+                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
+                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="标签">
                     <v-tag-picker
@@ -300,9 +302,18 @@
                 v-if="dialogViewType == 2"
             ></video-player>
         </el-dialog>
-        <el-dialog :visible.sync="dialogVisibleType" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" title="商品类型选择">
-            <el-radio v-model="goods.type" :label="1">布料</el-radio>
-            <el-radio v-model="goods.type" :label="2">其他</el-radio>
+        <el-dialog
+            :visible.sync="dialogVisibleType"
+            width="380px"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false"
+            :show-close="false"
+            title="商品类型选择"
+        >
+            <div class="dialog-type">
+                <el-radio v-model="goods.type" :label="1">布料</el-radio>
+                <el-radio v-model="goods.type" :label="2">其他</el-radio>
+            </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="gotoCreat">返 回</el-button>
                 <el-button type="primary" @click="confirmType">确 定</el-button>
@@ -374,8 +385,8 @@ export default {
             attrDiyList: [], //选中的自定义属性
             // 分类 0 布料  否则为其他的商品分类
             typeList: [
-                { value: 0, label: '布料' },
-                { value: 1, label: '其他' }
+                { value: 1, label: '布料' },
+                { value: 2, label: '其他' }
             ],
             freightList: [], //运费模板列表
             shopList: [
@@ -411,7 +422,7 @@ export default {
                 tag_idsArray: [], //标签id数组 暂存
                 category_id: 0, //'分类 0 布料  否则为其他的商品分类'
                 consume_attr_ids: [], //属性ids 数量最多为3 最少为1
-                is_allow_agent: 2, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
+                is_allow_agent: 1, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
                 allow_shop_ids: [], //允许的店铺id
                 display_sales: '', //展示的销量
                 status: 2, //1下架；2上架
@@ -1279,6 +1290,10 @@ export default {
     .submit-btn {
         margin: 50px auto 0;
     }
+}
+.dialog-type {
+    margin: 30px 0;
+    text-align: center;
 }
 .content {
     background: #fff;

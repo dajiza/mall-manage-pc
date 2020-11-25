@@ -246,15 +246,7 @@
                     </el-form-item>
                 </div>
                 <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
-                    <el-select
-                        disabled
-                        class="filter-item"
-                        :disabled="goods.is_allow_agent == 2"
-                        v-model="goods.allow_shop_ids"
-                        placeholder="请选择"
-                        style="width:280px"
-                        multiple
-                    >
+                    <el-select disabled class="filter-item" v-model="goods.allow_shop_ids" placeholder="请选择" style="width:280px" multiple>
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
 
