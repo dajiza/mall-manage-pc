@@ -367,6 +367,7 @@ export default {
                             type: 'success',
                             duration: 3000
                         });
+                        this.getList();
                     } else {
                         this.$notify({
                             title: res.msg,

@@ -10,7 +10,7 @@ export const updateGoodsStatus = params => post('/backend/goods-update-status', 
 export const queryStoreProduct = params => post('/backend/store-house-product-detail', params);
 
 // 商品是否指定分销
-export const updateAllow = params => post('/backend/update-allow', params);
+export const updateAllow = params => post('/backend/goods-update-allow', params);
 
 // 商品的创建
 export const creatGoods = params => post('/backend/goods-create', params);
