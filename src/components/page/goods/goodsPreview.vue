@@ -311,42 +311,7 @@ export default {
             dialogImageUrl: '',
             timg: [],
             tfile: [],
-            rules: {
-                imgs: [{ required: true, message: '请上传图片', trigger: 'blur' }],
-                title: [
-                    { required: true, message: '请输入名称', trigger: 'blur' },
-                    { min: 1, max: 200, message: '长度在 1 到 200 个字符', trigger: 'blur' }
-                ],
-                display_sales: [
-                    { required: true, message: '请输入销量', trigger: 'blur' },
-                    { type: 'number', message: '请输入数字' }
-                ],
-                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
-                allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
-            },
-            rulesRequired: [{ required: true, message: '请输入内容', trigger: 'blur' }],
-            rulesPrice: [
-                { required: true, message: '请输入价格', trigger: 'blur' },
-                {
-                    type: 'number',
-                    message: '请输入正确的价格',
-                    transform(value) {
-                        return Number(value);
-                    },
-                    min: 0.01
-                }
-            ],
-            rulesInt: [
-                { required: true, message: '请输入内容', trigger: 'blur' },
-                {
-                    type: 'integer',
-                    message: '请输入非零整数',
-                    transform(value) {
-                        return Number(value);
-                    },
-                    min: 1
-                }
-            ],
+
             basicAttr: [], //固定属性
             consumeAttr: [], //自定义属性
             basicChecked: [], //固定属性 checkbox list
@@ -373,19 +338,7 @@ export default {
             backendTags: [],
             goods: {
                 title: '', //商品名称 maxlength =200
-                imgs: [
-                    //商品图片列表
-                    // {
-                    //     img_url: 'https://storehouse-upyun.chuanshui.cn/2020-08-19/0rY89WZdNBm4BDlN/386ZRRCVeHfzZLict3TqmgwmK0oevpqE.jpg',
-                    //     type: 1, //1 图片 2视频
-                    //     sort: 123 //排序 倒叙
-                    // },
-                    // {
-                    //     img_url: 'https://storehouse-upyun.chuanshui.cn/2020-08-19/0rY89WZdNBm4BDlN/386ZRRCVeHfzZLict3TqmgwmK0oevpqE.jpg',
-                    //     type: 1,
-                    //     sort: 124
-                    // }
-                ],
+                imgs: [],
                 type: 1, //'类型：1布；2其他',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
@@ -396,42 +349,7 @@ export default {
                 display_sales: '', //展示的销量
                 status: 2, //1下架；2上架
                 freight_id: '', //运费模版id
-                sku_list: [
-                    // {
-                    //     storehouse_pid: 84, //所选的仓库产品id
-                    //     title: '这是sku title', //sku名称 maxlenth =200
-                    //     min_price: 1000, //最低价格 单位分
-                    //     display_price: 2000, //展示价格 单位分
-                    //     sku_img: 'https://storehouse-upyun.chuanshui.cn/2020-08-19/0rY89WZdNBm4BDlN/386ZRRCVeHfzZLict3TqmgwmK0oevpqE.jpg',
-                    //     stock_warning: 9, //库存预警
-                    //     attr_brand: '品牌',
-                    //     attr_color: '颜色',
-                    //     attr_material: '材质',
-                    //     attr_unit: '米',
-                    //     attr_pattern: '花纹',
-                    //     status: 2, //1下架；2上架
-                    //     tag_names: [1, 2],
-                    //     attrDiyValue: ['', '', ''],
-                    //     attr_list: [
-                    //         //选择的sku展示的sku属性
-                    //         {
-                    //             attr_id: 8, //属性id
-                    //             attr_title: '款式', //属性名称
-                    //             attr_value: '这是款式' //属性值
-                    //         },
-                    //         {
-                    //             attr_id: 1,
-                    //             attr_title: '品牌',
-                    //             attr_value: '一家'
-                    //         },
-                    //         {
-                    //             attr_id: 2,
-                    //             attr_title: '颜色',
-                    //             attr_value: '蓝色'
-                    //         }
-                    //     ]
-                    // }
-                ]
+                sku_list: []
             },
 
             value: null,
@@ -605,13 +523,7 @@ export default {
                         type: data.type,
                         display_platform: 2
                     });
-                    // let tagList = tagListBack.concat(tagListMiniApp);
-                    // params['tag_ids'] = this.pickerTag.map(item => item.id).join(',');
-                    // this.miniProgramTags.concat(this.backendTags);
-                    // let pickerTag = [];
-                    // this.miniProgramTags = [];
-                    // this.backendTags = [];
-                    // console.log('GOOGLE: data', data['tag_ids']);
+
                     data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list'];
                     for (let i = 0; i < data['tag_detail_list'].length; i++) {
                         const tagId = data['tag_detail_list'][i].tag_id;
@@ -678,31 +590,7 @@ export default {
                 })
                 .catch(err => {});
         },
-        // 运费列表
-        // queryFreightList() {
-        //     queryFreightList()
-        //         .then(res => {
-        //             this.freightList = res.data;
-        //         })
-        //         .catch(err => {});
-        // },
-        // 属性列表
-        // queryAttrList() {
-        //     queryAttrList()
-        //         .then(res => {
-        //             this.basicAttr = res.data.consume_attr_basic_attr;
-        //             this.consumeAttr = res.data.consume_attr;
-        //         })
-        //         .catch(err => {});
-        // },
-        // 代理店铺列表
-        // queryShopList() {
-        //     queryShopList()
-        //         .then(res => {
-        //             this.shopList = res.data;
-        //         })
-        //         .catch(err => {});
-        // },
+
         handleCheckedBasic(value) {
             let length = this.consumeChecked.length + this.basicChecked.length;
             if (length > 3) {
@@ -735,19 +623,6 @@ export default {
             }
         },
         getSku(pList) {
-            console.log('GOOGLE: pList', pList);
-            // this.goods.sku_list = pList;
-            // for (let i = 0; i < pList.length; i++) {
-            //     const pItem = pList[i];
-            //     let index = this.goods.sku_list.findIndex(item => pItem.storehouse_pid == item.storehouse_pid);
-            //     console.log('GOOGLE: index', index);
-            //     if (index != -1) {
-            //         pList.splice(index, 1);
-            //         console.log('GOOGLE: pList.length', pList.length);
-            //         console.log('GOOGLE: pList.i', i);
-            //         i--;
-            //     }
-            // }
             for (let i = 0; i < this.goods.sku_list.length; i++) {
                 const skuItem = this.goods.sku_list[i];
                 let index = pList.findIndex(item => skuItem.storehouse_pid == item.storehouse_pid);
@@ -846,15 +721,7 @@ export default {
                 duration: 5000
             });
         },
-        //  首图
-        // handleExceed(files, fileList) {
-        //     this.$notify({
-        //         title: '只能上传6张图片/视频',
-        //         message: '',
-        //         type: 'warning',
-        //         duration: 5000
-        //     });
-        // },
+
         //  首图
         handleRemove(file, fileList) {
             this.timg = fileList;
@@ -1005,183 +872,6 @@ export default {
             this.listQuery.page = val;
             this.getList();
         },
-        submit() {
-            console.log('GOOGLE: goods', this.goods);
-
-            this.$refs['formRef'].validate(valid => {
-                // 验证表单内容
-                if (valid) {
-                    let params = _.cloneDeep(this.goods);
-                    // format is_allow_agent
-                    params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
-
-                    // format标签
-                    params['tag_ids'] = this.pickerTag.map(item => item.id).join(',');
-                    // format 图片
-                    if (this.timg.length == 0) {
-                        this.$notify({
-                            title: '请上传首图',
-                            message: '',
-                            type: 'warning',
-                            duration: 5000
-                        });
-                        return;
-                    }
-                    this.timg[0]['type'] = 1;
-                    console.log('GOOGLE: this.timg', this.timg);
-                    let imgList = this.timg.concat(this.tfile);
-                    console.log('GOOGLE: imgList', imgList);
-                    let length = imgList.length + 1;
-                    let imgs = imgList.map(item => {
-                        console.log('GOOGLE: item', item);
-                        let url, type;
-                        if (item.response) {
-                            url = item.response.data.file_url;
-                            type = item.raw.type == 'video/mp4' ? 2 : 1;
-                        } else {
-                            url = item.url;
-                            type = item.type;
-                        }
-                        length--;
-                        return {
-                            img_url: url,
-                            type: type, //1 图片 2视频
-                            sort: length //排序 倒叙
-                        };
-                    });
-                    params['imgs'] = imgs;
-                    // format category_id
-                    params['category_id'] = params['type'] == 1 ? 0 : 1;
-
-                    //生成attr_list数据 format 价格
-                    let attrLength = this.consumeChecked.length + this.basicChecked.length;
-                    if (attrLength == 0 || attrLength > 3) {
-                        this.$notify({
-                            title: '请选择1-3条展示属性',
-                            message: '',
-                            type: 'warning',
-                            duration: 5000
-                        });
-                        return;
-                    }
-                    for (let i = 0; i < params.sku_list.length; i++) {
-                        const skuItem = params.sku_list[i];
-                        skuItem.min_price = skuItem.min_price * 100;
-                        skuItem.display_price = skuItem.display_price * 100;
-                        skuItem.attr_list = [];
-                        for (let j = 0; j < this.basicChecked.length; j++) {
-                            const checkId = this.basicChecked[j];
-                            let attrInfo = this.basicAttr.find(item => checkId == item.id);
-                            // skuItem[ATTR[attrInfo.id]]
-                            skuItem.attr_list.push({
-                                attr_id: attrInfo.id, //属性id
-                                attr_title: attrInfo.title, //属性名称
-                                attr_value: skuItem[ATTR[attrInfo.id]] //属性值
-                            });
-                        }
-                        for (let j = 0; j < this.consumeChecked.length; j++) {
-                            const checkId = this.consumeChecked[j];
-                            let attrInfo = this.consumeAttr.find(item => checkId == item.id);
-                            // skuItem[ATTR[attrInfo.id]]
-                            skuItem.attr_list.push({
-                                attr_id: attrInfo.id, //属性id
-                                attr_title: attrInfo.title, //属性名称
-                                attr_value: skuItem['attrDiyValue'][j] //属性值
-                            });
-                        }
-                    }
-                    console.log('GOOGLE: params', params);
-                    if (params.goods_id) {
-                        // 编辑
-                        params['id'] = params['goods_id'];
-                        updateGoods(params)
-                            .then(res => {
-                                console.log('GOOGLE: res', res);
-                                if (res.code === 200) {
-                                    this.$notify({
-                                        title: '商品编辑成功',
-                                        message: '',
-                                        type: 'success',
-                                        duration: 3000
-                                    });
-                                    // this.$router.push({
-                                    //     path: 'goods-list'
-                                    // });
-                                } else {
-                                    this.$notify({
-                                        title: res.msg,
-                                        message: '',
-                                        type: 'error',
-                                        duration: 5000
-                                    });
-                                }
-                            })
-                            .catch(err => {});
-                    } else {
-                        // 创建
-                        creatGoods(params)
-                            .then(res => {
-                                console.log('GOOGLE: res', res);
-                                if (res.code === 200) {
-                                    this.$notify({
-                                        title: '商品创建成功',
-                                        message: '',
-                                        type: 'success',
-                                        duration: 3000
-                                    });
-                                    // this.$router.push({
-                                    //     path: 'goods-list'
-                                    // });
-                                } else {
-                                    this.$notify({
-                                        title: res.msg,
-                                        message: '',
-                                        type: 'error',
-                                        duration: 5000
-                                    });
-                                }
-                            })
-                            .catch(err => {});
-                    }
-                } else {
-                    this.$notify({
-                        title: '请填写完成数据后提交',
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            });
-        },
-        // tag
-        // getTagList() {
-        //     Promise.all([
-        //         getLabelAllList({
-        //             type: this.goods.type,
-        //             display_platform: 1
-        //         }),
-        //         getLabelAllList({
-        //             type: this.goods.type,
-        //             display_platform: 2
-        //         })
-        //     ])
-        //         .then(res => {
-        //             console.log('GOOGLE: 1111', res);
-        //             let options = {};
-        //             if (res[0].code === 200) {
-        //                 if (res[0].data) {
-        //                     options.backendTags = res[0].data;
-        //                 }
-        //             }
-        //             if (res[1].code === 200) {
-        //                 if (res[1].data) {
-        //                     options.miniProgramTags = res[1].data;
-        //                 }
-        //             }
-        //             this.options = options;
-        //         })
-        //         .catch(() => {});
-        // },
 
         handleCloseBack(tag) {
             this.backendTags.splice(this.backendTags.indexOf(tag), 1);

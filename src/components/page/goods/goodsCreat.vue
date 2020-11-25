@@ -535,7 +535,7 @@ export default {
         this.header['token'] = getToken();
     },
     mounted() {
-        let id = this.$route.params.id || 213;
+        let id = this.$route.params.id;
         if (!id) {
             this.dialogVisibleType = true;
         } else {
@@ -606,7 +606,7 @@ export default {
         },
         // 编辑获取详情
         getDetail() {
-            let id = this.$route.params.id || 213;
+            let id = this.$route.params.id;
             console.log('GOOGLE: id', id);
             if (!id) {
                 return;
