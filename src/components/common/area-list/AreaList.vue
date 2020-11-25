@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import './AreaList.less';
+// import './AreaList.less';
 import { area } from '@/plugin/area';
 
 export default {

@@ -6,7 +6,10 @@
                     <i></i>
                     <span>其他商品分类</span>
                 </div>
-                <el-button type="primary" v-hasPermission="'category-add'" @click="handleCreateAuthority">新增分类</el-button>
+                <el-button
+                    type="primary"
+                    v-hasPermission="'mall-backend-other-category-create'"
+                    @click="handleCreateAuthority">新增分类</el-button>
             </div>
             <el-table
                     :data="tableData"
@@ -24,10 +27,16 @@
                 </el-table-column>
                 <el-table-column label="操作" width="160" align="left">
                     <template slot-scope="scope">
-                        <el-button type="text" class="marginRight32 m-l-0" v-hasPermission="'category-edit'"
-                                   @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" class="delete-color m-l-0" v-hasPermission="'category-del'"
-                                   @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        <el-button
+                            type="text"
+                            class="marginRight32 m-l-0"
+                            v-hasPermission="'mall-backend-other-category-update'"
+                            @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button
+                            type="text"
+                            class="delete-color m-l-0"
+                            v-hasPermission="'mall-backend-other-category-delete'"
+                            @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
                 <template  slot="empty" >

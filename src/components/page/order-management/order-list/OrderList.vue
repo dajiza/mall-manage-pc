@@ -96,7 +96,6 @@
                     <i></i>
                     <span>订单列表</span>
                 </div>
-                <el-button @click="go_unusual_list">手动调整列表</el-button>
             </div>
             <el-table
                     v-loading="loading"
@@ -107,15 +106,17 @@
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
                         <el-button
-                                type="text"
-                                class="view-detail" v-hasPermission="'order-cut-list'"
-                                @click="handleViewDetail(scope.$index, scope.row)"
-                        >查看</el-button>
+                            type="text"
+                            class="view-detail"
+                            v-hasPermission="'mall-backend-order-detail'"
+                            @click="handleViewDetail(scope.$index, scope.row)"
+                        >查看订单</el-button>
                         <el-button
-                                type="text"
-                                class="cancel-order delete-color" v-hasPermission="'order-cut-list'"
-                                @click="handleViewDetail(scope.$index, scope.row)"
-                                v-show="scope.row.status === 0"
+                            type="text"
+                            class="cancel-order delete-color"
+                            v-show="scope.row.status === 0"
+                            v-hasPermission="'mall-backend-order-cancel'"
+                            @click="handleCancelOrder(scope.$index, scope.row)"
                         >取消订单</el-button>
                     </template>
                 </el-table-column>
@@ -133,12 +134,12 @@
                 </el-table-column>
                 <el-table-column prop="user_name" label="用户昵称" width="180"></el-table-column>
                 <el-table-column prop="shop_name" label="代理店铺" width="200"></el-table-column>
-                <el-table-column prop="price_total" label="订单总计(元)" width="120">
+                <el-table-column prop="price_total_detail_end" label="订单总计(元)" width="120">
                     <template slot-scope="scope">
-                        {{(scope.row.price_total_detail/100) | rounding}}
+                        {{(scope.row.price_total_detail_end/100) | rounding}}
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_total_real" label="运费(元)" width="120">
+                <el-table-column prop="logistics_money" label="运费(元)" width="120">
                     <template slot-scope="scope">
                         <span v-if="scope.row.logistics_money > 0">{{(scope.row.logistics_money/100) | rounding}}</span>
                         <span v-else>无运费</span>
@@ -181,7 +182,7 @@
 </template>
 
 <script>
-    import { getOrderList } from '../../../../api/orderList';
+    import { getOrderList, queryCancelOrder } from '../../../../api/orderList';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import './OrderList.less';
     export default {
@@ -341,13 +342,8 @@
             // this.getChannelData();
             // 获取订单列表数据
             this.getListData();
-            // 获取搜索容器高度
-            // const searchBoxHeight = this.$refs.searchBox.offsetHeight;
-            // const containerHasSearch = document.getElementsByClassName('container-table-has-search')[0];
-            // containerHasSearch.style.height = `calc(100% - 16px - ${searchBoxHeight}px)`;
         },
         methods: {
-
             // 请求-获取订单列表数据
             getListData() {
                 let params = {
@@ -387,28 +383,7 @@
             },
 
             // 请求-获取购买渠道列表数据
-            getChannelData() {
-                let params = {
-                    page: 1,
-                    limit: 999
-                };
-                getRoleList(params)
-                    .then((res) => {
-                        if (res.code === 200) {
-                            this.channelOptions = [];
-                            if (res.data.lists) {
-                                res.data.lists.forEach((ev, i) => {
-                                    this.channelOptions.push({
-                                        id: ev.id,
-                                        name: ev.name
-                                    });
-                                });
-                            }
-                        } else {
-                        }
-                    })
-                    .catch(() => {});
-            },
+            getChannelData() {},
 
             // 按钮 - 重置
             resetForm(formName) {
@@ -442,8 +417,44 @@
 
             // 按钮-查看订单详情
             handleViewDetail(index, row){
-                this.$router.push({ path: '/order-detail', query: { order_id: row.id.toString() } });
+                this.$router.push({ path: '/mall-backend-order-detail', query: { order_id: row.id.toString() } });
 
+            },
+
+            // 取消订单
+            handleCancelOrder(index, row){
+                // 二次确认
+                this.$confirm('确定要取消该订单吗？', '', {
+                    customClass: 'message-delete',
+                    type: 'warning',
+                    center: true
+                }).then(() => {
+                    let params = {
+                        user_id: row.user_id,
+                        shop_id: row.shop_id,
+                        order_id: row.id
+                    };
+                    const rLoading = this.openLoading();
+                    queryCancelOrder(params).then((res) => {
+                            rLoading.close();
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '订单取消成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                });
+                                this.getListData();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                });
+                            }
+                        }).catch(() => {});
+                }).catch(() => {});
             },
 
             //时间格式化
@@ -498,12 +509,6 @@
                 }
                 this.getListData();
             },
-
-            // 跳转到手动调整列表
-            go_unusual_list(){
-                // /order-err-operate
-                this.$router.push({path:'/order-err-operate'});
-            }
         }
     };
 </script>

@@ -46,21 +46,25 @@ export default {
                     name: 'mall-backend-goods-management',
                     display_name: '商品管理',
                     subs: [
-                        // {
-                        //     name: 'goodsList',
-                        //     display_name: '商品列表'
-                        // },
-                        // {
-                        //     name: 'mall-backend-other-category',
-                        //     display_name: '其它商品分类'
-                        // },
-                        /*{
-                            name: 'goodsLabel',
+                        {
+                            name: 'goods-list',
+                            display_name: '商品列表'
+                        },
+                        {
+                            name: 'mall-backend-other-category',
+                            display_name: '其它商品分类'
+                        },
+                        {
+                            name: 'mall-backend-goodsLabel',
                             display_name: '商品标签'
-                        },*/
+                        },
                         {
                             name: 'mall-backend-freight',
                             display_name: '运费模板'
+                        },
+                        {
+                            name: 'mall-backend-custom-attributes',
+                            display_name: '自定义属性'
                         }
                         // {
                         //     name: 'mall-backend-custom-attributes',
@@ -73,10 +77,10 @@ export default {
                     name: 'mall-backend-order-management',
                     display_name: '订单管理',
                     subs: [
-                        /*{
-                            name: 'order-list',
+                        {
+                            name: 'mall-backend-order-list',
                             display_name: '订单列表'
-                        },*/
+                        },
                         {
                             name: 'mall-backend-afterSaleList',
                             display_name: '售后处理申请'
@@ -84,6 +88,17 @@ export default {
                         {
                             name: 'mall-backend-order-after-reason',
                             display_name: '售后原因设置'
+                        }
+                    ]
+                },
+                {
+                    icon: 'iconfont icon-setting',
+                    name: 'mall-backend-system-setting',
+                    display_name: '系统设置',
+                    subs: [
+                        {
+                            name: 'mall-backend-parameter-setting',
+                            display_name: '参数配置'
                         }
                     ]
                 }
@@ -131,15 +146,22 @@ export default {
                 // }
                 if (ev.display_name === '商城后台系统') {
                     console.log('yes');
-                    ev.subs.forEach((item)=>{
+                    ev.subs.forEach(item => {
                         item['icon'] = this.addIcon(item.display_name);
                         new_arr.push(item);
-                    })
+                    });
                 }
             });
-            console.log('new_arr', new_arr);
             new_arr.unshift({ icon: 'icon-home', name: 'dashboard', display_name: '系统首页' });
-            this.items = new_arr;
+            let roleAuthList = [];
+            this.role_auth_list.forEach(ev => {
+                roleAuthList.push(ev.name);
+            });
+
+            roleAuthList.unshift('dashboard');
+            const menuList = this.commonMenu(this.all_menu, roleAuthList);
+            const newList = this.filterMenu(menuList);
+            this.items = newList;
         }
     },
     mounted() {},
@@ -161,34 +183,43 @@ export default {
             });
             return dealOptions;
         },
-        processData2(data) {
-            let dealOptions = [];
-            // 给每个数据加children属性
-            data.forEach((ev, one) => {
-                ev.children = [];
-            });
-            data.forEach((ev, one) => {
-                let findIndex = data.findIndex(item => item.id === ev.pid);
-                if ((!ev.pid && ev.pid !== 0 && ev.pid !== false) || findIndex === -1) {
-                    dealOptions.push(ev);
-                } else {
-                    data[findIndex].children.push(ev);
-                }
-            });
-            return dealOptions;
-        },
-        addIcon(data){
+        addIcon(data) {
             let icon_class = '';
-            if(data){
-                if(data === '商品管理'){
+            if (data) {
+                if (data === '商品管理') {
                     icon_class = 'icon-goods';
-                }else if(data === '订单管理'){
+                } else if (data === '订单管理') {
                     icon_class = 'icon-list';
-                }else if(data === '系统设置'){
+                } else if (data === '系统设置') {
                     icon_class = 'icon-setting';
                 }
                 return icon_class;
             }
+        },
+        commonMenu(data1, data2) {
+            data1.map(item1 => {
+                data2.map(item2 => {
+                    if (item1.name === item2) {
+                        item1.is_show = true;
+                        if (item1.subs && item1.subs.length) {
+                            this.commonMenu(item1.subs, data2);
+                        }
+                    }
+                });
+                console.log('item1', item1);
+            });
+            return data1;
+        },
+        filterMenu(menuList) {
+            return menuList
+                .filter(item => item.is_show)
+                .map(item => {
+                    item = Object.assign({}, item);
+                    if (item.subs) {
+                        item.subs = this.filterMenu(item.subs);
+                    }
+                    return item;
+                });
         }
     }
 };
