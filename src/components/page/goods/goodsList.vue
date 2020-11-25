@@ -318,7 +318,7 @@ export default {
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
-            allow_agent = allow_agent == 1 ? 2 : 1;
+            // allow_agent = allow_agent == 1 ? 2 : 1;
             let params = {
                 allow_agent: allow_agent, //1指定代理；2所有代理可以销售；
                 ids: [id]
@@ -329,7 +329,7 @@ export default {
                     console.log('GOOGLE: res', res);
                     if (res.code == 200) {
                         this.$notify({
-                            title: '操作成功',
+                            title: '分销操作成功',
                             type: 'success',
                             duration: 3000
                         });

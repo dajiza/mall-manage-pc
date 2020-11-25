@@ -679,7 +679,7 @@ export default {
                     this.timg.push(data.imgs[0]);
                     data.imgs.splice(0, 1);
                     this.tfile = data.imgs;
-                    // format attr_list 及价格 title字段名 store_house_id=>storehouse_pid
+                    // format attr_list 及价格 字段名  sku_title=>title store_house_id=>storehouse_pid sku_status=>status
                     console.log('GOOGLE: sku_list', data['sku_list']);
                     for (let i = 0; i < data['sku_list'].length; i++) {
                         const skuItem = data['sku_list'][i];
@@ -688,6 +688,7 @@ export default {
                         skuItem['attrDiyValue'] = ['', '', ''];
                         skuItem['storehouse_pid'] = skuItem['store_house_id'];
                         skuItem['title'] = skuItem['sku_title'];
+                        skuItem['status'] = skuItem['sku_status'];
                         const attrList = skuItem['sku_attr_list'];
                         console.log('GOOGLE: attrList', attrList);
                         console.log('GOOGLE: attrListlength', attrList.length);

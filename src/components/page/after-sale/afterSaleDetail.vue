@@ -245,24 +245,24 @@
         </div>
         <div class="brn-wrap">
             <!-- 退款提交 -->
-            <el-popconfirm class="confirm" title="确定提交" @onConfirm="submitRefund">
-                <el-button slot="reference" class="" size="" type="primary" v-if="showRefund">提交</el-button>
-            </el-popconfirm>
+            <!-- <el-popconfirm class="confirm" title="确定提交" @onConfirm="submitRefund"> -->
+            <el-button slot="reference" class="" size="" type="primary" v-if="showRefund" @click="submitRefund">提交</el-button>
+            <!-- </el-popconfirm> -->
             <!-- 审核 -->
-            <el-popconfirm class="confirm" title="确定审核同意" @onConfirm="checkApply('1')">
-                <el-button slot="reference" class="" size="" type="primary" v-if="showCheck">同意</el-button>
-            </el-popconfirm>
+            <!-- <el-popconfirm class="confirm" title="确定审核同意" @onConfirm="checkApply('1')"> -->
+            <el-button slot="reference" class="" size="" type="primary" v-if="showCheck" @click="checkApply('1')">同意</el-button>
+            <!-- </el-popconfirm> -->
             <el-button slot="reference" class="" size="" type="danger" v-if="showCheck" @click="checkApply('0')">拒绝</el-button>
             <!-- 客户发回物流 确认收货操作 -->
-            <el-popconfirm class="confirm" title="确定" @onConfirm="receiptApply('1')">
-                <el-button slot="reference" class="" size="" type="primary" v-if="showChangeCustomer">同意</el-button>
-            </el-popconfirm>
+            <!-- <el-popconfirm class="confirm" title="确定" @onConfirm="receiptApply('1')"> -->
+            <el-button slot="reference" class="" size="" type="primary" v-if="showChangeCustomer" @click="receiptApply('1')">同意</el-button>
+            <!-- </el-popconfirm> -->
             <el-button slot="reference" class="" size="" type="danger" v-if="showChangeCustomer" @click="receiptApply('0')">拒绝</el-button>
 
             <!-- 商家重新发货操作 -->
-            <el-popconfirm class="confirm" title="确定" @onConfirm="resend">
-                <el-button slot="reference" class="" size="" type="primary" v-if="showChangeSeller">发货</el-button>
-            </el-popconfirm>
+            <!-- <el-popconfirm class="confirm" title="确定" @onConfirm="resend"> -->
+            <el-button slot="reference" class="" size="" type="primary" v-if="showChangeSeller" @click="resend">发货</el-button>
+            <!-- </el-popconfirm> -->
             <el-button slot="reference" class="" size="" type="danger" v-if="showChangeSeller" @click="receiptApply('0')">拒绝</el-button>
         </div>
         <!-- 退货申请 收货申请 拒绝理由 -->
@@ -401,71 +401,88 @@ export default {
         },
         // 商家重新发货
         resend() {
-            if (!this.sdId || !this.sdNo) {
-                this.$notify({
-                    title: '请填写快递公司和单号',
-                    type: 'warning',
-                    duration: 5000
-                });
-                return;
-            }
-            let logistics = this.sdList.filter(item => item.id == this.sdId);
-
-            let params = {
-                order_apply_id: Number(this.detail.id), //apply表ID字段
-                logistics_company_name: logistics[0].name,
-                logistics_no: this.sdNo,
-                logistics_company_id: this.sdId
-            };
-            putResand(params)
-                .then(res => {
-                    if (res.code == 200) {
+            this.$confirm('确定重新发货?', '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    if (!this.sdId || !this.sdNo) {
                         this.$notify({
-                            title: '重新发货成功',
-                            type: 'success',
-                            duration: 5000
-                        });
-                        this.reload();
-                    } else {
-                        this.$notify({
-                            title: res.msg,
+                            title: '请填写快递公司和单号',
                             type: 'warning',
                             duration: 5000
                         });
+                        return;
                     }
+                    let logistics = this.sdList.filter(item => item.id == this.sdId);
+
+                    let params = {
+                        order_apply_id: Number(this.detail.id), //apply表ID字段
+                        logistics_company_name: logistics[0].name,
+                        logistics_no: this.sdNo,
+                        logistics_company_id: this.sdId
+                    };
+                    putResand(params)
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '重新发货成功',
+                                    type: 'success',
+                                    duration: 5000
+                                });
+                                this.reload();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                });
+                            }
+                        })
+                        .catch(err => {});
                 })
-                .catch(err => {});
+                .catch(() => {});
         },
         // 审核同意/拒绝 按钮
         checkApply(result) {
-            if (result == 0) {
-                this.reasonVisible = true;
-                return;
-            }
-            let params = {
-                order_apply_id: Number(this.detail.id),
-                result: result, //审核结果：0拒绝；1同意',
-                reason: '  '
-            };
-
-            putApplyApprove(params)
-                .then(res => {
-                    if (res.code == 200) {
-                        this.$notify({
-                            title: '审核同意成功',
-                            type: 'success',
-                            duration: 5000
-                        });
-                        this.reload();
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            type: 'warning',
-                            duration: 5000
-                        });
+            let text = result == 0 ? '拒绝' : '同意';
+            this.$confirm(`确定审核${text}`, '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    if (result == 0) {
+                        this.reasonVisible = true;
+                        return;
                     }
+                    let params = {
+                        order_apply_id: Number(this.detail.id),
+                        result: result, //审核结果：0拒绝；1同意',
+                        reason: '  '
+                    };
+
+                    putApplyApprove(params)
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '审核同意成功',
+                                    type: 'success',
+                                    duration: 5000
+                                });
+                                this.reload();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                });
+                            }
+                        })
+                        .catch(err => {});
                 })
-                .catch(err => {});
+                .catch(() => {});
         },
 
         // 审核拒绝 弹窗
@@ -505,41 +522,59 @@ export default {
         },
         // 提交退款
         submitRefund() {
-            if (this.refundType == 1) {
-                this.refundVx();
-            } else if (this.refundType == 2) {
-                this.refundFinancial();
-            }
+            this.$confirm('确定退款?', '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    if (this.refundType == 1) {
+                        this.refundVx();
+                    } else if (this.refundType == 2) {
+                        this.refundFinancial();
+                    }
+                })
+                .catch(() => {});
         },
         // 买家退货 确认/拒绝收货
         receiptApply(result) {
-            if (result == 0) {
-                this.reasonVisible = true;
-                return;
-            }
-            let params = {
-                order_apply_id: Number(this.detail.id),
-                result: '1', //审核结果：0拒绝；1同意',
-                reason: '  '
-            };
-            putReturnReceipt(params)
-                .then(res => {
-                    if (res.code == 200) {
-                        this.$notify({
-                            title: '确认收货成功',
-                            type: 'success',
-                            duration: 5000
-                        });
-                        this.reload();
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            type: 'warning',
-                            duration: 5000
-                        });
+            let text = result == 0 ? '拒绝' : '同意';
+
+            this.$confirm(`确定${text}退货`, '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    if (result == 0) {
+                        this.reasonVisible = true;
+                        return;
                     }
+                    let params = {
+                        order_apply_id: Number(this.detail.id),
+                        result: '1', //审核结果：0拒绝；1同意',
+                        reason: '  '
+                    };
+                    putReturnReceipt(params)
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '确认收货成功',
+                                    type: 'success',
+                                    duration: 5000
+                                });
+                                this.reload();
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                });
+                            }
+                        })
+                        .catch(err => {});
                 })
-                .catch(err => {});
+                .catch(() => {});
         },
         // 审核拒绝 弹窗
         receiptApplyRefuse() {
