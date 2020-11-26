@@ -293,7 +293,7 @@
         <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type"></store-product-list>
         <!-- 图片预览 -->
         <el-dialog :visible.sync="dialogVisible" title="预览">
-            <img width="100%" :src="dialogImageUrl" alt="" v-if="dialogViewType == 1" />
+            <img width="100%" :src="dialogImageUrl" alt="" v-if="dialogViewType != 2" />
             <video-player
                 class="video-player vjs-custom-skin"
                 ref="videoPlayer"
@@ -352,8 +352,8 @@ export default {
                     { required: true, message: '请输入销量', trigger: 'blur' },
                     { type: 'number', message: '请输入数字' }
                 ],
-                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
-                allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
+                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }]
+                // allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
             },
             rulesRequired: [{ required: true, message: '请输入内容', trigger: 'blur' }],
             rulesPrice: [
@@ -424,7 +424,7 @@ export default {
                 consume_attr_ids: [], //属性ids 数量最多为3 最少为1
                 is_allow_agent: 1, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
                 allow_shop_ids: [], //允许的店铺id
-                display_sales: '', //展示的销量
+                display_sales: Math.floor(Math.random() * 100) + 1, //展示的销量
                 status: 2, //1下架；2上架
                 freight_id: '', //运费模版id
                 sku_list: [
@@ -650,6 +650,7 @@ export default {
                     // this.backendTags = [];
                     // console.log('GOOGLE: data', data['tag_ids']);
                     data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list'];
+                    data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids'];
                     for (let i = 0; i < data['tag_detail_list'].length; i++) {
                         const tagId = data['tag_detail_list'][i].tag_id;
                         let findTag = tagListBack.data.find(item => tagId == item.id);
@@ -1019,7 +1020,7 @@ export default {
         handlePictureCardPreview(file) {
             console.log('GOOGLE: file', file);
             if (file.response) {
-                this.dialogImageUrl = item.response.data.file_url;
+                this.dialogImageUrl = file.response.data.file_url;
                 this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
                 this.dialogViewType = file.raw.type == 'video/mp4' ? 2 : 1;
             } else {

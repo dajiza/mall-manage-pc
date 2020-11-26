@@ -1,6 +1,6 @@
 <template>
     <div class="app-container">
-        <el-form class="freight-form" :inline="true" label-position="top" :model="goods" :rules="rules" ref="formRef">
+        <el-form class="freight-form" :inline="true" label-position="top" :model="goods" ref="formRef">
             <!-- 新增商品 -->
             <div class="table-title">
                 <div class="line"></div>
@@ -58,9 +58,11 @@
                     {{ goods.title }}
                 </el-form-item>
                 <el-form-item label="分类">
-                    {{ goods.type == 1 ? '布类' : '其他' }}
+                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
+                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="标签">
+                <el-form-item label="标签" v-if="miniProgramTags.length > 0 || backendTags.length > 0">
                     <v-tag-picker
                         :tag-picker-dialog-visible="dialogVisibleTag"
                         @cancel="dialogCancelTag"
@@ -325,6 +327,7 @@ export default {
             dialogVisibleTag: false,
             // 布料/其他 类型选择
             dialogVisibleType: false,
+            dialogViewType: false,
             options: {},
             miniProgramTags: [],
             backendTags: [],
