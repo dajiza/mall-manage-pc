@@ -1055,6 +1055,8 @@ export default {
             this.$refs['formRef'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
+                    const rLoading = this.openLoading();
+
                     let params = _.cloneDeep(this.goods);
                     // format is_allow_agent
                     params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
@@ -1165,8 +1167,11 @@ export default {
                                         duration: 5000
                                     });
                                 }
+                                rLoading.close();
                             })
-                            .catch(err => {});
+                            .catch(err => {
+                                rLoading.close();
+                            });
                     } else {
                         // 创建
                         creatGoods(params)
@@ -1189,9 +1194,12 @@ export default {
                                         type: 'error',
                                         duration: 5000
                                     });
+                                    rLoading.close();
                                 }
                             })
-                            .catch(err => {});
+                            .catch(err => {
+                                rLoading.close();
+                            });
                     }
                 } else {
                     this.$notify({
