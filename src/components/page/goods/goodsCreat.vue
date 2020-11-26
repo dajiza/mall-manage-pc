@@ -536,6 +536,7 @@ export default {
             return this.miniProgramTags.concat(this.backendTags);
         }
     },
+
     components: {
         storeProductList,
         vTagPicker
@@ -588,6 +589,12 @@ export default {
                     }
                     if (res[3].code === 200) {
                         this.basicAttr = res[3].data.consume_attr_basic_attr;
+                        // 其他只显示品牌 单位两个属性
+                        if (this.goods.type == 2) {
+                            this.basicAttr = this.basicAttr.filter(item => {
+                                return item.id == 1 || item.id == 4;
+                            });
+                        }
                         this.consumeAttr = res[3].data.consume_attr;
                     }
                     if (res[4].code === 200) {

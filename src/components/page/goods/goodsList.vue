@@ -35,32 +35,11 @@
             </el-form>
         </div>
         <div class="operate">
-            <el-button
-                type="primary"
-                v-hasPermission="'mall-backend-goods-dismounting'"
-                @click="updateStatusMultiple(2)"
-            >上架</el-button>
-            <el-button
-                type="warning"
-                v-hasPermission="'mall-backend-goods-dismounting'"
-                @click="updateStatusMultiple(1)"
-            >下架</el-button>
-            <el-button
-                type="primary"
-                v-hasPermission="'mall-backend-goods-distribution'"
-                @click="updateIsAgentMultiple(2)"
-            >分销</el-button>
-            <el-button
-                type="warning"
-                v-hasPermission="'mall-backend-goods-distribution'"
-                @click="updateIsAgentMultiple(1)"
-            >取消分销</el-button>
-            <el-button
-                type="primary"
-                @click="goodsCreat"
-                class="creat-goods"
-                v-hasPermission="'mall-backend-goods-add'"
-            >新增商品</el-button>
+            <el-button type="primary" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(2)">上架</el-button>
+            <el-button type="warning" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(1)">下架</el-button>
+            <el-button type="primary" v-hasPermission="'mall-backend-goods-distribution'" @click="updateIsAgentMultiple(2)">分销</el-button>
+            <el-button type="warning" v-hasPermission="'mall-backend-goods-distribution'" @click="updateIsAgentMultiple(1)">取消分销</el-button>
+            <el-button type="primary" @click="goodsCreat" class="creat-goods" v-hasPermission="'mall-backend-goods-add'">新增商品</el-button>
         </div>
         <div class="divider"></div>
 
@@ -88,14 +67,20 @@
                     <div class="opt-wrap">
                         <el-button
                             class="text-blue btn-opt"
-                            type="text" size=""
+                            type="text"
+                            size=""
                             v-hasPermission="'mall-backend-goods-update'"
-                            @click.native="goodsEdit(scope.row.id)">编辑</el-button>
+                            @click.native="goodsEdit(scope.row.id)"
+                            >编辑</el-button
+                        >
                         <el-button
                             class="text-blue btn-opt"
-                            type="text" size=""
+                            type="text"
+                            size=""
                             v-hasPermission="'mall-backend-goods-preview'"
-                            @click.native="goodsPreview(scope.row.id)">查看</el-button>
+                            @click.native="goodsPreview(scope.row.id)"
+                            >查看</el-button
+                        >
                         <el-button
                             class="text-blue btn-opt"
                             type="text"
@@ -130,13 +115,13 @@
             <el-table-column label="是否分销" width="100">
                 <template slot-scope="scope">
                     <el-switch
-                            v-model="scope.row.allow_agent"
-                            v-hasPermission="'mall-backend-goods-distribution'"
-                            @change="updateIsAgent(scope.row.id, scope.row.allow_agent)"
-                            :active-value="2"
-                            :inactive-value="1"
-                            active-color="#1890FF"
-                            inactive-color="#BFBFBF"
+                        v-model="scope.row.allow_agent"
+                        v-hasPermission="'mall-backend-goods-distribution'"
+                        @change="updateIsAgent(scope.row.id, scope.row.allow_agent)"
+                        :active-value="2"
+                        :inactive-value="1"
+                        active-color="#1890FF"
+                        inactive-color="#BFBFBF"
                     >
                     </el-switch>
                 </template>
@@ -273,8 +258,8 @@ export default {
             ],
             // 是否库存不足 1 足 2 不足(只有当所有sku 全部库存不足 为2
             shortageList: [
-                { value: '1', label: '足' },
-                { value: '2', label: '不足' }
+                { value: '1', label: '正常' },
+                { value: '2', label: '低库存' }
             ],
             // 是否所有代理可以销售：1指定代理；2所有代理可以销售
             agentList: [
