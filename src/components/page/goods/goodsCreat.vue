@@ -151,7 +151,7 @@
                     </el-table-column>
                     <el-table-column label="SKU图片" width="130">
                         <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.sku_img" alt="" />
+                            <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
                         </template>
                     </el-table-column>
                     <el-table-column label="SKU名称" width="240">
