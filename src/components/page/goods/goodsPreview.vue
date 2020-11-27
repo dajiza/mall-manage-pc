@@ -264,9 +264,9 @@
 
         <!-- 仓库产品 -->
         <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type"></store-product-list>
-        <!-- 图片预览 -->
+        <!-- 视频预览 -->
         <el-dialog :visible.sync="dialogVisible" title="预览">
-            <img width="100%" :src="dialogImageUrl" alt="" v-if="dialogViewType == 1" />
+            <img width="100%" :src="dialogImageUrl" alt="" />
             <video-player
                 class="video-player vjs-custom-skin"
                 ref="videoPlayer"
@@ -275,14 +275,8 @@
                 v-if="dialogViewType == 2"
             ></video-player>
         </el-dialog>
-        <el-dialog :visible.sync="dialogVisibleType" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" title="商品类型选择">
-            <el-radio v-model="goods.type" :label="1">布料</el-radio>
-            <el-radio v-model="goods.type" :label="2">其他</el-radio>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="gotoCreat">返 回</el-button>
-                <el-button type="primary" @click="confirmType">确 定</el-button>
-            </span>
-        </el-dialog>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
     </div>
 </template>
 <script>
@@ -294,8 +288,10 @@ import { getToken } from '@/utils/auth';
 import { ATTR, ATTR_NAME } from '@/plugin/constant';
 import storeProductList from '@/components/common/store-product-list/StoreProductList';
 import vTagPicker from '../../common/TagPicker.vue';
+import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
 
 export default {
+    name: 'goods-preview',
     data() {
         return {
             ATTR_NAME,
@@ -305,7 +301,9 @@ export default {
             dialogImageUrl: '',
             timg: [],
             tfile: [],
-
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: '',
             basicAttr: [], //固定属性
             consumeAttr: [], //自定义属性
             basicChecked: [], //固定属性 checkbox list
@@ -419,7 +417,8 @@ export default {
     },
     components: {
         storeProductList,
-        vTagPicker
+        vTagPicker,
+        ElImageViewer
     },
     created() {
         // 图片上传地址
@@ -493,7 +492,7 @@ export default {
         },
         // 编辑获取详情
         getDetail() {
-            let id = this.$route.params.id;
+            let id = this.$route.query.id;
             console.log('GOOGLE: id', id);
             if (!id) {
                 return;
@@ -559,6 +558,7 @@ export default {
                         skuItem['attrDiyValue'] = ['', '', ''];
                         skuItem['storehouse_pid'] = skuItem['store_house_id'];
                         skuItem['title'] = skuItem['sku_title'];
+                        skuItem['status'] = skuItem['sku_status'];
                         const attrList = skuItem['sku_attr_list'];
                         console.log('GOOGLE: attrList', attrList);
                         let diyAttrIndex = 0;
@@ -834,10 +834,12 @@ export default {
         swapItems(index1, index2) {
             this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0];
         },
+        closePreview() {
+            this.dialogVisiblePic = false;
+        },
         handlePictureCardPreview(file) {
-            console.log('GOOGLE: file', file);
             if (file.response) {
-                this.dialogImageUrl = item.response.data.file_url;
+                this.dialogImageUrl = file.response.data.file_url;
                 this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
                 this.dialogViewType = file.raw.type == 'video/mp4' ? 2 : 1;
             } else {
@@ -845,7 +847,28 @@ export default {
                 this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
                 this.dialogViewType = file.type;
             }
-            this.dialogVisible = true;
+            if (this.dialogViewType == 2) {
+                this.dialogVisible = true;
+            } else {
+                this.dialogVisiblePic = true;
+                this.previewUrlList = [];
+                let list = this.timg.concat(this.tfile);
+                for (let i = 0; i < list.length; i++) {
+                    const item = list[i];
+                    if (item.response) {
+                        let type = item.raw.type == 'video/mp4' ? 2 : 1;
+                        if (type == 1) {
+                            this.previewUrlList.push(item.response.data.file_url);
+                        }
+                    } else {
+                        let dialogImageUrl = item.type == 2 ? item.vedioUrl : item.url;
+                        if (item.type == 1) {
+                            this.previewUrlList.push(dialogImageUrl);
+                        }
+                    }
+                }
+                this.previewIndex = this.previewUrlList.indexOf(this.dialogImageUrl);
+            }
         },
 
         // 搜索

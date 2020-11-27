@@ -232,6 +232,7 @@ import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, upda
 import { formatMoney } from '@/plugin/tool';
 
 export default {
+    name: 'goods-list',
     data() {
         return {
             list: null,
@@ -508,8 +509,8 @@ export default {
         },
         goodsEdit(id) {
             this.$router.push({
-                name: 'goods-creat',
-                params: {
+                name: 'goods-edit',
+                query: {
                     id: id
                 }
             });
@@ -517,7 +518,7 @@ export default {
         goodsPreview(id) {
             this.$router.push({
                 name: 'goods-preview',
-                params: {
+                query: {
                     id: id
                 }
             });

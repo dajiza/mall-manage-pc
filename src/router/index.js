@@ -24,6 +24,7 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-goods-list',
+                    name: 'goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsList.vue'),
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
@@ -32,6 +33,12 @@ export default new Router({
                     name: 'goods-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
                     meta: { title: '新增商品', name: 'goodsCreat' }
+                },
+                {
+                    path: '/mall-backend-goods-edit',
+                    name: 'goods-edit',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
+                    meta: { title: '编辑商品', name: 'goodsEdit' }
                 },
                 {
                     path: '/mall-backend-goods-preview',

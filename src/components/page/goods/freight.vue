@@ -23,8 +23,8 @@
                         <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-copy'" @click="copy(item.id)">复制模板</el-button>
                         <div class="line"></div>
                         <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-update'" @click="edit(item.id)">修改</el-button>
-                        <div class="line"></div>
-                        <el-button class="title-btn" type="text" @click="handleDelete(index, item)">删除</el-button>
+                        <div class="line" v-show="item.is_default !== 2"></div>
+                        <el-button class="title-btn" type="text" @click="handleDelete(index, item)" v-show="item.is_default !== 2">删除</el-button>
                         <!--<div class="line"></div>-->
                     </div>
                 </div>

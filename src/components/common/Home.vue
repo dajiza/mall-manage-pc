@@ -2,7 +2,7 @@
     <div class="wrapper">
         <v-head></v-head>
         <v-sidebar></v-sidebar>
-        <div class="content-box" :class="{'content-collapse':collapse}">
+        <div class="content-box" :class="{ 'content-collapse': collapse }">
             <v-tags></v-tags>
             <div class="content">
                 <transition name="move" mode="out-in">
@@ -29,8 +29,7 @@ export default {
             collapse: false
         };
     },
-    computed:{
-    },
+    computed: {},
     components: {
         vHead,
         vSidebar,
@@ -47,8 +46,7 @@ export default {
             for (let i = 0, len = msg.length; i < len; i++) {
                 // console.log('msg[i]', msg[i]);
                 // msg[i].name && arr.push(msg[i].name);
-                if( msg[i].name !== 'RoleManagement' && msg[i].name !== 'productList' && msg[i].name !=='PhotoDetection'
-                    && msg[i].name!=='productView' && msg[i].name!=='productEdit' && msg[i].name !=='LockingProductList'){
+                if (msg[i].name !== 'goods-list' && msg[i].name !== 'productList') {
                     msg[i].name && arr.push(msg[i].name);
                 }
             }

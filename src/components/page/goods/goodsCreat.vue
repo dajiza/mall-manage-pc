@@ -253,7 +253,7 @@
                     <el-radio v-model="goods.is_allow_agent" :label="1">否</el-radio>
                 </el-form-item>
 
-                <el-form-item label="是否上架商品">
+                <el-form-item label="是否上架商品" v-if="!goods.goods_id">
                     <el-radio v-model="goods.status" :label="2">是</el-radio>
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
@@ -291,9 +291,9 @@
 
         <!-- 仓库产品 -->
         <store-product-list ref="productList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type"></store-product-list>
-        <!-- 图片预览 -->
+        <!-- 视频预览 -->
         <el-dialog :visible.sync="dialogVisible" title="预览">
-            <img width="100%" :src="dialogImageUrl" alt="" v-if="dialogViewType != 2" />
+            <img width="100%" :src="dialogImageUrl" alt="" />
             <video-player
                 class="video-player vjs-custom-skin"
                 ref="videoPlayer"
@@ -302,6 +302,9 @@
                 v-if="dialogViewType == 2"
             ></video-player>
         </el-dialog>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
+        <!-- 选择类型 -->
         <el-dialog
             :visible.sync="dialogVisibleType"
             width="380px"
@@ -330,8 +333,10 @@ import { getToken } from '@/utils/auth';
 import { ATTR, ATTR_NAME } from '@/plugin/constant';
 import storeProductList from '@/components/common/store-product-list/StoreProductList';
 import vTagPicker from '../../common/TagPicker.vue';
+import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
 
 export default {
+    name: 'goods-creat',
     data() {
         return {
             ATTR_NAME,
@@ -340,6 +345,9 @@ export default {
             dialogVisible: false,
             dialogImageUrl: '',
             dialogViewType: '',
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: '',
             timg: [],
             tfile: [],
             rules: {
@@ -539,7 +547,8 @@ export default {
 
     components: {
         storeProductList,
-        vTagPicker
+        vTagPicker,
+        ElImageViewer
     },
     created() {
         // 图片上传地址
@@ -547,7 +556,7 @@ export default {
         this.header['token'] = getToken();
     },
     mounted() {
-        let id = this.$route.params.id;
+        let id = this.$route.query.id;
         if (!id) {
             this.dialogVisibleType = true;
         } else {
@@ -624,7 +633,7 @@ export default {
         },
         // 编辑获取详情
         getDetail() {
-            let id = this.$route.params.id;
+            let id = this.$route.query.id;
             console.log('GOOGLE: id', id);
             if (!id) {
                 return;
@@ -920,9 +929,9 @@ export default {
                 this.upload_loading = this.uploadLoading('上传中');
                 this.uploadVisible = false;
             } else {
-                if (file.size > 1024 * 1024 * 5) {
+                if (file.size > 1024 * 1024 * 10) {
                     this.$notify({
-                        title: '文件大小应不超过5M',
+                        title: '文件大小应不超过10M',
                         message: '',
                         type: 'warning',
                         duration: 5000
@@ -1024,8 +1033,10 @@ export default {
         swapItems(index1, index2) {
             this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0];
         },
+        closePreview() {
+            this.dialogVisiblePic = false;
+        },
         handlePictureCardPreview(file) {
-            console.log('GOOGLE: file', file);
             if (file.response) {
                 this.dialogImageUrl = file.response.data.file_url;
                 this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
@@ -1035,7 +1046,28 @@ export default {
                 this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
                 this.dialogViewType = file.type;
             }
-            this.dialogVisible = true;
+            if (this.dialogViewType == 2) {
+                this.dialogVisible = true;
+            } else {
+                this.dialogVisiblePic = true;
+                this.previewUrlList = [];
+                let list = this.timg.concat(this.tfile);
+                for (let i = 0; i < list.length; i++) {
+                    const item = list[i];
+                    if (item.response) {
+                        let type = item.raw.type == 'video/mp4' ? 2 : 1;
+                        if (type == 1) {
+                            this.previewUrlList.push(item.response.data.file_url);
+                        }
+                    } else {
+                        let dialogImageUrl = item.type == 2 ? item.vedioUrl : item.url;
+                        if (item.type == 1) {
+                            this.previewUrlList.push(dialogImageUrl);
+                        }
+                    }
+                }
+                this.previewIndex = this.previewUrlList.indexOf(this.dialogImageUrl);
+            }
         },
 
         // 搜索
@@ -1066,6 +1098,7 @@ export default {
                     const rLoading = this.openLoading();
 
                     let params = _.cloneDeep(this.goods);
+
                     // format is_allow_agent
                     params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
 
@@ -1079,15 +1112,14 @@ export default {
                             type: 'warning',
                             duration: 5000
                         });
+                        rLoading.close();
                         return;
                     }
+
                     this.timg[0]['type'] = 1;
-                    console.log('GOOGLE: this.timg', this.timg);
                     let imgList = this.timg.concat(this.tfile);
-                    console.log('GOOGLE: imgList', imgList);
                     let length = imgList.length + 1;
                     let imgs = imgList.map(item => {
-                        console.log('GOOGLE: item', item);
                         let url, type;
                         if (item.response) {
                             url = item.response.data.file_url;
@@ -1122,6 +1154,37 @@ export default {
                             type: 'warning',
                             duration: 5000
                         });
+                        rLoading.close();
+                        return;
+                    }
+                    // 判断sku数量
+                    if (params.sku_list <= 0) {
+                        this.$notify({
+                            title: '请添加至少一条sku',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        });
+                        rLoading.close();
+                        return;
+                    }
+                    // 判断失少有一个sku为上架
+                    let skuStatus = false;
+                    for (let i = 0; i < params.sku_list.length; i++) {
+                        const skuItem = params.sku_list[i];
+                        if (skuItem.status == 2) {
+                            skuStatus = true;
+                            break;
+                        }
+                    }
+                    if (!skuStatus && this.goods.status == 2) {
+                        this.$notify({
+                            title: '商品上架状态至少需要一个sku处于上架',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        });
+                        rLoading.close();
                         return;
                     }
                     for (let i = 0; i < params.sku_list.length; i++) {
