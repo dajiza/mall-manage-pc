@@ -1091,12 +1091,9 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     const rLoading = this.openLoading();
-
                     let params = _.cloneDeep(this.goods);
-
                     // format is_allow_agent
                     params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
-
                     // format标签
                     params['tag_ids'] = this.pickerTag.map(item => item.id).join(',');
                     // format 图片
@@ -1110,7 +1107,6 @@ export default {
                         rLoading.close();
                         return;
                     }
-
                     this.timg[0]['type'] = 1;
                     let imgList = this.timg.concat(this.tfile);
                     let length = imgList.length + 1;
@@ -1142,6 +1138,8 @@ export default {
 
                     //生成attr_list数据 format 价格
                     let attrLength = this.consumeChecked.length + this.basicChecked.length;
+                    params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked];
+
                     if (attrLength == 0 || attrLength > 3) {
                         this.$notify({
                             title: '请选择至少1条展示属性',
@@ -1330,6 +1328,9 @@ export default {
             }
         },
         gotoCreat() {
+            this.dialogVisibleType = false;
+            bus.$emit('close_current_tags');
+
             this.$router.push({
                 path: 'mall-backend-goods-list'
             });
