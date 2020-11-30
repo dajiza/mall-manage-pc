@@ -340,17 +340,15 @@
         <el-dialog :title="dialogTitle" :visible.sync="priceUpdateVisible" width="380px"
                    :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
             <el-form class="update-price-form" ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
-                <el-form-item label-width="1px">
+                <el-form-item label-width="1px" v-if="dialogTitle === '修改订单价格'">
                     <el-radio-group v-model="priceUpdateForm.radio" @change="changeType">
                         <el-radio :label="0">现价</el-radio>
                         <el-radio :label="1">折扣
-                            <span style="color: rgba(0,0,0,.85)" v-show="priceUpdateForm.discount">（折扣后：{{priceAfterDiscount}}元）</span>
+                            <span style="color: rgba(0,0,0,.65)" v-show="priceUpdateForm.discount">（折扣后：{{priceAfterDiscount}}元）</span>
                         </el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <template v-if="dialogTitle === '修改订单价格'">
-                    <!--<div v-if="priceUpdateForm.radio === 0">（现价应不低于{{minPrice}}元）</div>
-                    <div v-if="priceUpdateForm.radio === 1">（折扣额度应不超过{{MoneyChangeMax}}折）</div>-->
                     <el-form-item v-if="priceUpdateForm.radio === 0" label="" prop="price">
                         <el-input
                                 placeholder="请输入金额"
@@ -418,7 +416,9 @@
                 //     return callback(new Error('请输入最终数量'));
                 // }
                 setTimeout(() => {
-                    if ( value * 100 < this.minPrice * 100) {
+                    const num1 = this.numberMul(Number(value),100);
+                    const num2 = this.numberMul(Number(this.minPrice),100);
+                    if ( num1 < num2) {
                         callback(new Error('现价应不低于' + this.minPrice));
                     } else {
                         callback();
@@ -430,7 +430,8 @@
                 //     return callback(new Error('请输入最终数量'));
                 // }
                 setTimeout(() => {
-                    if ( value * 10 < 100 - this.MoneyChangeMax) {
+                    const num1 = this.numberMul(Number(value),100);
+                    if ( num1 < 100 - this.MoneyChangeMax) {
                         const num = (100 - this.MoneyChangeMax)/10
                         callback(new Error('最低折扣不低于' + num + '折'));
                     } else {
@@ -835,7 +836,7 @@
                         };
                         if (this.dialogTitle === '修改运费') {
                             params['order_id'] = Number(this.$route.query.order_id);
-                            params['new_price'] = Number(this.priceUpdateForm.shipping) * 100;
+                            params['new_price'] = this.numberMul(Number(this.priceUpdateForm.shipping),100);
                             const rLoading = this.openLoading();
                             updateFreight(params)
                                 .then((res) => {
@@ -863,9 +864,9 @@
                             // 修改订单金额
                             params['order_detail_id'] = Number(this.orderDetailId);
                             if (this.priceUpdateForm.radio === 1) {
-                                params['new_price'] = Number(this.priceAfterDiscount) * 100;
+                                params['new_price'] = this.numberMul(Number(this.priceAfterDiscount),100);
                             } else {
-                                params['new_price'] = Number(this.priceUpdateForm.price) * 100;
+                                params['new_price'] = this.numberMul(Number(this.priceUpdateForm.price), 100);
                             }
                             const rLoading = this.openLoading();
                             updateOrderDetail(params)
@@ -916,6 +917,7 @@
 
             // 弹框关闭前操作
             dialogClose(){
+                console.log('this.$refs[\'formBox\']', this.$refs['formBox']);
                 this.$refs['formBox'].clearValidate();
                 this.$refs['formBox'].resetFields();
                 this.priceUpdateVisible = false;
@@ -924,7 +926,7 @@
             // 修改运费
             updateShipping(){
                 this.dialogTitle = '修改运费';
-                this.moneyUpdateLabel = '现价'
+                this.moneyUpdateLabel = '修改后运费'
                 this.reasonOptions = this.modifyShippingReason;
                 this.priceUpdateVisible = true;
             },
