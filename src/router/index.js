@@ -69,6 +69,11 @@ export default new Router({
                     meta: { title: '售后申请详情' }
                 },
                 {
+                    path: '/mall-backend-customer-list',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/customer/customerList.vue'),
+                    meta: { title: '客户管理' }
+                },
+                {
                     path: '/mall-backend-other-category',
                     name: 'otherCategory',
                     component: () => import(/* webpackChunkName: "other-category" */ '../components/page/other-category/otherCategory.vue'),

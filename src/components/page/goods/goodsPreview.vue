@@ -498,7 +498,7 @@ export default {
                 return;
             }
             let params = {
-                goods_id: id
+                goods_id: Number(id)
             };
             queryGoodsDetail(params)
                 .then(async res => {
@@ -648,19 +648,21 @@ export default {
             this.timg = [{ url: firstSku.sku_img }];
         },
         // sku上下架
-        setSkuStatus(row, status, index) {
-            if (row.stock_available == 0) {
-                this.$notify({
-                    title: '可用库存为0,不能上架',
-                    message: '',
-                    type: 'warning',
-                    duration: 5000
-                });
-                return;
-            }
-            status = status == 1 ? 2 : 1;
-            this.$set(this.goods.sku_list[index], 'status', status);
-        },
+        // setSkuStatus(row, status, index) {
+        //     console.log('输出 ~ file: goodsPreview.vue ~ line 997 ~ status', status);
+
+        //     if (row.stock_available == 0 && status == 0) {
+        //         this.$notify({
+        //             title: '可用库存为0,不能上架',
+        //             message: '',
+        //             type: 'warning',
+        //             duration: 5000
+        //         });
+        //         return;
+        //     }
+        //     status = status == 1 ? 2 : 1;
+        //     this.$set(this.goods.sku_list[index], 'status', status);
+        // },
         // 图片上传前检测 首图
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {

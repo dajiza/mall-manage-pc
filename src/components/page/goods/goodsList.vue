@@ -30,12 +30,12 @@
                     </el-select>
                 </el-form-item>
 
-                <el-button class="filter-item" size="" type="" icon="el-icon-edit-outline" @click="resetForm('formFilter')">重置</el-button>
-                <el-button class="filter-item" size="" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
+                <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
             </el-form>
         </div>
         <div class="operate">
-            <el-button type="primary" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(2)">上架</el-button>
+            <!-- <el-button type="primary" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(2)">上架</el-button> -->
             <el-button type="warning" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(1)">下架</el-button>
             <el-button type="primary" v-hasPermission="'mall-backend-goods-distribution'" @click="updateIsAgentMultiple(2)">分销</el-button>
             <el-button type="warning" v-hasPermission="'mall-backend-goods-distribution'" @click="updateIsAgentMultiple(1)">取消分销</el-button>

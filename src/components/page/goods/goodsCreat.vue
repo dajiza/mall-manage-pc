@@ -334,6 +334,7 @@ import { ATTR, ATTR_NAME } from '@/plugin/constant';
 import storeProductList from '@/components/common/store-product-list/StoreProductList';
 import vTagPicker from '../../common/TagPicker.vue';
 import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import bus from '../../common/bus';
 
 export default {
     name: 'goods-creat',
@@ -639,7 +640,7 @@ export default {
                 return;
             }
             let params = {
-                goods_id: id
+                goods_id: Number(id)
             };
             queryGoodsDetail(params)
                 .then(async res => {
@@ -697,7 +698,6 @@ export default {
                     data.imgs.splice(0, 1);
                     this.tfile = data.imgs;
                     // format attr_list 及价格 字段名  sku_title=>title store_house_id=>storehouse_pid sku_status=>status
-                    console.log('GOOGLE: sku_list', data['sku_list']);
                     for (let i = 0; i < data['sku_list'].length; i++) {
                         const skuItem = data['sku_list'][i];
                         skuItem.min_price = skuItem.min_price / 100;
@@ -707,8 +707,6 @@ export default {
                         skuItem['title'] = skuItem['sku_title'];
                         skuItem['status'] = skuItem['sku_status'];
                         const attrList = skuItem['sku_attr_list'];
-                        console.log('GOOGLE: attrList', attrList);
-                        console.log('GOOGLE: attrListlength', attrList.length);
                         let diyAttrIndex = 0;
                         for (let j = 0; j < attrList.length; j++) {
                             const attrItem = attrList[j];
@@ -724,17 +722,14 @@ export default {
                                 }
                             }
 
-                            console.log('GOOGLE: attrItem', attrItem);
                             if (attrItem.attr_id > 6) {
                                 skuItem['attrDiyValue'][diyAttrIndex] = attrItem.attr_value;
                                 diyAttrIndex++;
                             }
-                            console.log('GOOGLE: attrDiyValue', skuItem['attrDiyValue']);
                         }
                     }
 
                     this.goods = data;
-                    console.log('GOOGLE: this.goods', this.goods);
                 })
                 .catch(err => {});
         },
@@ -840,7 +835,7 @@ export default {
         },
         // sku上下架
         setSkuStatus(row, status, index) {
-            if (row.stock_available == 0) {
+            if (row.stock_available == 0 && status == 1) {
                 this.$notify({
                     title: '可用库存为0,不能上架',
                     message: '',
@@ -1227,9 +1222,11 @@ export default {
                                         type: 'success',
                                         duration: 3000
                                     });
-                                    // this.$router.push({
-                                    //     path: 'mall-backend-goods-list'
-                                    // });
+                                    // this.initData();
+                                    // bus.$emit('close_current_tags');
+                                    this.$router.push({
+                                        path: 'mall-backend-goods-list'
+                                    });
                                 } else {
                                     this.$notify({
                                         title: res.msg,
@@ -1416,5 +1413,9 @@ export default {
         font-weight: 500;
         font-size: 14px;
     }
+}
+.el-upload-list__item div {
+    width: 146px;
+    height: 146px;
 }
 </style>

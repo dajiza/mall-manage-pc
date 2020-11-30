@@ -92,6 +92,17 @@ export default {
                     ]
                 },
                 {
+                    icon: 'iconfont icon-list',
+                    name: 'mall-backend-customer-management',
+                    display_name: '客户管理',
+                    subs: [
+                        {
+                            name: 'mall-backend-customer-list',
+                            display_name: '客户列表'
+                        }
+                    ]
+                },
+                {
                     icon: 'iconfont icon-setting',
                     name: 'mall-backend-system-setting',
                     display_name: '系统设置',
