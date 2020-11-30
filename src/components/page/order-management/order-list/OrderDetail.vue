@@ -339,15 +339,40 @@
         <!-- 修改价格弹出框 -->
         <el-dialog :title="dialogTitle" :visible.sync="priceUpdateVisible" width="380px"
                    :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
-            <el-form ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
-                <el-form-item v-if="dialogTitle === '修改订单价格'" :label="moneyUpdateLabel" prop="price">
-                    <el-input
-                        placeholder="请输入金额"
-                        :precision="2"
-                        autofocus="autofocus"
-                        v-model="priceUpdateForm.price"
-                    ></el-input>
+            <el-form class="update-price-form" ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
+                <el-form-item label-width="1px">
+                    <el-radio-group v-model="priceUpdateForm.radio" @change="changeType">
+                        <el-radio :label="0">现价</el-radio>
+                        <el-radio :label="1">折扣
+                            <span style="color: rgba(0,0,0,.85)" v-show="priceUpdateForm.discount">（折扣后：{{priceAfterDiscount}}元）</span>
+                        </el-radio>
+                    </el-radio-group>
                 </el-form-item>
+                <template v-if="dialogTitle === '修改订单价格'">
+                    <!--<div v-if="priceUpdateForm.radio === 0">（现价应不低于{{minPrice}}元）</div>
+                    <div v-if="priceUpdateForm.radio === 1">（折扣额度应不超过{{MoneyChangeMax}}折）</div>-->
+                    <el-form-item v-if="priceUpdateForm.radio === 0" label="" prop="price">
+                        <el-input
+                                placeholder="请输入金额"
+                                :precision="2"
+                                autofocus="autofocus"
+                                v-model="priceUpdateForm.price"
+                        ></el-input>
+                        <span style="margin-left: 10px">元</span>
+                    </el-form-item>
+                    <el-form-item v-if="priceUpdateForm.radio === 1" label="" prop="discount">
+                        <el-input
+                                placeholder="请输入折扣"
+                                :precision="2"
+                                autofocus="autofocus"
+                                v-model="priceUpdateForm.discount"
+                                @blur="discountBlur"
+                                @input="discount_num_change"
+                        ></el-input>
+                        <span style="margin-left: 10px">折</span>
+                    </el-form-item>
+                </template>
+
                 <el-form-item v-if="dialogTitle === '修改运费'" :label="moneyUpdateLabel" prop="shipping">
                     <el-input
                             placeholder="请输入金额"
@@ -357,10 +382,14 @@
                     ></el-input>
                 </el-form-item>
                 <el-form-item label="修改原因" prop="reason">
-                    <el-input
-                        placeholder="请输入"
-                        v-model="priceUpdateForm.reason"
-                    ></el-input>
+                    <el-select filterable v-model="priceUpdateForm.reason" placeholder="请选择">
+                        <el-option
+                                v-for="state in reasonOptions"
+                                :key="state.id"
+                                :value="state.name"
+                                :label="state.name"
+                        />
+                    </el-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -380,6 +409,7 @@
     import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail } from '../../../../api/orderList';
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
+    import { queryReasonList } from '../../../../api/afterSaleReason';
     export default {
         name: 'OrderDetail',
         data() {
@@ -390,6 +420,19 @@
                 setTimeout(() => {
                     if ( value * 100 < this.minPrice * 100) {
                         callback(new Error('现价应不低于' + this.minPrice));
+                    } else {
+                        callback();
+                    }
+                }, 10);
+            };
+            var checkDiscount = (rule, value, callback) => {
+                // if (!value) {
+                //     return callback(new Error('请输入最终数量'));
+                // }
+                setTimeout(() => {
+                    if ( value * 10 < 100 - this.MoneyChangeMax) {
+                        const num = (100 - this.MoneyChangeMax)/10
+                        callback(new Error('最低折扣不低于' + num + '折'));
                     } else {
                         callback();
                     }
@@ -429,11 +472,18 @@
                 priceUpdateVisible: false, // 价格
                 dialogTitle:'',
                 priceUpdateForm:{
+                    radio:0,
+                    discount: '', // 折扣
                     price:'',  // 订单价格
                     shipping:'', // 运费
                     reason:''
                 },
                 priceUpdateFormRules: {
+                    discount: [
+                        { required: true, message: '请输入折扣', trigger: 'blur' },
+                        { validator: checkDiscount, trigger: ['blur'] },
+                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                    ],
                     price: [
                         { required: true, message: '请输入金额', trigger: 'blur' },
                         { validator: checkLastNum, trigger: ['blur'] },
@@ -460,6 +510,11 @@
                 MoneyChangeMax: 0,
                 moneyUpdateLabel: '',
                 minPrice: 0,
+                reasonOptions: [],  // 理由列表
+                modifyPriceReason:[], // 修改价格理由列表
+                modifyShippingReason:[], // 修改运费理由列表
+                priceAfterDiscount:'', // 折后价
+                currentPrice:'',  // 修改时订单价格
             }
         },
         components: {
@@ -555,6 +610,10 @@
         created() {
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
             this.getConfig();
+            // 获取修改价格理由列表
+            this.getReason1(5);
+            // 获取修改运费理由列表
+            this.getReason2(6);
         },
         mounted() {
             this.getOrderInfo();
@@ -570,7 +629,6 @@
                                     if (ev.config_key === 'ORDER_MONEY_CHANGE_MAX'){
                                         // 金额允许修改的最大百分比
                                         this.MoneyChangeMax = ev.value;
-                                        // console.log('this.MoneyChangeMax', this.MoneyChangeMax);
                                     }
                                 })
                             }
@@ -584,6 +642,48 @@
                         }
                     })
                     .catch(() => {});
+            },
+
+            // 获取理由列表
+            getReason1(num){
+                let params = {
+                    type: num
+                };
+                const rLoading = this.openLoading();
+                queryReasonList(params).then((res) => {
+                    rLoading.close();
+                    if(res.code === 200){
+                        this.modifyPriceReason = res.data || [];
+                    }else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 1000
+                        });
+                    }
+                }).catch(()=>{});
+            },
+
+            // 获取理由列表
+            getReason2(num){
+                let params = {
+                    type: num
+                };
+                const rLoading = this.openLoading();
+                queryReasonList(params).then((res) => {
+                    rLoading.close();
+                    if(res.code === 200){
+                        this.modifyShippingReason = res.data || [];
+                    }else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 1000
+                        });
+                    }
+                }).catch(()=>{});
             },
 
             // 请求 - 详情信息
@@ -762,7 +862,11 @@
                         } else {
                             // 修改订单金额
                             params['order_detail_id'] = Number(this.orderDetailId);
-                            params['new_price'] = Number(this.priceUpdateForm.price) * 100;
+                            if (this.priceUpdateForm.radio === 1) {
+                                params['new_price'] = Number(this.priceAfterDiscount) * 100;
+                            } else {
+                                params['new_price'] = Number(this.priceUpdateForm.price) * 100;
+                            }
                             const rLoading = this.openLoading();
                             updateOrderDetail(params)
                                 .then((res) => {
@@ -798,6 +902,7 @@
                 this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
                 const now_price = Number(row.price_sum_end);
+                this.currentPrice = Number(row.price_sum_end);
                 const min = 100 - Number(this.MoneyChangeMax);
                 // const max = 100 + Number(this.MoneyChangeMax);
                 const min_price = ((min * now_price)/10000).toFixed(2);
@@ -805,6 +910,7 @@
                 this.minPrice = min_price;
                 const priceChangeTip = '修改后价格应不低于'+ min_price + '元';
                 this.moneyUpdateLabel = '现价（' + priceChangeTip +'）';
+                this.reasonOptions = this.modifyPriceReason;
                 this.priceUpdateVisible = true;
             },
 
@@ -819,7 +925,25 @@
             updateShipping(){
                 this.dialogTitle = '修改运费';
                 this.moneyUpdateLabel = '现价'
+                this.reasonOptions = this.modifyShippingReason;
                 this.priceUpdateVisible = true;
+            },
+
+            changeType(){
+                this.$set(this.priceUpdateForm,'price', '');
+                this.$set(this.priceUpdateForm,'discount', '');
+                this.$nextTick(()=>{
+                    this.$refs['formBox'].clearValidate();
+                });
+            },
+            discount_num_change() {
+                if (this.priceUpdateForm.discount > 10) {
+                    this.$set(this.priceUpdateForm, 'discount', 10);
+                }
+                this.priceAfterDiscount = ((this.currentPrice * this.priceUpdateForm.discount)/1000);
+            },
+            discountBlur(){
+                // console.log('priceUpdateForm.discount',this.priceUpdateForm.discount);
             },
 
             numberAdd(a, b) {
@@ -881,5 +1005,8 @@
     -webkit-box-sizing: border-box;
     padding-left: 8px;
     border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.update-price-form .el-input{
+    width: 300px;
 }
 </style>
