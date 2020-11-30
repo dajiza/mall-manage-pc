@@ -994,4 +994,8 @@ export default {
         font-size: 14px;
     }
 }
+.el-upload-list__item div {
+    width: 146px;
+    height: 146px;
+}
 </style>
