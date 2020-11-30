@@ -160,7 +160,7 @@
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_real" label="改价(元)">
+                <el-table-column prop="price_real" label="改价(元)"  width="120">
                     <template slot-scope="scope">
                         <div class="change-price">
                             <span>{{ scope.row.price_sum_change/100 | rounding}}</span>
