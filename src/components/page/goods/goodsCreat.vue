@@ -747,6 +747,7 @@ export default {
                 });
             }
         },
+
         handleConsumeBasic(value) {
             let length = this.consumeChecked.length + this.basicChecked.length;
             if (length > 3) {
