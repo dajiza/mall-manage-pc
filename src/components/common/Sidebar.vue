@@ -211,7 +211,7 @@ export default {
                         }
                     }
                 });
-                console.log('item1', item1);
+                // console.log('item1', item1);
             });
             return data1;
         },

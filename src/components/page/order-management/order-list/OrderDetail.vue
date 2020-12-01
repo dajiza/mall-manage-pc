@@ -822,6 +822,7 @@
                         const params = {
                             reason_name: this.priceUpdateForm.reason
                         };
+                        const _this = this;
                         if (this.dialogTitle === '修改运费') {
                             params['order_id'] = Number(this.$route.query.order_id);
                             params['new_price'] = this.numberMul(Number(this.priceUpdateForm.shipping),100);
@@ -836,8 +837,8 @@
                                             type: 'success',
                                             duration: 3000
                                         });
-                                        this.dialogClose();
-                                        this.getOrderInfo();
+                                        _this.getOrderInfo();
+                                        _this.dialogClose();
                                     } else {
                                         this.$notify({
                                             title: res.msg,
@@ -867,8 +868,8 @@
                                             type: 'success',
                                             duration: 3000
                                         });
-                                        this.dialogClose();
-                                        this.getOrderInfo();
+                                        _this.getOrderInfo();
+                                        _this.dialogClose();
                                     } else {
                                         this.$notify({
                                             title: res.msg,

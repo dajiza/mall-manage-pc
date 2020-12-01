@@ -34,7 +34,7 @@
                     </el-form-item>
                     <el-form-item label="代理店铺" prop="shop_id" class="">
                         <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
-                            <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.name" />
+                            <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                         </el-select>
                     </el-form-item>
                 </div>
@@ -158,6 +158,7 @@
 import { getOrderList, queryCancelOrder } from '../../../../api/orderList';
 import EmptyList from '../../../common/empty-list/EmptyList';
 import './OrderList.less';
+import { queryShopList } from '@/api/goods';
 export default {
     name: 'OrderList',
     data() {
@@ -315,6 +316,7 @@ export default {
     mounted() {
         // 获取购买渠道列表数据
         // this.getChannelData();
+        this.queryShopList(); // 获取代理店铺列表
         // 获取订单列表数据
         this.getListData();
     },
@@ -359,6 +361,15 @@ export default {
 
         // 请求-获取购买渠道列表数据
         getChannelData() {},
+
+        // 代理店铺列表
+        queryShopList() {
+            queryShopList()
+                .then(res => {
+                    this.shopOptions = res.data || [];
+                })
+                .catch(err => {});
+        },
 
         // 按钮 - 重置
         resetForm(formName) {
