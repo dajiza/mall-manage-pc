@@ -942,7 +942,7 @@
                 if (this.priceUpdateForm.discount > 10) {
                     this.$set(this.priceUpdateForm, 'discount', 10);
                 }
-                this.priceAfterDiscount = ((this.currentPrice * this.priceUpdateForm.discount)/1000);
+                this.priceAfterDiscount = ((this.currentPrice * this.priceUpdateForm.discount)/1000).toFixed(2);
             },
             discountBlur(){
                 // console.log('priceUpdateForm.discount',this.priceUpdateForm.discount);
