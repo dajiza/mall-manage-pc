@@ -825,6 +825,7 @@ export default {
             status = status == 1 ? 2 : 1;
             this.$set(this.goods.sku_list[index], 'status', status);
         },
+
         // 图片上传前检测 首图
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
@@ -902,9 +903,9 @@ export default {
                 this.upload_loading = this.uploadLoading('上传中');
                 this.uploadVisible = false;
             } else {
-                if (file.size > 1024 * 1024 * 10) {
+                if (file.size > 1024 * 1024 * 5) {
                     this.$notify({
-                        title: '文件大小应不超过10M',
+                        title: '文件大小应不超过5M',
                         message: '',
                         type: 'warning',
                         duration: 5000
