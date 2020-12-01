@@ -152,7 +152,7 @@
                 <el-table-column prop="num" label="数量"></el-table-column>
                 <el-table-column label="总价(元)">
                     <template slot-scope="scope">
-                        <span>{{ Number(scope.row.price_total/100) | rounding}}</span>
+                        <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column v-if="false" prop="off_2" label="折扣优惠(元)" width="140">
@@ -903,7 +903,7 @@
                 this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
                 const now_price = Number(row.price_sum_end);
-                this.currentPrice = Number(row.price_real);
+                this.currentPrice = this.numberMul(Number(row.price),Number(row.num));
                 const min = 100 - Number(this.MoneyChangeMax);
                 // const max = 100 + Number(this.MoneyChangeMax);
                 const min_price = ((min * this.currentPrice)/10000).toFixed(2);
@@ -917,7 +917,6 @@
 
             // 弹框关闭前操作
             dialogClose(){
-                console.log('this.$refs[\'formBox\']', this.$refs['formBox']);
                 this.$refs['formBox'].clearValidate();
                 this.$refs['formBox'].resetFields();
                 this.priceUpdateVisible = false;
