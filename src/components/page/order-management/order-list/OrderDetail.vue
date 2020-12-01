@@ -152,7 +152,7 @@
                 <el-table-column prop="num" label="数量"></el-table-column>
                 <el-table-column label="总价(元)">
                     <template slot-scope="scope">
-                        <span>{{(Number(scope.row.price/100) * Number(scope.row.num)) | rounding}}</span>
+                        <span>{{ Number(scope.row.price_total/100) | rounding}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column v-if="false" prop="off_2" label="折扣优惠(元)" width="140">
@@ -431,7 +431,8 @@
                 // }
                 setTimeout(() => {
                     const num1 = this.numberMul(Number(value),100);
-                    if ( num1 < 100 - this.MoneyChangeMax) {
+                    const num2 = this.numberMul(Number(100 - this.MoneyChangeMax),10);
+                    if ( num1 < num2) {
                         const num = (100 - this.MoneyChangeMax)/10
                         callback(new Error('最低折扣不低于' + num + '折'));
                     } else {
@@ -495,8 +496,7 @@
                         { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
                     ],
                     reason: [
-                        { required: true, message: '请输入修改原因', trigger: 'blur' },
-                        { max: 100, message: '最多可输入100个字符', trigger: 'blur' }
+                        { required: true, message: '请输入修改原因', trigger: 'change' }
                     ]
                 },
                 priceUpdateData: [
@@ -903,10 +903,10 @@
                 this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
                 const now_price = Number(row.price_sum_end);
-                this.currentPrice = Number(row.price_sum_end);
+                this.currentPrice = Number(row.price_real);
                 const min = 100 - Number(this.MoneyChangeMax);
                 // const max = 100 + Number(this.MoneyChangeMax);
-                const min_price = ((min * now_price)/10000).toFixed(2);
+                const min_price = ((min * this.currentPrice)/10000).toFixed(2);
                 // console.log('min_price', min_price);
                 this.minPrice = min_price;
                 const priceChangeTip = '修改后价格应不低于'+ min_price + '元';
