@@ -267,7 +267,9 @@
         </div>
         <!-- 退货申请 收货申请 拒绝理由 -->
         <el-dialog title="拒绝理由" :visible.sync="reasonVisible" width="30%" :before-close="beforeClose">
-            <el-input v-model="reasonRefuse" placeholder="请输入拒绝理由"></el-input>
+            <el-select class="filter-item" v-model="reasonRefuse" placeholder="请选择拒绝理由" style="width:100%">
+                <el-option v-for="item in refuseReasonList" :key="item.id" :label="item.name" :value="item.name"> </el-option>
+            </el-select>
 
             <span slot="footer" class="dialog-footer">
                 <el-button @click="beforeClose">取 消</el-button>
@@ -289,7 +291,17 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt, querySDList, putResand } from '@/api/afterSale';
+import {
+    queryAfterSaleDetail,
+    queryAfterSaleLog,
+    putApplyApprove,
+    putRefundVx,
+    putRefund,
+    putReturnReceipt,
+    querySDList,
+    putResand,
+    queryReasonList
+} from '@/api/afterSale';
 import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant';
 import { getToken } from '@/utils/auth';
 
@@ -320,6 +332,8 @@ export default {
             showChangeCustomer: false, //换货 客户发回物流
             showChangeSeller: false, //换货 平台发货物流信息填写
 
+            refuseReasonList: [], //拒绝售后理由
+
             sdList: [],
             sdId: '',
             sdNo: '',
@@ -340,6 +354,7 @@ export default {
         this.header['token'] = getToken();
         this.getDetail();
         this.getLog();
+        this.getRefuseReasonList();
     },
     mounted() {},
     inject: ['reload'],
@@ -443,6 +458,23 @@ export default {
                         .catch(err => {});
                 })
                 .catch(() => {});
+        },
+        // 拒绝售后理由
+        getRefuseReasonList() {
+            let params = {
+                type: 4 // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由
+            };
+            queryReasonList(params)
+                .then(res => {
+                    this.refuseReasonList = res.data.map(item => {
+                        return {
+                            id: item.id.toString(),
+                            name: item.name,
+                            type: item.type
+                        };
+                    });
+                })
+                .catch(err => {});
         },
         // 审核同意/拒绝 按钮
         checkApply(result) {

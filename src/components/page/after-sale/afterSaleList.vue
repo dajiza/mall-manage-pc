@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="right" label-width="80px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="80px">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="订单号" prop="order_no">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.order_no"></el-input>
@@ -214,11 +214,12 @@ export default {
             this.getReasonList(event);
             this.formFilter.reason_id = '';
         },
+        // 筛选处原因列表
         getReasonList(type) {
             let params = {
-                type: Number(type) // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由
+                // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由 4拒绝售后理由 5修改订单金额理由 6修改邮费理由
+                type: Number(type)
             };
-
             queryReasonList(params)
                 .then(res => {
                     console.log('GOOGLE: getReasonListgetReasonList', res);
@@ -285,6 +286,9 @@ export default {
     }
     &.type-yellow {
         background-color: #faad14;
+    }
+    &.type-blue {
+        background-color: #1890ff;
     }
 }
 .status {

@@ -93,6 +93,17 @@ export default {
                 },
                 {
                     icon: 'iconfont icon-list',
+                    name: 'mall-backend-agent-management',
+                    display_name: '代理管理',
+                    subs: [
+                        {
+                            name: 'mall-backend-agent-list',
+                            display_name: '代理管理'
+                        }
+                    ]
+                },
+                {
+                    icon: 'iconfont icon-list',
                     name: 'mall-backend-customer-management',
                     display_name: '客户管理',
                     subs: [

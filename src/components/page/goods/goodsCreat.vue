@@ -1100,7 +1100,7 @@ export default {
                     params['category_id'] = params['category_id'] == '' ? 0 : params['category_id'];
                     //生成attr_list数据 format 价格
                     let attrLength = this.consumeChecked.length + this.basicChecked.length;
-                    params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked];
+                    params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked].sort((a, b) => a - b);
 
                     if (attrLength == 0 || attrLength > 3) {
                         this.$notify({

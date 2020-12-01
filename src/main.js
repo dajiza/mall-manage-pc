@@ -28,6 +28,8 @@ Vue.prototype._ = _;
 Vue.use(TableHeaderColor); // 添加
 import less from 'less';
 Vue.use(less);
+import moment from 'moment';
+Vue.prototype.$moment = moment;
 Vue.prototype.$signOut = signOut;
 Vue.prototype.$ajax = axios;
 Vue.config.productionTip = false;

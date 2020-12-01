@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="right" label-width="80px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="80px">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="商品名称" prop="title">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.title"></el-input>
