@@ -41,3 +41,9 @@ export const updateGoods = params => post('/backend/goods-update', params);
 
 // 指定代理
 export const updateGoodsAssign = params => post('/backend/goods-assign-shop', params);
+
+// 仓库分类列表
+export const queryStoreCategoryList = params => post('/backend/store-house-category-list');
+
+// 其他商品分类的列表（所有，下拉使用）
+export const queryCategoryListAll = params => post('/backend/category-list-all');

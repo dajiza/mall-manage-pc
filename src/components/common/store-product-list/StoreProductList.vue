@@ -39,6 +39,8 @@
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-button class="filter-item" size="" type="" icon="el-icon-edit-outline" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-item" size="" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
                     <el-popover placement="bottom" width="300" trigger="click">
                         <div class="row-list">
                             <span v-if="checkedList.length == 0">无数据</span>
@@ -49,8 +51,6 @@
                         </div>
                         <el-button slot="reference" class="filter-item" size="" type="success" style="margin-right:13px;">已选商品</el-button>
                     </el-popover>
-                    <el-button class="filter-item" size="" type="" icon="el-icon-edit-outline" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-item" size="" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
                 </el-form>
             </div>
 

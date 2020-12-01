@@ -66,9 +66,14 @@
                 <el-form-item label="名称" prop="title">
                     <el-input style="width:280px" placeholder="名称" v-model="goods.title"></el-input>
                 </el-form-item>
-                <el-form-item label="分类">
+                <el-form-item label="分类" v-if="goods.type == 1">
                     <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="分类" prop="category_id" v-if="goods.type == 2">
+                    <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择">
+                        <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="标签">
@@ -118,7 +123,7 @@
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">SKU信息</div>
-                <el-button class="add-sku" type="success" @click="addSku">添加</el-button>
+                <el-button class="add-sku" type="success" @click="addSku" :loading="btnLoading">添加</el-button>
             </div>
             <div class="divider"></div>
             <div class="content content-table">
@@ -278,10 +283,6 @@
                     >
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
-
-                    <!-- <el-tag class="tag" v-for="tag in statusList" :key="tag.value" size="medium" closable @close="handleCloseTag(tag)">
-                        {{ tag.label }}
-                    </el-tag> -->
                 </el-form-item>
             </div>
         </el-form>
@@ -325,7 +326,7 @@
     </div>
 </template>
 <script>
-import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods } from '@/api/goods';
+import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods';
 import { queryFreightList } from '@/api/freight';
 import { getLabelAllList } from '@/api/goodsLabel';
 import { formatMoney } from '@/plugin/tool';
@@ -343,6 +344,7 @@ export default {
             ATTR_NAME,
             header: {},
             imgVedio: require('../../../assets/img/vedio.png'),
+            btnLoading: false,
             dialogVisible: false,
             dialogImageUrl: '',
             dialogViewType: '',
@@ -361,7 +363,8 @@ export default {
                     { required: true, message: '请输入销量', trigger: 'blur' },
                     { type: 'number', message: '请输入数字' }
                 ],
-                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }]
+                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
+                category_id: [{ required: true, message: '请选择分类', trigger: 'blur' }]
                 // allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
             },
             rulesRequired: [{ required: true, message: '请输入内容', trigger: 'blur' }],
@@ -392,6 +395,7 @@ export default {
             basicChecked: [], //固定属性 checkbox list
             consumeChecked: [], //自定义属性 checkbox list
             attrDiyList: [], //选中的自定义属性
+            categoryData: [], // 分类下拉数据
             // 分类 0 布料  否则为其他的商品分类
             typeList: [
                 { value: 1, label: '布料' },
@@ -429,7 +433,7 @@ export default {
                 type: 1, //'类型：1布；2其他',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
-                category_id: 0, //'分类 0 布料  否则为其他的商品分类'
+                category_id: '', //'分类 0 布料  否则为其他的商品分类'
                 consume_attr_ids: [], //属性ids 数量最多为3 最少为1
                 is_allow_agent: 1, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
                 allow_shop_ids: [], //允许的店铺id
@@ -474,42 +478,8 @@ export default {
                 ]
             },
 
-            value: null,
-            list: null,
-            total: 0,
+            // list: null,
             listLoading: false,
-            listQuery: {
-                page: 1,
-                limit: 10
-            },
-            checkedList: [], //表格选中列表
-
-            // 是否上架：1下架；2上架
-            statusList: [
-                { value: '1', label: '下架' },
-                { value: '2', label: '上架' }
-            ],
-            // 是否库存不足 1 足 2 不足(只有当所有sku 全部库存不足 为2
-            shortageList: [
-                { value: '1', label: '足' },
-                { value: '2', label: '不足' }
-            ],
-            // 是否所有代理可以销售：1指定代理；2所有代理可以销售
-            agentList: [
-                { value: '1', label: '指定代理' },
-                { value: '2', label: '所有代理可以销售' }
-            ],
-
-            reasonList: [],
-
-            formFilter: {
-                id: '',
-                title: '',
-                category_id: '',
-                status: '',
-                is_store_shortage: '',
-                allow_agent: ''
-            },
 
             // 视频播放
             playerOptions: {
@@ -579,7 +549,8 @@ export default {
                 }),
                 queryFreightList(),
                 queryAttrList(),
-                queryShopList()
+                queryShopList(),
+                queryCategoryListAll()
             ])
                 .then(res => {
                     let options = {};
@@ -609,6 +580,10 @@ export default {
                     }
                     if (res[4].code === 200) {
                         this.shopList = res[4].data;
+                    }
+                    if (res[5].code === 200) {
+                        this.categoryData = res[5].data;
+                        // 其他分类
                     }
                     this.getDetail();
                     rLoading.close();
@@ -647,6 +622,7 @@ export default {
                     console.log('GOOGLE: goods', res);
                     // this.goods = res.data;
                     let data = _.cloneDeep(res.data);
+
                     // format 标签
                     // data.tag_detail_list
                     //display_platform,//展示平台1 后台 2 小程序' 不搜索-1,
@@ -659,13 +635,7 @@ export default {
                         type: data.type,
                         display_platform: 2
                     });
-                    // let tagList = tagListBack.concat(tagListMiniApp);
-                    // params['tag_ids'] = this.pickerTag.map(item => item.id).join(',');
-                    // this.miniProgramTags.concat(this.backendTags);
-                    // let pickerTag = [];
-                    // this.miniProgramTags = [];
-                    // this.backendTags = [];
-                    // console.log('GOOGLE: data', data['tag_ids']);
+
                     data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list'];
                     data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids'];
                     for (let i = 0; i < data['tag_detail_list'].length; i++) {
@@ -733,37 +703,44 @@ export default {
                 })
                 .catch(err => {});
         },
-        // 运费列表
-        // queryFreightList() {
-        //     queryFreightList()
-        //         .then(res => {
-        //             this.freightList = res.data;
-        //         })
-        //         .catch(err => {});
-        // },
-        // 属性列表
-        // queryAttrList() {
-        //     queryAttrList()
-        //         .then(res => {
-        //             this.basicAttr = res.data.consume_attr_basic_attr;
-        //             this.consumeAttr = res.data.consume_attr;
-        //         })
-        //         .catch(err => {});
-        // },
-        // 代理店铺列表
-        // queryShopList() {
-        //     queryShopList()
-        //         .then(res => {
-        //             this.shopList = res.data;
-        //         })
-        //         .catch(err => {});
-        // },
+
+        // 删除 children为空的元素
+        deleteNullChildren(arr) {
+            let childs = arr;
+            for (let i = childs.length; i--; i > 0) {
+                if (childs[i].children) {
+                    if (childs[i].children.length) {
+                        this.deleteNullChildren(childs[i].children);
+                    } else {
+                        delete childs[i].children;
+                    }
+                }
+            }
+            return arr;
+        },
+        // 格式化分类数据
+        processCateData(data) {
+            let dealOptions = [];
+            // 给每个数据加children属性
+            data.forEach((ev, one) => {
+                ev.children = [];
+            });
+            data.forEach((ev, one) => {
+                let findIndex = data.findIndex(item => item.id === ev.parent_id);
+                if ((!ev.parent_id && ev.parent_id !== 0 && ev.parent_id !== false) || findIndex === -1) {
+                    dealOptions.push(ev);
+                } else {
+                    data[findIndex].children.push(ev);
+                }
+            });
+            return dealOptions;
+        },
         handleCheckedBasic(value) {
             let length = this.consumeChecked.length + this.basicChecked.length;
             if (length > 3) {
                 this.basicChecked.splice(this.basicChecked.indexOf(value), 1);
                 this.$notify({
-                    title: '最多只能选择3个属性',
+                    title: '最多只能选择3个展示属性哦~',
                     message: '',
                     type: 'warning',
                     duration: 5000
@@ -775,7 +752,7 @@ export default {
             if (length > 3) {
                 this.consumeChecked.splice(this.consumeChecked.indexOf(value), 1);
                 this.$notify({
-                    title: '最多只能选择3个属性',
+                    title: '最多只能选择3个展示属性哦~',
                     message: '',
                     type: 'warning',
                     duration: 5000
@@ -945,7 +922,10 @@ export default {
         // 图片上传成功回调 图片视频 其他五张
         uploadImgSuccessMultiple(response, file, fileList) {
             console.log('GOOGLE: fileList', fileList);
-            if (response.code === 200) {
+            console.log('GOOGLE: file', file);
+            let status = fileList.every(item => item.type || (item.response && item.response.code == 200));
+            console.log('输出 ~ file: goodsCreat.vue ~ line 926 ~ status', status);
+            if (status) {
                 this.$notify({
                     title: '上传成功',
                     message: '',
@@ -958,7 +938,6 @@ export default {
                 //     file.url = this.imgVedio;
                 // }
                 fileList = fileList.map(item => {
-                    console.log('GOOGLE: item', item);
                     if (item.type == 1 || item.type == 2) {
                         return item;
                     }
@@ -969,7 +948,8 @@ export default {
                 });
                 // this.tfile.push(file);
                 this.tfile = fileList;
-            } else {
+            }
+            if (response.code != 200) {
                 this.upload_loading.close();
                 this.$notify({
                     title: response.msg,
@@ -1065,32 +1045,13 @@ export default {
             }
         },
 
-        // 搜索
-        handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
-        },
-        // 重置
-        resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.handleFilter();
-        },
-        // 分页方法
-        handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
-        },
-        handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
-        },
         submit() {
             console.log('GOOGLE: goods', this.goods);
+            const rLoading = this.openLoading();
 
             this.$refs['formRef'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
-                    const rLoading = this.openLoading();
                     let params = _.cloneDeep(this.goods);
                     // format is_allow_agent
                     params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
@@ -1134,8 +1095,7 @@ export default {
                     });
                     params['imgs'] = imgs;
                     // format category_id
-                    params['category_id'] = params['type'] == 1 ? 0 : 1;
-
+                    params['category_id'] = params['category_id'] == '' ? 0 : params['category_id'];
                     //生成attr_list数据 format 价格
                     let attrLength = this.consumeChecked.length + this.basicChecked.length;
                     params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked];
@@ -1221,7 +1181,7 @@ export default {
                                         duration: 3000
                                     });
                                     // this.initData();
-                                    // bus.$emit('close_current_tags');
+                                    bus.$emit('close_current_tags');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     });
@@ -1250,6 +1210,7 @@ export default {
                                         type: 'success',
                                         duration: 3000
                                     });
+                                    bus.$emit('close_current_tags');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     });
@@ -1268,6 +1229,7 @@ export default {
                             });
                     }
                 } else {
+                    rLoading.close();
                     this.$notify({
                         title: '请填写完成数据后提交',
                         message: '',

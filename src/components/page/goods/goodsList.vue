@@ -57,7 +57,7 @@
             highlight-current-row
         >
             <el-table-column type="selection" width="55"> </el-table-column>
-            <el-table-column label="商品ID" width="60">
+            <el-table-column label="商品ID" width="80">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
                 </template>
@@ -133,7 +133,7 @@
             </el-table-column>
             <el-table-column label="主图" width="128">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" />
+                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img)" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="200">
@@ -165,7 +165,7 @@
                     <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false" highlight-current-row>
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
+                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" width="200">
@@ -225,11 +225,14 @@
                 <el-button type="primary" @click="updateGoodsAssign">确 定</el-button>
             </span>
         </el-dialog>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" />
     </div>
 </template>
 <script>
 import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
+import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
 
 export default {
     name: 'goods-list',
@@ -242,6 +245,8 @@ export default {
                 page: 1,
                 limit: 10
             },
+            dialogVisiblePic: false,
+            previewUrlList: [],
             goodsId: '',
             shopList: [],
             shopIds: [],
@@ -280,7 +285,9 @@ export default {
             }
         };
     },
-
+    components: {
+        ElImageViewer
+    },
     created() {},
     mounted() {
         this.queryShopList();
@@ -297,7 +304,14 @@ export default {
                 return [0, 0];
             }
         },
-
+        closePreview() {
+            this.dialogVisiblePic = false;
+        },
+        openPreview(img) {
+            this.previewUrlList = [];
+            this.previewUrlList.push(img);
+            this.dialogVisiblePic = true;
+        },
         getList() {
             this.listLoading = true;
             let params = this.$refs['formFilter'].model;
@@ -555,6 +569,7 @@ export default {
 .timg {
     width: 80px;
     height: 60px;
+    cursor: pointer;
 }
 .opt-wrap {
     display: flex;

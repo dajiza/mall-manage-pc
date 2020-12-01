@@ -57,9 +57,14 @@
                 <el-form-item label="名称" prop="title">
                     {{ goods.title }}
                 </el-form-item>
-                <el-form-item label="分类">
+                <el-form-item label="分类" v-if="goods.type == 1">
                     <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="分类" prop="category_id" v-if="goods.type == 2">
+                    <el-select disabled class="filter-item" v-model="goods.category_id" placeholder="请选择">
+                        <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="标签" v-if="miniProgramTags.length > 0 || backendTags.length > 0">
@@ -280,7 +285,7 @@
     </div>
 </template>
 <script>
-import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods } from '@/api/goods';
+import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods';
 import { queryFreightList } from '@/api/freight';
 import { getLabelAllList } from '@/api/goodsLabel';
 import { formatMoney } from '@/plugin/tool';
@@ -329,6 +334,8 @@ export default {
             options: {},
             miniProgramTags: [],
             backendTags: [],
+            categoryData: [], // 分类下拉数据
+
             goods: {
                 title: '', //商品名称 maxlength =200
                 imgs: [],
@@ -443,7 +450,8 @@ export default {
                 }),
                 queryFreightList(),
                 queryAttrList(),
-                queryShopList()
+                queryShopList(),
+                queryCategoryListAll()
             ])
                 .then(res => {
                     let options = {};
@@ -467,6 +475,10 @@ export default {
                     }
                     if (res[4].code === 200) {
                         this.shopList = res[4].data;
+                    }
+                    if (res[5].code === 200) {
+                        this.categoryData = res[5].data;
+                        // 其他分类
                     }
                     this.getDetail();
                     rLoading.close();
