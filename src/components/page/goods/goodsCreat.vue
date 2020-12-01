@@ -635,7 +635,7 @@ export default {
                         type: data.type,
                         display_platform: 2
                     });
-
+                    data['category_id'] = data['category_id'] == 0 ? '' : data['category_id'];
                     data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list'];
                     data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids'];
                     for (let i = 0; i < data['tag_detail_list'].length; i++) {

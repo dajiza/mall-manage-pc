@@ -154,8 +154,8 @@ export default {
             typeList: [
                 { value: '0', label: '仅退款' },
                 { value: '1', label: '退货退款' },
-                { value: '2', label: '换货' },
-                { value: '3', label: '后台关闭' }
+                { value: '2', label: '换货' }
+                // { value: '3', label: '后台关闭' }
             ],
             statusList: [
                 { value: '0', label: '待审核' },

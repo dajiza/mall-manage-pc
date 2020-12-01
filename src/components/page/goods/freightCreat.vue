@@ -100,7 +100,7 @@
                         </div>
 
                         <div class="row">
-                            <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteDefault(index)">
+                            <el-popconfirm class="confirm" title="确定删除" @confirm="deleteDefault(index)">
                                 <el-button slot="reference" class="" type="text">删除</el-button>
                             </el-popconfirm>
                         </div>
@@ -109,7 +109,7 @@
                 <div class="operation">
                     <div class="select-all" v-if="isMultipleOperate">
                         <el-checkbox class="check-all" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-                        <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteMultiple">
+                        <el-popconfirm class="confirm" title="确定删除" @confirm="deleteMultiple">
                             <el-button slot="reference" class="delete-multiple" type="text">批量删除</el-button>
                         </el-popconfirm>
                     </div>
@@ -160,7 +160,7 @@
                         </div>
 
                         <div class="row delete-row">
-                            <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteCondition(index)">
+                            <el-popconfirm class="confirm" title="确定删除" @confirm="deleteCondition(index)">
                                 <el-button slot="reference" class="" type="text">删除</el-button>
                             </el-popconfirm>
                         </div>
@@ -333,6 +333,8 @@ export default {
         },
         // 单个删除
         deleteDefault(index) {
+            console.log('输出 ~ index');
+            console.log('输出 ~ index', index);
             this.info.detail.splice(index, 1);
             this.checkListNum.splice(index, 1);
         },
