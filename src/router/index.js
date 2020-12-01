@@ -35,7 +35,7 @@ export default new Router({
                     meta: { title: '新增商品', name: 'goodsCreat' }
                 },
                 {
-                    path: '/mall-backend-goods-edit',
+                    path: '/mall-backend-goods-update',
                     name: 'goods-edit',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
                     meta: { title: '编辑商品', name: 'goodsEdit' }

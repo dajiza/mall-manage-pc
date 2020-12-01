@@ -531,34 +531,22 @@
                     }
                 }
             },
-            orderStatus: function () {
-                return (data) =>{
-                    if(data === 0 ){
-                        return '待付款'
-                    }else if((data === 1)){
-                        return '已付款'
-                    }else if((data === 2)){
-                        return '待发货'
-                    }else if((data === 3)){
-                        return '已发货'
-                    }else if((data === 4)){
-                        return '已取消'
-                    }else if((data === 5)){
-                        return '申请仅退款'
-                    }else if((data === 6)){
-                        return '申请退货退款'
-                    }else if((data === 7)){
-                        return '退货中'
-                    }else if((data === 8)){
-                        return '仅退款关闭'
-                    }else if((data === 9)){
-                        return '已关闭'
-                    }else if((data === 10)){
-                        return '交易成功'
-                    }else if((data === 11)){
-                        return '未付款关闭'
+            orderStatus: function() {
+                return data => {
+                    if (data === 0) {
+                        return '待付款';
+                    } else if (data === 1) {
+                        return '已付款';
+                    } else if (data === 2) {
+                        return '处理中';
+                    } else if (data === 3) {
+                        return '已发货';
+                    } else if (data === 9) {
+                        return '交易关闭';
+                    } else if (data === 10) {
+                        return '交易成功';
                     }
-                }
+                };
             },
             orderStatusClass: function () {
                 return (data) =>{
@@ -917,6 +905,7 @@
 
             // 弹框关闭前操作
             dialogClose(){
+                console.log('formBox', this.$refs['formBox']);
                 this.$refs['formBox'].clearValidate();
                 this.$refs['formBox'].resetFields();
                 this.priceUpdateVisible = false;

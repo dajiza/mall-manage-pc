@@ -169,6 +169,8 @@ router.beforeEach((to, from, next) => {
                 if (permissions.includes(path_url)) {
                     next();
                 } else {
+                    console.log('path_url', path_url);
+                    console.log('permissions', permissions);
                     next({ path: '/403' });
                 }
             }
