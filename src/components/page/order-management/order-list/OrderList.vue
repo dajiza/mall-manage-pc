@@ -326,7 +326,7 @@ export default {
                 logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
                 paid_time_le: this.searchParams.paid_time_le ? this.searchParams.paid_time_le : '',
                 paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge : '',
-                err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '0'
+                err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '-1'
             };
             const rLoading = this.openLoading();
             getOrderList(params)
