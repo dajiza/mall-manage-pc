@@ -108,7 +108,7 @@ export default {
         edit(id) {
             this.$router.push({
                 name: 'freightCreat',
-                params: {
+                query: {
                     id: id
                 }
             });
@@ -116,7 +116,7 @@ export default {
         copy(id) {
             this.$router.push({
                 name: 'freightCreat',
-                params: {
+                query: {
                     id: id,
                     mark: 'copy'
                 }

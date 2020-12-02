@@ -79,7 +79,7 @@
                     </el-table-column>
                     <el-table-column label="总价(元)">
                         <template slot-scope="scope">
-                            <span>{{ formatMoney(scope.row.money) }}</span>
+                            <span>{{ formatMoney(scope.row.order_detail_num * scope.row.order_detail_money) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="折扣优惠(元)">
@@ -89,7 +89,7 @@
                     </el-table-column>
                     <el-table-column label="实付(元)">
                         <template slot-scope="scope">
-                            <span>{{ formatMoney(scope.row.money) }}</span>
+                            <span>{{ formatMoney(scope.row.order_detail_money_end) }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -348,7 +348,7 @@ export default {
     },
 
     created() {
-        this.id = this.$route.params.id;
+        this.id = Number(this.$route.query.id);
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
         this.header['token'] = getToken();

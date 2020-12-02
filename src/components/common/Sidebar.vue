@@ -99,6 +99,10 @@ export default {
                         {
                             name: 'mall-backend-agent-list',
                             display_name: '代理管理'
+                        },
+                        {
+                            name: 'mall-backend-shop-list',
+                            display_name: '店铺管理'
                         }
                     ]
                 },

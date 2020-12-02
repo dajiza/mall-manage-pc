@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="80px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="100px">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="商品名称" prop="title">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.title"></el-input>
@@ -24,7 +24,7 @@
                         <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="是否分销" prop="allow_agent">
+                <el-form-item label="是否指定店铺" prop="allow_agent">
                     <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
                         <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
@@ -112,14 +112,14 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="是否分销" width="100">
+            <el-table-column label="是否指定店铺" width="120">
                 <template slot-scope="scope">
                     <el-switch
                         v-model="scope.row.allow_agent"
                         v-hasPermission="'mall-backend-goods-distribution'"
                         @change="updateIsAgent(scope.row.id, scope.row.allow_agent)"
-                        :active-value="2"
-                        :inactive-value="1"
+                        :active-value="1"
+                        :inactive-value="2"
                         active-color="#1890FF"
                         inactive-color="#BFBFBF"
                     >
@@ -127,7 +127,7 @@
                 </template>
             </el-table-column>
             <el-table-column label="指定代理" width="200">
-                <template slot-scope="scope">
+                <template slot-scope="scope" v-if="scope.row.allow_agent == 1">
                     <div v-for="item in scope.row.agent_list">{{ item.ShopName }}</div>
                 </template>
             </el-table-column>
@@ -269,8 +269,8 @@ export default {
             ],
             // 是否所有代理可以销售：1指定代理；2所有代理可以销售
             agentList: [
-                { value: '1', label: '指定代理' },
-                { value: '2', label: '所有代理可以销售' }
+                { value: '1', label: '指定店铺' },
+                { value: '2', label: '所有店铺都可以' }
             ],
 
             reasonList: [],

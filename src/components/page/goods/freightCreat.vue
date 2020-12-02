@@ -278,8 +278,8 @@ export default {
         areaList
     },
     created() {
-        var id = this.$route.params.id;
-        var mark = this.$route.params.mark;
+        var id = Number(this.$route.query.id);
+        var mark = this.$route.query.mark;
         console.log('GOOGLE: mark', mark);
         if (id) {
             let params = {

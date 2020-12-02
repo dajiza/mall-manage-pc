@@ -2,21 +2,24 @@
     <div class="app-container">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="100px">
-                <el-form-item label="代理姓名" prop="name">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.name"></el-input>
-                </el-form-item>
-                <el-form-item label="绑定店铺" prop="shop_id">
-                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                <el-form-item label="店铺名称" prop="name">
+                    <el-select class="filter-item" v-model="formFilter.name" placeholder="请选择" filterable>
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.shop_name"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="状态" prop="status">
+                <el-form-item label="绑定代理" prop="agent_name">
+                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.agent_name"></el-input>
+                </el-form-item>
+                <el-form-item label="代理手机号" prop="agent_phone">
+                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.agent_phone"></el-input>
+                </el-form-item>
+                <el-form-item label="管理员微信昵称" prop="admin_name">
+                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.admin_name"></el-input>
+                </el-form-item>
+                <el-form-item label="店铺状态" prop="status">
                     <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
                         <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                     </el-select>
-                </el-form-item>
-                <el-form-item label="代理手机号" prop="phone">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.phone"></el-input>
                 </el-form-item>
 
                 <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -25,49 +28,58 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">客户管理</div>
+            <div class="text">店铺管理</div>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
-            <el-table-column label="操作" width="140">
-                <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
-                        通过
-                    </el-button>
-                    <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
-                        拒绝
-                    </el-button>
-                    <el-button class="text-red" type="text" size="" v-if="scope.row.status == 4" @click.native="updateAgentStatus(scope.row.id, 5)">
-                        取消合作
-                    </el-button>
-                </template>
-            </el-table-column>
-            <el-table-column label="状态" width="100">
-                <template slot-scope="scope">
-                    <div class="type-tag type-yellow" v-if="scope.row.status == 1">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-blue" v-if="scope.row.status == 2">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-red" v-if="scope.row.status == 3">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 4">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-grey" v-if="scope.row.status == 5">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                </template>
-            </el-table-column>
-            <el-table-column label="代理姓名" width="300">
+            <el-table-column label="店铺名称" width="160">
                 <template slot-scope="scope">
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="绑定店铺" width="260">
+            <el-table-column label="店铺logo" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_name }}</span>
+                    <img class="timg" :src="scope.row.shop_icon" alt="" @click="openPreview(scope.row.img)" />
                 </template>
             </el-table-column>
-            <el-table-column label="代理手机号" width="160">
+            <el-table-column label="开店时间" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.phone }}</span>
+                    <span>{{ scope.row.created_at }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请时间" width="220">
+            <el-table-column label="绑定代理" width="140">
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.apply_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
+                    <span>{{ scope.row.agent_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="代理手机号" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.agent_phone }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="管理员微信昵称" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.shop_admin_wx_nick_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="可提现金额" width="120">
+                <template slot-scope="scope">
+                    <span>{{ formatMoney(scope.row.withdrawal_amount) }}</span>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="店铺状态" width="100">
+                <template slot-scope="scope">
+                    <div class="type-tag type-green" v-if="scope.row.status == 1">营业中</div>
+                    <div class="type-tag type-grey" v-if="scope.row.status == 2">已打样</div>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="300">
+                <template slot-scope="scope">
+                    <el-button class="text-blue" type="text" size="" @click.native="updateAgentStatus(scope.row.id, 4)">编辑</el-button>
+                    <el-button class="text-blue" type="text" size="" @click.native="updateAgentStatus(scope.row.id, 4)">小程序配置</el-button>
+                    <el-button class="text-blue" type="text" size="" @click.native="updateAgentStatus(scope.row.id, 4)">订单配置</el-button>
+                    <el-button class="text-blue" type="text" size="" @click.native="updateAgentStatus(scope.row.id, 4)">佣金配置</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -86,11 +98,12 @@
     </div>
 </template>
 <script>
-import { queryAgentList, updateAgentStatus } from '@/api/agent';
+import { queryShopListPage } from '@/api/agent';
 import { queryShopList } from '@/api/goods';
+import { formatMoney } from '@/plugin/tool';
 
 export default {
-    name: 'agent-list',
+    name: 'shop-list',
     data() {
         return {
             list: null,
@@ -104,30 +117,19 @@ export default {
             statusList: [
                 {
                     id: 1,
-                    label: '新增'
+                    label: '使用中'
                 },
                 {
                     id: 2,
-                    label: '待绑定'
-                },
-                {
-                    id: 3,
-                    label: '已拒绝'
-                },
-                {
-                    id: 4,
-                    label: '合作中'
-                },
-                {
-                    id: 5,
-                    label: '取消合作'
+                    label: '停止使用'
                 }
             ],
             formFilter: {
-                shop_id: '', //不搜索为0
-                phone: '', //不搜索为空
-                name: '', //不搜索为空
-                status: '' //不搜索为0 //状态：1新增(待审核)；2审核通过（待绑定）；3拒绝；4合作中；5取消合作
+                status: '', //状态 '1 使用中 2 停止使用' 不搜索为-1
+                name: '', //店铺名称 不搜索为空
+                agent_name: '', //代理商名称 不搜索为空
+                agent_phone: '', //代理商手机号 不搜索为空
+                admin_name: '' //管理员名称 不搜索为空
             }
         };
     },
@@ -139,21 +141,29 @@ export default {
     },
     inject: ['reload'],
     methods: {
+        formatMoney: formatMoney,
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model);
 
-            params['shop_id'] = params['shop_id'] == '' ? 0 : params['shop_id'];
-            params['status'] = params['status'] == '' ? 0 : params['status'];
+            params['status'] = params['status'] == '' ? -1 : params['status'];
 
             params['limit'] = this.listQuery.limit;
             params['page'] = this.listQuery.page;
 
             console.log(params);
-            queryAgentList(params)
+            queryShopListPage(params)
                 .then(res => {
                     console.log('GOOGLE: res', res);
                     this.list = res.data.lists;
                     this.total = res.data.total;
+                })
+                .catch(err => {});
+        },
+        // 代理店铺列表
+        queryShopList() {
+            queryShopList()
+                .then(res => {
+                    this.shopList = res.data;
                 })
                 .catch(err => {});
         },
@@ -241,8 +251,8 @@ export default {
 </script>
 <style scoped="scoped" lang="less">
 .timg {
-    width: 80px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
 }
 .type-tag {
     // display: block;

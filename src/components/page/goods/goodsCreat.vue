@@ -253,9 +253,9 @@
             </div>
             <div class="divider"></div>
             <div class="content">
-                <el-form-item label="是否分销商品">
-                    <el-radio v-model="goods.is_allow_agent" :label="2">是</el-radio>
-                    <el-radio v-model="goods.is_allow_agent" :label="1">否</el-radio>
+                <el-form-item label="是否指定店铺">
+                    <el-radio v-model="goods.is_allow_agent" :label="1">是</el-radio>
+                    <el-radio v-model="goods.is_allow_agent" :label="2">否</el-radio>
                 </el-form-item>
 
                 <el-form-item label="是否上架商品" v-if="!goods.goods_id">

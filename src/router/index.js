@@ -79,6 +79,11 @@ export default new Router({
                     meta: { title: '代理管理' }
                 },
                 {
+                    path: '/mall-backend-shop-list',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/agent/shopList.vue'),
+                    meta: { title: '店铺管理' }
+                },
+                {
                     path: '/mall-backend-other-category',
                     name: 'otherCategory',
                     component: () => import(/* webpackChunkName: "other-category" */ '../components/page/other-category/otherCategory.vue'),

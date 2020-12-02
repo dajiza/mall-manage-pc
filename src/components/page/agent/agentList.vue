@@ -25,7 +25,7 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">客户管理</div>
+            <div class="text">代理管理</div>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
             <el-table-column label="操作" width="140">

@@ -238,7 +238,7 @@ export default {
         gotoDetail(id) {
             this.$router.push({
                 name: 'afterSaleDetail',
-                params: {
+                query: {
                     id: id
                 }
             });
