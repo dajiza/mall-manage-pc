@@ -47,7 +47,9 @@
             <div class="line"></div>
             <div class="text">商品列表</div>
         </div>
+
         <el-table
+            class="table"
             :data="list"
             v-loading.body="listLoading"
             :header-cell-style="$tableHeaderColor"
@@ -143,7 +145,7 @@
 
             <el-table-column label="商品分类" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.category_id == 0 ? '布料' : '其他' }}</span>
+                    <span>{{ scope.row.type == 1 ? '布料' : '其他' }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="">
@@ -312,7 +314,7 @@ export default {
             this.dialogVisiblePic = true;
         },
         getList() {
-            this.listLoading = true;
+            const rLoading = this.openLoading();
             let params = this.$refs['formFilter'].model;
             console.log('GOOGLE: params', params);
 
@@ -323,7 +325,7 @@ export default {
                     if (res.data.lists == null) {
                         this.list = res.data.lists;
                         this.total = res.data.total;
-                        this.listLoading = false;
+                        rLoading.close();
                         return;
                     }
                     // 逐个获取库存信息
@@ -344,9 +346,11 @@ export default {
                     this.list = res.data.lists;
                     console.log('GOOGLE: this.list', this.list);
                     this.total = res.data.total;
-                    this.listLoading = false;
+                    rLoading.close();
                 })
-                .catch(err => {});
+                .catch(err => {
+                    rLoading.close();
+                });
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
