@@ -298,13 +298,6 @@ export default {
             { id: '10', name: '交易成功' }
         ];
         this.unusualTypeOptions = [{ id: '1', name: '裁布异常' }];
-        // 店铺 下拉列表
-        /*this.shopOptions = [
-                { id: 1, name: '店铺1' },
-                { id: 2, name: '店铺2' },
-                { id: 3, name: '店铺3' },
-                { id: 4, name: '店铺4' }
-            ];*/
         // 购买渠道 下拉列表
         /*this.channelOptions = [
                 { id: 1, name: '渠道1' },

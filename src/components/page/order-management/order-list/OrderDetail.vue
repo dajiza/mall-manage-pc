@@ -340,7 +340,7 @@
         <el-dialog :title="dialogTitle" :visible.sync="priceUpdateVisible" width="380px"
                    :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
             <el-form class="update-price-form" ref="formBox" :model="priceUpdateForm" :rules="priceUpdateFormRules">
-                <el-form-item label-width="1px" v-if="dialogTitle === '修改订单价格'">
+                <el-form-item label-width="1px">
                     <el-radio-group v-model="priceUpdateForm.radio" @change="changeType">
                         <el-radio :label="0">现价</el-radio>
                         <el-radio :label="1">折扣
@@ -348,41 +348,58 @@
                         </el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <template v-if="dialogTitle === '修改订单价格'">
-                    <el-form-item v-if="priceUpdateForm.radio === 0" label="" prop="price">
-                        <el-input
-                                placeholder="请输入金额"
-                                :precision="2"
-                                autofocus="autofocus"
-                                v-model="priceUpdateForm.price"
-                        ></el-input>
-                        <span style="margin-left: 10px">元</span>
-                    </el-form-item>
-                    <el-form-item v-if="priceUpdateForm.radio === 1" label="" prop="discount">
-                        <el-input
-                                placeholder="请输入折扣"
-                                :precision="2"
-                                autofocus="autofocus"
-                                v-model="priceUpdateForm.discount"
-                                @blur="discountBlur"
-                                @input="discount_num_change"
-                        ></el-input>
-                        <span style="margin-left: 10px">折</span>
-                    </el-form-item>
-                </template>
-
-                <el-form-item v-if="dialogTitle === '修改运费'" :label="moneyUpdateLabel" prop="shipping">
+                <el-form-item v-if="priceUpdateForm.radio === 0" label="" prop="price">
                     <el-input
                             placeholder="请输入金额"
                             :precision="2"
                             autofocus="autofocus"
-                            v-model="priceUpdateForm.shipping"
+                            v-model="priceUpdateForm.price"
                     ></el-input>
+                    <span style="margin-left: 10px">元</span>
+                </el-form-item>
+                <el-form-item v-if="priceUpdateForm.radio === 1" label="" prop="discount">
+                    <el-input
+                            placeholder="请输入折扣"
+                            :precision="2"
+                            autofocus="autofocus"
+                            v-model="priceUpdateForm.discount"
+                            @blur="discountBlur"
+                            @input="discount_num_change"
+                    ></el-input>
+                    <span style="margin-left: 10px">折</span>
                 </el-form-item>
                 <el-form-item label="修改原因" prop="reason">
                     <el-select filterable v-model="priceUpdateForm.reason" placeholder="请选择">
                         <el-option
-                                v-for="state in reasonOptions"
+                                v-for="state in modifyPriceReason"
+                                :key="state.id"
+                                :value="state.name"
+                                :label="state.name"
+                        />
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogClose">取 消</el-button>
+                <el-button type="primary" @click="sureUpdate">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 修改运费弹出框 -->
+        <el-dialog :title="dialogTitle" :visible.sync="shippingUpdateVisible" width="380px"
+                   :before-close="dialogClose" :destroy-on-close="true" :close-on-click-modal="false">
+            <el-form class="update-price-form" ref="shippingFormBox" :model="shippingUpdateForm" :rules="shippingUpdateFormRules">
+                <el-form-item :label="moneyUpdateLabel" prop="shipping">
+                    <el-input
+                            placeholder="请输入金额"
+                            :precision="2"
+                            autofocus="autofocus"
+                            v-model="shippingUpdateForm.shipping"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item label="修改原因" prop="reason">
+                    <el-select filterable v-model="shippingUpdateForm.reason" placeholder="请选择">
+                        <el-option
+                                v-for="state in modifyShippingReason"
                                 :key="state.id"
                                 :value="state.name"
                                 :label="state.name"
@@ -408,16 +425,14 @@
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import { queryReasonList } from '../../../../api/afterSaleReason';
+    import commUtil from '../../../../utils/commUtil';
     export default {
         name: 'OrderDetail',
         data() {
             var checkLastNum = (rule, value, callback) => {
-                // if (!value) {
-                //     return callback(new Error('请输入最终数量'));
-                // }
                 setTimeout(() => {
-                    const num1 = this.numberMul(Number(value),100);
-                    const num2 = this.numberMul(Number(this.minPrice),100);
+                    const num1 = commUtil.numberMul(Number(value),100);
+                    const num2 = commUtil.numberMul(Number(this.minPrice),100);
                     if ( num1 < num2) {
                         callback(new Error('现价应不低于' + this.minPrice));
                     } else {
@@ -426,12 +441,9 @@
                 }, 10);
             };
             var checkDiscount = (rule, value, callback) => {
-                // if (!value) {
-                //     return callback(new Error('请输入最终数量'));
-                // }
                 setTimeout(() => {
-                    const num1 = this.numberMul(Number(value),100);
-                    const num2 = this.numberMul(Number(100 - this.MoneyChangeMax),10);
+                    const num1 = commUtil.numberMul(Number(value),100);
+                    const num2 = commUtil.numberMul(Number(100 - this.MoneyChangeMax),10);
                     if ( num1 < num2) {
                         const num = (100 - this.MoneyChangeMax)/10
                         callback(new Error('最低折扣不低于' + num + '折'));
@@ -472,13 +484,26 @@
                 product_unit:'',
                 need_num:0,
                 priceUpdateVisible: false, // 价格
+                shippingUpdateVisible: false, // 运费修改弹框
                 dialogTitle:'',
+                shippingUpdateForm:{
+                    shipping:'', // 运费
+                    reason:''
+                },
                 priceUpdateForm:{
                     radio:0,
                     discount: '', // 折扣
                     price:'',  // 订单价格
-                    shipping:'', // 运费
                     reason:''
+                },
+                shippingUpdateFormRules: {
+                    shipping: [
+                        { required: true, message: '请输入金额', trigger: 'blur' },
+                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                    ],
+                    reason: [
+                        { required: true, message: '请输入修改原因', trigger: 'blur' }
+                    ]
                 },
                 priceUpdateFormRules: {
                     discount: [
@@ -491,19 +516,10 @@
                         { validator: checkLastNum, trigger: ['blur'] },
                         { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
                     ],
-                    shipping: [
-                        { required: true, message: '请输入金额', trigger: 'blur' },
-                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
-                    ],
                     reason: [
                         { required: true, message: '请输入修改原因', trigger: 'change' }
                     ]
                 },
-                priceUpdateData: [
-                    {change_price: 1000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'},
-                    {change_price: -2000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'},
-                    {change_price: 3000,user_name:'操作人1',reason_name:'哈哈哈',updated_time:'2020-11-12 10:26:53'}
-                ],
                 FreightUpdateList:[], // 运费更改列表
                 orderPriceUpdateList:[], // 订单价格修改列表
                 loadingTip:{},
@@ -511,7 +527,6 @@
                 MoneyChangeMax: 0,
                 moneyUpdateLabel: '',
                 minPrice: 0,
-                reasonOptions: [],  // 理由列表
                 modifyPriceReason:[], // 修改价格理由列表
                 modifyShippingReason:[], // 修改运费理由列表
                 priceAfterDiscount:'', // 折后价
@@ -817,16 +832,17 @@
 
             // 确定修改
             sureUpdate(){
-                this.$refs['formBox'].validate(valid => {
-                    if (valid) {
-                        const params = {
-                            reason_name: this.priceUpdateForm.reason
-                        };
-                        const _this = this;
-                        if (this.dialogTitle === '修改运费') {
-                            params['order_id'] = Number(this.$route.query.order_id);
-                            params['new_price'] = this.numberMul(Number(this.priceUpdateForm.shipping),100);
+                if (this.dialogTitle === '修改运费') {
+                    this.$refs['shippingFormBox'].validate(valid => {
+                        if (valid) {
+                            const newPrice = commUtil.numberMul(Number(this.shippingUpdateForm.shipping),100);
+                            const params = {
+                                reason_name: this.shippingUpdateForm.reason,
+                                order_id: Number(this.$route.query.order_id),
+                                new_price: newPrice
+                            };
                             const rLoading = this.openLoading();
+                            const _this = this;
                             updateFreight(params)
                                 .then((res) => {
                                     rLoading.close();
@@ -850,14 +866,25 @@
                                 })
                                 .catch(() => {});
                         } else {
+                            return false;
+                        }
+                    })
+                }else {
+                    this.$refs['formBox'].validate(valid => {
+                        if (valid) {
                             // 修改订单金额
+                            const params = {
+                                reason_name: this.priceUpdateForm.reason,
+                                order_detail_id: Number(this.orderDetailId)
+                            };
                             params['order_detail_id'] = Number(this.orderDetailId);
                             if (this.priceUpdateForm.radio === 1) {
-                                params['new_price'] = this.numberMul(Number(this.priceAfterDiscount),100);
+                                params['new_price'] = commUtil.numberMul(Number(this.priceAfterDiscount),100);
                             } else {
-                                params['new_price'] = this.numberMul(Number(this.priceUpdateForm.price), 100);
+                                params['new_price'] = commUtil.numberMul(Number(this.priceUpdateForm.price), 100);
                             }
                             const rLoading = this.openLoading();
+                            const _this = this;
                             updateOrderDetail(params)
                                 .then((res) => {
                                     rLoading.close();
@@ -880,44 +907,46 @@
                                     }
                                 })
                                 .catch(() => {});
+                        } else {
+                            return false;
                         }
-                    } else {
-                        return false;
-                    }
-                });
+                    })
+                }
             },
 
             // 修改订单价格
             handleUpdatePrice(i,row){
                 this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
-                const now_price = Number(row.price_sum_end);
-                this.currentPrice = this.numberMul(Number(row.price),Number(row.num));
+                // 子订单价格 单价*数量
+                this.currentPrice = commUtil.numberMul(Number(row.price),Number(row.num));
                 const min = 100 - Number(this.MoneyChangeMax);
-                // const max = 100 + Number(this.MoneyChangeMax);
                 const min_price = ((min * this.currentPrice)/10000).toFixed(2);
-                // console.log('min_price', min_price);
                 this.minPrice = min_price;
                 const priceChangeTip = '修改后价格应不低于'+ min_price + '元';
                 this.moneyUpdateLabel = '现价（' + priceChangeTip +'）';
-                this.reasonOptions = this.modifyPriceReason;
+                this.$set(this.priceUpdateForm, 'radio', 0);
                 this.priceUpdateVisible = true;
             },
 
             // 弹框关闭前操作
             dialogClose(){
-                console.log('formBox', this.$refs['formBox']);
-                this.$refs['formBox'].clearValidate();
-                this.$refs['formBox'].resetFields();
-                this.priceUpdateVisible = false;
+                if (this.dialogTitle === '修改运费') {
+                    this.$refs['shippingFormBox'].clearValidate();
+                    this.$refs['shippingFormBox'].resetFields();
+                    this.shippingUpdateVisible = false;
+                }else {
+                    this.$refs['formBox'].clearValidate();
+                    this.$refs['formBox'].resetFields();
+                    this.priceUpdateVisible = false;
+                }
             },
 
             // 修改运费
             updateShipping(){
                 this.dialogTitle = '修改运费';
                 this.moneyUpdateLabel = '修改后运费'
-                this.reasonOptions = this.modifyShippingReason;
-                this.priceUpdateVisible = true;
+                this.shippingUpdateVisible = true;
             },
 
             changeType(){
@@ -934,50 +963,7 @@
                 this.priceAfterDiscount = ((this.currentPrice * this.priceUpdateForm.discount)/1000).toFixed(2);
             },
             discountBlur(){
-                // console.log('priceUpdateForm.discount',this.priceUpdateForm.discount);
             },
-
-            numberAdd(a, b) {
-                let c, d, e;
-                try {
-                    c = a.toString().split(".")[1].length;
-                } catch (f) {
-                    c = 0;
-                }
-                try {
-                    d = b.toString().split(".")[1].length;
-                } catch (f) {
-                    d = 0;
-                }
-                return e = Math.pow(10, Math.max(c, d)), (this.numberMul(a, e) + this.numberMul(b, e)) / e;
-            },
-
-            numberSub(a, b) {
-                let c, d, e;
-                try {
-                    c = a.toString().split(".")[1].length;
-                } catch (f) {
-                    c = 0;
-                }
-                try {
-                    d = b.toString().split(".")[1].length;
-                } catch (f) {
-                    d = 0;
-                }
-                return e = Math.pow(10, Math.max(c, d)), (this.numberMul(a, e) - this.numberMul(b, e)) / e;
-            },
-            numberMul(a, b) {
-                let c = 0,
-                    d = a.toString(),
-                    e = b.toString();
-                try {
-                    c += d.split(".")[1].length;
-                } catch (f) {}
-                try {
-                    c += e.split(".")[1].length;
-                } catch (f) {}
-                return Number(d.replace(".", "")) * Number(e.replace(".", "")) / Math.pow(10, c);
-            }
         }
     };
 </script>
