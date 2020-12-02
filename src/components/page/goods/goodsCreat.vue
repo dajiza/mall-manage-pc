@@ -133,7 +133,6 @@
                     :header-cell-style="$tableHeaderColor"
                     element-loading-text="Loading"
                     fit
-                    highlight-current-row
                     :cell-style="setCellColor"
                 >
                     <el-table-column label="操作" width="160">

@@ -63,7 +63,6 @@
                 :header-cell-style="$tableHeaderColor"
                 element-loading-text="Loading"
                 fit
-                highlight-current-row
             >
                 <el-table-column type="selection" width="55" :reserve-selection="true"> </el-table-column>
                 <el-table-column label="产品图片" width="120">

@@ -8,3 +8,12 @@ export const updateAgentStatus = params => post('/backend/agent-update-status', 
 
 // 店铺列表（分页）
 export const queryShopListPage = params => post('/backend/shop-list', params);
+
+// 代理商列表（不分页，待绑定的）
+export const queryAgentListAll = params => post('/backend/agent-list-all', params);
+
+// 店铺创建
+export const creatShop = params => post('/backend/shop-create', params);
+
+// 店铺更新
+export const updateShop = params => post('/backend/shop-update', params);

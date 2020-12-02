@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
 }
-html{
+html {
     overflow-y: overlay;
 }
 html,
@@ -28,22 +28,22 @@ a {
     right: 0;
     top: 48px;
     bottom: 0;
-    /*padding-bottom: 30px;*/    /*after*/
+    /*padding-bottom: 30px;*/ /*after*/
     -webkit-transition: left 0.3s ease-in-out;
     transition: left 0.3s ease-in-out;
-    background: #F0F2F5;
+    background: #f0f2f5;
 }
 
 .content {
     width: auto;
     /*height: 100%;*/
-    height: calc(100% - 40px);  /*after*/
+    height: calc(100% - 40px); /*after*/
     padding: 20px 24px 25px;
     overflow-y: scroll;
     box-sizing: border-box;
 }
-.content::-webkit-scrollbar{
-    width:0;
+.content::-webkit-scrollbar {
+    width: 0;
 }
 
 .content-collapse {
@@ -59,10 +59,10 @@ a {
 .crumbs {
     margin: 10px 0;
 }
-.el-table::before{
+.el-table::before {
     height: 0 !important;
 }
-.el-table thead{
+.el-table thead {
     color: rgba(0, 0, 0, 0.85) !important;
 }
 .el-table th {
@@ -78,7 +78,8 @@ a {
     padding: 20px 10px;
     margin-bottom: 20px;
 }
-.el-table td:first-child>.cell, .el-table th:first-child>.cell{
+.el-table td:first-child > .cell,
+.el-table th:first-child > .cell {
     padding-left: 24px !important;
 }
 
@@ -139,7 +140,7 @@ a {
 }
 
 .el-upload--text {
-    background-color: #fff;
+    /* background-color: #fff;
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     box-sizing: border-box;
@@ -148,7 +149,7 @@ a {
     text-align: center;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    overflow: hidden; */
 }
 
 .el-upload--text .el-icon-upload {
@@ -244,108 +245,114 @@ a {
     padding: 15px 24px !important;
     /* border-bottom: 1px solid #F0F2F5; */
 }
-.el-dialog__footer{
+.el-dialog__footer {
     padding: 10px 10px !important;
-    border-top: 1px solid #F0F2F5;
+    border-top: 1px solid #f0f2f5;
 }
-.el-dialog__body{
+.el-dialog__body {
     padding: 20px 24px 30px 24px !important;
 }
 /*loading*/
-.loading-mask .el-icon-loading, .loading-mask .el-loading-text{
+.loading-mask .el-icon-loading,
+.loading-mask .el-loading-text {
     font-size: 38px !important;
     color: #fff !important;
 }
-.loading-mask .el-loading-text{
+.loading-mask .el-loading-text {
     font-size: 16px !important;
     /*color: #000 !important;*/
 }
 
 /**/
-.marginRight32{
+.marginRight32 {
     margin-right: 32px !important;
 }
-.marginRight18{
+.marginRight18 {
     margin-right: 18px !important;
 }
-.marginLeft0{
+.marginLeft0 {
     margin-left: 0 !important;
 }
-.container-wrap{
+.container-wrap {
     height: 100%;
 }
 /*列表页 -顶部无搜索*/
-.container-table-no-search{
+.container-table-no-search {
     height: 100%;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     padding: 0 0 15px !important;
 }
-.container-table-no-search .global-table-title{
+.container-table-no-search .global-table-title {
     padding-left: 20px;
     padding-right: 30px;
     box-sizing: border-box;
 }
-.container-table-no-search .print-selected{
+.container-table-no-search .print-selected {
     left: 24px !important;
 }
-.el-table--border td:first-child .cell, .el-table--border th:first-child .cell{
+.el-table--border td:first-child .cell,
+.el-table--border th:first-child .cell {
     padding-left: 24px;
 }
-.el-table .cell{
+.el-table .cell {
     line-height: 22px !important;
 }
-.el-table--small td, .el-table--small th{
+.el-table--small td,
+.el-table--small th {
     padding: 16px 0 !important;
 }
-.table-has-img .el-table--small td,.table-has-img .el-table--small th{
+.table-has-img .el-table--small td,
+.table-has-img .el-table--small th {
     padding: 10px 0 !important;
 }
-.cell img{
+.cell img {
     border-radius: 2px;
 }
 
 /*列表页 -顶部带搜索*/
-.container-table-has-search{
+.container-table-has-search {
     /*height: calc(100% - 114px);*/
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
 /*弹出框 el-dialog 样式*/
-.el-dialog__title{
+.el-dialog__title {
     font-size: 16px !important;
-    color: rgba(0,0,0,.85) !important;
+    color: rgba(0, 0, 0, 0.85) !important;
 }
 /* 超出一行显示省略号*/
-.text-ellipsis{
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+.text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 /* 处理input type = number的上下箭头*/
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
+    -webkit-appearance: none;
 }
-input[type="number"]{
+input[type='number'] {
     -moz-appearance: textfield;
 }
 /**/
-.el-button{
+.el-button {
     font-weight: 400 !important;
 }
-.el-button--primary{
-
+.el-button--primary {
 }
-.el-button--small, .el-button--small.is-round{
+.el-button--small,
+.el-button--small.is-round {
     padding: 8px 15px !important;
     font-size: 14px !important;
     border-radius: 2px !important;
 }
-.el-table--mini, .el-table--small, .el-table__expand-icon{
+.el-table--mini,
+.el-table--small,
+.el-table__expand-icon {
     font-size: 14px !important;
 }
-.el-button--text{
+.el-button--text {
     padding: 0 !important;
     font-weight: 400 !important;
 }
@@ -354,31 +361,31 @@ input[type="number"]{
 .cursor-class {
     cursor: pointer;
 }
-.remark-tip-img{
+.remark-tip-img {
     width: 14px;
     height: 14px;
     background: transparent url(../img/remark-tip.svg) no-repeat 100%;
     display: inline-block;
 }
-.el-button--danger{
-    background-color: #FF4D4F;
-    border-color: #FF4D4F;
+.el-button--danger {
+    background-color: #ff4d4f;
+    border-color: #ff4d4f;
 }
 /*删除文本颜色*/
 .delete-color {
-    color: rgba(245,108,108,1) !important;
+    color: rgba(245, 108, 108, 1) !important;
 }
 .delete-color:focus {
-    color: rgba(245,108,108,1) !important;
+    color: rgba(245, 108, 108, 1) !important;
 }
 .delete-color:hover {
-    color: rgba(245,108,108,.75) !important;
+    color: rgba(245, 108, 108, 0.75) !important;
 }
 .delete-color:active {
-    color: rgba(245,108,108,1) !important;
+    color: rgba(245, 108, 108, 1) !important;
 }
 /*打印外层*/
-.print-A5-page{
+.print-A5-page {
     width: 210mm;
     background: #c0c0c0;
     position: absolute;
@@ -386,16 +393,16 @@ input[type="number"]{
     top: -10000px;
     left: -1000px;
 }
-#printMe{
+#printMe {
     width: 100%;
     margin: 0 auto;
 }
 
 /**/
-.el-image-viewer__canvas img{
+.el-image-viewer__canvas img {
     width: 640px !important;
     cursor: pointer;
 }
-.el-image-viewer__actions__inner{
+.el-image-viewer__actions__inner {
     cursor: pointer !important;
 }

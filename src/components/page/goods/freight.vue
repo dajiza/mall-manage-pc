@@ -28,7 +28,7 @@
                         <!--<div class="line"></div>-->
                     </div>
                 </div>
-                <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
+                <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                     <el-table-column label="运送到">
                         <template slot-scope="scope">
                             <span class="area" v-if="scope.row.is_default === 2">默认其它</span>

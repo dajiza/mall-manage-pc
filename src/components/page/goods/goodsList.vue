@@ -54,7 +54,6 @@
             element-loading-text="Loading"
             @selection-change="handleSelectionChange"
             :span-method="arraySpanMethod"
-            highlight-current-row
         >
             <el-table-column type="selection" width="55"> </el-table-column>
             <el-table-column label="商品ID" width="80">
@@ -162,7 +161,7 @@
             <!-- sku 合并行 -->
             <el-table-column label="SKU图片" width="128" class="sku-column">
                 <template slot-scope="scope">
-                    <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false" highlight-current-row>
+                    <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false">
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
                                 <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />

@@ -27,7 +27,7 @@
             <div class="line"></div>
             <div class="text">代理管理</div>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
+        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="140">
                 <template slot-scope="scope">
                     <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">

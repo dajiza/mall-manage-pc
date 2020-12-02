@@ -55,7 +55,6 @@
                     :header-cell-style="$tableHeaderColor"
                     element-loading-text="Loading"
                     fit
-                    highlight-current-row
                 >
                     <el-table-column label="图片" width="">
                         <template slot-scope="scope">
@@ -110,7 +109,6 @@
                     :header-cell-style="$tableHeaderColor"
                     element-loading-text="Loading"
                     fit
-                    highlight-current-row
                 >
                     <el-table-column label="操作类型" width="">
                         <template slot-scope="scope">
