@@ -1,9 +1,9 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="100px">
+            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                <el-form-item label="商品名称" prop="title">
+                <el-form-item label="商品名称" prop="title" label-width="">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.title"></el-input>
                 </el-form-item>
                 <el-form-item label="商品ID" prop="id">
@@ -29,9 +29,10 @@
                         <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-
-                <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                </el-form-item>
             </el-form>
         </div>
         <div class="operate">

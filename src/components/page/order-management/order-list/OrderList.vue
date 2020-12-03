@@ -2,69 +2,63 @@
     <div class="order-list-container" id="containerWrap">
         <!--订单列表-->
         <div class="container clearfix head-container" ref="searchBox">
-            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="right" label-width="90px">
-                <div class="search-item-box">
-                    <el-form-item label="订单号" prop="order_no" class="">
-                        <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
-                    </el-form-item>
-                    <el-form-item label="订单状态" prop="status" class="">
-                        <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
-                            <el-option v-for="state in orderStatusOptions" :key="state.id" :value="state.id" :label="state.name" />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="订单类型" prop="order_type" class="" v-if="false">
-                        <el-select class="filter-item" v-model="searchForm.order_type" placeholder="请选择" clearable>
-                            <el-option v-for="state in orderTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="购买渠道" prop="channel_id" class="">
-                        <el-select class="filter-item" v-model="searchForm.channel_id" placeholder="请选择" clearable>
-                            <el-option v-for="state in channelOptions" :key="state.id" :value="state.id" :label="state.name" />
-                        </el-select>
-                    </el-form-item>
-                </div>
-                <div class="search-item-box">
-                    <el-form-item label="收货人姓名" prop="logistics_name" class="">
-                        <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
-                    </el-form-item>
-                    <el-form-item label="异常类型" prop="unusual_type" class="">
-                        <el-select class="filter-item" v-model="searchForm.unusual_type" placeholder="请选择" clearable>
-                            <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="代理店铺" prop="shop_id" class="">
-                        <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
-                            <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
-                        </el-select>
-                    </el-form-item>
-                </div>
-                <div class="search-item-box">
-                    <el-form-item label="支付时间" prop="pay_time" class="">
-                        <!--<el-date-picker
+            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
+                <el-form-item label="订单号" prop="order_no" class="">
+                    <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="订单状态" prop="status" class="">
+                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
+                        <el-option v-for="state in orderStatusOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="订单类型" prop="order_type" class="" v-if="false">
+                    <el-select class="filter-item" v-model="searchForm.order_type" placeholder="请选择" clearable>
+                        <el-option v-for="state in orderTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="购买渠道" prop="channel_id" class="">
+                    <el-select class="filter-item" v-model="searchForm.channel_id" placeholder="请选择" clearable>
+                        <el-option v-for="state in channelOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="收货人姓名" prop="logistics_name" class="">
+                    <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="异常类型" prop="unusual_type" class="">
+                    <el-select class="filter-item" v-model="searchForm.unusual_type" placeholder="请选择" clearable>
+                        <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="代理店铺" prop="shop_id" class="">
+                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
+                        <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="支付时间" prop="pay_time" class="long-time">
+                    <!--<el-date-picker
                                 v-model="searchForm.pay_start_time"
                                 type="datetime"
                                 placeholder="开始时间"
                                 default-time="00:00:00">
                         </el-date-picker>-->
-                        <el-date-picker
-                            class="filter-item"
-                            v-model="searchForm.pay_time"
-                            type="datetimerange"
-                            align="left"
-                            start-placeholder="开始时间"
-                            end-placeholder="结束时间"
-                            value-format="yyyy-MM-dd HH:mm:ss"
-                            :picker-options="pickerOptions"
-                            :default-time="['00:00:00', '23:59:59']"
-                        >
-                            <!--:picker-options="pickerOptions"-->
-                        </el-date-picker>
-                    </el-form-item>
-                    <div class="btn-right">
-                        <el-button class="filter-item" @click="resetForm('searchForm')">重置</el-button>
-                        <el-button class="filter-item" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
-                    </div>
-                </div>
+                    <el-date-picker
+                        class="filter-item"
+                        v-model="searchForm.pay_time"
+                        type="datetimerange"
+                        align="left"
+                        start-placeholder="开始时间"
+                        end-placeholder="结束时间"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        :picker-options="pickerOptions"
+                        :default-time="['00:00:00', '23:59:59']"
+                    >
+                        <!--:picker-options="pickerOptions"-->
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-item" @click="resetForm('searchForm')">重置</el-button>
+                    <el-button class="filter-item" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
+                </el-form-item>
             </el-form>
         </div>
         <div class="container container-table-has-search m-t-16 p-t-0 pos-relative">

@@ -104,7 +104,7 @@
             <div class="content">
                 <el-form-item label="">
                     <el-checkbox-group v-model="basicChecked">
-                        <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id">
+                        <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id" v-if="item.id != 4">
                             {{ item.title }}
                         </el-checkbox>
                     </el-checkbox-group>
@@ -207,22 +207,22 @@
                             <span>{{ scope.row.attr_brand }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[2]" width="" property="2">
+                    <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type == 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_color }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[3]" width="" property="3">
+                    <el-table-column :label="ATTR_NAME[3]" width="" property="3" v-if="goods.type == 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_origin }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[4]" width="" property="4">
+                    <!-- <el-table-column :label="ATTR_NAME[4]" width="" property="4">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_unit }}</span>
                         </template>
-                    </el-table-column>
-                    <el-table-column :label="ATTR_NAME[5]" width="" property="5">
+                    </el-table-column> -->
+                    <el-table-column :label="ATTR_NAME[5]" width="" property="5" v-if="goods.type == 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_material }}</span>
                         </template>

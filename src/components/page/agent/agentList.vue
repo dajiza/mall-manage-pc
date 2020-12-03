@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="100px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                 <el-form-item label="代理姓名" prop="name">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.name"></el-input>
                 </el-form-item>
@@ -18,9 +18,10 @@
                 <el-form-item label="代理手机号" prop="phone">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.phone"></el-input>
                 </el-form-item>
-
-                <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                </el-form-item>
             </el-form>
         </div>
         <div class="table-title">

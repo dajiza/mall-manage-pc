@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" label-width="100px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="所属店铺" prop="shop_id">
                     <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
@@ -14,18 +14,15 @@
                 <el-form-item label="客户手机号" prop="phone">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.phone"></el-input>
                 </el-form-item>
-                <el-form-item label="累计消费" prop="consumption_min">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.consumption_min"></el-input>
+                <el-form-item class="interval" label="累计消费" prop="consumption_min">
+                    <el-input class="filter-item" placeholder="累计下限" v-model="formFilter.consumption_min"></el-input>
+                    <div class="separator">-</div>
+                    <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
                 </el-form-item>
-                <el-form-item label="" prop="consumption_min">
-                    <span>-</span>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
                 </el-form-item>
-                <el-form-item label="" prop="consumption_max">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.consumption_max"></el-input>
-                </el-form-item>
-
-                <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
             </el-form>
         </div>
         <div class="table-title">

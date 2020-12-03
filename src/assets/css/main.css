@@ -38,7 +38,7 @@ a {
     width: auto;
     /*height: 100%;*/
     height: calc(100% - 40px); /*after*/
-    padding: 20px 24px 25px;
+    padding: 20px 20px 20px;
     overflow-y: scroll;
     box-sizing: border-box;
 }
