@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "18597111",
+      "name": "商品管理icon-选中(2)",
+      "font_class": "pic",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "18597112",
+      "name": "商品管理icon-选中",
+      "font_class": "bag",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "18597114",
+      "name": "商品管理icon-选中(5)",
+      "font_class": "cart",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
       "icon_id": "18121568",
       "name": "商品管理icon-选中(3)",
       "font_class": "money",

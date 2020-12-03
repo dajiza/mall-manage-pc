@@ -92,7 +92,7 @@ export default {
                     ]
                 },
                 {
-                    icon: 'iconfont icon-list',
+                    icon: 'iconfont icon-user-add',
                     name: 'mall-backend-agent-management',
                     display_name: '代理管理',
                     subs: [
@@ -107,7 +107,7 @@ export default {
                     ]
                 },
                 {
-                    icon: 'iconfont icon-list',
+                    icon: 'iconfont icon-users',
                     name: 'mall-backend-customer-management',
                     display_name: '客户管理',
                     subs: [
