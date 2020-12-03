@@ -18,11 +18,11 @@ module.exports = {
         },
         pwa: {
             iconPaths: {
-                favicon32: 'favicon.ico',
-                favicon16: 'favicon.ico',
-                appleTouchIcon: 'favicon.ico',
-                maskIcon: 'favicon.ico',
-                msTileImage: 'favicon.ico'
+                favicon32: 'http://mall.backend.chuanshui.cn/favicon.ico',
+                favicon16: 'http://mall.backend.chuanshui.cn/favicon.ico',
+                appleTouchIcon: 'http://mall.backend.chuanshui.cn/favicon.ico',
+                maskIcon: 'http://mall.backend.chuanshui.cn/favicon.ico',
+                msTileImage: 'http://mall.backend.chuanshui.cn/favicon.ico'
             }
         }
     },
