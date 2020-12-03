@@ -22,8 +22,8 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -102,7 +102,7 @@
         <!-- 新增 / 编辑店铺 -->
         <el-dialog :visible.sync="dialogVisibleCreat" :before-close="handleCloseCreat" :title="dialogTitle" width="390px">
             <el-form ref="formCreat" :rules="creatRules" :model="formCreat" :inline="true" size="small" label-position="left" label-width="80px">
-                <el-form-item label="商品名称" prop="name">
+                <el-form-item label="店铺名称" prop="name">
                     <el-input class="dialog-item" placeholder="请输入" v-model="formCreat.name"></el-input>
                 </el-form-item>
                 <el-form-item label="绑定代理" prop="agent_id">
@@ -158,7 +158,7 @@
         </el-dialog>
         <!-- 订单配置 -->
         <el-dialog :visible.sync="dialogVisibleOrder" :before-close="handleCloseOrder" title="订单配置" width="473px">
-            <el-form ref="formConfig" :model="formOrder" :inline="true" size="small" label-position="left">
+            <el-form ref="formOrder" :model="formOrder" :inline="true" size="small" label-position="left">
                 <el-form-item label="订单未付款失效时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_timeout"></el-input>
                     <span class="order-unit">分</span>
@@ -167,11 +167,7 @@
                 <el-form-item label="收货后允许售后时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
                     <span class="order-unit">分</span>
-                    <el-button
-                        class="order-btn"
-                        size=""
-                        type="primary"
-                        @click="submitOrder(formOrder.order_apply_stop_time, 'order_torder_apply_stop_timeimeout')"
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')"
                         >保 存</el-button
                     >
                 </el-form-item>
@@ -204,7 +200,15 @@
         </el-dialog>
         <!-- 佣金配置 -->
         <el-dialog :visible.sync="dialogVisibleCommission" :before-close="handleCloseCommission" title="佣金配置" width="390px">
-            <el-form ref="formConfig" :rules="commissionRules" :model="formCommission" :inline="true" size="small" label-position="left" label-width="110px">
+            <el-form
+                ref="formCommission"
+                :rules="commissionRules"
+                :model="formCommission"
+                :inline="true"
+                size="small"
+                label-position="left"
+                label-width="110px"
+            >
                 <el-form-item label="基础奖励占比" prop="basic_rate">
                     <el-input class="dialog-item" placeholder="请输入" style="width:190px" v-model="formCommission.basic_rate"></el-input>
                     <span class="order-unit">%</span>
@@ -629,6 +633,9 @@ export default {
             }
             let oldValue = this.formOrderSubmit[argument];
             this.formOrderSubmit[argument] = value;
+            if (argument == 'order_timeout' || argument == 'order_apply_stop_time') {
+                this.formOrderSubmit[argument] = value * 60;
+            }
             updateShop(this.formOrderSubmit).then(res => {
                 if (res.code == 200) {
                     this.$notify({
@@ -651,6 +658,8 @@ export default {
         updateOrder(row) {
             this.formOrder = row;
             this.formOrderSubmit = _.cloneDeep(row);
+            this.formOrder['order_timeout'] = row['order_timeout'] / 60;
+            this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60;
             this.dialogVisibleOrder = true;
         },
         handleCloseOrder(row) {

@@ -16,8 +16,8 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
-                    <el-button type="" @click="handleSearchReset('searchForm')">重置</el-button>
-                    <el-button type="primary" @click="handleSearch('searchForm')">搜索</el-button>
+                    <el-button class="filter-btn" type="" @click="handleSearchReset('searchForm')">重置</el-button>
+                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                 </el-form-item>
             </el-form>
             <div class="category-wrap" ref="desc">

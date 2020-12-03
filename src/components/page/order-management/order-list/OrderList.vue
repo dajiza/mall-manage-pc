@@ -56,8 +56,8 @@
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-item" @click="resetForm('searchForm')">重置</el-button>
-                    <el-button class="filter-item" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
+                    <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
+                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                 </el-form-item>
             </el-form>
         </div>

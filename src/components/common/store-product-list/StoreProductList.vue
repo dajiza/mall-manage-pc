@@ -3,14 +3,14 @@
     <el-dialog title="挑选仓库商品" :visible.sync="isShow" width="90%" @open="open" @opened="opened">
         <div class="app-container">
             <div class="head-container">
-                <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="right" label-width="40px">
+                <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                     <el-form-item label="名称" prop="name">
                         <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.name"></el-input>
                     </el-form-item>
 
                     <el-form-item label="标签" prop="tag_id">
                         <el-cascader
-                            class="cascader"
+                            class="filter-item"
                             v-model="formFilter.tag_id"
                             placeholder="请选择"
                             :options="labelOptions"
@@ -39,18 +39,22 @@
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-button class="filter-item" size="" type="" icon="el-icon-edit-outline" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-item" size="" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
-                    <el-popover placement="bottom" width="300" trigger="click">
-                        <div class="row-list">
-                            <span v-if="checkedList.length == 0">无数据</span>
-                            <div class="row-item" v-for="item in checkedList" :key="item.id">
-                                <div class="name">{{ item.name }}</div>
-                                <i class="el-icon-error row-delete" @click="cancelSelection(item)"></i>
+                    <el-form-item class="form-item-btn" label="" style="margin-left:0">
+                        <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                        <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                    </el-form-item>
+                    <el-form-item class="form-item-btn" label="" style="margin-left:0">
+                        <el-popover placement="bottom" width="300" trigger="click">
+                            <div class="row-list">
+                                <span v-if="checkedList.length == 0">无数据</span>
+                                <div class="row-item" v-for="item in checkedList" :key="item.id">
+                                    <div class="name">{{ item.name }}</div>
+                                    <i class="el-icon-error row-delete" @click="cancelSelection(item)"></i>
+                                </div>
                             </div>
-                        </div>
-                        <el-button slot="reference" class="filter-item" size="" type="success" style="margin-right:13px;">已选商品</el-button>
-                    </el-popover>
+                            <el-button slot="reference" class="filter-btn" size="" type="success">已选商品</el-button>
+                        </el-popover>
+                    </el-form-item>
                 </el-form>
             </div>
 
@@ -81,22 +85,22 @@
                         <span>{{ scope.row.attr_brand_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="产地">
+                <el-table-column label="产地" v-if="type == 1">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_origin_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="材质">
+                <el-table-column label="材质" v-if="type == 1">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_material_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="颜色">
+                <el-table-column label="颜色" v-if="type == 1">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_color_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="花纹">
+                <el-table-column label="花纹" v-if="type == 1">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_pattern_name }}</span>
                     </template>

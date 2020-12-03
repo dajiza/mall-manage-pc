@@ -20,8 +20,8 @@
                     <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-item" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-item" size="" type="primary" @click="handleFilter">搜索</el-button>
+                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
                 </el-form-item>
             </el-form>
         </div>

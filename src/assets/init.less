@@ -21,8 +21,15 @@ html {
             .filter-item {
                 width: 100%;
                 border-radius: 0;
-                .cascader {
-                    // width: 200px;
+
+                &.el-cascader {
+                    // height: 32px;
+                    .el-input {
+                        // height: 32px;
+                        .el-input__inner {
+                            height: 32px !important;
+                        }
+                    }
                 }
                 input {
                     border-radius: 0;
@@ -54,7 +61,7 @@ html {
         .form-item-btn {
             margin-left: auto;
             .el-button {
-                width: 60px;
+                // width: 60px;
             }
             .el-form-item__content {
                 display: flex;
