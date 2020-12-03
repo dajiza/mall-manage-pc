@@ -29,7 +29,7 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">店铺管理</div>
-            <el-button type="primary" @click="shopCreat" class="shop-goods">新增商品</el-button>
+            <el-button type="primary" @click="shopCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">新增店铺</el-button>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="店铺名称" width="160">
@@ -77,10 +77,12 @@
 
             <el-table-column label="操作" width="300">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="" @click.native="editShop(scope.row)">编辑</el-button>
-                    <el-button class="text-blue" type="text" size="" @click.native="updateConfig(scope.row)">小程序配置</el-button>
-                    <el-button class="text-blue" type="text" size="" @click.native="updateOrder(scope.row)">订单配置</el-button>
-                    <el-button class="text-blue" type="text" size="" @click.native="updateCommission(scope.row)">佣金配置</el-button>
+                    <div v-hasPermission="'mall-backend-shop-update'">
+                        <el-button class="text-blue" type="text" size="" @click.native="editShop(scope.row)">编辑</el-button>
+                        <el-button class="text-blue" type="text" size="" @click.native="updateConfig(scope.row)">小程序配置</el-button>
+                        <el-button class="text-blue" type="text" size="" @click.native="updateOrder(scope.row)">订单配置</el-button>
+                        <el-button class="text-blue" type="text" size="" @click.native="updateCommission(scope.row)">佣金配置</el-button>
+                    </div>
                 </template>
             </el-table-column>
         </el-table>
@@ -97,7 +99,7 @@
             </el-pagination>
         </div>
         <!-- 新增 / 编辑店铺 -->
-        <el-dialog :visible.sync="dialogVisibleCreat" :before-close="handleCloseCreat" title="新增店铺" width="390px">
+        <el-dialog :visible.sync="dialogVisibleCreat" :before-close="handleCloseCreat" :title="dialogTitle" width="390px">
             <el-form ref="formCreat" :rules="creatRules" :model="formCreat" :inline="true" size="small" label-position="left" label-width="80px">
                 <el-form-item label="商品名称" prop="name">
                     <el-input class="dialog-item" placeholder="请输入" v-model="formCreat.name"></el-input>
@@ -303,7 +305,8 @@ export default {
                 basic_rate: [{ required: true, message: '请输入内容', trigger: 'blur' }],
                 additional_rate: [{ required: true, message: '请输入内容', trigger: 'blur' }]
             },
-            formCommission: {}
+            uploadImgUrl: '',
+            dialogTitle: '新增店铺'
         };
     },
 
@@ -408,6 +411,7 @@ export default {
 
         // 新增店铺
         shopCreat() {
+            this.dialogTitle = '新增店铺';
             this.isCreat = true;
             this.dialogVisibleCreat = true;
         },
@@ -547,6 +551,7 @@ export default {
 
         editShop(row) {
             console.log('输出 ~ row', row);
+            this.dialogTitle = '编辑店铺';
             this.formCreat = row;
             this.filePic = this.formCreat.shop_icon;
             this.isCreat = false;
