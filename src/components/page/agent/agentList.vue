@@ -30,15 +30,17 @@
         <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="140">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
-                        通过
-                    </el-button>
-                    <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
-                        拒绝
-                    </el-button>
-                    <el-button class="text-red" type="text" size="" v-if="scope.row.status == 4" @click.native="updateAgentStatus(scope.row.id, 5)">
-                        取消合作
-                    </el-button>
+                    <div v-hasPermission="'mall-backend-agent-update-status'">
+                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
+                            通过
+                        </el-button>
+                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
+                            拒绝
+                        </el-button>
+                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 4" @click.native="updateAgentStatus(scope.row.id, 5)">
+                            取消合作
+                        </el-button>
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100">
