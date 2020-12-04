@@ -15,16 +15,16 @@ module.exports = {
                 //注意：试过不能使用别名路径
                 path.resolve(__dirname, './src/assets/init.less')
             ]
-        },
-        pwa: {
-            iconPaths: {
-                favicon32: 'favicon.ico',
-                favicon16: 'favicon.ico',
-                appleTouchIcon: 'favicon.ico',
-                maskIcon: 'favicon.ico',
-                msTileImage: 'favicon.ico'
-            }
         }
+        // pwa: {
+        //     iconPaths: {
+        //         favicon32: 'favicon.ico',
+        //         favicon16: 'favicon.ico',
+        //         appleTouchIcon: 'favicon.ico',
+        //         maskIcon: 'favicon.ico',
+        //         msTileImage: 'favicon.ico'
+        //     }
+        // }
     },
     devServer: {
         proxy: {

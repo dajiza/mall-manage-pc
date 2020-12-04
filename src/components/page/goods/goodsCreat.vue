@@ -1144,8 +1144,19 @@ export default {
                     }
                     for (let i = 0; i < params.sku_list.length; i++) {
                         const skuItem = params.sku_list[i];
-                        skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price),100);
-                        skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price),100);
+                        skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100);
+                        skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price), 100);
+                        if (skuItem.min_price > skuItem.display_price) {
+                            let num = i + 1;
+                            this.$notify({
+                                title: `第${num}条sku,显示售价不能低于最低售价`,
+                                message: '',
+                                type: 'warning',
+                                duration: 5000
+                            });
+                            rLoading.close();
+                            return;
+                        }
                         skuItem.attr_list = [];
                         for (let j = 0; j < this.basicChecked.length; j++) {
                             const checkId = this.basicChecked[j];
