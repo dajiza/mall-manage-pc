@@ -13,17 +13,21 @@ import './assets/iconfont/iconfont.css';
 import 'babel-polyfill';
 import Print from './utils/print.js';
 import axios from 'axios';
-import global from './utils/global.js';
+// import global from './utils/global.js';
 import commUtil from './utils/commUtil';
 import { signOut } from './utils/loginOut';
 import 'default-passive-events';
-import TableHeaderColor from './plugin/tableHeader'; // 引入
-//引入lodash
-import _ from 'lodash';
-Vue.prototype._ = _;
-Vue.use(TableHeaderColor); // 添加
+import TableHeaderColor from './plugin/tableHeader'; // 引入通用表头样式
+import _ from 'lodash'; //引入lodash
+import VideoPlayer from 'vue-video-player';
 import less from 'less';
-Vue.use(less);
+import moment from 'moment';
+// import NP from 'number-precision';
+// Vue.prototype.$NP = NP;
+require('video.js/dist/video-js.css');
+require('vue-video-player/src/custom-theme.css');
+Vue.prototype._ = _;
+Vue.prototype.$moment = moment;
 Vue.prototype.$signOut = signOut;
 Vue.prototype.$ajax = axios;
 Vue.config.productionTip = false;
@@ -31,7 +35,10 @@ Vue.config.productionTip = false;
 Vue.use(ElementUI, {
     size: 'small'
 });
-Vue.use(Print);
+Vue.use(Print)
+    .use(less)
+    .use(TableHeaderColor)
+    .use(VideoPlayer);
 // const i18n = new VueI18n({
 //     locale: 'zh',
 //     messages
@@ -66,8 +73,8 @@ Vue.directive('hasPermission', {
                     });
                 }
             });
-            console.log('permissions', permissions);
-            console.log('binding.value', binding.value);
+            // console.log('permissions', permissions);
+            // console.log('binding.value', binding.value);
             if (typeof binding.value === 'string') {
                 // console.log('单个判断');
                 if (!permissions.includes(binding.value)) {
@@ -163,6 +170,8 @@ router.beforeEach((to, from, next) => {
                 if (permissions.includes(path_url)) {
                     next();
                 } else {
+                    console.log('path_url', path_url);
+                    console.log('permissions', permissions);
                     next({ path: '/403' });
                 }
             }

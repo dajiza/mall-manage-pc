@@ -1,37 +1,42 @@
 {
-  "name": "vue-manage-system",
-  "version": "4.2.0",
-  "private": true,
-  "scripts": {
-    "dev": "npm run serve",
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "buildDev": "vue-cli-service build --mode dev",
-    "buildPro": "vue-cli-service build --mode pro",
-    "report": "vue-cli-service build --report"
-  },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "babel-polyfill": "^6.26.0",
-    "default-passive-events": "^2.0.0",
-    "element-ui": "^2.11.0",
-    "html2canvas": "^1.0.0-rc.7",
-    "jsbarcode": "^3.11.0",
-    "less": "^3.12.2",
-    "lodash": "^4.17.20",
-    "qrcodejs2": "0.0.2",
-    "qs": "^6.9.4",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "vue": "^2.6.10",
-    "vue-cropperjs": "^3.0.0",
-    "vue-print-nb": "^1.5.0",
-    "vue-router": "^3.0.3"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.9.0",
-    "@vue/cli-service": "^3.9.0",
-    "less-loader": "^6.2.0",
-    "style-resources-loader": "^1.3.3",
-    "vue-template-compiler": "^2.6.10"
-  }
+    "name": "vue-manage-system",
+    "version": "4.2.0",
+    "private": true,
+    "scripts": {
+        "dev": "npm run serve",
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "buildDev": "vue-cli-service build --mode dev",
+        "buildPro": "vue-cli-service build --mode pro",
+        "report": "vue-cli-service build --report"
+    },
+    "dependencies": {
+        "axios": "^0.18.0",
+        "babel-polyfill": "^6.26.0",
+        "decimal.js": "^10.2.1",
+        "default-passive-events": "^2.0.0",
+        "element-ui": "^2.14.1",
+        "html2canvas": "^1.0.0-rc.7",
+        "jsbarcode": "^3.11.0",
+        "less": "^3.12.2",
+        "lodash": "^4.17.20",
+        "mathjs": "^8.0.1",
+        "moment": "^2.29.1",
+        "number-precision": "^1.5.0",
+        "qrcodejs2": "0.0.2",
+        "qs": "^6.9.4",
+        "uglifyjs-webpack-plugin": "^2.2.0",
+        "vue": "^2.6.12",
+        "vue-cropperjs": "^3.0.0",
+        "vue-print-nb": "^1.5.0",
+        "vue-router": "^3.0.3",
+        "vue-video-player": "^5.0.2"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "^3.9.0",
+        "@vue/cli-service": "^3.9.0",
+        "less-loader": "^6.2.0",
+        "style-resources-loader": "^1.3.3",
+        "vue-template-compiler": "^2.6.12"
+    }
 }

@@ -1,12 +1,28 @@
 <template>
     <div class="config-management-container container-wrap">
-        <div class="container container-table-no-search p-t-0">
+        <div class="container container-table-no-search p-t-0" @click="cancelReasonType()">
             <div class="tabs-and-add">
                 <el-tabs v-model="activeName" @tab-click="handleTabClick">
                     <el-tab-pane label="退款原因" name="退款原因"></el-tab-pane>
                     <el-tab-pane label="退货原因" name="退货原因"></el-tab-pane>
                     <el-tab-pane label="换货原因" name="换货原因"></el-tab-pane>
                     <el-tab-pane label="后台发起退款原因" name="后台发起退款原因"></el-tab-pane>
+                    <el-tab-pane label="拒绝售后理由" name="拒绝售后理由"></el-tab-pane>
+                    <el-tab-pane :label="reasonLabel" :name="reasonLabel">
+                        <div slot="label">{{reasonLabel}}
+                            <i class="img-drop-down" @click.stop="selectReasonType"></i>
+                            <el-collapse-transition>
+                                <div class="reason-list" @click.stop="" v-show="reasonTypeShow">
+                                    <ul>
+                                        <li v-for="item in reasonOptions" @click.stop="selectReasonItem(item.key,item.name)"
+                                            :class="{'is_selected': reasonLabel === item.name}">
+                                            <span>{{item.name}}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </el-collapse-transition>
+                        </div>
+                    </el-tab-pane>
                 </el-tabs>
                 <div>
                     <el-button class="btn-add" type="primary" v-hasPermission="'mall-backend-reason-create'" @click="handleAdd">新增</el-button>
@@ -56,6 +72,7 @@
 <script>
 import { queryReasonList, addReason, updateReason, deleteReason } from '../../../api/afterSaleReason';
 import EmptyList from '../../common/empty-list/EmptyList';
+import './afterSaleReason.less'
 export default {
     name: 'afterSaleReason',
     data() {
@@ -81,7 +98,14 @@ export default {
                     { max: 50, message: '最多输入50个字符', trigger: 'blur' }]
             },
             current_id:-1,
-            tableHeight: 'calc(100% - 100px)'
+            tableHeight: 'calc(100% - 100px)',
+            reasonType:0,
+            reasonTypeShow: false,
+            reasonLabel:'修改价格理由',
+            reasonOptions:[
+                {key:5, name:'修改价格理由'},
+                {key:6, name:'修改运费理由'}
+            ]
         };
     },
     components:{
@@ -93,7 +117,11 @@ export default {
             return (data)=>{
                 if(data === '后台发起退款原因'){
                     return '退款原因:'
-                }else {
+                } if(data === '拒绝售后理由'){
+                    return '拒绝理由:'
+                } if(data === '修改价格理由' || data === '修改运费理由' ){
+                    return '修改理由:'
+                } else {
                     return data + ':'
                 }
             }
@@ -119,6 +147,10 @@ export default {
         handleTabClick(tab, event) {
             this.selectedType = Number(tab.index);
             this.configLabel = tab.label;
+            if(tab.label === '修改运费理由'){
+                this.selectedType = 6;
+                this.configLabel = '修改运费理由';
+            }
             this.getDataList();
         },
 
@@ -284,181 +316,35 @@ export default {
             this.$refs['attrFormBox'].resetFields();
             this.attrDialogVisible = false;
         },
+
+        // 理由类型  下拉框 显示/隐藏
+        selectReasonType(){
+            this.reasonTypeShow = !this.reasonTypeShow;
+        },
+
+        // 选择 理由类型
+        selectReasonItem(num,str){
+            this.selectedType = num;
+            let old_reasonLabel = this.reasonLabel;
+            let old_activeName = this.activeName;
+            this.reasonLabel = str;
+            if(this.activeName === old_reasonLabel){
+                this.activeName = str;
+                if(old_activeName !== this.activeName){
+                    this.getDataList();
+                }
+            }
+            this.configLabel = this.activeName;
+            this.reasonTypeShow = false;
+        },
+
+        cancelReasonType(){
+            this.reasonTypeShow = false;
+        },
     }
 };
 </script>
 <style scoped="scoped" lang="less">
-.config-management-container{
-    .container{
-        padding: 30px 0 15px;
-        min-width: 900px;
-    }
-    .p-t-0 {
-        padding-top: 0;
-    }
-    .tabs-and-add{
-        position: relative;
-        .el-tab-pane{
-            position: relative;
-        }
-        .img-drop-down{
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 10px;
-            right: 5px;
-            background: transparent url(../../../assets/img/drop-down.svg) no-repeat 50% 50%;
-        }
-        .reason-list{
-            position: absolute;
-            top: 50px;
-            left: 22px;
-            width: 126px;
-        //height: 102px;
-            max-height: 200px;
-            background: #FFFFFF;
-            box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05), 0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
-            border-radius: 2px;
-            overflow: hidden;
-        ul,li{
-            list-style: none;
-            font-size: 14px;
-            font-family: PingFangSC-Regular, PingFang SC;
-            font-weight: 400;
-            color: rgba(0, 0, 0, 0.65);
-            line-height: 34px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        li{
-            padding-left: 16px;
-            box-sizing: border-box;
-            -webkit-box-sizing: border-box;
-        &:hover{
-             background: rgba(24, 144, 255, .7);
-             color: #fff;
-         }
-        }
-        .is_selected{
-            background: #1890FF;
-            color: #fff;
-        }
-        }
-        .el-tabs__item.is-active{
-            color: #1890FF;
-            font-weight:500;
-            box-shadow: none;
-            -webkit-box-shadow: none;
-            border: none;
-        .img-drop-down{
-            background: url(../../../assets/img/drop-down-selected.svg) no-repeat 50% 50%;
-        }
-        }
-        .el-tabs__item.is-active.is-focus{
-            box-shadow: none !important;
-            -webkit-box-shadow: none !important;
-            border: none !important;
-        }
-        /*选项卡切换*/
-        .el-tabs__nav{
-            height: 60px;
-            line-height: 60px;
-        }
-        .el-tabs__item{
-            padding: 0 25px;
-            font-weight:400;
-            font-size: 16px;
-            font-family:PingFangSC-Regular,PingFang SC;
-            color:#595959;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .el-tabs__active-bar{
-            background-color: #1890FF;
-        }
-        .el-tabs__nav-wrap{
-            height: 60px;
-            overflow: inherit;
-        }
-        .el-tabs__nav-scroll{
-            height: 60px;
-            overflow: inherit;
-        }
-        .el-tabs__nav-wrap::after{
-            height: 1px;
-            background-color: #E8E8E8;
-        }
-        .el-tabs__header{
-            margin: 0 0 25px;
-        }
-        /*按钮-新增*/
-        .btn-add{
-            position: absolute;
-            top: 14px;
-            right: 30px;
-            font-size: 14px !important;
-            padding: 8px 15px !important;
-        }
-    }
-    .el-table .cell{
-        padding-left: 24px;
-    }
-    .attrDialog{
-
-    }
-    .attr-form{
-        padding-top: 20px;
-    }
-    .el-dialog .el-dialog__body{
-    //padding: 20px 24px 24px 24px !important;
-    }
-    .add-floor-box{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0 20px;
-        span{
-            display: inline-block;
-            line-height: 25px;
-        }
-        .shelf-capacity{
-            background: rgba(255, 77, 79, 0.05);
-            border-radius: 14px;
-            color: #FF4D4F;
-            height: 25px;
-            padding: 0 12px;
-        }
-        .add-floor{
-            color: #1890FF;
-            cursor: pointer;
-            display: flex;
-            i{
-                font-size: 20px;
-                line-height: 25px;
-            }
-            .add-text{
-                font-size: 14px;
-                margin-left: 5px;
-            }
-        }
-    }
-    .floors-box{
-        .el-input{
-            width: 214px !important;
-        }
-        .el-button--small{
-            margin-left: 12px;
-            padding: 8px 15px;
-            font-size: 14px;
-        }
-    }
-    .add-shelf-dialog{
-        .el-radio__label,.el-dialog__body,.el-form-item__label{
-            font-weight: 400;
-            color: rgba(0, 0, 0, 0.85);
-        }
-    }
-}
 </style>
 <style>
     .config-management-container .tabs-and-add .el-tabs__nav {

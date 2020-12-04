@@ -100,16 +100,17 @@
                         </div>
 
                         <div class="row">
-                            <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteDefault(index)">
+                            <el-popconfirm class="confirm" title="确定删除" @confirm="deleteDefault(index)">
                                 <el-button slot="reference" class="" type="text">删除</el-button>
                             </el-popconfirm>
                         </div>
                     </div>
                 </div>
+
                 <div class="operation">
                     <div class="select-all" v-if="isMultipleOperate">
                         <el-checkbox class="check-all" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-                        <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteMultiple">
+                        <el-popconfirm class="confirm" title="确定删除" @confirm="deleteMultiple">
                             <el-button slot="reference" class="delete-multiple" type="text">批量删除</el-button>
                         </el-popconfirm>
                     </div>
@@ -160,7 +161,7 @@
                         </div>
 
                         <div class="row delete-row">
-                            <el-popconfirm class="confirm" title="确定删除" @onConfirm="deleteCondition(index)">
+                            <el-popconfirm class="confirm" title="确定删除" @confirm="deleteCondition(index)">
                                 <el-button slot="reference" class="" type="text">删除</el-button>
                             </el-popconfirm>
                         </div>
@@ -177,6 +178,7 @@
 import { creatFreight, queryFreight, updateFreight } from '@/api/freight';
 import { formatMoney } from '@/plugin/tool';
 import areaList from '@/components/common/area-list/AreaList';
+import commUtil from '../../../utils/commUtil';
 export default {
     data() {
         return {
@@ -277,8 +279,8 @@ export default {
         areaList
     },
     created() {
-        var id = this.$route.params.id;
-        var mark = this.$route.params.mark;
+        var id = Number(this.$route.query.id);
+        var mark = this.$route.query.mark;
         console.log('GOOGLE: mark', mark);
         if (id) {
             let params = {
@@ -333,6 +335,8 @@ export default {
         },
         // 单个删除
         deleteDefault(index) {
+            console.log('输出 ~ index');
+            console.log('输出 ~ index', index);
             this.info.detail.splice(index, 1);
             this.checkListNum.splice(index, 1);
         },
@@ -438,9 +442,9 @@ export default {
                             const element = params.detail[i];
                             element.is_default = Number(element.is_default);
                             element.first_num = Number(element.first_num);
-                            element.first_money = Number(element.first_money) * 100;
+                            element.first_money = commUtil.numberMul(Number(element.first_money),100);
                             element.continue_num = Number(element.continue_num);
-                            element.continue_money = Number(element.continue_money) * 100;
+                            element.continue_money = commUtil.numberMul(Number(element.continue_money),100);
                             if (i == 0) {
                                 continue;
                             }
@@ -477,7 +481,7 @@ export default {
                                     }
                                     element.type = Number(element.type);
                                     if (element.type == 2) {
-                                        element.num = Number(element.num) * 100;
+                                        element.num = commUtil.numberMul(Number(element.num),100);
                                     }
                                 }
                             }
@@ -557,11 +561,6 @@ export default {
 };
 </script>
 <style scoped="scoped" lang="less">
-.divider {
-    width: 100%;
-    height: 1px;
-    background: #e9e9e9;
-}
 .freight-form {
     padding: 40px;
     background: #fff;

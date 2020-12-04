@@ -228,9 +228,9 @@ export default {
     z-index: 10;
     float: left;
     padding: 0 21px;
+    background: #0b253d;
     line-height: 48px !important;
     cursor: pointer;
-    background: #0b253d;
     -webkit-transition: left 0.3s ease-in-out;
     transition: left 0.3s ease-in-out;
 }
@@ -251,9 +251,9 @@ export default {
     background-color: #fff;
     box-shadow: 2px 0px 6px 0px rgba(0, 21, 41, 0.12);
     color: #002140;
+    font-weight: 600;
     font-size: 17px;
     font-family: PingFangSC-Semibold, PingFang SC;
-    font-weight: 600;
     line-height: 60px;
 }
 .header .logo .menu-logo {

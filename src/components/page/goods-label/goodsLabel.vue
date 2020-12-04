@@ -1,37 +1,61 @@
 <template>
     <div class="product-label-page">
-        <div class="container clearfix top-search" ref="searchBox">
+        <div class="head-container" ref="searchBox">
+            <el-form class="form-filter" :model="searchForm" :inline="true" ref="searchForm">
+                <el-form-item label="标签名称：">
+                    <el-input class="filter-item" v-model="searchForm.searchLabel" placeholder="请输入"> </el-input>
+                </el-form-item>
+                <el-form-item label="分类属性：">
+                    <el-select class="filter-item" v-model="searchForm.category_type" placeholder="请选择" @change="handleCategorySelect">
+                        <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="展示平台：" class="margin-right0">
+                    <el-select class="filter-item" v-model="searchForm.label_type" placeholder="请选择" @change="handleDisplayPlatformSelect">
+                        <el-option v-for="state in labelShowTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
+                </el-form-item>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-btn" type="" @click="handleSearchReset('searchForm')">重置</el-button>
+                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
+                </el-form-item>
+            </el-form>
             <div class="category-wrap" ref="desc">
                 <div class="category-level">一级分类:</div>
-                <div class="category-list" :class="{'packUpHeight': showExchangeButton && !isOpen}">
-                    <div v-for="(item,index) in categoryList" :key="item.id" class="category-item"
-                         :class="{'is-select': selectedCategoryId === item.id}"
-                         @click="selectCategory(item.id)">
-                        <span>{{item.name}}</span>
-                        <div v-show="index > 0 " class="edit-icon-box" v-hasPermission="'tag-category-edit'" @click.stop="handleEditCategory(item)">
-                            <div class="edit-icon" :class="{'edit-choose': selectedCategoryId === item.id}"></div>
+                <div class="category-list" :class="{ packUpHeight: showExchangeButton && !isOpen }">
+                    <div
+                        v-for="(item, index) in categoryList"
+                        :key="item.id"
+                        class="category-item"
+                        :class="{ 'is-select': selectedCategoryId === item.id }"
+                        @click="selectCategory(item)"
+                    >
+                        <span>{{ item.name }}</span>
+                        <div
+                            v-show="index > 0"
+                            class="edit-icon-box"
+                            v-hasPermission="'mall-backend-tag-category-update'"
+                            @click.stop="handleEditCategory(item)"
+                        >
+                            <div class="edit-icon" :class="{ 'edit-choose': selectedCategoryId === item.id }"></div>
                         </div>
-                        <div v-show="index > 0 " class="delete-icon-box" v-hasPermission="'tag-category-del'" @click.stop="handleDeleteCategory(item)">
-                            <div class="delete-icon" :class="{'delete-choose': selectedCategoryId === item.id}"></div>
+                        <div
+                            v-show="index > 0"
+                            class="delete-icon-box"
+                            v-hasPermission="'mall-backend-tag-category-delete'"
+                            @click.stop="handleDeleteCategory(item)"
+                        >
+                            <div class="delete-icon" :class="{ 'delete-choose': selectedCategoryId === item.id }"></div>
                         </div>
                     </div>
                 </div>
                 <div class="open-or-close" @click="openOrClose">
                     <div class="open-or-close-btn" v-show="showExchangeButton">
-                        <span>{{isOpen?'收起':'展开'}}</span>
-                        <i class="el-icon-arrow-down" :class="{'rotateZ180':isOpen}"></i>
+                        <span>{{ isOpen ? '收起' : '展开' }}</span>
+                        <i class="el-icon-arrow-down" :class="{ rotateZ180: isOpen }"></i>
                     </div>
                 </div>
             </div>
-            <el-form :model="searchForm" :inline="true" ref="searchForm" label-width="80px">
-                <el-form-item label="输入搜索:" prop="account">
-                    <el-input v-model="searchForm.searchLabel" placeholder="请输入"
-                              class="input-with-search" @keyup.enter.native="handleSearch('searchForm')">
-                        <el-button type="primary" slot="append"
-                                   @click="handleSearch('searchForm')">搜索</el-button>
-                    </el-input>
-                </el-form-item>
-            </el-form>
         </div>
         <div class="container m-t-16 p-t-0 container-table-has-search">
             <div class="global-table-title">
@@ -40,12 +64,8 @@
                     <span>产品标签</span>
                 </div>
                 <div>
-                    <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
-                        <el-radio-button label="cloth">布</el-radio-button>
-                        <el-radio-button label="others">其它</el-radio-button>
-                    </el-radio-group>
-                    <el-button type="success" v-hasPermission="'tag-category-add'" @click="addCategory">新增分类</el-button>
-                    <el-button type="primary" v-hasPermission="'tag-add'" @click="handleAddTags">新增标签</el-button>
+                    <el-button type="success" v-hasPermission="'mall-backend-tag-category-create'" @click="addCategory">新增分类</el-button>
+                    <el-button type="primary" v-hasPermission="'mall-backend-tag-create'" @click="handleAddTags">新增标签</el-button>
                 </div>
             </div>
             <el-table :data="tableData" style="width: 100%">
@@ -53,11 +73,23 @@
                 <el-table-column label="父级" prop="category_name"></el-table-column>
                 <el-table-column label="操作" width="200" align="left">
                     <template slot-scope="scope">
-                        <el-button type="text" class="m-l-0 marginRight32" v-hasPermission="'tag-edit'" @click="handleEditLabel(scope.$index, scope.row)">编辑</el-button>
-                        <el-button type="text" class="delete-color m-l-0" v-hasPermission="'tag-del'" @click="handleDeleteTags(scope.$index, scope.row)">删除</el-button>
+                        <el-button
+                            type="text"
+                            class="m-l-0 marginRight32"
+                            v-hasPermission="'mall-backend-tag-update'"
+                            @click="handleEditLabel(scope.$index, scope.row)"
+                            >编辑</el-button
+                        >
+                        <el-button
+                            type="text"
+                            class="delete-color m-l-0"
+                            v-hasPermission="'mall-backend-tag-delete'"
+                            @click="handleDeleteTags(scope.$index, scope.row)"
+                            >删除</el-button
+                        >
                     </template>
                 </el-table-column>
-                <template  slot="empty" >
+                <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
             </el-table>
@@ -73,13 +105,15 @@
             </div>
         </div>
         <!-- 分类 新增/编辑 弹出框 -->
-        <el-dialog :title="categoryTitle" width="380px"
-                   :visible.sync="categoryVisible"
-                   :close-on-click-modal="false"
-                   :before-close="categoryClose">
+        <el-dialog :title="categoryTitle" width="380px" :visible.sync="categoryVisible" :close-on-click-modal="false" :before-close="categoryClose">
             <el-form ref="categoryFormBox" :model="categoryForm" :rules="categoryRules" label-width="90px">
                 <el-form-item label="分类名称:" prop="name">
                     <el-input placeholder="请输入分类名称" autofocus="autofocus" v-model="categoryForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="展示平台:" prop="label_type">
+                    <el-select v-model="categoryForm.label_type" multiple :disabled="categoryTitle === '编辑分类'" placeholder="请选择" class="handle-select">
+                        <el-option v-for="state in labelShowTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="分类属性:" prop="category_type">
                     <el-select v-model="categoryForm.category_type" :disabled="categoryTitle === '编辑分类'" placeholder="请选择分类属性" class="handle-select">
@@ -93,16 +127,13 @@
             </span>
         </el-dialog>
         <!-- 标签 新增/编辑 弹出框 -->
-        <el-dialog :title="tagsFormTitle" width="380px"
-                   :visible.sync="labelVisible"
-                   :close-on-click-modal="false"
-                   :before-close="dialogClose">
+        <el-dialog :title="tagsFormTitle" width="380px" :visible.sync="labelVisible" :close-on-click-modal="false" :before-close="dialogClose">
             <el-form ref="tagsFormBox" :model="labelForm" :rules="rules" label-width="90px">
                 <el-form-item label="标签名称:" prop="name">
                     <el-input placeholder="请输入" autofocus="autofocus" v-model="labelForm.name"></el-input>
                 </el-form-item>
                 <el-form-item label="父级:" prop="category_id">
-                    <el-select v-model="labelForm.category_id" placeholder="请选择" class="handle-select">
+                    <el-select v-model="labelForm.category_id" placeholder="请选择" :disabled="tagsFormTitle === '编辑标签'" class="handle-select">
                         <el-option v-for="state in categoryOptions" :key="state.key" :value="state.key" :label="state.name" />
                     </el-select>
                 </el-form-item>
@@ -119,8 +150,16 @@
 import './goodsLabel.less';
 import EmptyList from '../../common/empty-list/EmptyList';
 
-import { getLabelCategoryList, addLabelCategory, editLabelCategory, deleteLabelCategory,
-    getLabelList, addLabel, editLabel, deleteLabel} from '../../../api/goodsLabel';
+import {
+    getLabelCategoryList,
+    addLabelCategory,
+    editLabelCategory,
+    deleteLabelCategory,
+    getLabelList,
+    addLabel,
+    editLabel,
+    deleteLabel
+} from '../../../api/goodsLabel';
 
 export default {
     name: 'goodsLabel',
@@ -132,89 +171,106 @@ export default {
                 pageSize: 10
             },
             loading: false,
-            tableData: [],  // 标签列表数据
-            categoryList: [],  // 分类列表
-            labelVisible: false,       // 标签弹窗-新增编辑
-            categoryVisible:false,     // 分类弹窗-新增
+            tableData: [], // 标签列表数据
+            categoryList: [], // 分类列表
+            labelVisible: false, // 标签弹窗-新增编辑
+            categoryVisible: false, // 分类弹窗-新增
             pageTotal: 0,
-            searchForm:{
-                searchLabel:''
+            searchForm: {
+                searchLabel: '',
+                category_type: '1', //1 布  2 其它
+                label_type: '2' //  1 后台  2 小程序
             },
-            categoryForm:{
+            categoryForm: {
                 name: '',
-                category_type:''
+                category_type: '', //1 布  2 其它
+                label_type: [] //  1 后台  2 小程序
             },
             categoryRules: {
-                name: [{ required: true, message: '请输入分类名称', trigger: 'blur' },
-                    { max: 20, message: '最多输入20个字符', trigger: 'blur' }],
-                category_type:[{ required: true, message: '请选择', trigger: 'blur' }]
+                name: [
+                    { required: true, message: '请输入分类名称', trigger: 'blur' },
+                    { max: 20, message: '最多输入20个字符', trigger: 'blur' }
+                ],
+                category_type: [{ required: true, message: '请选择', trigger: 'blur' }],
+                label_type: [{ required: true, message: '请选择', trigger: 'blur' }]
             },
             labelForm: {
                 name: '',
-                category_id:''
+                category_id: ''
             },
             rules: {
-                name: [{ required: true, message: '请输入标签名称', trigger: 'blur' },
-                    { max: 20, message: '最多输入20个字符', trigger: 'blur' }]
+                name: [
+                    { required: true, message: '请输入标签名称', trigger: 'blur' },
+                    { max: 20, message: '最多输入20个字符', trigger: 'blur' }
+                ]
             },
             id: -1,
             categoryId: -1,
             labelId: -1,
             categoryOptions: [],
             parentsCategory: '',
-            categoryTitle:'',  // 分类表单标题
+            categoryTitle: '', // 分类表单标题
             tagsFormTitle: '',
             selectedCategoryId: -1,
             showExchangeButton: false,
             isOpen: true,
-            searchContent:'-1',
+            searchContent: '',
             delCategoryId: -1, // 点击删除分类 的分类id
-            tabPosition:'cloth',   //  布还是其它
-            selectedType: 0,   // 标签所属种类  0 布  1 其它
-            typeOptions:[
-                {id:'0',name:'布'},
-                {id:'1',name:'其它'},
+            // tabPosition:'cloth',   //  布还是其它
+            selectedType: 1, // 标签所属种类  1 布  2 其它
+            displayPlatform: 2, //  1 后台  2 小程序
+            typeOptions: [
+                { id: '1', name: '布' },
+                { id: '2', name: '其它' }
+            ],
+            labelShowTypeOptions: [
+                { id: '1', name: '后台' },
+                { id: '2', name: '小程序' }
             ]
         };
     },
-    components:{
+    components: {
         EmptyList
     },
-    watch:{
-        'categoryList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.desc) {
-                    return;
-                }
-                let descHeight = window.getComputedStyle(this.$refs.desc).height.replace('px', '');
-                if (descHeight > 50) {
-                    // 显示展开收起按钮
-                    this.showExchangeButton = true;
-                    // 默认展开
-                    this.isOpen = true;
-                } else {
-                    // 不显示展开收起按钮
-                    this.showExchangeButton = false;
-                    // 没有超过1行就显示所有
-                    this.isOpen = false;
-                }
-            }.bind(this));
+    watch: {
+        categoryList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.desc) {
+                        return;
+                    }
+                    let descHeight = window.getComputedStyle(this.$refs.desc).height.replace('px', '');
+                    if (descHeight > 50) {
+                        // 显示展开收起按钮
+                        this.showExchangeButton = true;
+                        // 默认展开
+                        this.isOpen = true;
+                    } else {
+                        // 不显示展开收起按钮
+                        this.showExchangeButton = false;
+                        // 没有超过1行就显示所有
+                        this.isOpen = false;
+                    }
+                }.bind(this)
+            );
         }
     },
-    created() {
-    },
+    created() {},
     mounted() {
         // 获取分类
         this.getTagsCategoryList();
     },
     methods: {
         // 请求 -- 获取标签分类列表
-        getTagsCategoryList(){
+        getTagsCategoryList() {
+            //根据商品分类以及展示平台请求标签分类列表
             const params = {
-                type: this.selectedType
+                type: this.selectedType,
+                display_platform: this.displayPlatform
             };
             const rLoading = this.openLoading();
-            getLabelCategoryList(params).then((res) => {
+            getLabelCategoryList(params)
+                .then(res => {
                     rLoading.close();
                     if (res.code === 200) {
                         if (res.data) {
@@ -225,8 +281,8 @@ export default {
                         // 填充分类下拉框
                         this.setCategoryOptions(this.categoryList);
                         this.categoryList.unshift({
-                            name:'全部',
-                            id:-1
+                            name: '全部',
+                            id: -1
                         });
                         // 获取标签
                         this.getTagsList();
@@ -238,71 +294,77 @@ export default {
                             duration: 5000
                         });
                     }
-                }).catch(() => {});
+                })
+                .catch(() => {});
         },
 
         // 请求 -- 获取标签列表
-        getTagsList(){
+        getTagsList(displayPlatform) {
             const params = {
                 page: this.pageInfo.pageIndex || 1,
                 limit: this.pageInfo.pageSize || 10,
-                category_id: this.selectedCategoryId,
-                name: this.searchContent || '-1',
+                display_platform: displayPlatform ? displayPlatform : this.displayPlatform,
+                tag_category_id: this.selectedCategoryId,
+                tag_name: this.searchContent || '',
                 type: this.selectedType
             };
             const rLoading = this.openLoading();
-            getLabelList(params).then((res) => {
-                rLoading.close();
-                if (res.code === 200) {
-                    if (res.data.lists) {
-                        this.tableData = res.data.lists;
+            getLabelList(params)
+                .then(res => {
+                    rLoading.close();
+                    if (res.code === 200) {
+                        if (res.data.lists) {
+                            this.tableData = res.data.lists;
+                        } else {
+                            this.tableData = [];
+                        }
+                        this.pageTotal = res.data.total;
                     } else {
-                        this.tableData = [];
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
                     }
-                    this.pageTotal = res.data.total;
-                } else {
-                    this.$notify({
-                        title: res.msg,
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            }).catch(() => {});
+                })
+                .catch(() => {});
         },
 
         // 请求 - 新增分类
-        addTagsCategory(params){
+        addTagsCategory(params) {
             const rLoading = this.openLoading();
-            addLabelCategory(params).then((res) => {
-                rLoading.close();
-                if (res.code === 200) {
-                    this.categoryVisible = false;
-                    this.$notify({
-                        title: '分类新增成功',
-                        message: '',
-                        type: 'success',
-                        duration: 3000
-                    });
-                    // 刷新分类列表
-                    this.getTagsCategoryList();
-                } else {
-                    this.$notify({
-                        title: res.msg,
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            }).catch(() => {});
+            addLabelCategory(params)
+                .then(res => {
+                    rLoading.close();
+                    if (res.code === 200) {
+                        this.categoryVisible = false;
+                        this.$notify({
+                            title: '分类新增成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        // 刷新分类列表
+                        this.getTagsCategoryList();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
+                    }
+                })
+                .catch(() => {});
         },
 
         // 请求 - 编辑分类
-        editTagsCategory(params){
+        editTagsCategory(params) {
             const rLoading = this.openLoading();
-            editLabelCategory(params).then((res) => {
+            editLabelCategory(params).then(res => {
                 rLoading.close();
-                if(res.code === 200){
+                if (res.code === 200) {
                     this.categoryVisible = false;
                     this.$notify({
                         title: '分类编辑成功',
@@ -312,7 +374,7 @@ export default {
                     });
                     // 刷新分类列表
                     this.getTagsCategoryList();
-                }else {
+                } else {
                     this.$notify({
                         title: res.msg,
                         message: '',
@@ -324,68 +386,72 @@ export default {
         },
 
         // 请求 - 删除分类
-        deleteTagsCategory(params){
+        deleteTagsCategory(params) {
             const rLoading = this.openLoading();
-            deleteLabelCategory(params).then((res) => {
-                rLoading.close();
-                if (res.code === 200) {
-                    this.$notify({
-                        title: '分类删除成功',
-                        message: '',
-                        type: 'success',
-                        duration: 5000
-                    });
-                    // 刷新分类列表
-                    this.getTagsCategoryList();
-                    if(this.delCategoryId === this.selectedCategoryId){
-                        this.selectedCategoryId = -1;
-                        this.$set(this.pageInfo, 'pageIndex', 1);
-                        // 刷新标签列表
-                        this.getTagsList();
+            deleteLabelCategory(params)
+                .then(res => {
+                    rLoading.close();
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: '分类删除成功',
+                            message: '',
+                            type: 'success',
+                            duration: 5000
+                        });
+                        // 刷新分类列表
+                        this.getTagsCategoryList();
+                        if (this.delCategoryId === this.selectedCategoryId) {
+                            this.selectedCategoryId = -1;
+                            this.$set(this.pageInfo, 'pageIndex', 1);
+                            // 刷新标签列表
+                            this.getTagsList();
+                        }
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
                     }
-                } else {
-                    this.$notify({
-                        title: res.msg,
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            }).catch(() => {});
+                })
+                .catch(() => {});
         },
 
         // 请求 - 新增标签
-        addTags(params){
+        addTags(params) {
             const rLoading = this.openLoading();
-            addLabel(params).then((res) => {
-                rLoading.close();
-                if (res.code === 200) {
-                    this.labelVisible = false;
-                    this.$notify({
-                        title: '标签新增成功',
-                        message: '',
-                        type: 'success',
-                        duration: 3000
-                    });
-                    // 刷新标签列表
-                    this.getTagsList();
-                } else {
-                    this.$notify({
-                        title: res.msg,
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            }).catch(() => {});
+            addLabel(params)
+                .then(res => {
+                    rLoading.close();
+                    if (res.code === 200) {
+                        this.labelVisible = false;
+                        this.$notify({
+                            title: '标签新增成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        // 刷新标签列表
+                        this.getTagsList();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
+                    }
+                })
+                .catch(() => {});
         },
 
         // 请求 - 编辑标签
-        editTags(params){
+        editTags(params) {
             const rLoading = this.openLoading();
-            editLabel(params).then((res) => {
+            editLabel(params).then(res => {
                 rLoading.close();
-                if(res.code === 200){
+                if (res.code === 200) {
                     this.labelVisible = false;
                     this.$notify({
                         title: '标签编辑成功',
@@ -395,7 +461,7 @@ export default {
                     });
                     // 刷新标签列表
                     this.getTagsList();
-                }else {
+                } else {
                     this.$notify({
                         title: res.msg,
                         message: '',
@@ -407,133 +473,162 @@ export default {
         },
 
         // 请求 - 删除标签
-        deleteTags(params){
+        deleteTags(params) {
             const rLoading = this.openLoading();
-            deleteLabel(params).then((res) => {
-                rLoading.close();
-                if (res.code === 200) {
-                    this.$notify({
-                        title: '标签删除成功',
-                        message: '',
-                        type: 'success',
-                        duration: 3000
-                    });
-                    // 刷新标签列表
-                    this.getTagsList();
-                } else {
-                    this.$notify({
-                        title: res.msg,
-                        message: '',
-                        type: 'error',
-                        duration: 5000
-                    });
-                }
-            }).catch(() => {});
+            deleteLabel(params)
+                .then(res => {
+                    rLoading.close();
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: '标签删除成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        // 刷新标签列表
+                        this.getTagsList();
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        });
+                    }
+                })
+                .catch(() => {});
         },
 
         // 触发搜索按钮
         handleSearch() {
             this.searchContent = this.searchForm.searchLabel;
             this.$set(this.pageInfo, 'pageIndex', 1);
-            this.getTagsList();
-            // 搜索框是否有值， 当搜索框有值时 搜索成功后 ，分类显示到，当前搜索值所在分类
-            // this.selectedCategoryId = ？？;
+            this.selectedCategoryId = -1;
+            this.getTagsCategoryList();
         },
 
-        // 按钮-切换状态
-        tabClick(){
-            this.selectedCategoryId = -1;
-            if(this.tabPosition === 'cloth'){
-                this.selectedType = 0;
-            }else if(this.tabPosition === 'others'){
-                this.selectedType = 1;
-            }
+        handleTagsSearch(category) {
+            this.searchContent = this.searchForm.searchLabel;
             this.$set(this.pageInfo, 'pageIndex', 1);
-            this.getTagsCategoryList();
+            this.getTagsList(category.display_platform);
+        },
+
+        // 触发搜索按钮
+        handleSearchReset() {
+            this.searchForm.category_type = '1';
+            this.searchForm.label_type = '2';
+            this.displayPlatform = 2;
+        },
+
+        // 分类-切换状态
+        handleCategorySelect() {
+            if (this.searchForm.category_type === '1') {
+                this.selectedType = 1;
+            } else if (this.searchForm.category_type === '2') {
+                this.selectedType = 2;
+            }
+        },
+
+        // 展示平台-切换状态
+        handleDisplayPlatformSelect() {
+            if (this.searchForm.label_type === '1') {
+                this.displayPlatform = 1;
+            } else if (this.searchForm.label_type === '2') {
+                this.displayPlatform = 2;
+            }
         },
 
         // 按钮-新增大类
         addCategory() {
-            this.categoryTitle = '新增分类'
+            this.categoryTitle = '新增分类';
             this.categoryVisible = true;
-            this.$nextTick(()=>{
-                this.$set(this.categoryForm, 'name' , '')
-                if(this.selectedType > 0){
-                    this.$set(this.categoryForm, 'category_type' , '1')
-                }else {
-                    this.$set(this.categoryForm, 'category_type' , '0')
+            this.$nextTick(() => {
+                this.$set(this.categoryForm, 'name', '');
+                if (this.selectedType === 1) {
+                    this.$set(this.categoryForm, 'category_type', '1');
+                } else if (this.selectedType === 2) {
+                    this.$set(this.categoryForm, 'category_type', '2');
+                }
+                if (this.displayPlatform === 1) {
+                    this.$set(this.categoryForm, 'label_type', ['1']);
+                } else if (this.displayPlatform === 2) {
+                    this.$set(this.categoryForm, 'label_type', ['2']);
                 }
             });
         },
         // 按钮-编辑大类
-        handleEditCategory(item){
-            this.categoryTitle = '编辑分类'
+        handleEditCategory(item) {
+            this.categoryTitle = '编辑分类';
             this.categoryVisible = true;
             this.categoryId = item.id;
-            this.$nextTick(()=>{
+            this.$nextTick(() => {
                 // let new_obj = {};
                 // new_obj['name'] = item.name;
-                if(this.selectedType > 0){
-                    this.$set(this.categoryForm, 'category_type' , '1')
-                }else {
-                    this.$set(this.categoryForm, 'category_type' , '0')
+                if (this.selectedType === 1) {
+                    this.$set(this.categoryForm, 'category_type', '1');
+                } else if (this.selectedType === 2) {
+                    this.$set(this.categoryForm, 'category_type', '2');
                 }
                 // 触发更新
-                this.$set(this.categoryForm, 'name' , item.name)
+                this.$set(this.categoryForm, 'name', item.name);
+                this.$set(this.categoryForm, 'label_type', [item.display_platform + '']);
                 // this.categoryForm = Object.assign({}, this.categoryForm, new_obj);
             });
         },
 
         // 按钮 - 确定 添加/编辑分类
-        handleSaveCategory(){
+        handleSaveCategory() {
             this.$refs['categoryFormBox'].validate(valid => {
                 if (valid) {
                     let params = {};
                     params['name'] = this.categoryForm.name;
                     // ajax
-                    if(this.categoryTitle === '新增分类'){
-                        if(this.categoryForm.category_type > 0){
+                    if (this.categoryTitle === '新增分类') {
+                        if (this.categoryForm.category_type === '1') {
                             params['type'] = 1;
-                        }else {
-                            params['type'] = 0;
+                        } else if (this.categoryForm.category_type === '2') {
+                            params['type'] = 2;
+                        } else {
+                            params['type'] = -1;
                         }
+                        const displayPlatform = this.categoryForm.label_type.toString();
+                        params['display_platform'] = displayPlatform;
                         this.addTagsCategory(params);
-                    }else {
+                    } else {
                         params['id'] = this.categoryId;
                         this.editTagsCategory(params);
-
                     }
 
                     // 重置分类下拉框数据
                     this.categoryOptions = [];
-                    this.categoryList.forEach((ev,i)=>{
+                    this.categoryList.forEach((ev, i) => {
                         this.categoryOptions.push({
                             key: ev.id,
                             name: ev.name
-                        })
+                        });
                     });
                     this.categoryClose();
                     this.categoryVisible = false;
-                }else {
-
+                } else {
                 }
-            })
+            });
         },
 
         // 按钮-删除大类
-        handleDeleteCategory(item){
+        handleDeleteCategory(item) {
             // 二次确认删除
             this.$confirm('确定要删除该分类吗？', '', {
                 customClass: 'message-delete',
                 type: 'warning',
                 center: true
-            }).then(() => {
-                let params = {};
-                params['id'] = item.id;
-                this.delCategoryId = item.id;
-                this.deleteTagsCategory(params);
-
-            }).catch(() => {});
+            })
+                .then(() => {
+                    let params = {};
+                    params['id'] = item.id;
+                    this.delCategoryId = item.id;
+                    this.deleteTagsCategory(params);
+                })
+                .catch(() => {});
         },
 
         // 按钮-编辑标签
@@ -541,13 +636,13 @@ export default {
             this.tagsFormTitle = '编辑标签';
             this.labelId = row.id;
             this.labelVisible = true;
-            this.$nextTick(()=> {
+            this.$nextTick(() => {
                 const new_obj = {};
-                new_obj['category_id'] = row.category_id;
+                new_obj['category_id'] = row.tag_category_id;
                 new_obj['name'] = row.name;
                 // 触发更新
-                this.labelForm = Object.assign({}, this.labelForm,new_obj);
-            })
+                this.labelForm = Object.assign({}, this.labelForm, new_obj);
+            });
         },
 
         // 按钮- 删除标签
@@ -557,32 +652,34 @@ export default {
                 customClass: 'message-delete',
                 type: 'warning',
                 center: true
-            }).then(() => {
-                let params = {};
-                params['id'] = row.id;
-                this.deleteTags(params);
-            }).catch(() => {});
+            })
+                .then(() => {
+                    let params = {};
+                    params['id'] = row.id;
+                    this.deleteTags(params);
+                })
+                .catch(() => {});
         },
 
         // 按钮-新增标签
         handleAddTags() {
-            if(this.selectedCategoryId === -1){
+            if (this.selectedCategoryId === -1) {
                 this.$notify({
                     title: '请先选择分类',
                     message: '',
                     type: 'error',
                     duration: 5000
                 });
-            }else {
+            } else {
                 this.tagsFormTitle = '新增标签';
                 this.labelVisible = true;
-                this.$nextTick(()=>{
+                this.$nextTick(() => {
                     const new_obj = {};
                     new_obj['category_id'] = this.selectedCategoryId;
                     new_obj['name'] = '';
                     // 触发更新
-                    this.labelForm = Object.assign({}, this.labelForm,new_obj);
-                })
+                    this.labelForm = Object.assign({}, this.labelForm, new_obj);
+                });
             }
         },
 
@@ -592,10 +689,10 @@ export default {
                 if (valid) {
                     let params = {};
                     params['name'] = this.labelForm.name;
-                    params['category_id'] = this.labelForm.category_id;
+                    params['tag_category_id'] = this.labelForm.category_id;
                     if (this.tagsFormTitle === '新增标签') {
                         this.addTags(params);
-                    }else{
+                    } else {
                         params['id'] = this.labelId;
                         this.editTags(params);
                     }
@@ -612,44 +709,43 @@ export default {
         },
 
         // 标签弹框关闭前操作
-        dialogClose(){
+        dialogClose() {
             this.$refs['tagsFormBox'].resetFields();
             this.$refs['tagsFormBox'].clearValidate();
             this.labelVisible = false;
         },
 
         // 分类弹窗关闭前
-        categoryClose(){
+        categoryClose() {
             this.$refs['categoryFormBox'].resetFields();
             this.$refs['categoryFormBox'].clearValidate();
             this.categoryVisible = false;
         },
 
         //  -- 切换分类
-        selectCategory(id){
-            this.selectedCategoryId = id;
-            this.$set(this.searchForm,'searchLabel','');
+        selectCategory(category) {
+            this.selectedCategoryId = category.id;
+            this.$set(this.searchForm, 'searchLabel', '');
             this.searchContent = '';
             // 搜索请求
-            this.handleSearch();
+            this.handleTagsSearch(category);
         },
 
         // 展开或者收起分类
-        openOrClose(){
+        openOrClose() {
             this.isOpen = !this.isOpen;
         },
 
         // 填充分类下拉框数据
-        setCategoryOptions(data){
+        setCategoryOptions(data) {
             this.categoryOptions = [];
-            data.forEach((ev,i)=>{
+            data.forEach((ev, i) => {
                 this.categoryOptions.push({
                     key: ev.id,
                     name: ev.name
-                })
+                });
             });
-        },
-
+        }
     }
 };
 </script>

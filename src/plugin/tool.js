@@ -2,6 +2,9 @@
  * 格式化金额
  */
 export function formatMoney(val) {
+    if (val == 0) {
+        return '0';
+    }
     if (!val) {
         return '';
     }

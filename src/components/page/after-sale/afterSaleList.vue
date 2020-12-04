@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="right" label-width="80px">
+            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="订单号" prop="order_no">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.order_no"></el-input>
@@ -21,7 +21,7 @@
                         <el-option v-for="item in reasonList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="申请时间" prop="createdTime">
+                <el-form-item class="long-time" label="申请时间" prop="createdTime">
                     <el-date-picker
                         class="filter-item"
                         v-model="formFilter.createdTime"
@@ -33,15 +33,17 @@
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-button class="filter-item" size="" type="" icon="el-icon-edit-outline" @click="resetForm('formFilter')">重置</el-button>
-                <el-button class="filter-item" size="" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
+                <el-form-item class="form-item-btn" label="">
+                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                </el-form-item>
             </el-form>
         </div>
         <div class="table-title">
             <div class="line"></div>
             <div class="text">售后申请列表</div>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
+        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-after-sale-audit'">
@@ -154,8 +156,8 @@ export default {
             typeList: [
                 { value: '0', label: '仅退款' },
                 { value: '1', label: '退货退款' },
-                { value: '2', label: '换货' },
-                { value: '3', label: '后台关闭' }
+                { value: '2', label: '换货' }
+                // { value: '3', label: '后台关闭' }
             ],
             statusList: [
                 { value: '0', label: '待审核' },
@@ -214,11 +216,12 @@ export default {
             this.getReasonList(event);
             this.formFilter.reason_id = '';
         },
+        // 筛选处原因列表
         getReasonList(type) {
             let params = {
-                type: Number(type) // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由
+                // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由 4拒绝售后理由 5修改订单金额理由 6修改邮费理由
+                type: Number(type)
             };
-
             queryReasonList(params)
                 .then(res => {
                     console.log('GOOGLE: getReasonListgetReasonList', res);
@@ -237,7 +240,7 @@ export default {
         gotoDetail(id) {
             this.$router.push({
                 name: 'afterSaleDetail',
-                params: {
+                query: {
                     id: id
                 }
             });
@@ -285,6 +288,9 @@ export default {
     }
     &.type-yellow {
         background-color: #faad14;
+    }
+    &.type-blue {
+        background-color: #1890ff;
     }
 }
 .status {

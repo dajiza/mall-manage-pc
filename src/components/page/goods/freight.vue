@@ -23,12 +23,12 @@
                         <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-copy'" @click="copy(item.id)">复制模板</el-button>
                         <div class="line"></div>
                         <el-button class="title-btn" type="text" v-hasPermission="'mall-backend-freight-update'" @click="edit(item.id)">修改</el-button>
-                        <div class="line"></div>
-                        <el-button class="title-btn" type="text" @click="handleDelete(index, item)">删除</el-button>
+                        <div class="line" v-show="item.is_default !== 2"></div>
+                        <el-button class="title-btn" type="text" @click="handleDelete(index, item)" v-show="item.is_default !== 2">删除</el-button>
                         <!--<div class="line"></div>-->
                     </div>
                 </div>
-                <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit highlight-current-row>
+                <el-table :data="item.detail" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                     <el-table-column label="运送到">
                         <template slot-scope="scope">
                             <span class="area" v-if="scope.row.is_default === 2">默认其它</span>
@@ -108,7 +108,7 @@ export default {
         edit(id) {
             this.$router.push({
                 name: 'freightCreat',
-                params: {
+                query: {
                     id: id
                 }
             });
@@ -116,7 +116,7 @@ export default {
         copy(id) {
             this.$router.push({
                 name: 'freightCreat',
-                params: {
+                query: {
                     id: id,
                     mark: 'copy'
                 }

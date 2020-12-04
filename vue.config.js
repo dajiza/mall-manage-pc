@@ -6,7 +6,7 @@ module.exports = {
     productionSourceMap: false,
     chainWebpack: config => {
         config.resolve.symlinks(true);
-    },//自动热更新
+    }, //自动热更新
     pluginOptions: {
         'style-resources-loader': {
             preProcessor: 'less',
@@ -16,19 +16,27 @@ module.exports = {
                 path.resolve(__dirname, './src/assets/init.less')
             ]
         }
+        // pwa: {
+        //     iconPaths: {
+        //         favicon32: 'favicon.ico',
+        //         favicon16: 'favicon.ico',
+        //         appleTouchIcon: 'favicon.ico',
+        //         maskIcon: 'favicon.ico',
+        //         msTileImage: 'favicon.ico'
+        //     }
+        // }
     },
     devServer: {
-
         proxy: {
-            '/api':{
-                target:'http://storehouse.api.chuanshui.cn',
-                changeOrigin:true,
-                pathRewrite:{
-                    '/api':''
+            '/api': {
+                target: 'http://storehouse.api.chuanshui.cn',
+                changeOrigin: true,
+                pathRewrite: {
+                    '/api': ''
                 }
             }
         }
-    },
+    }
     /*configureWebpack: config => {
         // if (process.env.VUE_APP_MODE === 'dev' || process.env.VUE_APP_MODE === 'local') {
             console.log('打包压缩',process.env);
