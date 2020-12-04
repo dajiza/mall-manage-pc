@@ -335,6 +335,7 @@ import storeProductList from '@/components/common/store-product-list/StoreProduc
 import vTagPicker from '../../common/TagPicker.vue';
 import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
 import bus from '../../common/bus';
+import commUtil from '../../../utils/commUtil';
 
 export default {
     name: 'goods-creat',
@@ -1143,8 +1144,8 @@ export default {
                     }
                     for (let i = 0; i < params.sku_list.length; i++) {
                         const skuItem = params.sku_list[i];
-                        skuItem.min_price = skuItem.min_price * 100;
-                        skuItem.display_price = skuItem.display_price * 100;
+                        skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price),100);
+                        skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price),100);
                         skuItem.attr_list = [];
                         for (let j = 0; j < this.basicChecked.length; j++) {
                             const checkId = this.basicChecked[j];
