@@ -193,12 +193,13 @@
                         style="width:237px"
                         filterable
                         remote
-                        placeholder="请输入关键词"
+                        placeholder="请输入手机搜索"
                         :loading="loadingSelect"
                         :remote-method="queryUserList"
                     >
                         <el-option v-for="item in userList" :key="item.user_id" :label="item.nick_name" :value="item.user_id"> </el-option>
                     </el-select>
+
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_id, 'shop_admin_id')">保 存</el-button>
                 </el-form-item>
             </el-form>
