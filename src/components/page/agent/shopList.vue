@@ -187,7 +187,7 @@
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="绑定代理" prop="shop_domain">
-                    <el-select class="dialog-item" v-model="formOrder.agent_id" style="width:252px" placeholder="请选择">
+                    <el-select class="dialog-item" v-model="formOrder.agent_id" style="width:252px" placeholder="请选择" filterable>
                         <el-option v-for="item in agentList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.agent_id, 'agent_id')">保 存</el-button>
