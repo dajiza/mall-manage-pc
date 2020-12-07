@@ -17,3 +17,6 @@ export const creatShop = params => post('/backend/shop-create', params);
 
 // 店铺更新
 export const updateShop = params => post('/backend/shop-update', params);
+
+// 模糊搜索用户
+export const queryUserList = params => post('/backend/user-search', params);

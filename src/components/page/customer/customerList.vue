@@ -63,13 +63,13 @@
             <el-table-column label="首次登录时间" width="200"
                 >>
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.first_login_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
+                    <span>{{ $moment(scope.row.first_login_time).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="上次登录时间" width="200"
                 >>
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.last_login_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
+                    <span>{{ $moment(scope.row.last_login_time).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
         </el-table>
