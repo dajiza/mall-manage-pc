@@ -171,24 +171,33 @@
                         >保 存</el-button
                     >
                 </el-form-item>
-                <el-form-item label="允许单人未付款sku数" prop="shop_domain">
+                <el-form-item label="允许单人未付款sku数">
                     <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_sku_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_sku_count, 'bad_sku_count')">保 存</el-button>
                 </el-form-item>
-                <el-form-item label="允许单人未付款订单数" prop="shop_domain">
+                <el-form-item label="允许单人未付款订单数">
                     <el-input class="dialog-item" placeholder="请输入" style="width:144px" v-model.number="formOrder.bad_order_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_order_count, 'bad_order_count')">保 存</el-button>
                 </el-form-item>
-                <el-form-item label="允许单人未付款商品总数" prop="shop_domain">
+                <el-form-item label="允许单人未付款商品总数">
                     <el-input class="dialog-item" placeholder="请输入" style="width:130px" v-model.number="formOrder.bad_num_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
                 </el-form-item>
-                <el-form-item label="绑定代理" prop="shop_domain">
-                    <el-select class="dialog-item" v-model="formOrder.agent_id" style="width:252px" placeholder="请选择" filterable>
-                        <el-option v-for="item in agentList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                <el-form-item label="绑定管理员">
+                    <el-select
+                        class="dialog-item"
+                        v-model="formOrder.shop_admin_id"
+                        style="width:237px"
+                        filterable
+                        remote
+                        placeholder="请输入关键词"
+                        :loading="loadingSelect"
+                        :remote-method="queryUserList"
+                    >
+                        <el-option v-for="item in userList" :key="item.user_id" :label="item.nick_name" :value="item.user_id"> </el-option>
                     </el-select>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.agent_id, 'agent_id')">保 存</el-button>
                 </el-form-item>
@@ -226,7 +235,7 @@
     </div>
 </template>
 <script>
-import { queryShopListPage, queryAgentListAll, creatShop, updateShop } from '@/api/agent';
+import { queryShopListPage, queryAgentListAll, creatShop, updateShop, queryUserList } from '@/api/agent';
 import { queryShopList } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
 import { getToken } from '@/utils/auth';
@@ -240,8 +249,11 @@ export default {
             list: null,
             total: 0,
             listLoading: false,
+            loadingSelect: false,
             shopList: [],
             agentList: [],
+            userList: [],
+            shopIdSelected: '', //选中的店铺id
             listQuery: {
                 page: 1,
                 limit: 10
@@ -266,10 +278,10 @@ export default {
             dialogVisibleCreat: false,
             creatRules: {
                 name: [
-                    { required: true, message: '请输入名称', trigger: 'blur' },
-                    { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+                    { required: true, message: '请输入名称', trigger: 'change' },
+                    { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'change' }
                 ],
-                agent_id: [{ required: true, message: '请选择代理', trigger: 'blur' }]
+                agent_id: [{ required: true, message: '请选择代理', trigger: 'change' }]
             },
             isCreat: true,
             filePic: '',
@@ -281,21 +293,22 @@ export default {
 
             dialogVisibleConfig: false,
             configRules: {
-                status: [{ required: true, message: '请选择状态', trigger: 'blur' }],
+                status: [{ required: true, message: '请选择状态', trigger: 'change' }],
                 shop_domain: [
-                    { required: true, message: '请输入内容', trigger: 'blur' },
-                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'blur' }
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'change' }
                 ],
                 app_id: [
-                    { required: true, message: '请输入内容', trigger: 'blur' },
-                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'blur' }
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'change' }
                 ],
                 app_secret: [
-                    { required: true, message: '请输入内容', trigger: 'blur' },
-                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'blur' }
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    { min: 1, max: 200, message: '请输入正确数据', trigger: 'change' }
                 ]
             },
             formConfig: {
+                status: '',
                 name: '', //max=50
                 agent_id: '', //代理商id
                 shop_icon: '' //店铺icon max=255
@@ -307,8 +320,8 @@ export default {
             formCommission: {},
             dialogVisibleCommission: false,
             commissionRules: {
-                basic_rate: [{ required: true, message: '请输入内容', trigger: 'blur' }],
-                additional_rate: [{ required: true, message: '请输入内容', trigger: 'blur' }]
+                basic_rate: [{ required: true, message: '请输入内容', trigger: 'change' }],
+                additional_rate: [{ required: true, message: '请输入内容', trigger: 'change' }]
             },
             uploadImgUrl: '',
             dialogTitle: '新增店铺'
@@ -362,6 +375,25 @@ export default {
                     console.log('输出 ~ this.agentList', this.agentList);
                 })
                 .catch(err => {});
+        },
+        // 用户列表
+        queryUserList(e) {
+            if (e == '') {
+                return;
+            }
+            this.loadingSelect = true;
+            let params = {
+                phone: e,
+                shop_id: Number(this.shopIdSelected)
+            };
+            queryUserList(params)
+                .then(res => {
+                    this.userList = res.data;
+                    this.loadingSelect = false;
+                })
+                .catch(err => {
+                    this.loadingSelect = false;
+                });
         },
         // 更新状态
         updateAgentStatus(id, status) {
@@ -558,7 +590,7 @@ export default {
         editShop(row) {
             console.log('输出 ~ row', row);
             this.dialogTitle = '编辑店铺';
-            this.formCreat = row;
+            this.formCreat = _.cloneDeep(row);
             this.filePic = this.formCreat.shop_icon;
             this.isCreat = false;
             this.dialogVisibleCreat = true;
@@ -574,7 +606,7 @@ export default {
             this.dialogVisibleCreat = false;
         },
         updateConfig(row) {
-            this.formConfig = row;
+            this.formConfig = _.cloneDeep(row);
             this.dialogVisibleConfig = true;
         },
 
@@ -613,7 +645,7 @@ export default {
 
         handleCloseConfig() {
             this.formConfig = {
-                status: 1,
+                status: '',
                 shop_domain: '',
                 app_id: '',
                 app_secret: ''
@@ -656,8 +688,12 @@ export default {
                 }
             });
         },
-        updateOrder(row) {
-            this.formOrder = row;
+        async updateOrder(row) {
+            console.log('输出 ~ row', row);
+            row.shop_admin_id = row.shop_admin_id == 0 ? '' : row.shop_admin_id;
+            this.shopIdSelected = row.id;
+            await this.queryUserList(row.shop_admin_phone);
+            this.formOrder = _.cloneDeep(row);
             this.formOrderSubmit = _.cloneDeep(row);
             this.formOrder['order_timeout'] = row['order_timeout'] / 60;
             this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60;
@@ -666,11 +702,12 @@ export default {
         handleCloseOrder(row) {
             this.formOrder = {};
             this.dialogVisibleOrder = false;
+            this.userList = [];
             this.getList();
         },
 
         submitCommission() {
-            this.$refs['formConfig'].validate(valid => {
+            this.$refs['formCommission'].validate(valid => {
                 if (valid) {
                     this.formCommission.basic_rate = Number(this.formCommission.basic_rate);
                     this.formCommission.additional_rate = Number(this.formCommission.additional_rate);
@@ -704,7 +741,7 @@ export default {
             });
         },
         updateCommission(row) {
-            this.formCommission = row;
+            this.formCommission = _.cloneDeep(row);
             this.dialogVisibleCommission = true;
         },
         handleCloseCommission(row) {
