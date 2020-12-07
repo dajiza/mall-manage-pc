@@ -199,7 +199,7 @@
                     >
                         <el-option v-for="item in userList" :key="item.user_id" :label="item.nick_name" :value="item.user_id"> </el-option>
                     </el-select>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.agent_id, 'agent_id')">保 存</el-button>
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_id, 'shop_admin_id')">保 存</el-button>
                 </el-form-item>
             </el-form>
             <!-- <span slot="footer" class="dialog-footer">
