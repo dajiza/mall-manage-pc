@@ -219,7 +219,7 @@
             </el-pagination>
         </div>
         <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商">
-            <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width:280px" multiple>
+            <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width: 280px" multiple>
                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
             </el-select>
             <span slot="footer" class="dialog-footer">

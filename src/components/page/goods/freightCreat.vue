@@ -442,9 +442,9 @@ export default {
                             const element = params.detail[i];
                             element.is_default = Number(element.is_default);
                             element.first_num = Number(element.first_num);
-                            element.first_money = commUtil.numberMul(Number(element.first_money),100);
+                            element.first_money = commUtil.numberMul(Number(element.first_money), 100);
                             element.continue_num = Number(element.continue_num);
-                            element.continue_money = commUtil.numberMul(Number(element.continue_money),100);
+                            element.continue_money = commUtil.numberMul(Number(element.continue_money), 100);
                             if (i == 0) {
                                 continue;
                             }
@@ -481,7 +481,7 @@ export default {
                                     }
                                     element.type = Number(element.type);
                                     if (element.type == 2) {
-                                        element.num = commUtil.numberMul(Number(element.num),100);
+                                        element.num = commUtil.numberMul(Number(element.num), 100);
                                     }
                                 }
                             }
