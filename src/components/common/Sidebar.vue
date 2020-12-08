@@ -50,10 +50,10 @@ export default {
                             name: 'mall-backend-goods-list',
                             display_name: '商品列表'
                         },
-                        {
-                            name: 'mall-backend-other-category',
-                            display_name: '其它商品分类'
-                        },
+                        // {
+                        //     name: 'mall-backend-other-category',
+                        //     display_name: '其它商品分类'
+                        // },
                         {
                             name: 'mall-backend-goodsLabel',
                             display_name: '商品标签'
