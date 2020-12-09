@@ -164,12 +164,17 @@
                     <span class="order-unit">分</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
                 </el-form-item>
+                <!-- <el-form-item label="发货后自动收货时间" prop="shop_domain">
+                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_timeout"></el-input>
+                    <span class="order-unit">分</span>
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
+                </el-form-item> -->
                 <el-form-item label="收货后允许售后时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
                     <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')"
-                        >保 存</el-button
-                    >
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')">
+                        保 存
+                    </el-button>
                 </el-form-item>
                 <el-form-item label="允许单人未付款sku数">
                     <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_sku_count"></el-input>
