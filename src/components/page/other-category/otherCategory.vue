@@ -194,6 +194,7 @@ export default {
         handleCreateAuthority() {
             this.formTitle = '新增分类';
             this.imageUrl = '';
+            this.completeImageUrl = '';
             this.editVisible = true;
             this.$nextTick(() => {
                 let new_obj = {};
@@ -383,6 +384,7 @@ export default {
         },
         handleRemove(file, fileList) {
             this.imageUrl = '';
+            this.completeImageUrl = '';
         },
 
         // 按钮-分页导航
