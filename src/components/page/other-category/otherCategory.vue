@@ -1,55 +1,65 @@
 <template>
     <div class="product-category-page container-wrap">
         <div class="container container-table-no-search p-t-0">
-            <div class="global-table-title">
-                <div class="title">
+            <div class="tab">
+                <el-tabs v-model="type" tab-position="left" class="tabs" @tab-click="handleTabClick">
+                    <el-tab-pane label="其他商品分类" name="1"></el-tab-pane>
+                    <el-tab-pane label="成品布分类" name="2"></el-tab-pane>
+                </el-tabs>
+            </div>
+            <div class="content">
+                <div class="global-table-title">
+                    <!-- <div class="title">
                     <i></i>
                     <span>其他商品分类</span>
+                </div> -->
+                    <el-button class="add-btn" type="primary" v-hasPermission="'mall-backend-other-category-create'" @click="handleCreateAuthority">
+                        新增分类
+                    </el-button>
                 </div>
-                <el-button type="primary" v-hasPermission="'mall-backend-other-category-create'" @click="handleCreateAuthority">新增分类</el-button>
-            </div>
-            <el-table :data="tableData" style="width: 100%">
-                <el-table-column label="图片" width="140">
-                    <template slot-scope="scope">
-                        <img class="product-img" :src="getImg(scope.row.category_img)" alt="" @click="viewBigImg(scope.row.category_img)" />
+                <el-table :data="tableData" style="width: 100%">
+                    <el-table-column label="图片" width="140">
+                        <template slot-scope="scope">
+                            <img class="product-img" :src="getImg(scope.row.category_img)" alt="" @click="viewBigImg(scope.row.category_img)" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="分类名称" prop="display_name">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="160" align="left">
+                        <template slot-scope="scope">
+                            <el-button
+                                type="text"
+                                class="marginRight32 m-l-0"
+                                v-hasPermission="'mall-backend-other-category-update'"
+                                @click="handleEdit(scope.$index, scope.row)"
+                                >编辑</el-button
+                            >
+                            <el-button
+                                type="text"
+                                class="delete-color m-l-0"
+                                v-hasPermission="'mall-backend-other-category-delete'"
+                                @click="handleDelete(scope.$index, scope.row)"
+                                >删除</el-button
+                            >
+                        </template>
+                    </el-table-column>
+                    <template slot="empty">
+                        <EmptyList></EmptyList>
                     </template>
-                </el-table-column>
-                <el-table-column label="分类名称" prop="display_name">
-                    <template slot-scope="scope">
-                        <span>{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" width="160" align="left">
-                    <template slot-scope="scope">
-                        <el-button
-                            type="text"
-                            class="marginRight32 m-l-0"
-                            v-hasPermission="'mall-backend-other-category-update'"
-                            @click="handleEdit(scope.$index, scope.row)"
-                            >编辑</el-button
-                        >
-                        <el-button
-                            type="text"
-                            class="delete-color m-l-0"
-                            v-hasPermission="'mall-backend-other-category-delete'"
-                            @click="handleDelete(scope.$index, scope.row)"
-                            >删除</el-button
-                        >
-                    </template>
-                </el-table-column>
-                <template slot="empty">
-                    <EmptyList></EmptyList>
-                </template>
-            </el-table>
-            <div class="pagination pos-relative">
-                <el-pagination
-                    background
-                    layout="total, prev, pager, next"
-                    :current-page="pageIndex"
-                    :page-size="pageLimit"
-                    :total="pageTotal"
-                    @current-change="handlePageChange"
-                ></el-pagination>
+                </el-table>
+                <div class="pagination pos-relative">
+                    <el-pagination
+                        background
+                        layout="total, prev, pager, next"
+                        :current-page="pageIndex"
+                        :page-size="pageLimit"
+                        :total="pageTotal"
+                        @current-change="handlePageChange"
+                    ></el-pagination>
+                </div>
             </div>
         </div>
 
@@ -109,6 +119,7 @@ export default {
     name: 'otherCategory',
     data() {
         return {
+            type: '1', //1 其他 2 成品布
             pageIndex: 1,
             pageLimit: 10,
             pageTotal: 0,
@@ -166,7 +177,8 @@ export default {
         getData() {
             let params = {
                 page: this.pageIndex,
-                limit: this.pageLimit
+                limit: this.pageLimit,
+                type: Number(this.type) //1 其他 2 成品布
             };
             const rLoading = this.openLoading();
             queryCategoryList(params).then(res => {
@@ -189,10 +201,13 @@ export default {
                 }
             });
         },
-
+        handleTabClick(tab, event) {
+            console.log(tab, event);
+            this.getData();
+        },
         // 按钮-新增分类
         handleCreateAuthority() {
-            this.formTitle = '新增分类';
+            this.formTitle = this.type == 1 ? '新增分类-其他' : '新增分类-成品布';
             this.imageUrl = '';
             this.completeImageUrl = '';
             this.editVisible = true;
@@ -251,7 +266,8 @@ export default {
                     } else {
                         request['name'] = this.form.name;
                         request['category_img'] = this.completeImageUrl;
-                        if (this.formTitle === '新增分类') {
+                        request['type'] = Number(this.type);
+                        if (this.formTitle !== '编辑分类') {
                             this.categoryAdd(request);
                         } else {
                             request['id'] = this.current_id;

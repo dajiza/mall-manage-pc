@@ -52,7 +52,7 @@ export default {
                         },
                         {
                             name: 'mall-backend-other-category',
-                            display_name: '其它商品分类'
+                            display_name: '商品分类'
                         },
                         {
                             name: 'mall-backend-goodsLabel',

@@ -186,7 +186,7 @@ export default {
                 category_id: '', //产品分类
                 tag_ids: '', //标签
                 tag_id: '', //标签
-                type: 0, //'0布 1其他',
+                type: 0, //'0布 1其他 2成品布',
                 product_code: '',
 
                 attr_brand: '',
@@ -277,7 +277,7 @@ export default {
         getList() {
             this.listLoading = true;
             let params = this.$refs['formFilter'].model;
-            params['type'] = this.type == 1 ? 0 : 1;
+            params['type'] = this.type;
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1]);
                 // params['tag_ids'].push(params.tag_id);

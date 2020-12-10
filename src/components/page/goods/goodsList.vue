@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container">
+    <div class="app-container goods-list">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
@@ -149,7 +149,7 @@
                     <span>{{ scope.row.type == 1 ? '布料' : '其他' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="">
+            <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
                     <div class="status">
                         <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
@@ -180,6 +180,11 @@
                                 <span>{{ formatMoney(scope.row.display_price) }}</span>
                             </template>
                         </el-table-column>
+                        <el-table-column label="实际销量" width="100">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.real_sales }}</span>
+                            </template>
+                        </el-table-column>
                         <el-table-column label="总库存" width="100">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_total }}</span>
@@ -200,8 +205,10 @@
                 </template>
             </el-table-column>
 
+            <!-- 被合并列 占位 -->
             <el-table-column label="SKU名称" width="200"> </el-table-column>
             <el-table-column label="售价(元)" width="100"> </el-table-column>
+            <el-table-column label="实际销量" width="100"> </el-table-column>
             <el-table-column label="总库存" width="100"> </el-table-column>
             <el-table-column label="可用库存" width="100"> </el-table-column>
             <el-table-column label="库存预警" width="100"> </el-table-column>
@@ -300,7 +307,7 @@ export default {
         // 合并单元格
         arraySpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 9) {
-                return [1, 6];
+                return [1, 7];
             }
             if (columnIndex > 9) {
                 return [0, 0];
@@ -585,14 +592,7 @@ export default {
         margin-left: 0;
     }
 }
-.sku-column {
-    .cell {
-        padding: 0;
-    }
-    & /deep/ .cell {
-        padding: 0;
-    }
-}
+
 .operate {
     display: flex;
     padding: 14px 24px;

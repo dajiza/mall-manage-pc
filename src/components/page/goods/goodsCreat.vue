@@ -66,12 +66,12 @@
                 <el-form-item label="名称" prop="title">
                     <el-input style="width:280px" placeholder="名称" v-model="goods.title"></el-input>
                 </el-form-item>
-                <el-form-item label="分类" v-if="goods.type == 1">
+                <el-form-item label="分类" v-if="goods.type == 0">
                     <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="分类" prop="category_id" v-if="goods.type == 2">
+                <el-form-item label="分类" prop="category_id" v-if="goods.type == 1 || goods.type == 2">
                     <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择">
                         <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
@@ -104,7 +104,7 @@
             <div class="content">
                 <el-form-item label="">
                     <el-checkbox-group v-model="basicChecked">
-                        <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id" v-if="item.id != 4">
+                        <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id">
                             {{ item.title }}
                         </el-checkbox>
                     </el-checkbox-group>
@@ -207,12 +207,12 @@
                             <span>{{ scope.row.attr_brand }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type == 1">
+                    <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type == 0">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_color }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[3]" width="" property="3" v-if="goods.type == 1">
+                    <el-table-column :label="ATTR_NAME[3]" width="" property="3" v-if="goods.type == 0">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_origin }}</span>
                         </template>
@@ -222,7 +222,7 @@
                             <span>{{ scope.row.attr_unit }}</span>
                         </template>
                     </el-table-column> -->
-                    <el-table-column :label="ATTR_NAME[5]" width="" property="5" v-if="goods.type == 1">
+                    <el-table-column :label="ATTR_NAME[5]" width="" property="5" v-if="goods.type == 0">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_material }}</span>
                         </template>
@@ -314,8 +314,9 @@
             title="商品类型选择"
         >
             <div class="dialog-type">
-                <el-radio v-model="goods.type" :label="1">布料</el-radio>
-                <el-radio v-model="goods.type" :label="2">其他</el-radio>
+                <el-radio v-model="goods.type" :label="0">布料</el-radio>
+                <el-radio v-model="goods.type" :label="1">其他</el-radio>
+                <el-radio v-model="goods.type" :label="2">成品布</el-radio>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="gotoCreat">返 回</el-button>
@@ -398,8 +399,9 @@ export default {
             categoryData: [], // 分类下拉数据
             // 分类 0 布料  否则为其他的商品分类
             typeList: [
-                { value: 1, label: '布料' },
-                { value: 2, label: '其他' }
+                { value: 0, label: '布料' },
+                { value: 1, label: '其他' },
+                { value: 2, label: '成品布' }
             ],
             freightList: [], //运费模板列表
             shopList: [
@@ -430,7 +432,7 @@ export default {
                     //     sort: 124
                     // }
                 ],
-                type: 1, //'类型：1布；2其他',
+                type: 0, //'类型：0布；1其他; 2成品布',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
                 category_id: '', //'分类 0 布料  否则为其他的商品分类'
@@ -550,7 +552,7 @@ export default {
                 queryFreightList(),
                 queryAttrList(),
                 queryShopList(),
-                queryCategoryListAll()
+                queryCategoryListAll({ type: this.goods.type })
             ])
                 .then(res => {
                     let options = {};
@@ -570,10 +572,19 @@ export default {
                     }
                     if (res[3].code === 200) {
                         this.basicAttr = res[3].data.consume_attr_basic_attr;
+                        console.log('输出 ~ basicAttr', res[3].data.consume_attr_basic_attr);
                         // 其他只显示品牌 单位两个属性
-                        if (this.goods.type == 2) {
+                        if (this.goods.type == 0) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1 || item.id == 4;
+                                return item.id <= 6 && item.id != 4;
+                            });
+                        } else if (this.goods.type == 1) {
+                            this.basicAttr = this.basicAttr.filter(item => {
+                                return item.id == 1;
+                            });
+                        } else if (this.goods.type == 2) {
+                            this.basicAttr = this.basicAttr.filter(item => {
+                                return item.id == 1 || item.id == 7;
                             });
                         }
                         this.consumeAttr = res[3].data.consume_attr;
