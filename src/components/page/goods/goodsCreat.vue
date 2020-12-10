@@ -207,12 +207,12 @@
                             <span>{{ scope.row.attr_brand }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type == 0">
+                    <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type != 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_color }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[3]" width="" property="3" v-if="goods.type == 0">
+                    <el-table-column :label="ATTR_NAME[3]" width="" property="3" v-if="goods.type != 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_origin }}</span>
                         </template>
@@ -222,16 +222,31 @@
                             <span>{{ scope.row.attr_unit }}</span>
                         </template>
                     </el-table-column> -->
-                    <el-table-column :label="ATTR_NAME[5]" width="" property="5" v-if="goods.type == 0">
+                    <el-table-column :label="ATTR_NAME[5]" width="" property="5" v-if="goods.type != 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_material }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="ATTR_NAME[6]" width="" property="6">
+                    <el-table-column :label="ATTR_NAME[6]" width="" property="6" v-if="goods.type != 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_pattern }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column :label="ATTR_NAME[7]" width="" property="7" v-if="goods.type == 2">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_size }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column :label="ATTR_NAME[8]" width="" property="8" v-if="goods.type == 2">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_width }}</span>
+                        </template>
+                    </el-table-column>
+                    <!-- <el-table-column :label="ATTR_NAME[9]" width="" property="9" v-if="goods.type == 2">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_piece }}</span>
+                        </template>
+                    </el-table-column> -->
 
                     <!-- <el-table-column label="分类" width="">
                         <template slot-scope="scope">

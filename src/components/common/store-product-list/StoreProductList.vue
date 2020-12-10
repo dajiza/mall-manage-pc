@@ -24,18 +24,28 @@
                             <el-option v-for="item in brandData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="材质" prop="attr_material" v-if="type == 1">
+                    <el-form-item label="材质" prop="attr_material" v-if="type == 0">
                         <el-select class="filter-item" v-model="formFilter.attr_material" placeholder="请选择">
                             <el-option v-for="item in materialData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="产地" prop="attr_origin" v-if="type == 1">
+                    <el-form-item label="产地" prop="attr_origin" v-if="type == 0">
                         <el-select class="filter-item" v-model="formFilter.attr_origin" placeholder="请选择">
                             <el-option v-for="item in placeOfOriginData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="颜色" prop="attr_color" v-if="type == 1">
+                    <el-form-item label="颜色" prop="attr_color" v-if="type == 0">
                         <el-select class="filter-item" v-model="formFilter.attr_color" placeholder="请选择">
+                            <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="尺寸" prop="attr_size" v-if="type == 2">
+                        <el-select class="filter-item" v-model="formFilter.attr_size" placeholder="请选择">
+                            <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="片数" prop="attr_piece" v-if="type == 2">
+                        <el-select class="filter-item" v-model="formFilter.attr_piece" placeholder="请选择">
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -80,29 +90,39 @@
                         <span>{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="品牌">
+                <el-table-column label="品牌" width="120">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_brand_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="产地" v-if="type == 1">
+                <el-table-column label="产地" v-if="type == 0">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_origin_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="材质" v-if="type == 1">
+                <el-table-column label="材质" v-if="type == 0">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_material_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="颜色" v-if="type == 1">
+                <el-table-column label="颜色" v-if="type == 0">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_color_name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="花纹" v-if="type == 1">
+                <el-table-column label="花纹" v-if="type == 0">
                     <template slot-scope="scope">
                         <span>{{ scope.row.attr_pattern_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="尺寸" v-if="type == 2">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.attr_size_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="片数" v-if="type == 2">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.attr_piece }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="分类">
@@ -195,6 +215,8 @@ export default {
                 attr_origin: '',
                 attr_unit: '',
                 attr_pattern: '',
+                attr_size: '',
+                attr_piece: '',
                 ids: []
             },
 

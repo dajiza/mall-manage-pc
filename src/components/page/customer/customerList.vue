@@ -14,7 +14,7 @@
                 <el-form-item label="客户手机号" prop="phone">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.phone"></el-input>
                 </el-form-item>
-                <el-form-item class="interval" label="累计消费" prop="consumption_min">
+                <el-form-item class="interval" label="累计消费">
                     <el-input class="filter-item" placeholder="累计下限" v-model="formFilter.consumption_min"></el-input>
                     <div class="separator">-</div>
                     <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
@@ -158,6 +158,8 @@ export default {
         resetForm(formName) {
             console.log(this.$refs[formName].model);
             this.$refs[formName].resetFields();
+            this.formFilter.consumption_min = '';
+            this.formFilter.consumption_max = '';
             this.handleFilter();
         },
         // 分页方法
