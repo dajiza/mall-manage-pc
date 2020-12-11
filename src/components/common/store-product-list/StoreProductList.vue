@@ -374,7 +374,7 @@ export default {
                     getAllAttrList({ type: 1, category: that.type == 1 ? 2 : 1 }),
                     getAllAttrList({ type: 2, category: 0 }),
                     getAllAttrList({ type: 3, category: 0 }),
-                    getAllAttrList({ type: 5, category: 0 }),
+                    getAllAttrList({ type: 5, category: 1 }),
                     getAllAttrList({ type: 7, category: 3 }),
                     getAllAttrList({ type: 9, category: 3 }),
                     queryTagListAll({
