@@ -13,7 +13,7 @@
                             class="filter-item"
                             v-model="formFilter.tag_id"
                             placeholder="请选择"
-                            :options="labelOptions"
+                            :options="categoryData"
                             :show-all-levels="false"
                             :props="{ multiple: true, label: 'name', value: 'id' }"
                             filterable
@@ -39,16 +39,14 @@
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="尺寸" prop="attr_size" v-if="type == 2">
+                    <!-- <el-form-item label="尺寸" prop="attr_size" v-if="type == 2">
                         <el-select class="filter-item" v-model="formFilter.attr_size" placeholder="请选择">
-                            <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                            <el-option v-for="item in sizeData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="片数" prop="attr_piece" v-if="type == 2">
-                        <el-select class="filter-item" v-model="formFilter.attr_piece" placeholder="请选择">
-                            <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                        </el-select>
-                    </el-form-item>
+                        <el-input class="filter-item" placeholder="输入内容" v-model.number="formFilter.attr_piece"></el-input>
+                    </el-form-item> -->
                     <el-form-item class="form-item-btn" label="" style="margin-left:0">
                         <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                         <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -125,6 +123,11 @@
                         <span>{{ scope.row.attr_piece }}</span>
                     </template>
                 </el-table-column>
+                <!-- <el-table-column label="幅宽" v-if="type == 3">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.attr_width_name }}</span>
+                    </template>
+                </el-table-column> -->
                 <el-table-column label="分类">
                     <template slot-scope="scope">
                         <span>{{ scope.row.category_name }}</span>
@@ -175,7 +178,7 @@
 </template>
 
 <script>
-import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail } from '@/api/goods';
+import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll } from '@/api/goods';
 
 export default {
     name: 'CheckList',
@@ -206,7 +209,7 @@ export default {
                 category_id: '', //产品分类
                 tag_ids: '', //标签
                 tag_id: '', //标签
-                type: 0, //'0布 1其他 2成品布',
+                type: 0, //仓库 '0布 1其他 2成品布',
                 product_code: '',
 
                 attr_brand: '',
@@ -234,7 +237,11 @@ export default {
             labelOptions: [], // 标签下拉列表
             labelCloth: [], // 标签(布)列表
             labelOther: [], // 标签(其它)列表
-            labelAll: [] // 标签(布和其它)列表
+            labelAll: [], // 标签(布和其它)列表
+            sizeData: [], // 成品布尺寸列表
+            pieceData: [], // 片数列表
+            originalCateData: [], //分类
+            categoryData: [] //分类
         };
     },
     created() {},
@@ -250,6 +257,7 @@ export default {
         opened() {
             this.getAllAttr();
             this.getList();
+
             this.$refs.multipleTable.clearSelection();
             let list = this.checkedSku.map(item => {
                 return {
@@ -299,7 +307,7 @@ export default {
         getList() {
             this.listLoading = true;
             let params = this.$refs['formFilter'].model;
-            params['type'] = this.type;
+
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1]);
                 // params['tag_ids'].push(params.tag_id);
@@ -307,6 +315,7 @@ export default {
                 params['tag_ids'] = [];
             }
 
+            params['type'] = this.type;
             params['limit'] = this.listQuery.limit;
             params['page'] = this.listQuery.page;
             queryProduceList(params)
@@ -353,22 +362,29 @@ export default {
             };
 
             const rLoading = that.openLoading();
+
             // 获取 产品分类、产品标签（布）、产品标签（其它）
             this.$ajax
                 .all([
                     // getCategoryList({}),
                     getLabelAllList(labelClothParams),
                     getLabelAllList(labelOtherParams),
-                    getAllAttrList({ type: 1, category: 1 }),
-                    getAllAttrList({ type: 2 }),
-                    getAllAttrList({ type: 3 }),
-                    getAllAttrList({ type: 5, category: 1 }),
-                    getAllAttrList({ type: 5, category: 2 }),
-                    getAllAttrList({ type: 1, category: 2 }),
-                    getAllAttrList({ type: 6 })
+                    // '类型 1品牌 2颜色 3产地 4单位 5材质 6花纹 7 成品布尺寸 8 幅宽
+                    //'种类 1布料 2其他 3 成品布料
+                    getAllAttrList({ type: 1, category: that.type == 1 ? 2 : 1 }),
+                    getAllAttrList({ type: 2, category: 0 }),
+                    getAllAttrList({ type: 3, category: 0 }),
+                    getAllAttrList({ type: 5, category: 0 }),
+                    getAllAttrList({ type: 7, category: 3 }),
+                    getAllAttrList({ type: 9, category: 3 }),
+                    queryTagListAll({
+                        name: '-1', //-1 搜索全部
+                        category_id: -1, //-1 搜索全部
+                        type: that.type == 1 ? 1 : 0 //0布料 1其他
+                    })
                 ])
                 .then(
-                    that.$ajax.spread(function(res2, res3, res4, res5, res6, res7, res8, res9, res10) {
+                    that.$ajax.spread(function(resLabel1, resLabel2, res1, res2, res3, res5, res7, res9, resCate) {
                         let label_cloth = [];
                         let label_other = [];
                         let err_arr = [];
@@ -382,98 +398,123 @@ export default {
                         //     }
                         //     // that.$notify({ title: res1.msg, message: '', type: 'error', duration: 3000 });
                         // }
-                        if (res2.code === 200) {
+                        if (resLabel1.code === 200) {
                             // 产品标签（布）
-                            label_cloth = res2.data || [];
+                            label_cloth = resLabel1.data || [];
                             that.labelCloth = that.handlerData(label_cloth);
+                        } else {
+                            if (resLabel1.code === -1 && resLabel1.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resLabel1.code);
+                            }
+                            // that.$notify({ title: res2.msg, message: '', type: 'error', duration: 3000 });
+                        }
+                        if (resLabel2.code === 200) {
+                            // 产品标签（其它）
+                            label_other = resLabel2.data || [];
+                            that.labelOther = that.handlerData(label_other);
+                        } else {
+                            if (resLabel2.code === -1 && resLabel2.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resLabel2.code);
+                            }
+                            // that.$notify({ title: res3.msg, message: '', type: 'error', duration: 3000 });
+                        }
+                        if (res1.code === 200) {
+                            // 品牌(布)
+                            that.brandData = res1.data || [];
+                        } else {
+                            if (res1.code === -1 && res1.msg.indexOf('无权限') > -1) {
+                                err_arr.push(res1.code);
+                            }
+                            // that.$notify({ title: res4.msg, message: '', type: 'error', duration: 5000 });
+                        }
+                        if (res2.code === 200) {
+                            // 颜色
+                            that.colorData = res2.data || [];
                         } else {
                             if (res2.code === -1 && res2.msg.indexOf('无权限') > -1) {
                                 err_arr.push(res2.code);
                             }
-                            // that.$notify({ title: res2.msg, message: '', type: 'error', duration: 3000 });
+                            // that.$notify({ title: res5.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (res3.code === 200) {
-                            // 产品标签（其它）
-                            label_other = res3.data || [];
-                            that.labelOther = that.handlerData(label_other);
+                            // 产地
+                            that.placeOfOriginData = res3.data || [];
                         } else {
                             if (res3.code === -1 && res3.msg.indexOf('无权限') > -1) {
                                 err_arr.push(res3.code);
                             }
-                            // that.$notify({ title: res3.msg, message: '', type: 'error', duration: 3000 });
-                        }
-                        if (res4.code === 200) {
-                            // 品牌(布)
-                            that.brandDataCloth = res4.data || [];
-                        } else {
-                            if (res4.code === -1 && res4.msg.indexOf('无权限') > -1) {
-                                err_arr.push(res4.code);
-                            }
-                            // that.$notify({ title: res4.msg, message: '', type: 'error', duration: 5000 });
+                            // that.$notify({ title: res6.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (res5.code === 200) {
-                            // 颜色
-                            that.colorData = res5.data || [];
+                            // 材质（布）
+                            that.materialData = res5.data || [];
                         } else {
                             if (res5.code === -1 && res5.msg.indexOf('无权限') > -1) {
                                 err_arr.push(res5.code);
                             }
-                            // that.$notify({ title: res5.msg, message: '', type: 'error', duration: 5000 });
-                        }
-                        if (res6.code === 200) {
-                            // 产地
-                            that.placeOfOriginData = res6.data || [];
-                        } else {
-                            if (res6.code === -1 && res6.msg.indexOf('无权限') > -1) {
-                                err_arr.push(res6.code);
-                            }
-                            // that.$notify({ title: res6.msg, message: '', type: 'error', duration: 5000 });
+                            // that.$notify({ title: res7.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (res7.code === 200) {
-                            // 材质（布）
-                            that.materialDataCloth = res7.data || [];
+                            // 成品布尺寸
+                            that.sizeData = res7.data || [];
                         } else {
                             if (res7.code === -1 && res7.msg.indexOf('无权限') > -1) {
                                 err_arr.push(res7.code);
                             }
-                            // that.$notify({ title: res7.msg, message: '', type: 'error', duration: 5000 });
-                        }
-                        if (res8.code === 200) {
-                            // 材质（其它）
-                            that.materialDataOther = res8.data || [];
-                        } else {
-                            if (res8.code === -1 && res8.msg.indexOf('无权限') > -1) {
-                                err_arr.push(res8.code);
-                            }
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (res9.code === 200) {
-                            // 品牌(其它)
-                            that.brandDataOther = res9.data || [];
+                            // 片数
+                            that.pieceData = res9.data || [];
                         } else {
                             if (res9.code === -1 && res9.msg.indexOf('无权限') > -1) {
                                 err_arr.push(res9.code);
                             }
-                            // that.$notify({ title: res9.msg, message: '', type: 'error', duration: 5000 });
+                            // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
-                        if (res10.code === 200) {
-                            // 花纹
-                            that.patternData = res10.data || [];
+                        if (resCate.code === 200) {
+                            console.log('输出 ~ resCate', resCate);
+                            // that.originalCateData = resCate.data;
+                            const newArr = that.processCateData(resCate.data);
+                            // that.categoryData = that.deleteNullChildren(newArr);
+                            that.categoryData = newArr;
+
+                            // 片数
+                            // that.pieceData = resCate.data || [];
                         } else {
-                            if (res10.code === -1 && res10.msg.indexOf('无权限') > -1) {
-                                err_arr.push(res10.code);
+                            if (resCate.code === -1 && resCate.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resCate.code);
                             }
+                            // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
+                        // if (res9.code === 200) {
+                        //     // 品牌(其它)
+                        //     that.brandDataOther = res9.data || [];
+                        // } else {
+                        //     if (res9.code === -1 && res9.msg.indexOf('无权限') > -1) {
+                        //         err_arr.push(res9.code);
+                        //     }
+                        //     // that.$notify({ title: res9.msg, message: '', type: 'error', duration: 5000 });
+                        // }
+                        // if (res10.code === 200) {
+                        //     // 花纹
+                        //     that.patternData = res10.data || [];
+                        // } else {
+                        //     if (res10.code === -1 && res10.msg.indexOf('无权限') > -1) {
+                        //         err_arr.push(res10.code);
+                        //     }
+                        // }
                         // patternData
                         // const label_all = label_cloth.concat(label_other);
                         // that.labelAll = that.handlerData(label_all);
-                        const label_all = label_cloth;
+                        // 商城成品布标签用布的
+                        const label_all = that.type == 1 ? label_other : label_cloth;
                         that.labelAll = that.handlerData(label_all);
-                        that.brandDataAll = that.brandDataCloth.concat(that.brandDataOther);
-                        that.materialDataAll = that.materialDataCloth.concat(that.materialDataOther);
                         that.labelOptions = that.labelAll;
-                        that.brandData = that.brandDataAll;
-                        that.materialData = that.materialDataAll;
+                        // that.brandDataAll = that.brandDataCloth.concat(that.brandDataOther);
+                        // that.materialDataAll = that.materialDataCloth.concat(that.materialDataOther);
+                        // that.brandData = that.brandDataAll;
+                        // that.materialData = that.materialDataAll;
                         rLoading.close();
 
                         // 获取产品列表
@@ -486,16 +527,57 @@ export default {
                 .catch(error => {}); //捕获异常
         },
         // 选择产品类型，根据类型取标签
-        selectType() {
-            if (this.searchForm.product_type === 0) {
-                this.labelOptions = this.labelCloth;
-                this.brandData = this.brandDataCloth; // 品牌
-                this.materialData = this.materialDataCloth; // 材质
-            } else if (this.searchForm.product_type === 1) {
-                this.labelOptions = this.labelOther;
-                this.brandData = this.brandDataOther; // 品牌
-                this.materialData = this.materialDataOther; // 材质
+        // selectType() {
+        //     if (this.searchForm.product_type === 0) {
+        //         this.labelOptions = this.labelCloth;
+        //         this.brandData = this.brandDataCloth; // 品牌
+        //         this.materialData = this.materialDataCloth; // 材质
+        //     } else if (this.searchForm.product_type === 1) {
+        //         this.labelOptions = this.labelOther;
+        //         this.brandData = this.brandDataOther; // 品牌
+        //         this.materialData = this.materialDataOther; // 材质
+        //     }
+        // },
+
+        // 格式化分类数据
+        processCateData(data) {
+            let dealOptions = [];
+            data.forEach((item, index) => {
+                let cateIndex = dealOptions.findIndex(current => current.name == item.category_name);
+                if (cateIndex == -1) {
+                    dealOptions.push({
+                        name: item.category_name,
+                        id: item.category_id,
+                        children: []
+                    });
+                    dealOptions[dealOptions.length - 1].children.push({
+                        name: item.name,
+                        id: item.id
+                    });
+                } else {
+                    dealOptions[cateIndex].children.push({
+                        name: item.name,
+                        id: item.id
+                    });
+                }
+            });
+            console.log('输出 ~ dealOptions', dealOptions);
+            return dealOptions;
+        },
+
+        // 删除 children为空的元素
+        deleteNullChildren(arr) {
+            let childs = arr;
+            for (let i = childs.length; i--; i > 0) {
+                if (childs[i].children) {
+                    if (childs[i].children.length) {
+                        this.deleteNullChildren(childs[i].children);
+                    } else {
+                        delete childs[i].children;
+                    }
+                }
             }
+            return arr;
         },
         // 格式化数据
         handlerData(arr) {
@@ -552,6 +634,9 @@ export default {
                         attr_material: item.attr_material_name,
                         attr_unit: item.attr_unit_name,
                         attr_pattern: item.attr_pattern_name,
+                        attr_size: item.attr_size_name,
+                        attr_width: item.attr_width_name,
+                        attr_piece: item.attr_piece.toString(),
                         status: item.stock_available > 0 ? 2 : 1,
                         // tag_names: item.tag_names,
                         // category_name: item.category_name,

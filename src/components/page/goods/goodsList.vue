@@ -9,9 +9,14 @@
                 <el-form-item label="商品ID" prop="id">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.id"></el-input>
                 </el-form-item>
+                <el-form-item label="商品类型" prop="type">
+                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
+                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="商品分类" prop="category_id">
-                    <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择">
-                        <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
+                        <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="商品状态" prop="status">
@@ -146,7 +151,9 @@
 
             <el-table-column label="商品分类" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.type == 1 ? '布料' : '其他' }}</span>
+                    <span v-if="scope.row.type == 1">布料</span>
+                    <span v-if="scope.row.type == 2">其他</span>
+                    <span v-if="scope.row.type == 3">成品布</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="120">
@@ -239,7 +246,7 @@
     </div>
 </template>
 <script>
-import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList } from '@/api/goods';
+import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
 import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
 
@@ -261,11 +268,14 @@ export default {
             shopIds: [],
             dialogVisibleAssign: false,
             checkedList: [], //表格选中列表
-            // 分类 0 布料  否则为其他的商品分类
-            categoryList: [
-                { value: '0', label: '布料' },
-                { value: '1', label: '其他' }
+            // 类型 1 布料 2其他 3成品布
+            typeList: [
+                { value: '1', label: '布料' },
+                { value: '2', label: '其他' },
+                { value: '3', label: '成品布' }
             ],
+            // 分类 先选择商品类型 在获取分类列表
+            categoryList: [],
             // 是否上架：1下架；2上架
             statusList: [
                 { value: '1', label: '下架' },
@@ -288,6 +298,7 @@ export default {
                 id: '',
                 title: '',
                 category_id: '',
+                type: '',
                 status: '',
                 is_store_shortage: '',
                 allow_agent: ''
@@ -323,11 +334,14 @@ export default {
         },
         getList() {
             const rLoading = this.openLoading();
-            let params = this.$refs['formFilter'].model;
+            let params = _.cloneDeep(this.$refs['formFilter'].model);
             console.log('GOOGLE: params', params);
-
             params['limit'] = this.listQuery.limit;
             params['page'] = this.listQuery.page;
+            params['category_id'] = params['category_id'].toString();
+            if (params['type'] == 1) {
+                params['category_id'] = 0;
+            }
             queryGoodsList(params)
                 .then(async res => {
                     if (res.data.lists == null) {
@@ -359,6 +373,21 @@ export default {
                 .catch(err => {
                     rLoading.close();
                 });
+        },
+        // 选择类型
+        //1 其他 2 成品布
+        onChangeType(event) {
+            let type = event == 2 ? 1 : 2;
+            this.queryCategoryListAll(type);
+            this.formFilter.category_id = '';
+        },
+        // 获取分类列表
+        queryCategoryListAll(type) {
+            queryCategoryListAll({ type: type })
+                .then(res => {
+                    this.categoryList = res.data;
+                })
+                .catch(err => {});
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
