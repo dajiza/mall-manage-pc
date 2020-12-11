@@ -222,7 +222,7 @@ export const mixinsGoods = {
                 queryFreightList(),
                 queryAttrList(),
                 queryShopList(),
-                queryCategoryListAll({ type: this.goods.type == 2 ? 2 : 1 })
+                queryCategoryListAll({ type: this.goods.type == 2 ? 1 : 2 })
             ])
                 .then(res => {
                     let options = {};
