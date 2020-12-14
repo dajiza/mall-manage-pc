@@ -1,5 +1,5 @@
 <template>
-    <div class="product-category-page container-wrap">
+    <div class="custom-attr-page container-wrap">
         <div class="container container-table-no-search p-t-0">
             <!-- <div class="global-table-title"> -->
             <!-- <div class="title">
