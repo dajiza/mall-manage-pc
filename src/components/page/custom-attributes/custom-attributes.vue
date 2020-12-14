@@ -24,7 +24,7 @@
                 </div>
             </div>
             <!-- </div> -->
-            <el-table :data="tableData" style="width: 100%">
+            <el-table :data="tableData" style="width: 100%" :height="tableHeight">
                 <el-table-column label="自定义属性名称">
                     <template slot-scope="scope">
                         <span>{{ scope.row.title }}</span>
@@ -112,7 +112,7 @@ export default {
             },
             formTitle: '',
             current_id: -1,
-            tableHeight: 'calc(100% - 62px - 26px)'
+            tableHeight: 'calc(100% - 72px - 84px)',
         };
     },
     components: {
