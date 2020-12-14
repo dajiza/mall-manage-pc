@@ -177,7 +177,7 @@ export default {
 <style scoped="scoped" lang="less">
 .timg {
     width: 80px;
-    height: 60px;
+    // height: 60px;
 }
 .type-tag {
     // display: block;

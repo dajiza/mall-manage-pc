@@ -72,7 +72,7 @@ export const mixinsGoods = {
             typeList: [
                 { value: 1, label: '布料' },
                 { value: 2, label: '其他' },
-                { value: 3, label: '成品布' }
+                { value: 3, label: '布组' }
             ],
             freightList: [], //运费模板列表
             shopList: [], //指定店铺列表

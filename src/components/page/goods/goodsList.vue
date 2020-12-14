@@ -153,7 +153,7 @@
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
                     <span v-if="scope.row.type == 2">其他</span>
-                    <span v-if="scope.row.type == 3">成品布</span>
+                    <span v-if="scope.row.type == 3">布组</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="120">
@@ -272,7 +272,7 @@ export default {
             typeList: [
                 { value: '1', label: '布料' },
                 { value: '2', label: '其他' },
-                { value: '3', label: '成品布' }
+                { value: '3', label: '布组' }
             ],
             // 分类 先选择商品类型 在获取分类列表
             categoryList: [],
@@ -609,7 +609,8 @@ export default {
 <style scoped="scoped" lang="less">
 .timg {
     width: 80px;
-    height: 60px;
+    // height: 60px;
+    max-height: 200px;
     cursor: pointer;
 }
 .opt-wrap {

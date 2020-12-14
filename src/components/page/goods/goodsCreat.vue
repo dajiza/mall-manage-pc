@@ -331,7 +331,7 @@
             <div class="dialog-type">
                 <el-radio v-model="goods.type" :label="1">布料</el-radio>
                 <el-radio v-model="goods.type" :label="2">其他</el-radio>
-                <el-radio v-model="goods.type" :label="3">成品布</el-radio>
+                <el-radio v-model="goods.type" :label="3">布组</el-radio>
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="gotoCreat">返 回</el-button>

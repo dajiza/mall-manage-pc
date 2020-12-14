@@ -4,7 +4,7 @@
             <div class="tab">
                 <el-tabs v-model="type" tab-position="left" class="tabs" @tab-click="handleTabClick">
                     <el-tab-pane label="其他商品分类" name="1"></el-tab-pane>
-                    <el-tab-pane label="成品布分类" name="2"></el-tab-pane>
+                    <el-tab-pane label="布组分类" name="2"></el-tab-pane>
                 </el-tabs>
             </div>
             <div class="content">
@@ -207,7 +207,7 @@ export default {
         },
         // 按钮-新增分类
         handleCreateAuthority() {
-            this.formTitle = this.type == 1 ? '新增分类-其他' : '新增分类-成品布';
+            this.formTitle = this.type == 1 ? '新增分类-其他' : '新增分类-布组';
             this.imageUrl = '';
             this.completeImageUrl = '';
             this.editVisible = true;
