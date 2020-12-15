@@ -6,7 +6,7 @@ import { getToken } from '@/utils/auth';
 import { ATTR, ATTR_NAME } from '@/plugin/constant';
 import storeProductList from '@/components/common/store-product-list/StoreProductList';
 import vTagPicker from '@/components/common/TagPicker.vue';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import ElImageViewer from '@/components/common/image-viewer';
 import bus from '@/components/common/bus';
 import commUtil from '@/utils/commUtil';
 
@@ -999,9 +999,16 @@ export const mixinsGoods = {
                 path: 'mall-backend-goods-list'
             });
         },
+
         confirmType() {
             this.dialogVisibleType = false;
             this.initData();
+        },
+        openPreview(img) {
+            this.previewUrlList = [];
+            this.previewUrlList.push(img);
+            this.previewIndex = 0;
+            this.dialogVisiblePic = true;
         }
     }
 };
