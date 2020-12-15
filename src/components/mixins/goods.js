@@ -103,9 +103,9 @@ export const mixinsGoods = {
                 tag_idsArray: [], //标签id数组 暂存
                 category_id: '', //'分类
                 consume_attr_ids: [], //属性ids 数量最多为3 最少为1
-                is_allow_agent: 1, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
+                is_allow_agent: 2, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
                 allow_shop_ids: [], //允许的店铺id
-                display_sales: Math.floor(Math.random() * 100) + 1, //展示的销量
+                display_sales: 0, //Math.floor(Math.random() * 100) + 1, //展示的销量
                 status: 2, //1下架；2上架
                 freight_id: '', //运费模版id
                 sku_list: [
@@ -239,6 +239,9 @@ export const mixinsGoods = {
                     this.options = options;
                     if (res[2].code === 200) {
                         this.freightList = res[2].data;
+                        if (this.goods.freight_id == '') {
+                            this.goods.freight_id = this.freightList.find(item => item.is_default == 2).id;
+                        }
                     }
                     if (res[3].code === 200) {
                         this.basicAttr = res[3].data.consume_attr_basic_attr;
@@ -254,7 +257,7 @@ export const mixinsGoods = {
                             });
                         } else if (this.goods.type == 3) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1 || item.id == 7;
+                                return item.id == 1 || item.id == 7 || item.id == 9;
                             });
                         }
                         this.consumeAttr = res[3].data.consume_attr;
@@ -475,7 +478,7 @@ export const mixinsGoods = {
                 }
             }
             this.goods.sku_list = this.goods.sku_list.concat(pList);
-            this.setTimg();
+            // this.setTimg();
         },
 
         addSku() {
@@ -491,10 +494,11 @@ export const mixinsGoods = {
             this.goods.sku_list.splice(index + 1, 1);
             this.setTimg();
         },
-        // 生成首图
+        // 生成首图 以及标题
         setTimg() {
             let firstSku = this.goods.sku_list[0];
             this.timg = [{ url: firstSku.sku_img }];
+            this.goods.title = firstSku.title;
         },
         // sku上下架
         setSkuStatus(row, status, index) {

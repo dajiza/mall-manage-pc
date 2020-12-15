@@ -158,6 +158,14 @@
                             <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
                         </template>
                     </el-table-column>
+                    <!-- 自定义属性 -->
+                    <el-table-column :label="item.title" width="120" :property="item.id.toString()" v-for="(item, index) in attrDiyList" :key="item.id">
+                        <template slot-scope="scope">
+                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.attrDiyValue.' + index" :rules="rulesRequired">
+                                <el-input class="default-input" placeholder="" v-model="scope.row.attrDiyValue[index]"></el-input>
+                            </el-form-item>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="SKU名称" width="240">
                         <template slot-scope="scope">
                             <span>{{ scope.row.title }}</span>
@@ -194,14 +202,7 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
-                    <!-- 自定义属性 -->
-                    <el-table-column :label="item.title" width="120" :property="item.id.toString()" v-for="(item, index) in attrDiyList" :key="item.id">
-                        <template slot-scope="scope">
-                            <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.attrDiyValue.' + index" :rules="rulesRequired">
-                                <el-input class="default-input" placeholder="" v-model="scope.row.attrDiyValue[index]"></el-input>
-                            </el-form-item>
-                        </template>
-                    </el-table-column>
+
                     <el-table-column :label="ATTR_NAME[1]" width="100" property="1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_brand }}</span>

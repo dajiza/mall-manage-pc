@@ -149,11 +149,15 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="商品分类" width="100">
+            <el-table-column label="商品分类" width="110">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
-                    <span v-if="scope.row.type == 2">其他</span>
-                    <span v-if="scope.row.type == 3">布组</span>
+                    <span v-if="scope.row.type == 2">
+                        其他{{ scope.row.category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.category_id).name : '' }}
+                    </span>
+                    <span v-if="scope.row.type == 3">
+                        布组{{ scope.row.category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.category_id).name : '' }}
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="120">
@@ -275,7 +279,9 @@ export default {
                 { value: '3', label: '布组' }
             ],
             // 分类 先选择商品类型 在获取分类列表
-            categoryList: [],
+            categoryList: [], //筛选列表
+            categoryListOther: [], //其他分类
+            categoryListClothGroup: [], //布组分类
             // 是否上架：1下架；2上架
             statusList: [
                 { value: '1', label: '下架' },
@@ -310,6 +316,7 @@ export default {
     },
     created() {},
     mounted() {
+        this.queryCategoryListAllInit();
         this.queryShopList();
         this.getList();
     },
@@ -383,11 +390,37 @@ export default {
         },
         // 获取分类列表
         queryCategoryListAll(type) {
-            queryCategoryListAll({ type: type })
+            if (type == 1) {
+                this.categoryList = this.categoryListOther;
+            } else {
+                this.categoryList = this.categoryListClothGroup;
+            }
+        },
+
+        queryCategoryListAllInit() {
+            const rLoading = this.openLoading();
+
+            Promise.all([
+                // type 1其他 2布组
+                queryCategoryListAll({ type: 1 }),
+                queryCategoryListAll({ type: 2 })
+            ])
                 .then(res => {
-                    this.categoryList = res.data;
+                    let options = {};
+                    if (res[0].code === 200) {
+                        if (res[0].data) {
+                            this.categoryListOther = res[0].data;
+                        }
+                    }
+                    if (res[1].code === 200) {
+                        if (res[1].data) {
+                            this.categoryListClothGroup = res[1].data;
+                        }
+                    }
+
+                    rLoading.close();
                 })
-                .catch(err => {});
+                .catch(() => {});
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
@@ -609,8 +642,8 @@ export default {
 <style scoped="scoped" lang="less">
 .timg {
     width: 80px;
-    // height: 60px;
-    max-height: 200px;
+    height: 60px;
+    // max-height: 200px;
     cursor: pointer;
 }
 .opt-wrap {
