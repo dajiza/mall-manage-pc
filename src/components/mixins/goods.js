@@ -15,6 +15,7 @@ export const mixinsGoods = {
         return {
             ATTR_NAME,
             header: {},
+            tableKey: 0,
             imgVedio: require('../../assets/img/vedio.png'),
             btnLoading: false,
             dialogVisible: false,
@@ -98,7 +99,7 @@ export const mixinsGoods = {
                     //     sort: 124
                     // }
                 ],
-                type: 1, //'类型：1布；2其他; 3成品布',
+                type: '', //'类型：1布；2其他; 3成品布',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
                 category_id: '', //'分类
@@ -178,6 +179,21 @@ export const mixinsGoods = {
             }
         };
     },
+    watch: {
+        goods: {
+            handler(newVal, oldVal) {
+                this.tableKey++; // 为了保证table 每次都会重渲
+            },
+            deep: true,
+            immediate: true
+        },
+        consumeChecked() {
+            this.tableKey++; // 为了保证table 每次都会重渲
+        },
+        basicChecked() {
+            this.tableKey++; // 为了保证table 每次都会重渲
+        }
+    },
     computed: {
         pickerTag: function() {
             return this.miniProgramTags.concat(this.backendTags);
@@ -204,6 +220,7 @@ export const mixinsGoods = {
     },
     methods: {
         formatMoney: formatMoney,
+
         async initData() {
             const rLoading = this.openLoading();
             if (this.$route.query.id) {

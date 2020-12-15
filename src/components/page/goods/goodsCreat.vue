@@ -134,6 +134,7 @@
                     element-loading-text="Loading"
                     fit
                     :cell-style="setCellColor"
+                    :key="tableKey"
                 >
                     <el-table-column label="操作" width="160">
                         <template slot-scope="scope">
