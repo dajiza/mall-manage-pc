@@ -180,7 +180,7 @@ export const mixinsGoods = {
         };
     },
     watch: {
-        goods: {
+        'goods.type': {
             handler(newVal, oldVal) {
                 this.tableKey++; // 为了保证table 每次都会重渲
             },
