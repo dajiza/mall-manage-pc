@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container">
+    <div class="app-container goods-list">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
@@ -9,9 +9,14 @@
                 <el-form-item label="商品ID" prop="id">
                     <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.id"></el-input>
                 </el-form-item>
+                <el-form-item label="商品类型" prop="type">
+                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
+                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="商品分类" prop="category_id">
-                    <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择">
-                        <el-option v-for="item in categoryList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
+                        <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="商品状态" prop="status">
@@ -135,7 +140,7 @@
             </el-table-column>
             <el-table-column label="主图" width="128">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img)" />
+                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="200">
@@ -144,12 +149,18 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="商品分类" width="100">
+            <el-table-column label="商品分类" width="110">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.type == 1 ? '布料' : '其他' }}</span>
+                    <span v-if="scope.row.type == 1">布料</span>
+                    <span v-if="scope.row.type == 2">
+                        其他{{ scope.row.category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.category_id).name : '' }}
+                    </span>
+                    <span v-if="scope.row.type == 3">
+                        布组{{ scope.row.category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.category_id).name : '' }}
+                    </span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="">
+            <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
                     <div class="status">
                         <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
@@ -167,7 +178,12 @@
                     <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false">
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
+                                <img
+                                    class="timg"
+                                    :src="scope.row.sku_img + '!upyun520/fw/300'"
+                                    alt=""
+                                    @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
+                                />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" width="200">
@@ -177,7 +193,12 @@
                         </el-table-column>
                         <el-table-column label="售价(元)" width="100">
                             <template slot-scope="scope">
-                                <span>{{ formatMoney(scope.row.display_price) }}</span>
+                                <span>{{ formatMoney(scope.row.min_price) }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="实际销量" width="100">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.real_sales }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="总库存" width="100">
@@ -200,8 +221,10 @@
                 </template>
             </el-table-column>
 
+            <!-- 被合并列 占位 -->
             <el-table-column label="SKU名称" width="200"> </el-table-column>
             <el-table-column label="售价(元)" width="100"> </el-table-column>
+            <el-table-column label="实际销量" width="100"> </el-table-column>
             <el-table-column label="总库存" width="100"> </el-table-column>
             <el-table-column label="可用库存" width="100"> </el-table-column>
             <el-table-column label="库存预警" width="100"> </el-table-column>
@@ -219,7 +242,7 @@
             </el-pagination>
         </div>
         <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商">
-            <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width:280px" multiple>
+            <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width: 280px" multiple>
                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
             </el-select>
             <span slot="footer" class="dialog-footer">
@@ -228,13 +251,13 @@
             </span>
         </el-dialog>
         <!--大图预览-->
-        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" />
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
     </div>
 </template>
 <script>
-import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList } from '@/api/goods';
+import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import ElImageViewer from '@/components/common/image-viewer';
 
 export default {
     name: 'goods-list',
@@ -247,18 +270,22 @@ export default {
                 page: 1,
                 limit: 10
             },
-            dialogVisiblePic: false,
-            previewUrlList: [],
+
             goodsId: '',
             shopList: [],
             shopIds: [],
             dialogVisibleAssign: false,
             checkedList: [], //表格选中列表
-            // 分类 0 布料  否则为其他的商品分类
-            categoryList: [
-                { value: '0', label: '布料' },
-                { value: '1', label: '其他' }
+            // 类型 1 布料 2其他 3成品布
+            typeList: [
+                { value: '1', label: '布料' },
+                { value: '2', label: '其他' },
+                { value: '3', label: '布组' }
             ],
+            // 分类 先选择商品类型 在获取分类列表
+            categoryList: [], //筛选列表
+            categoryListOther: [], //其他分类
+            categoryListClothGroup: [], //布组分类
             // 是否上架：1下架；2上架
             statusList: [
                 { value: '1', label: '下架' },
@@ -281,10 +308,17 @@ export default {
                 id: '',
                 title: '',
                 category_id: '',
+                type: '',
                 status: '',
                 is_store_shortage: '',
                 allow_agent: ''
-            }
+            },
+            // 图片预览
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: 0,
+            timgList: [], //主图预览列表
+            skuImgList: [] //sku图预览列表
         };
     },
     components: {
@@ -292,6 +326,7 @@ export default {
     },
     created() {},
     mounted() {
+        this.queryCategoryListAllInit();
         this.queryShopList();
         this.getList();
     },
@@ -300,7 +335,7 @@ export default {
         // 合并单元格
         arraySpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 9) {
-                return [1, 6];
+                return [1, 7];
             }
             if (columnIndex > 9) {
                 return [0, 0];
@@ -309,18 +344,27 @@ export default {
         closePreview() {
             this.dialogVisiblePic = false;
         },
-        openPreview(img) {
-            this.previewUrlList = [];
-            this.previewUrlList.push(img);
+        // type 1主图 2sku图
+        openPreview(img, type, index) {
+            console.log('输出 ~ img, type, index', img, type, index);
+            if (type == 1) {
+                this.previewUrlList = this.timgList;
+            } else {
+                this.previewUrlList = this.skuImgList;
+            }
+            this.previewIndex = index;
             this.dialogVisiblePic = true;
         },
         getList() {
             const rLoading = this.openLoading();
-            let params = this.$refs['formFilter'].model;
+            let params = _.cloneDeep(this.$refs['formFilter'].model);
             console.log('GOOGLE: params', params);
-
             params['limit'] = this.listQuery.limit;
             params['page'] = this.listQuery.page;
+            params['category_id'] = params['category_id'].toString();
+            if (params['type'] == 1) {
+                params['category_id'] = 0;
+            }
             queryGoodsList(params)
                 .then(async res => {
                     if (res.data.lists == null) {
@@ -329,9 +373,11 @@ export default {
                         rLoading.close();
                         return;
                     }
-                    // 逐个获取库存信息
+                    // 逐个获取库存信息 同时生成主图 sku图预览列表
+                    let skuImgIndex = 0;
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const product = res.data.lists[i];
+                        this.timgList.push(product.img);
                         if (!product.goods_sku) {
                             continue;
                         }
@@ -339,19 +385,59 @@ export default {
                             const sku = product.goods_sku[j];
                             let parameters = { sku_id: sku.storehouse_pid };
                             let data = await queryStoreProduct(parameters);
+                            this.skuImgList.push(sku.sku_img);
+                            sku.skuImgIndex = skuImgIndex;
+                            skuImgIndex++;
                             sku.stock_total = data.data.stock_total;
                             sku.stock_available = data.data.stock_available;
                         }
                     }
 
+                    console.log('输出 ~ res.data.lists', res.data.lists);
                     this.list = res.data.lists;
-                    console.log('GOOGLE: this.list', this.list);
                     this.total = res.data.total;
                     rLoading.close();
                 })
                 .catch(err => {
                     rLoading.close();
                 });
+        },
+        // 选择类型
+        //1 其他 2 成品布
+        onChangeType(event) {
+            let type = event == 2 ? 1 : 2;
+            this.queryCategoryListAll(type);
+            this.formFilter.category_id = '';
+        },
+        // 获取分类列表
+        queryCategoryListAll(type) {
+            if (type == 1) {
+                this.categoryList = this.categoryListOther;
+            } else {
+                this.categoryList = this.categoryListClothGroup;
+            }
+        },
+
+        queryCategoryListAllInit() {
+            Promise.all([
+                // type 1其他 2布组
+                queryCategoryListAll({ type: 1 }),
+                queryCategoryListAll({ type: 2 })
+            ])
+                .then(res => {
+                    let options = {};
+                    if (res[0].code === 200) {
+                        if (res[0].data) {
+                            this.categoryListOther = res[0].data;
+                        }
+                    }
+                    if (res[1].code === 200) {
+                        if (res[1].data) {
+                            this.categoryListClothGroup = res[1].data;
+                        }
+                    }
+                })
+                .catch(() => {});
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
@@ -574,6 +660,7 @@ export default {
 .timg {
     width: 80px;
     height: 60px;
+    // max-height: 200px;
     cursor: pointer;
 }
 .opt-wrap {
@@ -585,14 +672,7 @@ export default {
         margin-left: 0;
     }
 }
-.sku-column {
-    .cell {
-        padding: 0;
-    }
-    & /deep/ .cell {
-        padding: 0;
-    }
-}
+
 .operate {
     display: flex;
     padding: 14px 24px;

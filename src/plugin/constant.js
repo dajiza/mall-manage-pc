@@ -44,7 +44,10 @@ module.exports = {
         3: 'attr_origin', //产地
         4: 'attr_unit', //单位
         5: 'attr_material', //材质
-        6: 'attr_unit' //花纹
+        6: 'attr_pattern', //花纹
+        7: 'attr_size', //成品布尺寸
+        8: 'attr_width', //幅宽
+        9: 'attr_piece' //片数
     },
     // 属性名称
     ATTR_NAME: {
@@ -53,6 +56,9 @@ module.exports = {
         3: '产地', //产地
         4: '单位', //单位
         5: '材质', //材质
-        6: '花纹' //花纹
+        6: '花纹', //花纹
+        7: '尺寸', //尺寸
+        8: '幅宽', //幅宽
+        9: '片数' //片数
     }
 };
