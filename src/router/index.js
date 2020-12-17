@@ -87,7 +87,7 @@ export default new Router({
                     path: '/mall-backend-other-category',
                     name: 'otherCategory',
                     component: () => import(/* webpackChunkName: "other-category" */ '../components/page/other-category/otherCategory.vue'),
-                    meta: { title: '其它商品分类' }
+                    meta: { title: '商品分类' }
                 },
                 {
                     path: '/mall-backend-goodsLabel',
