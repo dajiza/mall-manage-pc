@@ -17,6 +17,7 @@
                             :show-all-levels="false"
                             :props="{ multiple: true, label: 'name', value: 'id' }"
                             filterable
+                            size="medium"
                         ></el-cascader>
                     </el-form-item>
                     <el-form-item label="品牌" prop="attr_brand">
@@ -135,7 +136,7 @@
                 </el-table-column>
                 <el-table-column label="标签">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.tag_names.join('、') }}</span>
+                        <span>{{ scope.row.tag_names ? scope.row.tag_names.join('、') : '' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="总库存">
