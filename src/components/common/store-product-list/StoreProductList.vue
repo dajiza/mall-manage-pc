@@ -17,7 +17,6 @@
                             :show-all-levels="false"
                             :props="{ multiple: true, label: 'name', value: 'id' }"
                             filterable
-                            size="medium"
                         ></el-cascader>
                     </el-form-item>
                     <el-form-item label="品牌" prop="attr_brand">

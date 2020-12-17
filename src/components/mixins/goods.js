@@ -99,7 +99,7 @@ export const mixinsGoods = {
                     //     sort: 124
                     // }
                 ],
-                type: '', //'类型：1布；2其他; 3成品布',
+                type: 1, //'类型：1布；2其他; 3成品布',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
                 category_id: '', //'分类
