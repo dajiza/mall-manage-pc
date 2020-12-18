@@ -203,7 +203,11 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
-
+                    <el-table-column label="产品组" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.stock_available }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column :label="ATTR_NAME[1]" width="100" property="1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_brand }}</span>

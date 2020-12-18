@@ -50,3 +50,6 @@ export const queryCategoryListAll = params => post('/backend/category-list-all',
 
 // 仓库标签列表
 export const queryTagListAll = params => post('/backend/store-house-tag-list', params);
+
+// 仓库组列表  "type":2 //0可裁布 1其他 2成品布
+export const queryGroupList = params => post('/backend/store-house-group-list', params);
