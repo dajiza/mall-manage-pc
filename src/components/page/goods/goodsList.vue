@@ -375,6 +375,8 @@ export default {
                     }
                     // 逐个获取库存信息 同时生成主图 sku图预览列表
                     let skuImgIndex = 0;
+                    this.timgList = [];
+                    this.skuImgList = [];
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const product = res.data.lists[i];
                         this.timgList.push(product.img);
