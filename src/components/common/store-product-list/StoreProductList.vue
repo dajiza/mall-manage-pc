@@ -39,6 +39,11 @@
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="产品组" prop="attr_color">
+                        <el-select class="filter-item" multiple v-model="formFilter.group_ids" placeholder="请选择">
+                            <el-option v-for="item in groupData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
                     <!-- <el-form-item label="尺寸" prop="attr_size" v-if="type == 2">
                         <el-select class="filter-item" v-model="formFilter.attr_size" placeholder="请选择">
                             <el-option v-for="item in sizeData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
@@ -128,14 +133,19 @@
                         <span>{{ scope.row.attr_width_name }}</span>
                     </template>
                 </el-table-column> -->
-                <el-table-column label="分类">
+                <el-table-column label="分类" width="100">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.category_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="分组" width="100">
                     <template slot-scope="scope">
                         <span>{{ scope.row.category_name }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="标签">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.tag_names.join('、') }}</span>
+                        <span>{{ scope.row.tag_names ? scope.row.tag_names.join('、') : '' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="总库存">
@@ -178,7 +188,7 @@
 </template>
 
 <script>
-import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll } from '@/api/goods';
+import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll, queryGroupList } from '@/api/goods';
 
 export default {
     name: 'CheckList',
@@ -187,6 +197,7 @@ export default {
             type: Array,
             default: []
         },
+        //type 商城123 仓库012 以012格式传到此处
         type: {
             type: Number,
             default: 1
@@ -220,7 +231,8 @@ export default {
                 attr_pattern: '',
                 attr_size: '',
                 attr_piece: '',
-                ids: []
+                ids: [],
+                group_ids: []
             },
 
             brandData: [], // 品牌下拉列表
@@ -241,7 +253,8 @@ export default {
             sizeData: [], // 成品布尺寸列表
             pieceData: [], // 片数列表
             originalCateData: [], //分类
-            categoryData: [] //分类
+            categoryData: [], //分类
+            groupData: [] //分类列表
         };
     },
     created() {},
@@ -362,6 +375,7 @@ export default {
             };
 
             const rLoading = that.openLoading();
+            console.log('输出 ~ that.type', that.type);
 
             // 获取 产品分类、产品标签（布）、产品标签（其它）
             this.$ajax
@@ -381,10 +395,13 @@ export default {
                         name: '-1', //-1 搜索全部
                         category_id: -1, //-1 搜索全部
                         type: that.type == 1 ? 1 : 0 //0布料 1其他
+                    }),
+                    queryGroupList({
+                        type: that.type //"type" 0可裁布 1其他 2成品布
                     })
                 ])
                 .then(
-                    that.$ajax.spread(function(resLabel1, resLabel2, res1, res2, res3, res5, res7, res9, resCate) {
+                    that.$ajax.spread(function(resLabel1, resLabel2, res1, res2, res3, res5, res7, res9, resCate, resGroup) {
                         let label_cloth = [];
                         let label_other = [];
                         let err_arr = [];
@@ -484,6 +501,15 @@ export default {
                         } else {
                             if (resCate.code === -1 && resCate.msg.indexOf('无权限') > -1) {
                                 err_arr.push(resCate.code);
+                            }
+                            // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
+                        }
+                        if (resGroup.code === 200) {
+                            console.log('输出 ~ resGroup', resGroup);
+                            that.groupData = resGroup.data || [];
+                        } else {
+                            if (resGroup.code === -1 && resGroup.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resGroup.code);
                             }
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }

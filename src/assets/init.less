@@ -20,12 +20,18 @@ html {
             .filter-item {
                 width: 100%;
                 border-radius: 0;
-
+                // select多选框初始高度设置
                 &.el-cascader {
                     // height: 32px;
                     .el-input {
                         // height: 32px;
-                        .el-input__inner {
+                        // .el-input__inner {
+                        //     height: 32px !important;
+                        // }
+                        // &.el-input--small.el-input--suffix .el-input__inner {
+                        //     height: auto !important;
+                        // }
+                        &.el-input--small.el-input--suffix .el-input__inner[style='height: 34px;'] {
                             height: 32px !important;
                         }
                     }
@@ -96,6 +102,7 @@ html {
         // vertical-align: middle;
     }
 }
+
 .pagination-container {
     padding: 60px 0 47px;
     background-color: #fff;

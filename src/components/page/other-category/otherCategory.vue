@@ -113,7 +113,7 @@
 import { queryCategoryList, addCategory, editCategory, deleteCategory } from '../../../api/otherCategory';
 import EmptyList from '../../common/empty-list/EmptyList';
 import './otherCategory.less';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import ElImageViewer from '@/components/common/image-viewer';
 import { getToken } from '../../../utils/auth';
 export default {
     name: 'otherCategory',

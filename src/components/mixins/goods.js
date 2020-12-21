@@ -1,4 +1,5 @@
 import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods';
+import { queryConfigList } from '@/api/configManagement';
 import { queryFreightList } from '@/api/freight';
 import { getLabelAllList } from '@/api/goodsLabel';
 import { formatMoney } from '@/plugin/tool';
@@ -6,7 +7,7 @@ import { getToken } from '@/utils/auth';
 import { ATTR, ATTR_NAME } from '@/plugin/constant';
 import storeProductList from '@/components/common/store-product-list/StoreProductList';
 import vTagPicker from '@/components/common/TagPicker.vue';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import ElImageViewer from '@/components/common/image-viewer';
 import bus from '@/components/common/bus';
 import commUtil from '@/utils/commUtil';
 
@@ -15,6 +16,7 @@ export const mixinsGoods = {
         return {
             ATTR_NAME,
             header: {},
+            tableKey: 0,
             imgVedio: require('../../assets/img/vedio.png'),
             btnLoading: false,
             dialogVisible: false,
@@ -178,6 +180,21 @@ export const mixinsGoods = {
             }
         };
     },
+    watch: {
+        'goods.type': {
+            handler(newVal, oldVal) {
+                this.tableKey++; // 为了保证table 每次都会重渲
+            },
+            deep: true,
+            immediate: true
+        },
+        consumeChecked() {
+            this.tableKey++; // 为了保证table 每次都会重渲
+        },
+        basicChecked() {
+            this.tableKey++; // 为了保证table 每次都会重渲
+        }
+    },
     computed: {
         pickerTag: function() {
             return this.miniProgramTags.concat(this.backendTags);
@@ -204,6 +221,7 @@ export const mixinsGoods = {
     },
     methods: {
         formatMoney: formatMoney,
+
         async initData() {
             const rLoading = this.openLoading();
             if (this.$route.query.id) {
@@ -222,7 +240,8 @@ export const mixinsGoods = {
                 queryFreightList(),
                 queryAttrList(),
                 queryShopList(),
-                queryCategoryListAll({ type: this.goods.type == 2 ? 1 : 2 })
+                queryCategoryListAll({ type: this.goods.type == 2 ? 1 : 2 }),
+                queryConfigList({})
             ])
                 .then(res => {
                     let options = {};
@@ -239,13 +258,13 @@ export const mixinsGoods = {
                     this.options = options;
                     if (res[2].code === 200) {
                         this.freightList = res[2].data;
-                        if (this.goods.freight_id == '') {
+                        // 新建默认选中默认的运费模板
+                        if (!this.goods.goods_id) {
                             this.goods.freight_id = this.freightList.find(item => item.is_default == 2).id;
                         }
                     }
                     if (res[3].code === 200) {
                         this.basicAttr = res[3].data.consume_attr_basic_attr;
-                        console.log('输出 ~ basicAttr', res[3].data.consume_attr_basic_attr);
                         // 其他只显示品牌 单位两个属性
                         if (this.goods.type == 1) {
                             this.basicAttr = this.basicAttr.filter(item => {
@@ -268,6 +287,12 @@ export const mixinsGoods = {
                     if (res[5].code === 200) {
                         this.categoryData = res[5].data;
                         // 其他分类
+                    }
+                    if (res[6].code === 200) {
+                        // 新建时默认填写库存预警
+                        let stockWarn = res[6].data.find(item => item.config_key == 'ORDER_MONEY_CHANGE_MAX');
+                        this.stockWarn = Number(stockWarn.value);
+                        console.log('输出 ~ this.stockWarn', this.stockWarn);
                     }
                     rLoading.close();
                 })
@@ -476,6 +501,10 @@ export const mixinsGoods = {
                 if (index != -1) {
                     pList.splice(index, 1);
                 }
+            }
+            for (let j = 0; j < pList.length; j++) {
+                const element = pList[j];
+                element.stock_warning = this.stockWarn;
             }
             this.goods.sku_list = this.goods.sku_list.concat(pList);
             // this.setTimg();
@@ -999,9 +1028,16 @@ export const mixinsGoods = {
                 path: 'mall-backend-goods-list'
             });
         },
+
         confirmType() {
             this.dialogVisibleType = false;
             this.initData();
+        },
+        openPreview(img) {
+            this.previewUrlList = [];
+            this.previewUrlList.push(img);
+            this.previewIndex = 0;
+            this.dialogVisiblePic = true;
         }
     }
 };

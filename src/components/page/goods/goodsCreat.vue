@@ -134,6 +134,7 @@
                     element-loading-text="Loading"
                     fit
                     :cell-style="setCellColor"
+                    :key="tableKey"
                 >
                     <el-table-column label="操作" width="160">
                         <template slot-scope="scope">
@@ -155,7 +156,7 @@
                     </el-table-column>
                     <el-table-column label="SKU图片" width="130">
                         <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
+                            <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
                         </template>
                     </el-table-column>
                     <!-- 自定义属性 -->
@@ -202,7 +203,11 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
-
+                    <el-table-column label="产品组" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.stock_available }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column :label="ATTR_NAME[1]" width="100" property="1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_brand }}</span>
@@ -352,81 +357,5 @@ export default {
     methods: {}
 };
 </script>
-<style scoped="scoped" lang="less">
-.table-title {
-    margin-top: 16px;
-    .add-sku {
-        margin-right: 20px;
-        margin-left: auto;
-    }
-}
-.table-title:first {
-    margin-top: 0px;
-}
-.content-table {
-    .el-form-item {
-        margin-right: 0 !important;
-        margin-bottom: 0;
-        padding: 14px 0;
-    }
-    .blue-column {
-        background: #e7f4ff;
-    }
-}
-.submit-wrap {
-    text-align: center;
-    .submit-btn {
-        margin: 50px auto 0;
-    }
-}
-.dialog-type {
-    margin: 30px 0;
-    text-align: center;
-}
-.content {
-    background: #fff;
-    .cursor {
-        cursor: pointer;
-    }
-    .el-tag {
-        margin-right: 8px;
-    }
-    .hide-upload {
-        & /deep/ .el-upload--picture-card {
-            display: none;
-        }
-    }
-    .opt-btn {
-        margin: 0 0 10px 0;
-        width: 105px;
-    }
-    .timg {
-        width: 80px;
-        height: 60px;
-    }
-    & /deep/ .el-form-item__label {
-        color: #000000;
-        font-weight: 500;
-        font-size: 14px;
-    }
-    .el-form-item {
-        margin-right: 80px;
-    }
-    .tag {
-        margin-left: 10px;
-    }
-    .upload-demo {
-        margin-bottom: 40px;
-    }
-    .sub-title {
-        margin: 12px 0 20px;
-        color: #000000;
-        font-weight: 500;
-        font-size: 14px;
-    }
-}
-.el-upload-list__item div {
-    width: 146px;
-    height: 146px;
-}
-</style>
+
+<style scoped src="./goodsCreat.less" lang="less"></style>

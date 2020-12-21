@@ -4,15 +4,12 @@
             <img :src="imgUrl" alt="">
         </div>-->
         <!--大图预览-->
-        <el-image-viewer
-                v-if="dialogVisible"
-                :on-close="closeViewer"
-                :url-list="imgSrcList" />
+        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" />
     </div>
 </template>
 <script>
 import './BigImg.less';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer'
+import ElImageViewer from '@/components/common/image-viewer';
 export default {
     name: 'BigImg',
     props: {
@@ -21,7 +18,7 @@ export default {
             type: String,
             default: ''
         },
-        bigImgWidth:{
+        bigImgWidth: {
             type: String,
             default: '640px'
         }
@@ -30,17 +27,17 @@ export default {
         return {
             isShow: false,
             isOpen: false,
-            imgSrcList:[],
-            dialogVisible:false
+            imgSrcList: [],
+            dialogVisible: false
         };
     },
     components: {
         ElImageViewer
     },
-    watch:{
-        imgUrl(newVal,oldValue){
+    watch: {
+        imgUrl(newVal, oldValue) {
             this.imgSrcList = [];
-            this.imgSrcList.push(newVal)
+            this.imgSrcList.push(newVal);
             this.dialogVisible = true;
         }
     },
@@ -48,19 +45,19 @@ export default {
         // console.log('imgUrl-created', this.imgUrl);
     },
     methods: {
-        show(){
+        show() {
             this.isShow = true;
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.isOpen = true;
-            })
+            });
         },
-        hide(){
+        hide() {
             this.isOpen = false;
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.isShow = false;
-            },300)
+            }, 300);
         },
-        closeViewer(){
+        closeViewer() {
             this.dialogVisible = true;
             this.isShow = false;
         }

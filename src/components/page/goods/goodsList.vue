@@ -140,7 +140,7 @@
             </el-table-column>
             <el-table-column label="主图" width="128">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img)" />
+                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="200">
@@ -178,7 +178,12 @@
                     <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false">
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
+                                <img
+                                    class="timg"
+                                    :src="scope.row.sku_img + '!upyun520/fw/300'"
+                                    alt=""
+                                    @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
+                                />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" width="200">
@@ -246,13 +251,13 @@
             </span>
         </el-dialog>
         <!--大图预览-->
-        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" />
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
     </div>
 </template>
 <script>
 import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods';
 import { formatMoney } from '@/plugin/tool';
-import ElImageViewer from 'element-ui/packages/image/src/image-viewer';
+import ElImageViewer from '@/components/common/image-viewer';
 
 export default {
     name: 'goods-list',
@@ -265,8 +270,7 @@ export default {
                 page: 1,
                 limit: 10
             },
-            dialogVisiblePic: false,
-            previewUrlList: [],
+
             goodsId: '',
             shopList: [],
             shopIds: [],
@@ -308,7 +312,13 @@ export default {
                 status: '',
                 is_store_shortage: '',
                 allow_agent: ''
-            }
+            },
+            // 图片预览
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: 0,
+            timgList: [], //主图预览列表
+            skuImgList: [] //sku图预览列表
         };
     },
     components: {
@@ -334,9 +344,15 @@ export default {
         closePreview() {
             this.dialogVisiblePic = false;
         },
-        openPreview(img) {
-            this.previewUrlList = [];
-            this.previewUrlList.push(img);
+        // type 1主图 2sku图
+        openPreview(img, type, index) {
+            console.log('输出 ~ img, type, index', img, type, index);
+            if (type == 1) {
+                this.previewUrlList = this.timgList;
+            } else {
+                this.previewUrlList = this.skuImgList;
+            }
+            this.previewIndex = index;
             this.dialogVisiblePic = true;
         },
         getList() {
@@ -357,9 +373,11 @@ export default {
                         rLoading.close();
                         return;
                     }
-                    // 逐个获取库存信息
+                    // 逐个获取库存信息 同时生成主图 sku图预览列表
+                    let skuImgIndex = 0;
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const product = res.data.lists[i];
+                        this.timgList.push(product.img);
                         if (!product.goods_sku) {
                             continue;
                         }
@@ -367,13 +385,16 @@ export default {
                             const sku = product.goods_sku[j];
                             let parameters = { sku_id: sku.storehouse_pid };
                             let data = await queryStoreProduct(parameters);
+                            this.skuImgList.push(sku.sku_img);
+                            sku.skuImgIndex = skuImgIndex;
+                            skuImgIndex++;
                             sku.stock_total = data.data.stock_total;
                             sku.stock_available = data.data.stock_available;
                         }
                     }
 
+                    console.log('输出 ~ res.data.lists', res.data.lists);
                     this.list = res.data.lists;
-                    console.log('GOOGLE: this.list', this.list);
                     this.total = res.data.total;
                     rLoading.close();
                 })
@@ -398,8 +419,6 @@ export default {
         },
 
         queryCategoryListAllInit() {
-            const rLoading = this.openLoading();
-
             Promise.all([
                 // type 1其他 2布组
                 queryCategoryListAll({ type: 1 }),
@@ -417,8 +436,6 @@ export default {
                             this.categoryListClothGroup = res[1].data;
                         }
                     }
-
-                    rLoading.close();
                 })
                 .catch(() => {});
         },
