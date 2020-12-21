@@ -164,11 +164,13 @@
                     <span class="order-unit">分</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
                 </el-form-item>
-                <!-- <el-form-item label="发货后自动收货时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_timeout"></el-input>
+                <el-form-item label="发货后自动收货时间" prop="shop_domain">
+                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
                     <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
-                </el-form-item> -->
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')"
+                        >保 存</el-button
+                    >
+                </el-form-item>
                 <el-form-item label="收货后允许售后时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
                     <span class="order-unit">分</span>
@@ -671,7 +673,7 @@ export default {
             }
             let oldValue = this.formOrderSubmit[argument];
             this.formOrderSubmit[argument] = value;
-            if (argument == 'order_timeout' || argument == 'order_apply_stop_time') {
+            if (argument == 'order_timeout' || argument == 'order_apply_stop_time' || argument == 'order_sand_to_success_time') {
                 this.formOrderSubmit[argument] = value * 60;
             }
             updateShop(this.formOrderSubmit).then(res => {
@@ -702,6 +704,7 @@ export default {
             this.formOrderSubmit = _.cloneDeep(row);
             this.formOrder['order_timeout'] = row['order_timeout'] / 60;
             this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60;
+            this.formOrder['order_sand_to_success_time'] = row['order_sand_to_success_time'] / 60;
             this.dialogVisibleOrder = true;
         },
         handleCloseOrder(row) {

@@ -140,7 +140,7 @@
                 </el-table-column>
                 <el-table-column label="分组" width="100">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.category_name }}</span>
+                        <span>{{ scope.row.group_names ? scope.row.group_names.join(',') : '' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="标签">

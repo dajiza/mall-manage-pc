@@ -1,22 +1,21 @@
 <template>
-    <div class="order-list-container" id="containerWrap">
-        <div class="container clearfix head-container" ref="searchBox">
-            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
-                <el-form-item label="SKU产品编码" prop="sku_no" class="">
-                    <el-input class="filter-item" v-model="searchForm.sku_no" placeholder=""></el-input>
+    <div class="app-container goods-list">
+        <div class="head-container">
+            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
+                <el-form-item label="SKU产品编码" prop="product_code" class="">
+                    <el-input class="filter-item" v-model="formFilter.product_code" placeholder="请输入"></el-input>
                 </el-form-item>
 
-                <el-form-item label="时间区间" prop="search_time" class="long-time">
+                <el-form-item label="时间区间" prop="searchTime" class="long-time">
                     <el-date-picker
                         class="filter-item"
-                        v-model="searchForm.search_time"
+                        v-model="formFilter.searchTime"
                         type="datetimerange"
                         range-separator="至"
                         align="left"
                         start-placeholder="开始时间"
                         end-placeholder="结束时间"
                         value-format="yyyy-MM-dd HH:mm:ss"
-                        :picker-options="pickerOptions"
                         :default-time="['00:00:00', '23:59:59']"
                     >
                         <!--:picker-options="pickerOptions"-->
@@ -24,84 +23,111 @@
                 </el-form-item>
 
                 <el-form-item label="店铺名称" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name"
-                                   :value="item.id"></el-option>
+                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
                     </el-select>
-
                 </el-form-item>
 
                 <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
+                    <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
                 </el-form-item>
             </el-form>
         </div>
-        <div class="container container-table-has-search m-t-16 p-t-0 pos-relative">
-            <div class="global-table-title">
-                <div class="title">
-                    <i></i>
-                    <span>SKU销量排行统计</span>
-                </div>
-            </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="sku-list-table">
-                <el-table-column label="SKU图片" width="128">
-                    <template slot-scope="scope">
-                        <img class="timg" :src="scope.row.product_img" alt="" />
-                    </template>
-                </el-table-column>
-                <el-table-column label="SKU名字" width="220"></el-table-column>
-                <el-table-column label="商品名称" width="220"></el-table-column>
-                <el-table-column label="规格" width="160"></el-table-column>
-                <el-table-column label="可用库存" width="116"></el-table-column>
-                <el-table-column label="销量" width="100"></el-table-column>
-                <el-table-column label="销售单价(元)" width="120"></el-table-column>
-                <el-table-column label="总销售额(元)" width="120"></el-table-column>
-                <template slot="empty">
-                    <EmptyList v-show="false"></EmptyList>
+        <div class="table-title">
+            <div class="line"></div>
+            <div class="text">SKU销量排行统计</div>
+        </div>
+        <el-table class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
+            <el-table-column label="SKU图片" width="128">
+                <template slot-scope="scope">
+                    <img class="timg" :src="scope.row.product_img" alt="" />
                 </template>
-            </el-table>
-            <div class="pagination pos-relative">
-                <el-pagination
-                    background
-                    layout="total, prev, pager, next"
-                    :current-page="pageInfo.pageIndex"
-                    :page-size="pageInfo.pageSize"
-                    :total="pageTotal"
-                    @current-change="handlePageChange"
-                ></el-pagination>
-            </div>
-            <div class="empty-list-box" v-show="tableData.length === 0">
-                <emptyList></emptyList>
-            </div>
+            </el-table-column>
+            <el-table-column label="SKU名字" width="220">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.product_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="商品名称" width="220">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.goods_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="规格" width="160">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.goods_attr.join(',') }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="可用库存" width="116">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.storage }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="销量" width="100">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.num }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="销售单价(元)" width="120">
+                <template slot-scope="scope">
+                    <span>{{ formatMoney(scope.row.price) }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="总销售额(元)" width="120">
+                <template slot-scope="scope">
+                    <span>{{ formatMoney(scope.row.money_total) }}</span>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="pagination-container">
+            <el-pagination
+                background
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="listQuery.page"
+                :page-size="listQuery.size"
+                layout="total, prev, pager, next, jumper"
+                :total="total"
+            >
+            </el-pagination>
         </div>
     </div>
 </template>
 
 <script>
-import emptyList from '../../common/empty-list/EmptyList';
 import './Statistics.less';
 import { queryShopList } from '@/api/goods';
 import { queryOrderReportSku } from '@/api/statistics';
+import { formatMoney } from '@/plugin/tool';
 
 export default {
     name: 'SKUStatistics',
     data() {
         return {
             shopList: [],
-            searchForm: {
-                sku_no: '', // 订单号
-                shop_id: '', // 代理店铺id
-                search_time: ''
-            },
+
             pageInfo: {
                 pageIndex: 1,
                 pageSize: 10
             },
+            listLoading: false,
+
             loading: false,
             tableData: [],
-            pageTotal: 0, // 总条数
-
+            list: null,
+            total: 0,
+            listQuery: {
+                page: 1,
+                limit: 10
+            },
+            formFilter: {
+                product_code: '',
+                searchTime: '',
+                created_time_le: '',
+                created_time_ge: '',
+                shop_id: ''
+            },
             pickerOptions: {
                 shortcuts: [
                     {
@@ -135,43 +161,76 @@ export default {
             }
         };
     },
-    components: {
-        emptyList
-    },
+
     mounted() {
         this.queryShopList();
         this.getList();
     },
     methods: {
+        formatMoney: formatMoney,
+
+        getList() {
+            let params = _.cloneDeep(this.$refs['formFilter'].model);
+            console.log('输出 ~ params', params);
+            // formFilter: {
+            //     product_code: '',
+            //     created_time_le: '',
+            //     created_time_ge: '',
+            //     shop_id: ''
+            // },
+            if (params.searchTime.length == 2) {
+                params['created_time_ge'] = params.searchTime[0];
+                params['created_time_le'] = params.searchTime[1];
+            } else {
+                params['created_time_ge'] = '';
+                params['created_time_le'] = '';
+            }
+            params['limit'] = this.listQuery.limit;
+            params['page'] = this.listQuery.page;
+
+            console.log(params);
+            queryOrderReportSku(params)
+                .then(res => {
+                    if (res.data.lists == null) {
+                        this.list = res.data.lists;
+                        return;
+                    }
+                    for (let i = 0; i < res.data.lists.length; i++) {
+                        const element = res.data.lists[i];
+                        element['goods_attr'] = JSON.parse(element['goods_attr']);
+                        element['goods_attr'] = element['goods_attr'].map(item => item.Value);
+                    }
+
+                    this.list = res.data.lists;
+                    this.total = res.data.total;
+                })
+                .catch(err => {});
+        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
                 .then(res => {
                     this.shopList = res.data;
                 })
-                .catch(err => {
-                });
-        },
-        getList() {
-
+                .catch(err => {});
         },
         // 搜索
         handleFilter() {
-            this.pageInfo.pageIndex= 1;
+            this.listQuery.page = 1;
             this.getList();
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
             this.$refs[formName].resetFields();
-            this.$set(this.searchForm, 'sku_no', '');
-            this.$set(this.searchForm, 'shop_id', '');
-            this.$set(this.searchForm, 'search_time', '');
-
             this.handleFilter();
         },
-        handlePageChange(val) {
-            this.pageInfo.page = val;
+        // 分页方法
+        handleSizeChange(val) {
+            this.listQuery.limit = val;
+            this.getList();
+        },
+        handleCurrentChange(val) {
+            this.listQuery.page = val;
             this.getList();
         }
     }

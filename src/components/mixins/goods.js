@@ -290,7 +290,7 @@ export const mixinsGoods = {
                     }
                     if (res[6].code === 200) {
                         // 新建时默认填写库存预警
-                        let stockWarn = res[6].data.find(item => item.config_key == 'ORDER_MONEY_CHANGE_MAX');
+                        let stockWarn = res[6].data.find(item => item.config_key == 'SYS_STOCK_WARNGING');
                         this.stockWarn = Number(stockWarn.value);
                         console.log('输出 ~ this.stockWarn', this.stockWarn);
                     }
