@@ -118,6 +118,17 @@ export default {
                     ]
                 },
                 {
+                    icon: 'iconfont icon-tongji',
+                    name: 'mall-backend-statistics-view',
+                    display_name: '统计查询',
+                    subs: [
+                        {
+                            name: 'mall-backend-statistics-sku',
+                            display_name: 'SKU销量排行统计'
+                        }
+                    ]
+                },
+                {
                     icon: 'iconfont icon-setting',
                     name: 'mall-backend-system-setting',
                     display_name: '系统设置',

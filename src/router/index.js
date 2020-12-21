@@ -115,6 +115,11 @@ export default new Router({
                     meta: { title: '售后原因设置', name: 'afterSaleReason' }
                 },
                 {
+                    path: '/mall-backend-statistics-sku',
+                    component: () => import(/* webpackChunkName: "statistics-sku" */ '../components/page/statistics/SKUStatistics.vue'),
+                    meta: { title: 'SKU销量排行统计' }
+                },
+                {
                     path: '/mall-backend-parameter-setting',
                     component: () =>
                         import(

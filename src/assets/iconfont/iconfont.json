@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "18826488",
+      "name": "统计",
+      "font_class": "tongji",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
       "icon_id": "18597111",
       "name": "商品管理icon-选中(2)",
       "font_class": "pic",
