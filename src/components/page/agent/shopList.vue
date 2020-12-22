@@ -38,6 +38,16 @@
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
+            <el-table-column label="操作" width="200">
+                <template slot-scope="scope">
+                    <div v-hasPermission="'mall-backend-shop-update'">
+                        <el-button class="text-blue table-btn" type="text" size="" @click.native="updateOrder(scope.row)">订单配置</el-button>
+                        <el-button class="text-blue table-btn" type="text" size="" @click.native="editShop(scope.row)">编辑</el-button>
+                        <el-button class="text-blue table-btn" type="text" size="" @click.native="updateCommission(scope.row)">佣金配置</el-button>
+                        <el-button class="text-blue table-btn" type="text" size="" @click.native="updateConfig(scope.row)">小程序配置</el-button>
+                    </div>
+                </template>
+            </el-table-column>
             <el-table-column label="店铺logo" width="100">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.shop_icon" alt="" @click="openPreview(scope.row.img)" />
@@ -73,17 +83,6 @@
                 <template slot-scope="scope">
                     <div class="type-tag type-green" v-if="scope.row.status == 1">营业中</div>
                     <div class="type-tag type-grey" v-if="scope.row.status == 2">已打样</div>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="操作" width="300">
-                <template slot-scope="scope">
-                    <div v-hasPermission="'mall-backend-shop-update'">
-                        <el-button class="text-blue" type="text" size="" @click.native="editShop(scope.row)">编辑</el-button>
-                        <el-button class="text-blue" type="text" size="" @click.native="updateConfig(scope.row)">小程序配置</el-button>
-                        <el-button class="text-blue" type="text" size="" @click.native="updateOrder(scope.row)">订单配置</el-button>
-                        <el-button class="text-blue" type="text" size="" @click.native="updateCommission(scope.row)">佣金配置</el-button>
-                    </div>
                 </template>
             </el-table-column>
         </el-table>

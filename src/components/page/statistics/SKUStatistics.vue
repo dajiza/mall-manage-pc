@@ -37,6 +37,10 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">SKU销量排行统计</div>
+            <div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span class="text">所有店铺</span></div>
+            <div class="shop-icon shop-filter" v-if="filterShop.id">
+                <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
+            </div>
         </div>
         <el-table
             :height="$tableHeight"
@@ -54,6 +58,11 @@
             <el-table-column label="SKU名字" width="220">
                 <template slot-scope="scope">
                     <span>{{ scope.row.product_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="SKU编码" width="160">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.product_code }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="220">
@@ -107,19 +116,19 @@ import './Statistics.less';
 import { queryShopList } from '@/api/goods';
 import { queryOrderReportSku } from '@/api/statistics';
 import { formatMoney } from '@/plugin/tool';
+// import { filter } from 'vue/types/umd';
 
 export default {
     name: 'SKUStatistics',
     data() {
         return {
             shopList: [],
-
+            filterShop: {},
             pageInfo: {
                 pageIndex: 1,
                 pageSize: 10
             },
             listLoading: false,
-
             loading: false,
             tableData: [],
             list: null,
@@ -178,14 +187,13 @@ export default {
 
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model);
-            console.log('输出 ~ params', params);
-            // formFilter: {
-            //     product_code: '',
-            //     created_time_le: '',
-            //     created_time_ge: '',
-            //     shop_id: ''
-            // },
-            if (params.searchTime.length == 2) {
+            if (params['shop_id']) {
+                this.filterShop = this.shopList.find(item => item.id == params['shop_id']);
+            } else {
+                this.filterShop = {};
+            }
+
+            if (params['searchTime'].length == 2) {
                 params['created_time_ge'] = params.searchTime[0];
                 params['created_time_le'] = params.searchTime[1];
             } else {

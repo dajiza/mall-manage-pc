@@ -73,11 +73,11 @@
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="100" header-align="center">
+            <el-table-column label="操作" width="120">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             v-hasPermission="'mall-backend-goods-update'"
@@ -85,7 +85,7 @@
                             >编辑</el-button
                         >
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             v-hasPermission="'mall-backend-goods-preview'"
@@ -93,7 +93,7 @@
                             >查看</el-button
                         >
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             @click.native="goodsAssign(scope.row.id, scope.row)"
@@ -103,7 +103,7 @@
                             指定代理
                         </el-button>
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             v-show="scope.row.status == 1"
@@ -112,7 +112,7 @@
                             >上架</el-button
                         >
                         <el-button
-                            class="text-red btn-opt"
+                            class="text-red btn-opt table-btn"
                             type="text"
                             size=""
                             v-show="scope.row.status == 2"
@@ -676,12 +676,12 @@ export default {
     cursor: pointer;
 }
 .opt-wrap {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: center;
     .btn-opt {
-        margin-bottom: 16px;
-        margin-left: 0;
+        // margin-bottom: 16px;
+        // margin-left: 0;
     }
 }
 
