@@ -43,7 +43,7 @@
             <div class="line"></div>
             <div class="text">售后申请列表</div>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :data="list" v-loading.body="listLoading" :height="$tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-after-sale-audit'">

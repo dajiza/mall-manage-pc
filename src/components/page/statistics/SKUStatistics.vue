@@ -38,7 +38,14 @@
             <div class="line"></div>
             <div class="text">SKU销量排行统计</div>
         </div>
-        <el-table class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
+        <el-table
+            :height="$tableHeight"
+            class="table"
+            :data="list"
+            v-loading.body="listLoading"
+            :header-cell-style="$tableHeaderColor"
+            element-loading-text="Loading"
+        >
             <el-table-column label="SKU图片" width="128">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.product_img" alt="" />

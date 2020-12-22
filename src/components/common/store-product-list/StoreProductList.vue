@@ -7,13 +7,18 @@
                     <el-form-item label="名称" prop="name">
                         <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.name"></el-input>
                     </el-form-item>
+                    <el-form-item label="分类" prop="category_id">
+                        <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择">
+                            <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
 
                     <el-form-item label="标签" prop="tag_id">
                         <el-cascader
                             class="filter-item"
                             v-model="formFilter.tag_id"
                             placeholder="请选择"
-                            :options="categoryData"
+                            :options="tagData"
                             :show-all-levels="false"
                             :props="{ multiple: true, label: 'name', value: 'id' }"
                             filterable
@@ -39,19 +44,20 @@
                             <el-option v-for="item in colorData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="产品组" prop="attr_color">
-                        <el-select class="filter-item" multiple v-model="formFilter.group_ids" placeholder="请选择">
-                            <el-option v-for="item in groupData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <!-- <el-form-item label="尺寸" prop="attr_size" v-if="type == 2">
-                        <el-select class="filter-item" v-model="formFilter.attr_size" placeholder="请选择">
+                    <el-form-item label="尺寸" prop="attr_size_id" v-if="type == 2">
+                        <el-select class="filter-item" v-model="formFilter.attr_size_id" placeholder="请选择">
                             <el-option v-for="item in sizeData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="片数" prop="attr_piece" v-if="type == 2">
                         <el-input class="filter-item" placeholder="输入内容" v-model.number="formFilter.attr_piece"></el-input>
-                    </el-form-item> -->
+                    </el-form-item>
+                    <el-form-item label="产品组" prop="attr_color">
+                        <el-select class="filter-item" multiple v-model="formFilter.group_ids" placeholder="请选择">
+                            <el-option v-for="item in groupData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
+
                     <el-form-item class="form-item-btn" label="" style="margin-left:0">
                         <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                         <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -188,7 +194,7 @@
 </template>
 
 <script>
-import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll, queryGroupList } from '@/api/goods';
+import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll, queryGroupList, queryStoreCategoryList } from '@/api/goods';
 
 export default {
     name: 'CheckList',
@@ -229,7 +235,7 @@ export default {
                 attr_origin: '',
                 attr_unit: '',
                 attr_pattern: '',
-                attr_size: '',
+                attr_size_id: '',
                 attr_piece: '',
                 ids: [],
                 group_ids: []
@@ -252,8 +258,8 @@ export default {
             labelAll: [], // 标签(布和其它)列表
             sizeData: [], // 成品布尺寸列表
             pieceData: [], // 片数列表
-            originalCateData: [], //分类
             categoryData: [], //分类
+            tagData: [], //标签
             groupData: [] //分类列表
         };
     },
@@ -385,12 +391,16 @@ export default {
                     getLabelAllList(labelOtherParams),
                     // '类型 1品牌 2颜色 3产地 4单位 5材质 6花纹 7 成品布尺寸 8 幅宽
                     //'种类 1布料 2其他 3 成品布料
+                    //  1品牌的category :1,2
+                    //  1品牌 2颜色 3产地 4单位 6花纹 8 幅框 category:0
+                    //  7 成品布尺寸 category:3
+                    //  5材质 的category :1
                     getAllAttrList({ type: 1, category: that.type == 1 ? 2 : 1 }),
                     getAllAttrList({ type: 2, category: 0 }),
                     getAllAttrList({ type: 3, category: 0 }),
                     getAllAttrList({ type: 5, category: 1 }),
                     getAllAttrList({ type: 7, category: 3 }),
-                    getAllAttrList({ type: 9, category: 3 }),
+                    // getAllAttrList({ type: 9, category: 3 }),
                     queryTagListAll({
                         name: '-1', //-1 搜索全部
                         category_id: -1, //-1 搜索全部
@@ -398,10 +408,12 @@ export default {
                     }),
                     queryGroupList({
                         type: that.type //"type" 0可裁布 1其他 2成品布
-                    })
+                    }),
+                    // 分类
+                    queryStoreCategoryList({})
                 ])
                 .then(
-                    that.$ajax.spread(function(resLabel1, resLabel2, res1, res2, res3, res5, res7, res9, resCate, resGroup) {
+                    that.$ajax.spread(function(resLabel1, resLabel2, res1, res2, res3, res5, res7, resTag, resGroup, resCate) {
                         let label_cloth = [];
                         let label_other = [];
                         let err_arr = [];
@@ -480,36 +492,53 @@ export default {
                             }
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
-                        if (res9.code === 200) {
-                            // 片数
-                            that.pieceData = res9.data || [];
+                        // if (res9.code === 200) {
+                        //     // 片数
+                        //     that.pieceData = res9.data || [];
+                        // } else {
+                        //     if (res9.code === -1 && res9.msg.indexOf('无权限') > -1) {
+                        //         err_arr.push(res9.code);
+                        //     }
+                        //     // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
+                        // }
+                        if (resTag.code === 200) {
+                            const newArr = that.processCateData(resTag.data);
+                            that.tagData = newArr;
                         } else {
-                            if (res9.code === -1 && res9.msg.indexOf('无权限') > -1) {
-                                err_arr.push(res9.code);
+                            if (resTag.code === -1 && resTag.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resTag.code);
+                            }
+                            // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
+                        }
+                        if (resGroup.code === 200) {
+                            that.groupData = resGroup.data || [];
+                        } else {
+                            if (resGroup.code === -1 && resGroup.msg.indexOf('无权限') > -1) {
+                                err_arr.push(resGroup.code);
                             }
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (resCate.code === 200) {
                             console.log('输出 ~ resCate', resCate);
-                            // that.originalCateData = resCate.data;
-                            const newArr = that.processCateData(resCate.data);
-                            // that.categoryData = that.deleteNullChildren(newArr);
-                            that.categoryData = newArr;
-
-                            // 片数
-                            // that.pieceData = resCate.data || [];
+                            //0: {id: 1, name: "可裁布", level: 0, parent_id: 0}
+                            // 2: {id: 2, name: "成品布", level: 0, parent_id: 0}
+                            // 1: {id: 3, name: "其他", level: 0, parent_id: 0}
+                            let type;
+                            switch (that.type) {
+                                case 0:
+                                    type = 1;
+                                    break;
+                                case 1:
+                                    type = 3;
+                                    break;
+                                case 2:
+                                    type = 2;
+                                    break;
+                            }
+                            that.categoryData = resCate.data.filter(item => item.level == 1 && item.parent_id == type);
                         } else {
                             if (resCate.code === -1 && resCate.msg.indexOf('无权限') > -1) {
                                 err_arr.push(resCate.code);
-                            }
-                            // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
-                        }
-                        if (resGroup.code === 200) {
-                            console.log('输出 ~ resGroup', resGroup);
-                            that.groupData = resGroup.data || [];
-                        } else {
-                            if (resGroup.code === -1 && resGroup.msg.indexOf('无权限') > -1) {
-                                err_arr.push(resGroup.code);
                             }
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }

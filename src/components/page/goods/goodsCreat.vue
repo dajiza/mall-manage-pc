@@ -67,12 +67,12 @@
                     <el-input style="width:280px" placeholder="名称" v-model="goods.title"></el-input>
                 </el-form-item>
                 <el-form-item label="分类" v-if="goods.type == 1">
-                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
+                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择" style="width:280px">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="分类" prop="category_id" v-if="goods.type == 2 || goods.type == 3">
-                    <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择">
+                    <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择" style="width:280px">
                         <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -186,6 +186,22 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
+                    <el-table-column label="可售库存" width="220">
+                        <template slot-scope="scope">
+                            <el-form-item label="" class="table-radio-content">
+                                <el-radio v-model="scope.row.stock" :label="1">同步仓库</el-radio>
+                                <el-radio v-model="scope.row.stock" :label="2">{{ scope.row.stock == 2 ? '' : '自定义' }}</el-radio>
+                                <el-input
+                                    class="default-input"
+                                    placeholder="请输入"
+                                    v-model="scope.row.display_price"
+                                    v-if="scope.row.stock == 2"
+                                    style="width:80px;"
+                                ></el-input>
+                            </el-form-item>
+                        </template>
+                    </el-table-column>
+
                     <el-table-column label="总库存" width="">
                         <template slot-scope="scope">
                             <span>{{ scope.row.stock_total }}</span>
@@ -282,28 +298,45 @@
                     <el-radio v-model="goods.status" :label="2">是</el-radio>
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
-                <el-form-item label="虚拟销量" prop="display_sales">
-                    <el-input style="width:200px" placeholder="虚拟销量" v-model.number="goods.display_sales"></el-input>
+                <el-form-item label="是否定时上下架" v-if="!goods.goods_id">
+                    <el-radio v-model="goods.status" :label="2">是</el-radio>
+                    <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
-                <div>
+
+                <div class="option-content">
+                    <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
+                        <el-select
+                            class="filter-item"
+                            :disabled="goods.is_allow_agent == 2"
+                            v-model="goods.allow_shop_ids"
+                            placeholder="请选择"
+                            style="width:200px"
+                            multiple
+                        >
+                            <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="虚拟销量" prop="display_sales">
+                        <el-input style="width:200px" placeholder="虚拟销量" v-model.number="goods.display_sales"></el-input>
+                    </el-form-item>
                     <el-form-item label="邮费模板" prop="freight_id">
-                        <el-select class="filter-item" v-model="goods.freight_id" placeholder="请选择" style="width:280px">
+                        <el-select class="filter-item" v-model="goods.freight_id" placeholder="请选择" style="width:200px">
                             <el-option v-for="item in freightList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item class="long-time" label="上下架时间" prop="createdTime">
+                        <el-date-picker
+                            class="filter-item"
+                            v-model="goods.createdTime"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
                 </div>
-                <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
-                    <el-select
-                        class="filter-item"
-                        :disabled="goods.is_allow_agent == 2"
-                        v-model="goods.allow_shop_ids"
-                        placeholder="请选择"
-                        style="width:280px"
-                        multiple
-                    >
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
             </div>
         </el-form>
         <div class="submit-wrap">

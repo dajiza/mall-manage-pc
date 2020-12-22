@@ -17,7 +17,7 @@
                         新增分类
                     </el-button>
                 </div>
-                <el-table :data="tableData" style="width: 100%">
+                <el-table :data="tableData" style="width: 100%" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                     <el-table-column label="图片" width="140">
                         <template slot-scope="scope">
                             <img class="product-img" :src="getImg(scope.row.category_img)" alt="" @click="viewBigImg(scope.row.category_img)" />
@@ -50,7 +50,7 @@
                         <EmptyList></EmptyList>
                     </template>
                 </el-table>
-                <div class="pagination pos-relative">
+                <div class="pagination-container">
                     <el-pagination
                         background
                         layout="total, prev, pager, next"
@@ -137,7 +137,7 @@ export default {
             },
             formTitle: '',
             current_id: -1,
-            tableHeight: 'calc(100% - 62px - 26px)',
+            tableHeight: 'calc(100% - 98px)',
             uploadImgUrl: '', //   图片上传地址
             back_img_url: '', //   上传后台返回图片地址（不完整）
             header: {},

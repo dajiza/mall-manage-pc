@@ -17,7 +17,8 @@ import axios from 'axios';
 import commUtil from './utils/commUtil';
 import { signOut } from './utils/loginOut';
 import 'default-passive-events';
-import TableHeaderColor from './plugin/tableHeader'; // 引入通用表头样式
+import TableHeaderColor from './plugin/tableConfig'; // 引入通用表头样式
+import TableHeight from './plugin/tableConfig'; // 引入通用表头样式
 import _ from 'lodash'; //引入lodash
 import VideoPlayer from 'vue-video-player';
 import less from 'less';
@@ -38,6 +39,7 @@ Vue.use(ElementUI, {
 Vue.use(Print)
     .use(less)
     .use(TableHeaderColor)
+    .use(TableHeight)
     .use(VideoPlayer);
 // const i18n = new VueI18n({
 //     locale: 'zh',

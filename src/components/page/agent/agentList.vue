@@ -28,7 +28,7 @@
             <div class="line"></div>
             <div class="text">代理管理</div>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="140">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-agent-update-status'">

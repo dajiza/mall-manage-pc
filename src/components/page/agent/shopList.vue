@@ -32,7 +32,7 @@
             <div class="text">店铺管理</div>
             <el-button type="primary" @click="shopCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">新增店铺</el-button>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="店铺名称" width="160">
                 <template slot-scope="scope">
                     <span>{{ scope.row.name }}</span>
@@ -252,7 +252,6 @@ export default {
     data() {
         return {
             header: {},
-
             list: null,
             total: 0,
             listLoading: false,
