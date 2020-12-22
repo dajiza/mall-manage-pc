@@ -298,10 +298,10 @@
                     <el-radio v-model="goods.status" :label="2">是</el-radio>
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
-                <el-form-item label="是否定时上下架" v-if="!goods.goods_id">
+                <!-- <el-form-item label="是否定时上下架" v-if="!goods.goods_id">
                     <el-radio v-model="goods.status" :label="2">是</el-radio>
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
-                </el-form-item>
+                </el-form-item> -->
 
                 <div class="option-content">
                     <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
@@ -324,7 +324,7 @@
                             <el-option v-for="item in freightList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item class="long-time" label="上下架时间" prop="createdTime">
+                    <!-- <el-form-item class="long-time" label="上下架时间" prop="createdTime">
                         <el-date-picker
                             class="filter-item"
                             v-model="goods.createdTime"
@@ -335,7 +335,7 @@
                             end-placeholder="结束日期"
                         >
                         </el-date-picker>
-                    </el-form-item>
+                    </el-form-item> -->
                 </div>
             </div>
         </el-form>
