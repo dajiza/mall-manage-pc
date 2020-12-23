@@ -55,9 +55,9 @@
                         <!--:picker-options="pickerOptions"-->
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="SKU编码" prop="order_no" class="">
+                <!-- <el-form-item label="SKU编码" prop="order_no" class="">
                     <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                     <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>

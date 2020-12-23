@@ -34,9 +34,9 @@
                         <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="SKU编码" prop="order_no" class="">
+                <!-- <el-form-item label="SKU编码" prop="order_no" class="">
                     <el-input class="filter-item" v-model="formFilter.order_no" placeholder="请输入"></el-input>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -195,11 +195,11 @@
                                 <span>{{ scope.row.title }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU编码" width="140">
+                        <!-- <el-table-column label="SKU编码" width="140">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.title }}</span>
                             </template>
-                        </el-table-column>
+                        </el-table-column> -->
                         <el-table-column label="售价(元)" width="100">
                             <template slot-scope="scope">
                                 <span>{{ formatMoney(scope.row.min_price) }}</span>
@@ -232,7 +232,7 @@
 
             <!-- 被合并列 占位 -->
             <el-table-column label="SKU名称" width="200"> </el-table-column>
-            <el-table-column label="SKU编码" width="140"> </el-table-column>
+            <!-- <el-table-column label="SKU编码" width="140"> </el-table-column> -->
             <el-table-column label="售价(元)" width="100"> </el-table-column>
             <el-table-column label="实际销量" width="100"> </el-table-column>
             <el-table-column label="总库存" width="100"> </el-table-column>
@@ -345,7 +345,7 @@ export default {
         // 合并单元格
         arraySpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 9) {
-                return [1, 8];
+                return [1, 7];
             }
             if (columnIndex > 9) {
                 return [0, 0];
