@@ -292,7 +292,6 @@ export const mixinsGoods = {
                         // 新建时默认填写库存预警
                         let stockWarn = res[6].data.find(item => item.config_key == 'SYS_STOCK_WARNGING');
                         this.stockWarn = Number(stockWarn.value);
-                        console.log('输出 ~ this.stockWarn', this.stockWarn);
                     }
                     rLoading.close();
                 })
@@ -767,6 +766,8 @@ export const mixinsGoods = {
 
         submit() {
             console.log('GOOGLE: goods', this.goods);
+            console.log('GOOGLE: this.this.basicChecked', this.basicChecked);
+            console.log('GOOGLE: this.this.basicAttr', this.basicAttr);
             const rLoading = this.openLoading();
 
             this.$refs['formRef'].validate(valid => {
@@ -879,6 +880,9 @@ export const mixinsGoods = {
                         for (let j = 0; j < this.basicChecked.length; j++) {
                             const checkId = this.basicChecked[j];
                             let attrInfo = this.basicAttr.find(item => checkId == item.id);
+                            if (!attrInfo) {
+                                continue;
+                            }
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
