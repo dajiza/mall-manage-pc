@@ -1,15 +1,15 @@
-import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods';
-import { queryConfigList } from '@/api/configManagement';
-import { queryFreightList } from '@/api/freight';
-import { getLabelAllList } from '@/api/goodsLabel';
-import { formatMoney } from '@/plugin/tool';
-import { getToken } from '@/utils/auth';
-import { ATTR, ATTR_NAME } from '@/plugin/constant';
-import storeProductList from '@/components/common/store-product-list/StoreProductList';
-import vTagPicker from '@/components/common/TagPicker.vue';
-import ElImageViewer from '@/components/common/image-viewer';
-import bus from '@/components/common/bus';
-import commUtil from '@/utils/commUtil';
+import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods'
+import { queryConfigList } from '@/api/configManagement'
+import { queryFreightList } from '@/api/freight'
+import { getLabelAllList } from '@/api/goodsLabel'
+import { formatMoney } from '@/plugin/tool'
+import { getToken } from '@/utils/auth'
+import { ATTR, ATTR_NAME } from '@/plugin/constant'
+import storeProductList from '@/components/common/store-product-list/StoreProductList'
+import vTagPicker from '@/components/common/TagPicker.vue'
+import ElImageViewer from '@/components/common/image-viewer'
+import bus from '@/components/common/bus'
+import commUtil from '@/utils/commUtil'
 
 export const mixinsGoods = {
     data() {
@@ -48,7 +48,7 @@ export const mixinsGoods = {
                     type: 'number',
                     message: '请输入正确的价格',
                     transform(value) {
-                        return Number(value);
+                        return Number(value)
                     },
                     min: 0.01
                 }
@@ -59,7 +59,7 @@ export const mixinsGoods = {
                     type: 'integer',
                     message: '请输入非零整数',
                     transform(value) {
-                        return Number(value);
+                        return Number(value)
                     },
                     min: 1
                 }
@@ -178,26 +178,26 @@ export const mixinsGoods = {
                     fullscreenToggle: true //全屏按钮
                 }
             }
-        };
+        }
     },
     watch: {
         'goods.type': {
             handler(newVal, oldVal) {
-                this.tableKey++; // 为了保证table 每次都会重渲
+                this.tableKey++ // 为了保证table 每次都会重渲
             },
             deep: true,
             immediate: true
         },
         consumeChecked() {
-            this.tableKey++; // 为了保证table 每次都会重渲
+            this.tableKey++ // 为了保证table 每次都会重渲
         },
         basicChecked() {
-            this.tableKey++; // 为了保证table 每次都会重渲
+            this.tableKey++ // 为了保证table 每次都会重渲
         }
     },
     computed: {
         pickerTag: function() {
-            return this.miniProgramTags.concat(this.backendTags);
+            return this.miniProgramTags.concat(this.backendTags)
         }
     },
 
@@ -208,24 +208,24 @@ export const mixinsGoods = {
     },
     created() {
         // 图片上传地址
-        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
-        this.header['token'] = getToken();
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
+        this.header['token'] = getToken()
     },
     mounted() {
-        let id = this.$route.query.id;
+        let id = this.$route.query.id
         if (!id) {
-            this.dialogVisibleType = true;
+            this.dialogVisibleType = true
         } else {
-            this.initData();
+            this.initData()
         }
     },
     methods: {
         formatMoney: formatMoney,
 
         async initData() {
-            const rLoading = this.openLoading();
+            const rLoading = this.openLoading()
             if (this.$route.query.id) {
-                await this.getDetail();
+                await this.getDetail()
             }
 
             Promise.all([
@@ -244,92 +244,92 @@ export const mixinsGoods = {
                 queryConfigList({})
             ])
                 .then(res => {
-                    let options = {};
+                    let options = {}
                     if (res[0].code === 200) {
                         if (res[0].data) {
-                            options.backendTags = res[0].data;
+                            options.backendTags = res[0].data
                         }
                     }
                     if (res[1].code === 200) {
                         if (res[1].data) {
-                            options.miniProgramTags = res[1].data;
+                            options.miniProgramTags = res[1].data
                         }
                     }
-                    this.options = options;
+                    this.options = options
                     if (res[2].code === 200) {
-                        this.freightList = res[2].data;
+                        this.freightList = res[2].data
                         // 新建默认选中默认的运费模板
                         if (!this.goods.goods_id) {
-                            this.goods.freight_id = this.freightList.find(item => item.is_default == 2).id;
+                            this.goods.freight_id = this.freightList.find(item => item.is_default == 2).id
                         }
                     }
                     if (res[3].code === 200) {
-                        this.basicAttr = res[3].data.consume_attr_basic_attr;
+                        this.basicAttr = res[3].data.consume_attr_basic_attr
                         // 其他只显示品牌 单位两个属性
                         if (this.goods.type == 1) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id <= 6 && item.id != 4;
-                            });
+                                return item.id <= 6 && item.id != 4
+                            })
                         } else if (this.goods.type == 2) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1;
-                            });
+                                return item.id == 1
+                            })
                         } else if (this.goods.type == 3) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1 || item.id == 7 || item.id == 9;
-                            });
+                                return item.id == 1 || item.id == 7 || item.id == 9
+                            })
                         }
-                        this.consumeAttr = res[3].data.consume_attr;
+                        this.consumeAttr = res[3].data.consume_attr
                     }
                     if (res[4].code === 200) {
-                        this.shopList = res[4].data;
+                        this.shopList = res[4].data
                     }
                     if (res[5].code === 200) {
-                        this.categoryData = res[5].data;
+                        this.categoryData = res[5].data
                         // 其他分类
                     }
                     if (res[6].code === 200) {
                         // 新建时默认填写库存预警
-                        let stockWarn = res[6].data.find(item => item.config_key == 'SYS_STOCK_WARNGING');
-                        this.stockWarn = Number(stockWarn.value);
+                        let stockWarn = res[6].data.find(item => item.config_key == 'SYS_STOCK_WARNGING')
+                        this.stockWarn = Number(stockWarn.value)
                     }
-                    rLoading.close();
+                    rLoading.close()
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
         setCellColor({ row, column, rowIndex, columnIndex }) {
             // if (this.basicChecked == 0) {
             //     return;
             // }
             for (let i = 0; i < this.basicChecked.length; i++) {
-                const element = this.basicChecked[i];
+                const element = this.basicChecked[i]
                 if (column.property == element) {
-                    return 'background: #e7f4ff;';
+                    return 'background: #e7f4ff;'
                 }
             }
             for (let i = 0; i < this.consumeChecked.length; i++) {
-                const element = this.consumeChecked[i];
+                const element = this.consumeChecked[i]
                 if (column.property == element) {
-                    return 'background: #e7f4ff;';
+                    return 'background: #e7f4ff;'
                 }
             }
         },
         // 编辑获取详情
         getDetail() {
             return new Promise((resolve, reject) => {
-                let id = this.$route.query.id;
-                console.log('GOOGLE: id', id);
+                let id = this.$route.query.id
+                console.log('GOOGLE: id', id)
                 if (!id) {
-                    return;
+                    return
                 }
                 let params = {
                     goods_id: Number(id)
-                };
+                }
                 queryGoodsDetail(params)
                     .then(async res => {
-                        console.log('GOOGLE: goods', res);
+                        console.log('GOOGLE: goods', res)
                         // this.goods = res.data;
-                        let data = _.cloneDeep(res.data);
+                        let data = _.cloneDeep(res.data)
 
                         // format 标签
                         // data.tag_detail_list
@@ -338,30 +338,30 @@ export const mixinsGoods = {
                         let tagListBack = await getLabelAllList({
                             type: data.type,
                             display_platform: 1
-                        });
+                        })
                         let tagListMiniApp = await getLabelAllList({
                             type: data.type,
                             display_platform: 2
-                        });
-                        data['category_id'] = data['category_id'] == 0 ? '' : data['category_id'];
-                        data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list'];
-                        data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids'];
+                        })
+                        data['category_id'] = data['category_id'] == 0 ? '' : data['category_id']
+                        data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list']
+                        data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids']
                         for (let i = 0; i < data['tag_detail_list'].length; i++) {
-                            const tagId = data['tag_detail_list'][i].tag_id;
-                            let findTag = tagListBack.data.find(item => tagId == item.id);
+                            const tagId = data['tag_detail_list'][i].tag_id
+                            let findTag = tagListBack.data.find(item => tagId == item.id)
                             if (findTag) {
                                 this.backendTags.push({
                                     id: findTag.id,
                                     label: findTag.name
-                                });
-                                continue;
+                                })
+                                continue
                             }
-                            findTag = tagListMiniApp.data.find(item => tagId == item.id);
+                            findTag = tagListMiniApp.data.find(item => tagId == item.id)
                             if (findTag) {
                                 this.miniProgramTags.push({
                                     id: findTag.id,
                                     label: findTag.name
-                                });
+                                })
                             }
                         }
                         // format 图片
@@ -370,118 +370,118 @@ export const mixinsGoods = {
                                 url: item.type == 2 ? this.imgVedio : item.img_url,
                                 vedioUrl: item.type == 2 ? item.img_url : null,
                                 type: item.type
-                            };
-                        });
-                        this.timg.push(data.imgs[0]);
-                        data.imgs.splice(0, 1);
-                        this.tfile = data.imgs;
+                            }
+                        })
+                        this.timg.push(data.imgs[0])
+                        data.imgs.splice(0, 1)
+                        this.tfile = data.imgs
                         // format attr_list 及价格 字段名  sku_title=>title store_house_id=>storehouse_pid sku_status=>status
                         for (let i = 0; i < data['sku_list'].length; i++) {
-                            const skuItem = data['sku_list'][i];
-                            skuItem.min_price = skuItem.min_price / 100;
-                            skuItem.display_price = skuItem.display_price / 100;
-                            skuItem['attrDiyValue'] = ['', '', ''];
-                            skuItem['storehouse_pid'] = skuItem['store_house_id'];
-                            skuItem['title'] = skuItem['sku_title'];
-                            skuItem['status'] = skuItem['sku_status'];
-                            const attrList = skuItem['sku_attr_list'];
-                            let diyAttrIndex = 0;
+                            const skuItem = data['sku_list'][i]
+                            skuItem.min_price = skuItem.min_price / 100
+                            skuItem.display_price = skuItem.display_price / 100
+                            skuItem['attrDiyValue'] = ['', '', '']
+                            skuItem['storehouse_pid'] = skuItem['store_house_id']
+                            skuItem['title'] = skuItem['sku_title']
+                            skuItem['status'] = skuItem['sku_status']
+                            const attrList = skuItem['sku_attr_list']
+                            let diyAttrIndex = 0
                             for (let j = 0; j < attrList.length; j++) {
-                                const attrItem = attrList[j];
+                                const attrItem = attrList[j]
                                 if (i == 0) {
                                     if (attrItem.attr_id <= 9) {
-                                        this.basicChecked.push(attrItem.attr_id);
+                                        this.basicChecked.push(attrItem.attr_id)
                                     } else {
                                         this.attrDiyList.push({
                                             id: attrItem.attr_id,
                                             title: attrItem.attr_title
-                                        });
-                                        this.consumeChecked.push(attrItem.attr_id);
+                                        })
+                                        this.consumeChecked.push(attrItem.attr_id)
                                     }
                                 }
 
                                 if (attrItem.attr_id > 9) {
-                                    skuItem['attrDiyValue'][diyAttrIndex] = attrItem.attr_value;
-                                    diyAttrIndex++;
+                                    skuItem['attrDiyValue'][diyAttrIndex] = attrItem.attr_value
+                                    diyAttrIndex++
                                 }
                             }
                         }
 
-                        this.goods = data;
-                        resolve(data);
+                        this.goods = data
+                        resolve(data)
                     })
                     .catch(err => {
-                        reject();
-                    });
-            });
+                        reject()
+                    })
+            })
         },
 
         // 删除 children为空的元素
         deleteNullChildren(arr) {
-            let childs = arr;
+            let childs = arr
             for (let i = childs.length; i--; i > 0) {
                 if (childs[i].children) {
                     if (childs[i].children.length) {
-                        this.deleteNullChildren(childs[i].children);
+                        this.deleteNullChildren(childs[i].children)
                     } else {
-                        delete childs[i].children;
+                        delete childs[i].children
                     }
                 }
             }
-            return arr;
+            return arr
         },
         // 格式化分类数据
         processCateData(data) {
-            let dealOptions = [];
+            let dealOptions = []
             // 给每个数据加children属性
             data.forEach((ev, one) => {
-                ev.children = [];
-            });
+                ev.children = []
+            })
             data.forEach((ev, one) => {
-                let findIndex = data.findIndex(item => item.id === ev.parent_id);
+                let findIndex = data.findIndex(item => item.id === ev.parent_id)
                 if ((!ev.parent_id && ev.parent_id !== 0 && ev.parent_id !== false) || findIndex === -1) {
-                    dealOptions.push(ev);
+                    dealOptions.push(ev)
                 } else {
-                    data[findIndex].children.push(ev);
+                    data[findIndex].children.push(ev)
                 }
-            });
-            return dealOptions;
+            })
+            return dealOptions
         },
         handleCheckedBasic(value) {
-            let length = this.consumeChecked.length + this.basicChecked.length;
+            let length = this.consumeChecked.length + this.basicChecked.length
             if (length > 3) {
-                this.basicChecked.splice(this.basicChecked.indexOf(value), 1);
+                this.basicChecked.splice(this.basicChecked.indexOf(value), 1)
                 this.$notify({
                     title: '最多只能选择3个展示属性哦~',
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
 
         handleConsumeBasic(value) {
-            let length = this.consumeChecked.length + this.basicChecked.length;
+            let length = this.consumeChecked.length + this.basicChecked.length
             if (length > 3) {
-                this.consumeChecked.splice(this.consumeChecked.indexOf(value), 1);
+                this.consumeChecked.splice(this.consumeChecked.indexOf(value), 1)
                 this.$notify({
                     title: '最多只能选择3个展示属性哦~',
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             } else {
                 this.attrDiyList = this.consumeChecked.map(item => {
                     let myAttr = this.consumeAttr.find(attr => {
-                        return item == attr.id;
-                    });
-                    return myAttr;
-                });
-                console.log('GOOGLE: this.attrDiyList', this.attrDiyList);
+                        return item == attr.id
+                    })
+                    return myAttr
+                })
+                console.log('GOOGLE: this.attrDiyList', this.attrDiyList)
             }
         },
         getSku(pList) {
-            console.log('GOOGLE: pList', pList);
+            console.log('GOOGLE: pList', pList)
             // this.goods.sku_list = pList;
             // for (let i = 0; i < pList.length; i++) {
             //     const pItem = pList[i];
@@ -495,38 +495,38 @@ export const mixinsGoods = {
             //     }
             // }
             for (let i = 0; i < this.goods.sku_list.length; i++) {
-                const skuItem = this.goods.sku_list[i];
-                let index = pList.findIndex(item => skuItem.storehouse_pid == item.storehouse_pid);
+                const skuItem = this.goods.sku_list[i]
+                let index = pList.findIndex(item => skuItem.storehouse_pid == item.storehouse_pid)
                 if (index != -1) {
-                    pList.splice(index, 1);
+                    pList.splice(index, 1)
                 }
             }
             for (let j = 0; j < pList.length; j++) {
-                const element = pList[j];
-                element.stock_warning = this.stockWarn;
+                const element = pList[j]
+                element.stock_warning = this.stockWarn
             }
-            this.goods.sku_list = this.goods.sku_list.concat(pList);
+            this.goods.sku_list = this.goods.sku_list.concat(pList)
             // this.setTimg();
         },
 
         addSku() {
-            this.$refs.productList.show();
+            this.$refs.productList.show()
         },
         // 删除sku
         deleteSku(index) {
-            this.goods.sku_list.splice(index, 1);
+            this.goods.sku_list.splice(index, 1)
         },
         // 设为主商品
         setFirsetSku(row, index) {
-            this.goods.sku_list.unshift(row);
-            this.goods.sku_list.splice(index + 1, 1);
-            this.setTimg();
+            this.goods.sku_list.unshift(row)
+            this.goods.sku_list.splice(index + 1, 1)
+            this.setTimg()
         },
         // 生成首图 以及标题
         setTimg() {
-            let firstSku = this.goods.sku_list[0];
-            this.timg = [{ url: firstSku.sku_img }];
-            this.goods.title = firstSku.title;
+            let firstSku = this.goods.sku_list[0]
+            this.timg = [{ url: firstSku.sku_img }]
+            this.goods.title = firstSku.title
         },
         // sku上下架
         setSkuStatus(row, status, index) {
@@ -536,18 +536,18 @@ export const mixinsGoods = {
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
-                return;
+                })
+                return
             }
-            status = status == 1 ? 2 : 1;
-            this.$set(this.goods.sku_list[index], 'status', status);
+            status = status == 1 ? 2 : 1
+            this.$set(this.goods.sku_list[index], 'status', status)
         },
 
         // 图片上传前检测 首图
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
-                this.upload_loading = this.uploadLoading('上传中');
-                this.uploadVisible = false;
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
             } else {
                 if (file.size > 1024 * 1024 * 5) {
                     this.$notify({
@@ -555,16 +555,16 @@ export const mixinsGoods = {
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 } else {
                     this.$notify({
                         title: '照片格式只支持JPG、PNG',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-                return false;
+                return false
             }
         },
         // 单张图片上传成功回调 首图
@@ -575,28 +575,28 @@ export const mixinsGoods = {
                     message: '',
                     type: 'success',
                     duration: 500
-                });
-                this.upload_loading.close();
-                this.timg = fileList;
+                })
+                this.upload_loading.close()
+                this.timg = fileList
             } else {
-                this.upload_loading.close();
+                this.upload_loading.close()
                 this.$notify({
                     title: response.msg,
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
         // 单张图片上传失败回调 首图
         uploadImgError(err, file, fileList) {
-            this.upload_loading.close();
+            this.upload_loading.close()
             this.$notify({
                 title: '上传失败',
                 message: '',
                 type: 'error',
                 duration: 5000
-            });
+            })
         },
         //  首图
         // handleExceed(files, fileList) {
@@ -609,16 +609,13 @@ export const mixinsGoods = {
         // },
         //  首图
         handleRemove(file, fileList) {
-            this.timg = fileList;
+            this.timg = fileList
         },
         // 图片上传前检测 图片视频 其他五张
         beforeUploadMultiple(file) {
-            if (
-                (file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg' || file.type === 'video/mp4') &&
-                file.size <= 1024 * 1024 * 5
-            ) {
-                this.upload_loading = this.uploadLoading('上传中');
-                this.uploadVisible = false;
+            if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg' || file.type === 'video/mp4') && file.size <= 1024 * 1024 * 5) {
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
             } else {
                 if (file.size > 1024 * 1024 * 5) {
                     this.$notify({
@@ -626,67 +623,67 @@ export const mixinsGoods = {
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 } else {
                     this.$notify({
                         title: '文件格式只支持JPG、PNG、MP4',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-                return false;
+                return false
             }
         },
         // 图片上传成功回调 图片视频 其他五张
         uploadImgSuccessMultiple(response, file, fileList) {
-            console.log('GOOGLE: fileList', fileList);
-            console.log('GOOGLE: file', file);
-            let status = fileList.every(item => item.type || (item.response && item.response.code == 200));
-            console.log('输出 ~ file: goodsCreat.vue ~ line 926 ~ status', status);
+            console.log('GOOGLE: fileList', fileList)
+            console.log('GOOGLE: file', file)
+            let status = fileList.every(item => item.type || (item.response && item.response.code == 200))
+            console.log('输出 ~ file: goodsCreat.vue ~ line 926 ~ status', status)
             if (status) {
                 this.$notify({
                     title: '上传成功',
                     message: '',
                     type: 'success',
                     duration: 500
-                });
-                this.upload_loading.close();
+                })
+                this.upload_loading.close()
                 // 上传视频 替换一张可显示图片
                 // if (file.raw.type == 'video/mp4') {
                 //     file.url = this.imgVedio;
                 // }
                 fileList = fileList.map(item => {
                     if (item.type == 1 || item.type == 2) {
-                        return item;
+                        return item
                     }
                     if (item.raw.type == 'video/mp4') {
-                        item.url = this.imgVedio;
+                        item.url = this.imgVedio
                     }
-                    return item;
-                });
+                    return item
+                })
                 // this.tfile.push(file);
-                this.tfile = fileList;
+                this.tfile = fileList
             }
             if (response.code != 200) {
-                this.upload_loading.close();
+                this.upload_loading.close()
                 this.$notify({
                     title: response.msg,
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
         // 单张图片上传失败回调 图片视频 其他五张
         uploadImgErrorMultiple(err, file, fileList) {
-            this.upload_loading.close();
+            this.upload_loading.close()
             this.$notify({
                 title: '上传失败',
                 message: '',
                 type: 'error',
                 duration: 5000
-            });
+            })
         },
         // 图片视频 其他五张
         handleExceedMultiple(files, fileList) {
@@ -695,28 +692,28 @@ export const mixinsGoods = {
                 message: '',
                 type: 'warning',
                 duration: 5000
-            });
+            })
         },
         // 图片视频 其他五张
         handleRemoveMultiple(file) {
-            this.tfile.splice(this.tfile.indexOf(file), 1);
+            this.tfile.splice(this.tfile.indexOf(file), 1)
             // this.tfile = fileList;
         },
         // 图片左移
         handlePictureLeft(file) {
-            let index = this.tfile.indexOf(file);
+            let index = this.tfile.indexOf(file)
             if (index == 0) {
-                return;
+                return
             }
-            this.swapItems(index, index - 1);
+            this.swapItems(index, index - 1)
         },
         // 图片右移
         handlePictureRight(file) {
-            let index = this.tfile.indexOf(file);
+            let index = this.tfile.indexOf(file)
             if (index == this.tfile.length - 1) {
-                return;
+                return
             }
-            this.swapItems(index, index + 1);
+            this.swapItems(index, index + 1)
             // this.tfile = fileList;
         },
         // 生成随机数 作为uid
@@ -725,59 +722,59 @@ export const mixinsGoods = {
         // },
         // 图片位置交换方法
         swapItems(index1, index2) {
-            this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0];
+            this.tfile[index1] = this.tfile.splice(index2, 1, this.tfile[index1])[0]
         },
         closePreview() {
-            this.dialogVisiblePic = false;
+            this.dialogVisiblePic = false
         },
         handlePictureCardPreview(file) {
             if (file.response) {
-                this.dialogImageUrl = file.response.data.file_url;
-                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
-                this.dialogViewType = file.raw.type == 'video/mp4' ? 2 : 1;
+                this.dialogImageUrl = file.response.data.file_url
+                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl
+                this.dialogViewType = file.raw.type == 'video/mp4' ? 2 : 1
             } else {
-                this.dialogImageUrl = file.type == 2 ? file.vedioUrl : file.url;
-                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl;
-                this.dialogViewType = file.type;
+                this.dialogImageUrl = file.type == 2 ? file.vedioUrl : file.url
+                this.playerOptions['sources'][0]['src'] = this.dialogImageUrl
+                this.dialogViewType = file.type
             }
             if (this.dialogViewType == 2) {
-                this.dialogVisible = true;
+                this.dialogVisible = true
             } else {
-                this.dialogVisiblePic = true;
-                this.previewUrlList = [];
-                let list = this.timg.concat(this.tfile);
+                this.dialogVisiblePic = true
+                this.previewUrlList = []
+                let list = this.timg.concat(this.tfile)
                 for (let i = 0; i < list.length; i++) {
-                    const item = list[i];
+                    const item = list[i]
                     if (item.response) {
-                        let type = item.raw.type == 'video/mp4' ? 2 : 1;
+                        let type = item.raw.type == 'video/mp4' ? 2 : 1
                         if (type == 1) {
-                            this.previewUrlList.push(item.response.data.file_url);
+                            this.previewUrlList.push(item.response.data.file_url)
                         }
                     } else {
-                        let dialogImageUrl = item.type == 2 ? item.vedioUrl : item.url;
+                        let dialogImageUrl = item.type == 2 ? item.vedioUrl : item.url
                         if (item.type == 1) {
-                            this.previewUrlList.push(dialogImageUrl);
+                            this.previewUrlList.push(dialogImageUrl)
                         }
                     }
                 }
-                this.previewIndex = this.previewUrlList.indexOf(this.dialogImageUrl);
+                this.previewIndex = this.previewUrlList.indexOf(this.dialogImageUrl)
             }
         },
 
         submit() {
-            console.log('GOOGLE: goods', this.goods);
-            console.log('GOOGLE: this.this.basicChecked', this.basicChecked);
-            console.log('GOOGLE: this.this.basicAttr', this.basicAttr);
-            const rLoading = this.openLoading();
+            console.log('GOOGLE: goods', this.goods)
+            console.log('GOOGLE: this.this.basicChecked', this.basicChecked)
+            console.log('GOOGLE: this.this.basicAttr', this.basicAttr)
+            const rLoading = this.openLoading()
 
             this.$refs['formRef'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
-                    let params = _.cloneDeep(this.goods);
+                    let params = _.cloneDeep(this.goods)
                     // format is_allow_agent
-                    params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids'];
+                    params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids']
                     // format标签
-                    params['tag_ids'] = this.pickerTag.map(item => item.id).join(',');
+                    params['tag_ids'] = this.pickerTag.map(item => item.id).join(',')
                     // format 图片
                     if (this.timg.length == 0) {
                         this.$notify({
@@ -785,41 +782,41 @@ export const mixinsGoods = {
                             message: '',
                             type: 'warning',
                             duration: 5000
-                        });
-                        rLoading.close();
-                        return;
+                        })
+                        rLoading.close()
+                        return
                     }
-                    this.timg[0]['type'] = 1;
-                    let imgList = this.timg.concat(this.tfile);
-                    let length = imgList.length + 1;
+                    this.timg[0]['type'] = 1
+                    let imgList = this.timg.concat(this.tfile)
+                    let length = imgList.length + 1
                     let imgs = imgList.map(item => {
-                        let url, type;
+                        let url, type
                         if (item.response) {
-                            url = item.response.data.file_url;
-                            type = item.raw.type == 'video/mp4' ? 2 : 1;
+                            url = item.response.data.file_url
+                            type = item.raw.type == 'video/mp4' ? 2 : 1
                         } else {
                             if (item.type == 2) {
-                                url = item.vedioUrl;
-                                type = item.type;
+                                url = item.vedioUrl
+                                type = item.type
                             } else {
-                                url = item.url;
-                                type = item.type;
+                                url = item.url
+                                type = item.type
                             }
                         }
                         // 倒序sort
-                        length--;
+                        length--
                         return {
                             img_url: url,
                             type: type, //1 图片 2视频
                             sort: length //排序 倒叙
-                        };
-                    });
-                    params['imgs'] = imgs;
+                        }
+                    })
+                    params['imgs'] = imgs
                     // format category_id
-                    params['category_id'] = params['category_id'] == '' ? 0 : params['category_id'];
+                    params['category_id'] = params['category_id'] == '' ? 0 : params['category_id']
                     //生成attr_list数据 format 价格
-                    let attrLength = this.consumeChecked.length + this.basicChecked.length;
-                    params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked].sort((a, b) => a - b);
+                    let attrLength = this.consumeChecked.length + this.basicChecked.length
+                    params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked].sort((a, b) => a - b)
 
                     if (attrLength == 0 || attrLength > 3) {
                         this.$notify({
@@ -827,9 +824,9 @@ export const mixinsGoods = {
                             message: '',
                             type: 'warning',
                             duration: 5000
-                        });
-                        rLoading.close();
-                        return;
+                        })
+                        rLoading.close()
+                        return
                     }
                     // 判断sku数量
                     if (params.sku_list <= 0) {
@@ -838,17 +835,17 @@ export const mixinsGoods = {
                             message: '',
                             type: 'warning',
                             duration: 5000
-                        });
-                        rLoading.close();
-                        return;
+                        })
+                        rLoading.close()
+                        return
                     }
                     // 判断失少有一个sku为上架
-                    let skuStatus = false;
+                    let skuStatus = false
                     for (let i = 0; i < params.sku_list.length; i++) {
-                        const skuItem = params.sku_list[i];
+                        const skuItem = params.sku_list[i]
                         if (skuItem.status == 2) {
-                            skuStatus = true;
-                            break;
+                            skuStatus = true
+                            break
                         }
                     }
                     if (!skuStatus && this.goods.status == 2) {
@@ -857,122 +854,151 @@ export const mixinsGoods = {
                             message: '',
                             type: 'warning',
                             duration: 5000
-                        });
-                        rLoading.close();
-                        return;
+                        })
+                        rLoading.close()
+                        return
                     }
                     for (let i = 0; i < params.sku_list.length; i++) {
-                        const skuItem = params.sku_list[i];
-                        skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100);
-                        skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price), 100);
+                        const skuItem = params.sku_list[i]
+                        skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100)
+                        skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price), 100)
                         if (skuItem.min_price > skuItem.display_price) {
-                            let num = i + 1;
+                            let num = i + 1
                             this.$notify({
                                 title: `第${num}条sku,显示售价不能低于最低售价`,
                                 message: '',
                                 type: 'warning',
                                 duration: 5000
-                            });
-                            rLoading.close();
-                            return;
+                            })
+                            rLoading.close()
+                            return
                         }
-                        skuItem.attr_list = [];
+                        skuItem.attr_list = []
                         for (let j = 0; j < this.basicChecked.length; j++) {
-                            const checkId = this.basicChecked[j];
-                            let attrInfo = this.basicAttr.find(item => checkId == item.id);
+                            const checkId = this.basicChecked[j]
+                            let attrInfo = this.basicAttr.find(item => checkId == item.id)
                             if (!attrInfo) {
-                                continue;
+                                continue
                             }
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
                                 attr_title: attrInfo.title, //属性名称
                                 attr_value: skuItem[ATTR[attrInfo.id]] //属性值
-                            });
+                            })
                         }
                         for (let j = 0; j < this.consumeChecked.length; j++) {
-                            const checkId = this.consumeChecked[j];
-                            let attrInfo = this.consumeAttr.find(item => checkId == item.id);
+                            const checkId = this.consumeChecked[j]
+                            let attrInfo = this.consumeAttr.find(item => checkId == item.id)
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
                                 attr_title: attrInfo.title, //属性名称
                                 attr_value: skuItem['attrDiyValue'][j] //属性值
-                            });
+                            })
                         }
                     }
-                    console.log('GOOGLE: params', params);
+                    // 判断任意两个上架商品 所选择的属性值不能完全一致 导致小程序区分不开sku
+                    for (let i = 0; i < params.sku_list.length; i++) {
+                        const skuItem = params.sku_list[i]
+                        // 判断上下架
+                        if (skuItem.status == 1) {
+                            continue
+                        }
+
+                        for (let j = i + 1; j < params.sku_list.length; j++) {
+                            const skuCompare = params.sku_list[j]
+                            // 判断上下架
+                            if (skuCompare.status == 1) {
+                                continue
+                            }
+                            let allSame = skuCompare.attr_list.every((item, index) => {
+                                return item.attr_value == skuItem.attr_list[index].attr_value
+                            })
+                            if (allSame) {
+                                this.$notify({
+                                    title: `SKU第${i + 1}条和第${j + 1}条的展示属性完全一致,请更改属性值或者下架其中一个`,
+                                    message: '',
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                                rLoading.close()
+                                return
+                            }
+                        }
+                    }
+                    console.log('GOOGLE: params', params)
                     if (params.goods_id) {
                         // 编辑
-                        params['id'] = params['goods_id'];
+                        params['id'] = params['goods_id']
                         updateGoods(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res);
+                                console.log('GOOGLE: res', res)
                                 if (res.code === 200) {
                                     this.$notify({
                                         title: '商品编辑成功',
                                         message: '',
                                         type: 'success',
                                         duration: 3000
-                                    });
+                                    })
                                     // this.initData();
-                                    bus.$emit('close_current_tags');
+                                    bus.$emit('close_current_tags')
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
-                                    });
+                                    })
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         message: '',
                                         type: 'error',
                                         duration: 5000
-                                    });
+                                    })
                                 }
-                                rLoading.close();
+                                rLoading.close()
                             })
                             .catch(err => {
-                                rLoading.close();
-                            });
+                                rLoading.close()
+                            })
                     } else {
                         // 创建
                         creatGoods(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res);
+                                console.log('GOOGLE: res', res)
                                 if (res.code === 200) {
                                     this.$notify({
                                         title: '商品创建成功',
                                         message: '',
                                         type: 'success',
                                         duration: 3000
-                                    });
-                                    bus.$emit('close_current_tags');
+                                    })
+                                    bus.$emit('close_current_tags')
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
-                                    });
+                                    })
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         message: '',
                                         type: 'error',
                                         duration: 5000
-                                    });
-                                    rLoading.close();
+                                    })
+                                    rLoading.close()
                                 }
                             })
                             .catch(err => {
-                                rLoading.close();
-                            });
+                                rLoading.close()
+                            })
                     }
                 } else {
-                    rLoading.close();
+                    rLoading.close()
                     this.$notify({
                         title: '请填写完成数据后提交',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-            });
+            })
         },
         // tag
         // getTagList() {
@@ -1005,43 +1031,43 @@ export const mixinsGoods = {
         // },
 
         handleCloseBack(tag) {
-            this.backendTags.splice(this.backendTags.indexOf(tag), 1);
+            this.backendTags.splice(this.backendTags.indexOf(tag), 1)
         },
         handleCloseMiniApp(tag) {
-            this.miniProgramTags.splice(this.miniProgramTags.indexOf(tag), 1);
+            this.miniProgramTags.splice(this.miniProgramTags.indexOf(tag), 1)
         },
         dialogCancelTag() {
-            this.dialogVisibleTag = false;
+            this.dialogVisibleTag = false
         },
         dialogConfirmTag(value) {
-            this.dialogVisibleTag = false;
-            let miniProgramTags = value.miniProgramTags;
+            this.dialogVisibleTag = false
+            let miniProgramTags = value.miniProgramTags
             if (miniProgramTags) {
-                this.miniProgramTags = miniProgramTags;
+                this.miniProgramTags = miniProgramTags
             }
-            let backendTags = value.backendTags;
+            let backendTags = value.backendTags
             if (backendTags) {
-                this.backendTags = backendTags;
+                this.backendTags = backendTags
             }
         },
         gotoCreat() {
-            this.dialogVisibleType = false;
-            bus.$emit('close_current_tags');
+            this.dialogVisibleType = false
+            bus.$emit('close_current_tags')
 
             this.$router.push({
                 path: 'mall-backend-goods-list'
-            });
+            })
         },
 
         confirmType() {
-            this.dialogVisibleType = false;
-            this.initData();
+            this.dialogVisibleType = false
+            this.initData()
         },
         openPreview(img) {
-            this.previewUrlList = [];
-            this.previewUrlList.push(img);
-            this.previewIndex = 0;
-            this.dialogVisiblePic = true;
+            this.previewUrlList = []
+            this.previewUrlList.push(img)
+            this.previewIndex = 0
+            this.dialogVisiblePic = true
         }
     }
-};
+}
