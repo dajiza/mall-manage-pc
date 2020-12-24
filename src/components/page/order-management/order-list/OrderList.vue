@@ -55,7 +55,7 @@
                         <!--:picker-options="pickerOptions"-->
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="产品编码" prop="product_code" class="">
+                <el-form-item label="SKU编码" prop="product_code" class="">
                     <el-input class="filter-item" v-model="searchForm.product_code" placeholder="请输入"></el-input>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
@@ -71,7 +71,14 @@
                     <span>订单列表</span>
                 </div>
             </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table">
+            <el-table
+                v-loading="loading"
+                :data="tableData"
+                ref="multipleTable"
+                class="order-list-table"
+                :height="$tableHeight"
+                :header-cell-style="$tableHeaderColor"
+            >
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
                         <el-button
@@ -134,7 +141,7 @@
                     <EmptyList v-show="false"></EmptyList>
                 </template>
             </el-table>
-            <div class="pagination pos-relative">
+            <div class="pagination-container">
                 <el-pagination
                     background
                     layout="total, prev, pager, next"

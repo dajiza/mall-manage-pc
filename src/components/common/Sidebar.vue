@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import bus from '../common/bus';
+import bus from '../common/bus'
 export default {
     data() {
         return {
@@ -88,6 +88,25 @@ export default {
                         {
                             name: 'mall-backend-order-after-reason',
                             display_name: '售后原因设置'
+                        }
+                    ]
+                },
+                {
+                    icon: 'iconfont icon-money',
+                    name: 'mall-backend-money-management',
+                    display_name: '资金管理',
+                    subs: [
+                        {
+                            name: 'mall-backend-commission',
+                            display_name: '佣金统计'
+                        },
+                        {
+                            name: 'mall-backend-performance',
+                            display_name: '店铺业绩'
+                        },
+                        {
+                            name: 'mall-backend-withdraw',
+                            display_name: '提现管理'
                         }
                     ]
                 },
@@ -153,96 +172,96 @@ export default {
             ],
             is_admin: 0,
             role_auth_list: []
-        };
+        }
     },
     computed: {
         onRoutes() {
-            return this.$route.path.replace('/', '');
+            return this.$route.path.replace('/', '')
         }
     },
     created() {
         // 通过 Event Bus 进行组件间通信，来折叠侧边栏
         bus.$on('collapse', msg => {
-            this.collapse = msg;
-            bus.$emit('collapse-content', msg);
-        });
-        this.is_admin = localStorage.getItem('is_admin');
+            this.collapse = msg
+            bus.$emit('collapse-content', msg)
+        })
+        this.is_admin = localStorage.getItem('is_admin')
         if (this.is_admin > 0) {
-            this.items = this.all_menu;
+            this.items = this.all_menu
             // 超级管理员 拥有全部权限
         } else {
             // 不是超级管理员,根据分配的权限显示菜单
-            this.role_auth_list = JSON.parse(localStorage.getItem('roleAuthList'));
-            let roleAuthList = [];
+            this.role_auth_list = JSON.parse(localStorage.getItem('roleAuthList'))
+            let roleAuthList = []
             this.role_auth_list.forEach(ev => {
-                roleAuthList.push(ev.name);
-            });
+                roleAuthList.push(ev.name)
+            })
 
-            roleAuthList.unshift('dashboard');
-            const menuList = this.commonMenu(this.all_menu, roleAuthList);
-            const newList = this.filterMenu(menuList);
-            this.items = newList;
+            roleAuthList.unshift('dashboard')
+            const menuList = this.commonMenu(this.all_menu, roleAuthList)
+            const newList = this.filterMenu(menuList)
+            this.items = newList
         }
     },
     mounted() {},
     methods: {
         // 格式化数据
         processData(data) {
-            let dealOptions = [];
+            let dealOptions = []
             // 给每个数据加children属性
             data.forEach((ev, one) => {
-                ev.subs = [];
-            });
+                ev.subs = []
+            })
             data.forEach((ev, one) => {
-                let findIndex = data.findIndex(item => item.permission_id === ev.pid);
+                let findIndex = data.findIndex(item => item.permission_id === ev.pid)
                 if ((!ev.pid && ev.pid !== 0 && ev.pid !== false) || findIndex === -1) {
-                    dealOptions.push(ev);
+                    dealOptions.push(ev)
                 } else {
-                    data[findIndex].subs.push(ev);
+                    data[findIndex].subs.push(ev)
                 }
-            });
-            return dealOptions;
+            })
+            return dealOptions
         },
         addIcon(data) {
-            let icon_class = '';
+            let icon_class = ''
             if (data) {
                 if (data === '商品管理') {
-                    icon_class = 'icon-goods';
+                    icon_class = 'icon-goods'
                 } else if (data === '订单管理') {
-                    icon_class = 'icon-list';
+                    icon_class = 'icon-list'
                 } else if (data === '系统设置') {
-                    icon_class = 'icon-setting';
+                    icon_class = 'icon-setting'
                 }
-                return icon_class;
+                return icon_class
             }
         },
         commonMenu(data1, data2) {
             data1.map(item1 => {
                 data2.map(item2 => {
                     if (item1.name === item2) {
-                        item1.is_show = true;
+                        item1.is_show = true
                         if (item1.subs && item1.subs.length) {
-                            this.commonMenu(item1.subs, data2);
+                            this.commonMenu(item1.subs, data2)
                         }
                     }
-                });
+                })
                 // console.log('item1', item1);
-            });
-            return data1;
+            })
+            return data1
         },
         filterMenu(menuList) {
             return menuList
                 .filter(item => item.is_show)
                 .map(item => {
-                    item = Object.assign({}, item);
+                    item = Object.assign({}, item)
                     if (item.subs) {
-                        item.subs = this.filterMenu(item.subs);
+                        item.subs = this.filterMenu(item.subs)
                     }
-                    return item;
-                });
+                    return item
+                })
         }
     }
-};
+}
 </script>
 
 <style>

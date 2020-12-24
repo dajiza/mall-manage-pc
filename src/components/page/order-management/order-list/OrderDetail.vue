@@ -132,6 +132,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="product_name" label="产品名称" width="200"></el-table-column>
+                <el-table-column prop="product_code" label="SKU编码" width="150"></el-table-column>
                 <el-table-column prop="goods_name" label="商品名称" width="200"></el-table-column>
                 <el-table-column label="规格" width="160">
                     <template slot-scope="scope">

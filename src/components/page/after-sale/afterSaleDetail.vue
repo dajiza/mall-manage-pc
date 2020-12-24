@@ -49,13 +49,7 @@
             <div class="divider"></div>
 
             <div class="substance">
-                <el-table
-                    :data="list"
-                    v-loading.body="listLoading"
-                    :header-cell-style="$tableHeaderColor"
-                    element-loading-text="Loading"
-                    fit
-                >
+                <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                     <el-table-column label="图片" width="">
                         <template slot-scope="scope">
                             <img class="goods-img" :src="scope.row.goods_img" />
@@ -103,13 +97,7 @@
             <div class="divider"></div>
 
             <div class="substance">
-                <el-table
-                    :data="logList"
-                    v-loading.body="listLoading"
-                    :header-cell-style="$tableHeaderColor"
-                    element-loading-text="Loading"
-                    fit
-                >
+                <el-table :data="logList" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                     <el-table-column label="操作类型" width="">
                         <template slot-scope="scope">
                             <span>{{ REFUND_STEP[scope.row.step] }}</span>
@@ -235,7 +223,7 @@
                             </el-select>
                         </el-form-item>
                         <el-form-item label="快递单号：">
-                            <el-input v-model="sdNo" placeholder="请输入内容"></el-input>
+                            <el-input v-model="sdNo" placeholder="请输入"></el-input>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -289,21 +277,11 @@
     </div>
 </template>
 <script>
-import {
-    queryAfterSaleDetail,
-    queryAfterSaleLog,
-    putApplyApprove,
-    putRefundVx,
-    putRefund,
-    putReturnReceipt,
-    querySDList,
-    putResand,
-    queryReasonList
-} from '@/api/afterSale';
-import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant';
-import { getToken } from '@/utils/auth';
+import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt, querySDList, putResand, queryReasonList } from '@/api/afterSale'
+import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant'
+import { getToken } from '@/utils/auth'
 
-import { formatMoney } from '@/plugin/tool';
+import { formatMoney } from '@/plugin/tool'
 
 export default {
     data() {
@@ -342,17 +320,17 @@ export default {
             imgCertificate: '',
             filePic: '',
             header: {}
-        };
+        }
     },
 
     created() {
-        this.id = Number(this.$route.query.id);
+        this.id = Number(this.$route.query.id)
         // 图片上传地址
-        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
-        this.header['token'] = getToken();
-        this.getDetail();
-        this.getLog();
-        this.getRefuseReasonList();
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
+        this.header['token'] = getToken()
+        this.getDetail()
+        this.getLog()
+        this.getRefuseReasonList()
     },
     mounted() {},
     inject: ['reload'],
@@ -361,56 +339,56 @@ export default {
         getDetail() {
             let params = {
                 id: this.id
-            };
+            }
 
-            console.log(params);
+            console.log(params)
             queryAfterSaleDetail(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     // 处理用户上传凭证图片
                     if (res.data.imgs != '') {
-                        res.data.imgs = res.data.imgs.split(',');
+                        res.data.imgs = res.data.imgs.split(',')
                     }
-                    this.detail = res.data;
+                    this.detail = res.data
                     // 处理商品显示
-                    this.list = [];
-                    this.list.push(res.data);
+                    this.list = []
+                    this.list.push(res.data)
                     // 处理模块显示
-                    const type = res.data.type;
-                    const status = res.data.status;
+                    const type = res.data.type
+                    const status = res.data.status
 
                     if (status == 0) {
-                        this.showLog = false;
-                        this.showCheck = true;
+                        this.showLog = false
+                        this.showCheck = true
                     } else if (status == 1) {
-                        this.showRefund = true;
+                        this.showRefund = true
                     } else if (status == 5) {
-                        this.showChangeCustomer = true;
+                        this.showChangeCustomer = true
                     } else if (status == 6) {
-                        this.showChangeSeller = true;
-                        this.getSDList();
+                        this.showChangeSeller = true
+                        this.getSDList()
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         getLog() {
             let params = {
                 apply_id: this.id
-            };
+            }
 
             queryAfterSaleLog(params)
                 .then(res => {
-                    this.logList = res.data;
+                    this.logList = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 快递公司列表
         getSDList() {
             querySDList()
                 .then(res => {
-                    this.sdList = res.data;
+                    this.sdList = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 商家重新发货
         resend() {
@@ -425,17 +403,17 @@ export default {
                             title: '请填写快递公司和单号',
                             type: 'warning',
                             duration: 5000
-                        });
-                        return;
+                        })
+                        return
                     }
-                    let logistics = this.sdList.filter(item => item.id == this.sdId);
+                    let logistics = this.sdList.filter(item => item.id == this.sdId)
 
                     let params = {
                         order_apply_id: Number(this.detail.id), //apply表ID字段
                         logistics_company_name: logistics[0].name,
                         logistics_no: this.sdNo,
                         logistics_company_id: this.sdId
-                    };
+                    }
                     putResand(params)
                         .then(res => {
                             if (res.code == 200) {
@@ -443,25 +421,25 @@ export default {
                                     title: '重新发货成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.reload();
+                                })
+                                this.reload()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
         // 拒绝售后理由
         getRefuseReasonList() {
             let params = {
                 type: 4 // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由
-            };
+            }
             queryReasonList(params)
                 .then(res => {
                     this.refuseReasonList = res.data.map(item => {
@@ -469,14 +447,14 @@ export default {
                             id: item.id.toString(),
                             name: item.name,
                             type: item.type
-                        };
-                    });
+                        }
+                    })
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 审核同意/拒绝 按钮
         checkApply(result) {
-            let text = result == 0 ? '拒绝' : '同意';
+            let text = result == 0 ? '拒绝' : '同意'
             this.$confirm(`确定审核${text}`, '确认', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -484,14 +462,14 @@ export default {
             })
                 .then(() => {
                     if (result == 0) {
-                        this.reasonVisible = true;
-                        return;
+                        this.reasonVisible = true
+                        return
                     }
                     let params = {
                         order_apply_id: Number(this.detail.id),
                         result: result, //审核结果：0拒绝；1同意',
                         reason: '  '
-                    };
+                    }
 
                     putApplyApprove(params)
                         .then(res => {
@@ -500,19 +478,19 @@ export default {
                                     title: '审核同意成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.reload();
+                                })
+                                this.reload()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
 
         // 审核拒绝 弹窗
@@ -522,15 +500,15 @@ export default {
                     title: '请填写拒绝理由',
                     type: 'warning',
                     duration: 5000
-                });
-                return;
+                })
+                return
             }
 
             let params = {
                 order_apply_id: Number(this.detail.id),
                 result: '0', //审核结果：0拒绝；1同意',
                 reason: this.reasonRefuse
-            };
+            }
             putApplyApprove(params)
                 .then(res => {
                     if (res.code == 200) {
@@ -538,17 +516,17 @@ export default {
                             title: '审核拒绝成功',
                             type: 'success',
                             duration: 5000
-                        });
+                        })
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 5000
-                        });
+                        })
                     }
-                    this.reload();
+                    this.reload()
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 提交退款
         submitRefund() {
@@ -559,16 +537,16 @@ export default {
             })
                 .then(() => {
                     if (this.refundType == 1) {
-                        this.refundVx();
+                        this.refundVx()
                     } else if (this.refundType == 2) {
-                        this.refundFinancial();
+                        this.refundFinancial()
                     }
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
         // 买家退货 确认/拒绝收货
         receiptApply(result) {
-            let text = result == 0 ? '拒绝' : '同意';
+            let text = result == 0 ? '拒绝' : '同意'
 
             this.$confirm(`确定${text}退货`, '确认', {
                 confirmButtonText: '确定',
@@ -577,14 +555,14 @@ export default {
             })
                 .then(() => {
                     if (result == 0) {
-                        this.reasonVisible = true;
-                        return;
+                        this.reasonVisible = true
+                        return
                     }
                     let params = {
                         order_apply_id: Number(this.detail.id),
                         result: '1', //审核结果：0拒绝；1同意',
                         reason: '  '
-                    };
+                    }
                     putReturnReceipt(params)
                         .then(res => {
                             if (res.code == 200) {
@@ -592,19 +570,19 @@ export default {
                                     title: '确认收货成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.reload();
+                                })
+                                this.reload()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
         // 审核拒绝 弹窗
         receiptApplyRefuse() {
@@ -613,14 +591,14 @@ export default {
                     title: '请填写拒绝理由',
                     type: 'warning',
                     duration: 5000
-                });
-                return;
+                })
+                return
             }
             let params = {
                 order_apply_id: Number(this.detail.id),
                 result: '0', //审核结果：0拒绝；1同意',
                 reason: this.reasonRefuse
-            };
+            }
 
             putReturnReceipt(params)
                 .then(res => {
@@ -629,17 +607,17 @@ export default {
                             title: '拒绝收货成功',
                             type: 'success',
                             duration: 5000
-                        });
+                        })
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 5000
-                        });
+                        })
                     }
-                    this.reload();
+                    this.reload()
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 原路退款
         refundVx() {
@@ -650,7 +628,7 @@ export default {
                 order_money: Number(this.detail.order_money), //整个订单的总金额，支付时金额
                 apply_money: Number(this.detail.money), //申请的退款金额
                 shop_id: Number(this.detail.shop_id)
-            };
+            }
             putRefundVx(params)
                 .then(res => {
                     if (res.code == 200) {
@@ -658,17 +636,17 @@ export default {
                             title: '原路退款成功',
                             type: 'success',
                             duration: 5000
-                        });
-                        this.reload();
+                        })
+                        this.reload()
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 5000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 财务退款
         refundFinancial() {
@@ -676,7 +654,7 @@ export default {
                 let params = {
                     order_apply_id: Number(this.detail.id),
                     imgs: this.filePic[0].response.data.file_url
-                };
+                }
 
                 putRefund(params)
                     .then(res => {
@@ -685,31 +663,31 @@ export default {
                                 title: '财务退款成功',
                                 type: 'success',
                                 duration: 5000
-                            });
-                            this.reload();
+                            })
+                            this.reload()
                         } else {
                             this.$notify({
                                 title: res.msg,
                                 type: 'warning',
                                 duration: 5000
-                            });
+                            })
                         }
                     })
-                    .catch(err => {});
+                    .catch(err => {})
             } else {
                 this.$notify({
                     title: '请上传凭证',
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
         // 图片上传前检测
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
-                this.upload_loading = this.uploadLoading('上传中');
-                this.uploadVisible = false;
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
             } else {
                 if (file.size > 1024 * 1024 * 5) {
                     this.$notify({
@@ -717,16 +695,16 @@ export default {
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 } else {
                     this.$notify({
                         title: '照片格式只支持JPG、PNG',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-                return false;
+                return false
             }
         },
 
@@ -738,29 +716,29 @@ export default {
                     message: '',
                     type: 'success',
                     duration: 500
-                });
-                this.upload_loading.close();
-                this.filePic = fileList;
+                })
+                this.upload_loading.close()
+                this.filePic = fileList
             } else {
-                this.upload_loading.close();
+                this.upload_loading.close()
                 this.$notify({
                     title: response.msg,
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
 
         // 单张图片上传失败回调
         uploadImgError(err, file, fileList) {
-            this.upload_loading.close();
+            this.upload_loading.close()
             this.$notify({
                 title: '上传失败',
                 message: '',
                 type: 'error',
                 duration: 5000
-            });
+            })
         },
         handleExceed(files, fileList) {
             this.$notify({
@@ -768,37 +746,37 @@ export default {
                 message: '',
                 type: 'warning',
                 duration: 5000
-            });
+            })
         },
         handleRemove(file, fileList) {
-            this.filePic = fileList;
+            this.filePic = fileList
         },
         imgPreview(img) {
-            this.imgVisible = true;
-            this.imgCertificate = img;
+            this.imgVisible = true
+            this.imgCertificate = img
         },
         proofPreview(img) {
-            this.proofVisible = true;
-            this.imgProof = img;
+            this.proofVisible = true
+            this.imgProof = img
         },
 
         // 理由弹框关闭
         beforeClose() {
-            this.reasonRefuse = '';
-            this.reasonVisible = false;
+            this.reasonRefuse = ''
+            this.reasonVisible = false
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
+            this.listQuery.page = 1
+            this.getList()
         },
         // 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.handleFilter();
+            this.$refs[formName].resetFields()
+            this.handleFilter()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .page-title {

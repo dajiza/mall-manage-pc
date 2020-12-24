@@ -68,7 +68,7 @@
                     <el-button type="primary" v-hasPermission="'mall-backend-tag-create'" @click="handleAddTags">新增标签</el-button>
                 </div>
             </div>
-            <el-table :data="tableData" style="width: 100%">
+            <el-table :data="tableData" style="width: 100%" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="标签名称" prop="name"></el-table-column>
                 <el-table-column label="父级" prop="category_name"></el-table-column>
                 <el-table-column label="操作" width="200" align="left">
@@ -93,7 +93,7 @@
                     <EmptyList></EmptyList>
                 </template>
             </el-table>
-            <div class="pagination pos-relative">
+            <div class="pagination-container">
                 <el-pagination
                     background
                     layout="total, prev, pager, next"

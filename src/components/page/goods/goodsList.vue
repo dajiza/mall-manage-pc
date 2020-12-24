@@ -4,10 +4,10 @@
             <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="商品名称" prop="title" label-width="">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.title"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
                 </el-form-item>
                 <el-form-item label="商品ID" prop="id">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.id"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
                 </el-form-item>
                 <el-form-item label="商品类型" prop="type">
                     <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
@@ -34,6 +34,9 @@
                         <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="SKU编码" prop="order_no" class="">
+                    <el-input class="filter-item" v-model="formFilter.order_no" placeholder="请输入"></el-input>
+                </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -55,6 +58,7 @@
         </div>
 
         <el-table
+            :height="$tableHeight"
             class="table"
             :data="list"
             v-loading.body="listLoading"
@@ -69,27 +73,23 @@
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="100" header-align="center">
+            <el-table-column label="操作" width="120">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
+                        <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-goods-update'" @click.native="goodsEdit(scope.row.id)">
+                            编辑
+                        </el-button>
                         <el-button
-                            class="text-blue btn-opt"
-                            type="text"
-                            size=""
-                            v-hasPermission="'mall-backend-goods-update'"
-                            @click.native="goodsEdit(scope.row.id)"
-                            >编辑</el-button
-                        >
-                        <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             v-hasPermission="'mall-backend-goods-preview'"
                             @click.native="goodsPreview(scope.row.id)"
-                            >查看</el-button
                         >
+                            查看
+                        </el-button>
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             @click.native="goodsAssign(scope.row.id, scope.row)"
@@ -99,23 +99,25 @@
                             指定代理
                         </el-button>
                         <el-button
-                            class="text-blue btn-opt"
+                            class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
                             v-show="scope.row.status == 1"
                             v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
-                            >上架</el-button
                         >
+                            上架
+                        </el-button>
                         <el-button
-                            class="text-red btn-opt"
+                            class="text-red btn-opt table-btn"
                             type="text"
                             size=""
                             v-show="scope.row.status == 2"
                             v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
-                            >下架</el-button
                         >
+                            下架
+                        </el-button>
                     </div>
                 </template>
             </el-table-column>
@@ -178,15 +180,15 @@
                     <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false">
                         <el-table-column label="SKU图片" width="118">
                             <template slot-scope="scope">
-                                <img
-                                    class="timg"
-                                    :src="scope.row.sku_img + '!upyun520/fw/300'"
-                                    alt=""
-                                    @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
-                                />
+                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" width="200">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.title }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="SKU编码" width="140">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.title }}</span>
                             </template>
@@ -223,6 +225,7 @@
 
             <!-- 被合并列 占位 -->
             <el-table-column label="SKU名称" width="200"> </el-table-column>
+            <el-table-column label="SKU编码" width="140"> </el-table-column>
             <el-table-column label="售价(元)" width="100"> </el-table-column>
             <el-table-column label="实际销量" width="100"> </el-table-column>
             <el-table-column label="总库存" width="100"> </el-table-column>
@@ -255,9 +258,9 @@
     </div>
 </template>
 <script>
-import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods';
-import { formatMoney } from '@/plugin/tool';
-import ElImageViewer from '@/components/common/image-viewer';
+import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods'
+import { formatMoney } from '@/plugin/tool'
+import ElImageViewer from '@/components/common/image-viewer'
 
 export default {
     name: 'goods-list',
@@ -319,104 +322,104 @@ export default {
             previewIndex: 0,
             timgList: [], //主图预览列表
             skuImgList: [] //sku图预览列表
-        };
+        }
     },
     components: {
         ElImageViewer
     },
     created() {},
     mounted() {
-        this.queryCategoryListAllInit();
-        this.queryShopList();
-        this.getList();
+        this.queryCategoryListAllInit()
+        this.queryShopList()
+        this.getList()
     },
     methods: {
         formatMoney: formatMoney,
         // 合并单元格
         arraySpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 9) {
-                return [1, 7];
+                return [1, 8]
             }
             if (columnIndex > 9) {
-                return [0, 0];
+                return [0, 0]
             }
         },
         closePreview() {
-            this.dialogVisiblePic = false;
+            this.dialogVisiblePic = false
         },
         // type 1主图 2sku图
         openPreview(img, type, index) {
-            console.log('输出 ~ img, type, index', img, type, index);
+            console.log('输出 ~ img, type, index', img, type, index)
             if (type == 1) {
-                this.previewUrlList = this.timgList;
+                this.previewUrlList = this.timgList
             } else {
-                this.previewUrlList = this.skuImgList;
+                this.previewUrlList = this.skuImgList
             }
-            this.previewIndex = index;
-            this.dialogVisiblePic = true;
+            this.previewIndex = index
+            this.dialogVisiblePic = true
         },
         getList() {
-            const rLoading = this.openLoading();
-            let params = _.cloneDeep(this.$refs['formFilter'].model);
-            console.log('GOOGLE: params', params);
-            params['limit'] = this.listQuery.limit;
-            params['page'] = this.listQuery.page;
-            params['category_id'] = params['category_id'].toString();
+            const rLoading = this.openLoading()
+            let params = _.cloneDeep(this.$refs['formFilter'].model)
+            console.log('GOOGLE: params', params)
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
+            params['category_id'] = params['category_id'].toString()
             if (params['type'] == 1) {
-                params['category_id'] = 0;
+                params['category_id'] = 0
             }
             queryGoodsList(params)
                 .then(async res => {
                     if (res.data.lists == null) {
-                        this.list = res.data.lists;
-                        this.total = res.data.total;
-                        rLoading.close();
-                        return;
+                        this.list = res.data.lists
+                        this.total = res.data.total
+                        rLoading.close()
+                        return
                     }
                     // 逐个获取库存信息 同时生成主图 sku图预览列表
-                    let skuImgIndex = 0;
-                    this.timgList = [];
-                    this.skuImgList = [];
+                    let skuImgIndex = 0
+                    this.timgList = []
+                    this.skuImgList = []
                     for (let i = 0; i < res.data.lists.length; i++) {
-                        const product = res.data.lists[i];
-                        this.timgList.push(product.img);
+                        const product = res.data.lists[i]
+                        this.timgList.push(product.img)
                         if (!product.goods_sku) {
-                            continue;
+                            continue
                         }
                         for (let j = 0; j < product.goods_sku.length; j++) {
-                            const sku = product.goods_sku[j];
-                            let parameters = { sku_id: sku.storehouse_pid };
-                            let data = await queryStoreProduct(parameters);
-                            this.skuImgList.push(sku.sku_img);
-                            sku.skuImgIndex = skuImgIndex;
-                            skuImgIndex++;
-                            sku.stock_total = data.data.stock_total;
-                            sku.stock_available = data.data.stock_available;
+                            const sku = product.goods_sku[j]
+                            let parameters = { sku_id: sku.storehouse_pid }
+                            let data = await queryStoreProduct(parameters)
+                            this.skuImgList.push(sku.sku_img)
+                            sku.skuImgIndex = skuImgIndex
+                            skuImgIndex++
+                            sku.stock_total = data.data.stock_total
+                            sku.stock_available = data.data.stock_available
                         }
                     }
 
-                    console.log('输出 ~ res.data.lists', res.data.lists);
-                    this.list = res.data.lists;
-                    this.total = res.data.total;
-                    rLoading.close();
+                    console.log('输出 ~ res.data.lists', res.data.lists)
+                    this.list = res.data.lists
+                    this.total = res.data.total
+                    rLoading.close()
                 })
                 .catch(err => {
-                    rLoading.close();
-                });
+                    rLoading.close()
+                })
         },
         // 选择类型
         //1 其他 2 成品布
         onChangeType(event) {
-            let type = event == 2 ? 1 : 2;
-            this.queryCategoryListAll(type);
-            this.formFilter.category_id = '';
+            let type = event == 2 ? 1 : 2
+            this.queryCategoryListAll(type)
+            this.formFilter.category_id = ''
         },
         // 获取分类列表
         queryCategoryListAll(type) {
             if (type == 1) {
-                this.categoryList = this.categoryListOther;
+                this.categoryList = this.categoryListOther
             } else {
-                this.categoryList = this.categoryListClothGroup;
+                this.categoryList = this.categoryListClothGroup
             }
         },
 
@@ -427,19 +430,19 @@ export default {
                 queryCategoryListAll({ type: 2 })
             ])
                 .then(res => {
-                    let options = {};
+                    let options = {}
                     if (res[0].code === 200) {
                         if (res[0].data) {
-                            this.categoryListOther = res[0].data;
+                            this.categoryListOther = res[0].data
                         }
                     }
                     if (res[1].code === 200) {
                         if (res[1].data) {
-                            this.categoryListClothGroup = res[1].data;
+                            this.categoryListClothGroup = res[1].data
                         }
                     }
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
         // 更新是否代理
         updateIsAgent(id, allow_agent) {
@@ -447,27 +450,27 @@ export default {
             let params = {
                 allow_agent: allow_agent, //1指定代理；2所有代理可以销售；
                 ids: [id]
-            };
+            }
 
             updateAllow(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     if (res.code == 200) {
                         this.$notify({
                             title: '分销操作成功',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.getList();
+                        })
+                        this.getList()
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 3000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 更新是否代理 批量
         updateIsAgentMultiple(allow_agent) {
@@ -476,61 +479,61 @@ export default {
                     title: '未选择商品',
                     type: 'warning',
                     duration: 3000
-                });
-                return;
+                })
+                return
             }
-            let ids = this.checkedList.map(item => item.id);
+            let ids = this.checkedList.map(item => item.id)
             let params = {
                 allow_agent: allow_agent, //1指定代理；2所有代理可以销售；
                 ids: ids
-            };
+            }
 
             updateAllow(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     if (res.code == 200) {
                         this.$notify({
                             title: '操作成功',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.getList();
+                        })
+                        this.getList()
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 3000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 上下架
         updateStatus(id, status) {
-            status = status == 1 ? 2 : 1;
+            status = status == 1 ? 2 : 1
             let params = {
                 status: status, // 1下架；2上架
                 ids: [id]
-            };
+            }
             updateGoodsStatus(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     if (res.code == 200) {
                         this.$notify({
                             title: '上/下架成功',
                             type: 'success',
                             duration: 3000
-                        });
+                        })
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 3000
-                        });
+                        })
                     }
-                    this.getList();
+                    this.getList()
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 上下架 批量
         updateStatusMultiple(status) {
@@ -539,80 +542,80 @@ export default {
                     title: '未选择商品',
                     type: 'warning',
                     duration: 3000
-                });
-                return;
+                })
+                return
             }
-            let ids = this.checkedList.map(item => item.id);
+            let ids = this.checkedList.map(item => item.id)
             let params = {
                 status: status, // 1下架；2上架
                 ids: ids
-            };
+            }
             updateGoodsStatus(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     if (res.code == 200) {
                         this.$notify({
                             title: '上/下架成功',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.getList();
+                        })
+                        this.getList()
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 3000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
                 .then(res => {
-                    this.shopList = res.data;
+                    this.shopList = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         goodsAssign(id, row) {
-            console.log('GOOGLE: row', row);
-            this.goodsId = id;
-            this.shopIds = row.agent_list == null ? [] : row.agent_list.map(item => item.ShopId);
-            this.dialogVisibleAssign = true;
+            console.log('GOOGLE: row', row)
+            this.goodsId = id
+            this.shopIds = row.agent_list == null ? [] : row.agent_list.map(item => item.ShopId)
+            this.dialogVisibleAssign = true
         },
         // 更新代理
         updateGoodsAssign() {
             let params = {
                 goods_id: this.goodsId,
                 shop_ids: this.shopIds
-            };
+            }
             updateGoodsAssign(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
+                    console.log('GOOGLE: res', res)
                     if (res.code == 200) {
                         this.$notify({
                             title: '代理设置成功',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.dialogVisibleAssign = false;
+                        })
+                        this.dialogVisibleAssign = false
 
-                        this.getList();
+                        this.getList()
                     } else {
                         this.$notify({
                             title: res.msg,
                             type: 'warning',
                             duration: 3000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         goodsCreat() {
             this.$router.push({
                 name: 'goods-creat'
-            });
+            })
         },
         goodsEdit(id) {
             this.$router.push({
@@ -620,7 +623,7 @@ export default {
                 query: {
                     id: id
                 }
-            });
+            })
         },
         goodsPreview(id) {
             this.$router.push({
@@ -628,35 +631,35 @@ export default {
                 query: {
                     id: id
                 }
-            });
+            })
         },
         handleSelectionChange(val) {
-            this.checkedList = val;
-            console.log('GOOGLE: val', val);
+            this.checkedList = val
+            console.log('GOOGLE: val', val)
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
+            this.listQuery.page = 1
+            this.getList()
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
-            this.$refs[formName].resetFields();
-            console.log(this.$refs[formName].model);
-            this.handleFilter();
+            console.log(this.$refs[formName].model)
+            this.$refs[formName].resetFields()
+            console.log(this.$refs[formName].model)
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
+            this.listQuery.limit = val
+            this.getList()
         },
         handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
+            this.listQuery.page = val
+            this.getList()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .timg {
@@ -666,12 +669,12 @@ export default {
     cursor: pointer;
 }
 .opt-wrap {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    // display: flex;
+    // flex-direction: column;
+    // justify-content: center;
     .btn-opt {
-        margin-bottom: 16px;
-        margin-left: 0;
+        // margin-bottom: 16px;
+        // margin-left: 0;
     }
 }
 

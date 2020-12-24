@@ -2,10 +2,13 @@
     <div class="app-container">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <el-form-item label="代理姓名" prop="name">
+                <el-form-item label="商品名称" prop="name">
                     <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
                 </el-form-item>
-                <el-form-item label="绑定店铺" prop="shop_id">
+                <el-form-item label="订单号" prop="name">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
+                </el-form-item>
+                <el-form-item label="获佣店铺" prop="shop_id">
                     <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
@@ -15,9 +18,7 @@
                         <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="代理手机号" prop="phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
-                </el-form-item>
+
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -26,51 +27,39 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">代理管理</div>
+            <div class="text">佣金统计</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="操作" width="140">
-                <template slot-scope="scope">
-                    <div v-hasPermission="'mall-backend-agent-update-status'">
-                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
-                            通过
-                        </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
-                            拒绝
-                        </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 4" @click.native="updateAgentStatus(scope.row.id, 5)">
-                            取消合作
-                        </el-button>
-                    </div>
-                </template>
-            </el-table-column>
-            <el-table-column label="状态" width="100">
-                <template slot-scope="scope">
-                    <div class="type-tag type-yellow" v-if="scope.row.status == 1">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-blue" v-if="scope.row.status == 2">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-red" v-if="scope.row.status == 3">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 4">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-grey" v-if="scope.row.status == 5">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                </template>
-            </el-table-column>
-            <el-table-column label="代理姓名" width="300">
+            <el-table-column label="序号" width="">
                 <template slot-scope="scope">
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="绑定店铺" width="260">
+            <el-table-column label="商品名称" width="280">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_name }}</span>
+                    <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="代理手机号" width="160">
+            <el-table-column label="订单号" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.phone }}</span>
+                    <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请时间" width="220">
+            <el-table-column label="获佣店铺" width="200">
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.apply_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="获佣金额(元)" width="120">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="状态" width="100">
+                <template slot-scope="scope">
+                    <div class="type-tag type-blue" v-if="scope.row.status == 2">已结算</div>
+                    <div class="type-tag type-green" v-if="scope.row.status == 4">待结算</div>
+                    <div class="type-tag type-grey" v-if="scope.row.status == 5">失效</div>
                 </template>
             </el-table-column>
         </el-table>

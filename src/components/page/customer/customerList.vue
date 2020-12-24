@@ -9,10 +9,10 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="客户微信昵称" prop="nick_name">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.nick_name"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.nick_name"></el-input>
                 </el-form-item>
                 <el-form-item label="客户手机号" prop="phone">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.phone"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
                 </el-form-item>
                 <el-form-item class="interval" label="累计消费">
                     <el-input class="filter-item" placeholder="累计下限" v-model="formFilter.consumption_min"></el-input>
@@ -29,7 +29,8 @@
             <div class="line"></div>
             <div class="text">客户管理</div>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+
+        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="序号" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.user_id }}</span>
@@ -88,9 +89,9 @@
     </div>
 </template>
 <script>
-import { queryCustomerList } from '@/api/customer';
-import { formatMoney } from '@/plugin/tool';
-import { queryShopList } from '@/api/goods';
+import { queryCustomerList } from '@/api/customer'
+import { formatMoney } from '@/plugin/tool'
+import { queryShopList } from '@/api/goods'
 
 export default {
     name: 'customer-list',
@@ -112,67 +113,67 @@ export default {
                 shop_id: '', //不搜索 为-1
                 phone: '' ////不搜索 为空
             }
-        };
+        }
     },
 
     created() {},
     mounted() {
-        this.queryShopList();
-        this.getList();
+        this.queryShopList()
+        this.getList()
     },
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = _.cloneDeep(this.$refs['formFilter'].model);
+            let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['consumption_min'] = params['consumption_min'] == '' ? -1 : params['consumption_min'] * 100;
-            params['consumption_max'] = params['consumption_max'] == '' ? -1 : params['consumption_max'] * 100;
-            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id'];
+            params['consumption_min'] = params['consumption_min'] == '' ? -1 : params['consumption_min'] * 100
+            params['consumption_max'] = params['consumption_max'] == '' ? -1 : params['consumption_max'] * 100
+            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
 
-            params['limit'] = this.listQuery.limit;
-            params['page'] = this.listQuery.page;
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
 
-            console.log(params);
+            console.log(params)
             queryCustomerList(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
-                    this.list = res.data.lists;
-                    this.total = res.data.total;
+                    console.log('GOOGLE: res', res)
+                    this.list = res.data.lists
+                    this.total = res.data.total
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
                 .then(res => {
-                    this.shopList = res.data;
+                    this.shopList = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
+            this.listQuery.page = 1
+            this.getList()
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
-            this.$refs[formName].resetFields();
-            this.formFilter.consumption_min = '';
-            this.formFilter.consumption_max = '';
-            this.handleFilter();
+            console.log(this.$refs[formName].model)
+            this.$refs[formName].resetFields()
+            this.formFilter.consumption_min = ''
+            this.formFilter.consumption_max = ''
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
+            this.listQuery.limit = val
+            this.getList()
         },
         handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
+            this.listQuery.page = val
+            this.getList()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .timg {

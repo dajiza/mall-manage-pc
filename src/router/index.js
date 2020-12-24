@@ -1,10 +1,10 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-const originalPush = Router.prototype.push;
+import Vue from 'vue'
+import Router from 'vue-router'
+const originalPush = Router.prototype.push
 Router.prototype.push = function push(location) {
-    return originalPush.call(this, location).catch(err => err);
-};
-Vue.use(Router);
+    return originalPush.call(this, location).catch(err => err)
+}
+Vue.use(Router)
 
 export default new Router({
     routes: [
@@ -84,6 +84,21 @@ export default new Router({
                     meta: { title: '店铺管理' }
                 },
                 {
+                    path: '/mall-backend-commission',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
+                    meta: { title: '佣金统计' }
+                },
+                {
+                    path: '/mall-backend-performance',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/performance.vue'),
+                    meta: { title: '店铺业绩' }
+                },
+                {
+                    path: '/mall-backend-withdraw',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/withdraw.vue'),
+                    meta: { title: '提现管理' }
+                },
+                {
                     path: '/mall-backend-other-category',
                     name: 'otherCategory',
                     component: () => import(/* webpackChunkName: "other-category" */ '../components/page/other-category/otherCategory.vue'),
@@ -121,10 +136,7 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-parameter-setting',
-                    component: () =>
-                        import(
-                            /* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'
-                        ),
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
                     meta: { title: '参数配置', name: 'parameterSetting' }
                 },
                 {
@@ -154,4 +166,4 @@ export default new Router({
             redirect: '/404'
         }
     ]
-});
+})

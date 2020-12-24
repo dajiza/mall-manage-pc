@@ -2,21 +2,18 @@
     <div class="app-container">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <el-form-item label="代理姓名" prop="name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
-                </el-form-item>
-                <el-form-item label="绑定店铺" prop="shop_id">
+                <el-form-item label="店铺名称" prop="shop_id">
                     <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                        <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
-                    </el-select>
+                <el-form-item label="代理姓名" prop="name">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
                 </el-form-item>
-                <el-form-item label="代理手机号" prop="phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
+                <el-form-item class="interval" label="总销售额">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.consumption_min"></el-input>
+                    <div class="separator">-</div>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.consumption_max"></el-input>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -29,48 +26,44 @@
             <div class="text">代理管理</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="操作" width="140">
-                <template slot-scope="scope">
-                    <div v-hasPermission="'mall-backend-agent-update-status'">
-                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
-                            通过
-                        </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
-                            拒绝
-                        </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 4" @click.native="updateAgentStatus(scope.row.id, 5)">
-                            取消合作
-                        </el-button>
-                    </div>
-                </template>
-            </el-table-column>
-            <el-table-column label="状态" width="100">
-                <template slot-scope="scope">
-                    <div class="type-tag type-yellow" v-if="scope.row.status == 1">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-blue" v-if="scope.row.status == 2">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-red" v-if="scope.row.status == 3">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 4">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                    <div class="type-tag type-grey" v-if="scope.row.status == 5">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
-                </template>
-            </el-table-column>
-            <el-table-column label="代理姓名" width="300">
+            <el-table-column label="店铺名称" width="200">
                 <template slot-scope="scope">
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="绑定店铺" width="260">
+            <el-table-column label="代理姓名" width="200">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="客户数" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="总销售额" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="累计佣金" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="总资产" width="120">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="待入账" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="代理手机号" width="160">
+            <el-table-column label="可提现" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.phone }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="申请时间" width="220">
-                <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.apply_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
         </el-table>

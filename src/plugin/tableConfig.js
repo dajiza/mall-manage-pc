@@ -3,5 +3,6 @@ export default {
         Vue.prototype.$tableHeaderColor = function() {
             return 'font-size:14px;padding:16px 0 !important;background:#fafafa !important;font-weight:500;';
         };
+        Vue.prototype.$tableHeight = 'calc(100vh - 164px)';
     }
 };

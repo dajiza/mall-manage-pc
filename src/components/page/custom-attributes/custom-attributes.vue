@@ -24,7 +24,7 @@
                 </div>
             </div>
             <!-- </div> -->
-            <el-table :data="tableData" style="width: 100%" :height="tableHeight">
+            <el-table :data="tableData" style="width: 100%" :height="$tableHeight" class="pagination-container">
                 <el-table-column label="自定义属性名称">
                     <template slot-scope="scope">
                         <span>{{ scope.row.title }}</span>
@@ -52,7 +52,7 @@
                     <EmptyList></EmptyList>
                 </template>
             </el-table>
-            <div class="pagination pos-relative">
+            <div class="pagination-container">
                 <el-pagination
                     background
                     layout="total, prev, pager, next"
@@ -112,7 +112,7 @@ export default {
             },
             formTitle: '',
             current_id: -1,
-            tableHeight: 'calc(100% - 72px - 84px)',
+            tableHeight: 'calc(100% - 72px - 84px)'
         };
     },
     components: {
