@@ -186,11 +186,11 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
-                    <!-- <el-table-column label="可售库存" width="220">
+                    <el-table-column label="可售库存" width="240">
                         <template slot-scope="scope">
                             <el-form-item label="" class="table-radio-content">
                                 <el-radio v-model="scope.row.stock" :label="1">同步仓库</el-radio>
-                                <el-radio v-model="scope.row.stock" :label="2">{{ scope.row.stock == 2 ? '' : '自定义' }}</el-radio>
+                                <el-radio class="table-radio-last" v-model="scope.row.stock" :label="2">{{ scope.row.stock == 2 ? '' : '自定义' }}</el-radio>
                                 <el-input
                                     class="default-input"
                                     placeholder="请输入"
@@ -200,7 +200,7 @@
                                 ></el-input>
                             </el-form-item>
                         </template>
-                    </el-table-column> -->
+                    </el-table-column>
 
                     <el-table-column label="总库存" width="">
                         <template slot-scope="scope">
@@ -289,20 +289,14 @@
             </div>
             <div class="divider"></div>
             <div class="content">
-                <el-form-item label="是否指定店铺">
+                <el-form-item label="是否指定店铺" style="width:200px">
                     <el-radio v-model="goods.is_allow_agent" :label="1">是</el-radio>
                     <el-radio v-model="goods.is_allow_agent" :label="2">否</el-radio>
                 </el-form-item>
-
-                <el-form-item label="是否上架商品" v-if="!goods.goods_id">
+                <el-form-item label="是否上架商品" v-if="!goods.goods_id" style="width:200px">
                     <el-radio v-model="goods.status" :label="2">是</el-radio>
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
-                <!-- <el-form-item label="是否定时上下架" v-if="!goods.goods_id">
-                    <el-radio v-model="goods.status" :label="2">是</el-radio>
-                    <el-radio v-model="goods.status" :label="1">否</el-radio>
-                </el-form-item> -->
-
                 <div class="option-content">
                     <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
                         <el-select
@@ -324,18 +318,25 @@
                             <el-option v-for="item in freightList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
-                    <!-- <el-form-item class="long-time" label="上下架时间" prop="createdTime">
+                </div>
+                <div class="time-content">
+                    <el-form-item label="是否定时上下架" v-if="!goods.goods_id" style="width:200px">
+                        <el-radio v-model="goods.status" :label="2">是</el-radio>
+                        <el-radio v-model="goods.status" :label="1">否</el-radio>
+                    </el-form-item>
+                    <el-form-item class="long-time" label="上下架时间" prop="createdTime">
                         <el-date-picker
                             class="filter-item"
                             v-model="goods.createdTime"
                             value-format="yyyy-MM-dd HH:mm:ss"
                             type="datetimerange"
                             range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
+                            start-placeholder="上架日期"
+                            end-placeholder="下架日期"
+                            :default-time="['00:00:00', '23:59:59']"
                         >
                         </el-date-picker>
-                    </el-form-item> -->
+                    </el-form-item>
                 </div>
             </div>
         </el-form>

@@ -4,7 +4,7 @@
             <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                 <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                 <el-form-item label="订单号" prop="order_no">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.order_no"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
                 </el-form-item>
                 <el-form-item label="退款类型" prop="type">
                     <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
@@ -136,9 +136,9 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleList, queryReasonList } from '@/api/afterSale';
-import { REFUND_TYPE, REFUND_STATUS } from '@/plugin/constant';
-import { formatMoney } from '@/plugin/tool';
+import { queryAfterSaleList, queryReasonList } from '@/api/afterSale'
+import { REFUND_TYPE, REFUND_STATUS } from '@/plugin/constant'
+import { formatMoney } from '@/plugin/tool'
 
 export default {
     data() {
@@ -182,59 +182,59 @@ export default {
                 created_time_le: '',
                 created_time_ge: ''
             }
-        };
+        }
     },
 
     created() {},
     mounted() {
-        this.getList();
+        this.getList()
     },
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = this.$refs['formFilter'].model;
+            let params = this.$refs['formFilter'].model
             if (params.createdTime.length == 2) {
-                params['created_time_ge'] = params.createdTime[0];
-                params['created_time_le'] = params.createdTime[1];
+                params['created_time_ge'] = params.createdTime[0]
+                params['created_time_le'] = params.createdTime[1]
             } else {
-                params['created_time_ge'] = '';
-                params['created_time_le'] = '';
+                params['created_time_ge'] = ''
+                params['created_time_le'] = ''
             }
-            params['limit'] = this.listQuery.limit;
-            params['page'] = this.listQuery.page;
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
 
-            console.log(params);
+            console.log(params)
             queryAfterSaleList(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
-                    this.list = res.data.lists;
-                    this.total = res.data.total;
+                    console.log('GOOGLE: res', res)
+                    this.list = res.data.lists
+                    this.total = res.data.total
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         onChangeType(event) {
-            this.getReasonList(event);
-            this.formFilter.reason_id = '';
+            this.getReasonList(event)
+            this.formFilter.reason_id = ''
         },
         // 筛选处原因列表
         getReasonList(type) {
             let params = {
                 // 0仅退款理由 1退货理由 2换货理由 3后台关闭理由 4拒绝售后理由 5修改订单金额理由 6修改邮费理由
                 type: Number(type)
-            };
+            }
             queryReasonList(params)
                 .then(res => {
-                    console.log('GOOGLE: getReasonListgetReasonList', res);
+                    console.log('GOOGLE: getReasonListgetReasonList', res)
                     this.reasonList = res.data.map(item => {
                         return {
                             id: item.id.toString(),
                             name: item.name,
                             type: item.type
-                        };
-                    });
-                    console.log('GOOGLE: res', res);
+                        }
+                    })
+                    console.log('GOOGLE: res', res)
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
 
         gotoDetail(id) {
@@ -243,31 +243,31 @@ export default {
                 query: {
                     id: id
                 }
-            });
+            })
         },
 
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
+            this.listQuery.page = 1
+            this.getList()
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
-            this.$refs[formName].resetFields();
-            this.handleFilter();
+            console.log(this.$refs[formName].model)
+            this.$refs[formName].resetFields()
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
+            this.listQuery.limit = val
+            this.getList()
         },
         handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
+            this.listQuery.page = val
+            this.getList()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .type-tag {

@@ -8,13 +8,13 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="绑定代理" prop="agent_name">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.agent_name"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_name"></el-input>
                 </el-form-item>
                 <el-form-item label="代理手机号" prop="agent_phone">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.agent_phone"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_phone"></el-input>
                 </el-form-item>
                 <el-form-item label="管理员微信昵称" prop="admin_name">
-                    <el-input class="filter-item" placeholder="输入内容" v-model="formFilter.admin_name"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.admin_name"></el-input>
                 </el-form-item>
                 <el-form-item label="店铺状态" prop="status">
                     <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
@@ -166,9 +166,7 @@
                 <el-form-item label="发货后自动收货时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
                     <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')"
-                        >保 存</el-button
-                    >
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="收货后允许售后时间" prop="shop_domain">
                     <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
@@ -215,15 +213,7 @@
         </el-dialog>
         <!-- 佣金配置 -->
         <el-dialog :visible.sync="dialogVisibleCommission" :before-close="handleCloseCommission" title="佣金配置" width="390px">
-            <el-form
-                ref="formCommission"
-                :rules="commissionRules"
-                :model="formCommission"
-                :inline="true"
-                size="small"
-                label-position="left"
-                label-width="110px"
-            >
+            <el-form ref="formCommission" :rules="commissionRules" :model="formCommission" :inline="true" size="small" label-position="left" label-width="110px">
                 <el-form-item label="基础奖励占比" prop="basic_rate">
                     <el-input class="dialog-item" placeholder="请输入" style="width:190px" v-model="formCommission.basic_rate"></el-input>
                     <span class="order-unit">%</span>
@@ -241,10 +231,10 @@
     </div>
 </template>
 <script>
-import { queryShopListPage, queryAgentListAll, creatShop, updateShop, queryUserList } from '@/api/agent';
-import { queryShopList } from '@/api/goods';
-import { formatMoney } from '@/plugin/tool';
-import { getToken } from '@/utils/auth';
+import { queryShopListPage, queryAgentListAll, creatShop, updateShop, queryUserList } from '@/api/agent'
+import { queryShopList } from '@/api/goods'
+import { formatMoney } from '@/plugin/tool'
+import { getToken } from '@/utils/auth'
 
 export default {
     name: 'shop-list',
@@ -330,98 +320,98 @@ export default {
             },
             uploadImgUrl: '',
             dialogTitle: '新增店铺'
-        };
+        }
     },
 
     created() {
         // 图片上传地址
-        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
-        this.header['token'] = getToken();
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
+        this.header['token'] = getToken()
     },
     mounted() {
-        this.queryShopList();
-        this.queryAgentListAll();
-        this.getList();
+        this.queryShopList()
+        this.queryAgentListAll()
+        this.getList()
     },
     inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = _.cloneDeep(this.$refs['formFilter'].model);
+            let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['status'] = params['status'] == '' ? -1 : params['status'];
+            params['status'] = params['status'] == '' ? -1 : params['status']
 
-            params['limit'] = this.listQuery.limit;
-            params['page'] = this.listQuery.page;
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
 
-            console.log(params);
+            console.log(params)
             queryShopListPage(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res);
-                    this.list = res.data.lists;
-                    this.total = res.data.total;
+                    console.log('GOOGLE: res', res)
+                    this.list = res.data.lists
+                    this.total = res.data.total
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
                 .then(res => {
-                    this.shopList = res.data;
+                    this.shopList = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
 
         // 代理列表
         queryAgentListAll() {
             queryAgentListAll()
                 .then(res => {
-                    this.agentList = res.data;
-                    console.log('输出 ~ this.agentList', this.agentList);
+                    this.agentList = res.data
+                    console.log('输出 ~ this.agentList', this.agentList)
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         // 用户列表
         queryUserList(e) {
             if (e == '') {
-                return;
+                return
             }
-            this.loadingSelect = true;
+            this.loadingSelect = true
             let params = {
                 phone: e,
                 shop_id: Number(this.shopIdSelected)
-            };
+            }
             queryUserList(params)
                 .then(res => {
-                    this.userList = res.data;
-                    this.loadingSelect = false;
+                    this.userList = res.data
+                    this.loadingSelect = false
                 })
                 .catch(err => {
-                    this.loadingSelect = false;
-                });
+                    this.loadingSelect = false
+                })
         },
         // 更新状态
         updateAgentStatus(id, status) {
             let params = {
                 id: id,
                 status: status //2审核通过（待绑定）；3拒绝；4合作中；5取消合作
-            };
-            let title;
-            let type;
+            }
+            let title
+            let type
             switch (status) {
                 case 3:
-                    title = '确认要取消与该代理的合作吗？';
-                    type = 'warning';
-                    break;
+                    title = '确认要取消与该代理的合作吗？'
+                    type = 'warning'
+                    break
                 case 4:
-                    title = '确认要通过该代理申请吗？';
-                    type = 'success';
+                    title = '确认要通过该代理申请吗？'
+                    type = 'success'
 
-                    break;
+                    break
                 case 5:
-                    title = '确认要拒绝该代理申请吗？';
-                    type = 'error';
-                    break;
+                    title = '确认要拒绝该代理申请吗？'
+                    type = 'error'
+                    break
             }
 
             this.$confirm(title, '确认', {
@@ -437,37 +427,37 @@ export default {
                                     title: '状态设置成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.reload();
+                                })
+                                this.reload()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
 
         // 新增店铺
         shopCreat() {
-            this.dialogTitle = '新增店铺';
-            this.isCreat = true;
-            this.dialogVisibleCreat = true;
+            this.dialogTitle = '新增店铺'
+            this.isCreat = true
+            this.dialogVisibleCreat = true
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.getList();
+            this.listQuery.page = 1
+            this.getList()
         },
         // 图片上传前检测
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
-                this.upload_loading = this.uploadLoading('上传中');
-                this.uploadVisible = false;
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
             } else {
                 if (file.size > 1024 * 1024 * 5) {
                     this.$notify({
@@ -475,16 +465,16 @@ export default {
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 } else {
                     this.$notify({
                         title: '照片格式只支持JPG、PNG',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-                return false;
+                return false
             }
         },
 
@@ -496,30 +486,30 @@ export default {
                     message: '',
                     type: 'success',
                     duration: 500
-                });
-                this.upload_loading.close();
-                this.filePic = file.response.data.file_url;
-                console.log('输出 ~ this.filePic', this.filePic);
+                })
+                this.upload_loading.close()
+                this.filePic = file.response.data.file_url
+                console.log('输出 ~ this.filePic', this.filePic)
             } else {
-                this.upload_loading.close();
+                this.upload_loading.close()
                 this.$notify({
                     title: response.msg,
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
+                })
             }
         },
 
         // 单张图片上传失败回调
         uploadImgError(err, file, fileList) {
-            this.upload_loading.close();
+            this.upload_loading.close()
             this.$notify({
                 title: '上传失败',
                 message: '',
                 type: 'error',
                 duration: 5000
-            });
+            })
         },
 
         submitCreat() {
@@ -531,15 +521,15 @@ export default {
                             message: '',
                             type: 'warning',
                             duration: 5000
-                        });
-                        return;
+                        })
+                        return
                     }
                     if (this.isCreat) {
                         let params = {
                             name: this.formCreat.name, //max=50
                             agent_id: this.formCreat.agent_id, //代理商id
                             shop_icon: this.filePic //店铺icon max=255
-                        };
+                        }
                         creatShop(params)
                             .then(res => {
                                 if (res.code == 200) {
@@ -547,20 +537,20 @@ export default {
                                         title: '店铺创建成功',
                                         type: 'success',
                                         duration: 5000
-                                    });
-                                    this.handleCloseCreat();
-                                    this.getList();
+                                    })
+                                    this.handleCloseCreat()
+                                    this.getList()
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         type: 'warning',
                                         duration: 5000
-                                    });
+                                    })
                                 }
                             })
-                            .catch(err => {});
+                            .catch(err => {})
                     } else {
-                        this.formCreat['shop_icon'] = this.filePic;
+                        this.formCreat['shop_icon'] = this.filePic
                         updateShop(this.formCreat)
                             .then(res => {
                                 if (res.code == 200) {
@@ -568,18 +558,18 @@ export default {
                                         title: '店铺编辑成功',
                                         type: 'success',
                                         duration: 5000
-                                    });
-                                    this.handleCloseCreat();
-                                    this.getList();
+                                    })
+                                    this.handleCloseCreat()
+                                    this.getList()
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         type: 'warning',
                                         duration: 5000
-                                    });
+                                    })
                                 }
                             })
-                            .catch(err => {});
+                            .catch(err => {})
                     }
                 } else {
                     this.$notify({
@@ -587,18 +577,18 @@ export default {
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-            });
+            })
         },
 
         editShop(row) {
-            console.log('输出 ~ row', row);
-            this.dialogTitle = '编辑店铺';
-            this.formCreat = _.cloneDeep(row);
-            this.filePic = this.formCreat.shop_icon;
-            this.isCreat = false;
-            this.dialogVisibleCreat = true;
+            console.log('输出 ~ row', row)
+            this.dialogTitle = '编辑店铺'
+            this.formCreat = _.cloneDeep(row)
+            this.filePic = this.formCreat.shop_icon
+            this.isCreat = false
+            this.dialogVisibleCreat = true
         },
 
         handleCloseCreat() {
@@ -606,13 +596,13 @@ export default {
                 name: '', //max=50
                 agent_id: '', //代理商id
                 shop_icon: '' //店铺icon max=255
-            };
-            this.filePic = '';
-            this.dialogVisibleCreat = false;
+            }
+            this.filePic = ''
+            this.dialogVisibleCreat = false
         },
         updateConfig(row) {
-            this.formConfig = _.cloneDeep(row);
-            this.dialogVisibleConfig = true;
+            this.formConfig = _.cloneDeep(row)
+            this.dialogVisibleConfig = true
         },
 
         submitConfig() {
@@ -625,27 +615,27 @@ export default {
                                     title: '小程序配置编辑成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.handleCloseConfig();
-                                this.getList();
+                                })
+                                this.handleCloseConfig()
+                                this.getList()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 } else {
                     this.$notify({
                         title: '请填写完成数据后提交',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-            });
+            })
         },
 
         handleCloseConfig() {
@@ -654,25 +644,25 @@ export default {
                 shop_domain: '',
                 app_id: '',
                 app_secret: ''
-            };
-            this.dialogVisibleConfig = false;
+            }
+            this.dialogVisibleConfig = false
         },
 
         submitOrder(value, argument) {
-            console.log('输出 ~ value, argument', value, argument);
+            console.log('输出 ~ value, argument', value, argument)
             if (!value) {
                 this.$notify({
                     title: '请输入参数',
                     message: '',
                     type: 'warning',
                     duration: 5000
-                });
-                return;
+                })
+                return
             }
-            let oldValue = this.formOrderSubmit[argument];
-            this.formOrderSubmit[argument] = value;
+            let oldValue = this.formOrderSubmit[argument]
+            this.formOrderSubmit[argument] = value
             if (argument == 'order_timeout' || argument == 'order_apply_stop_time' || argument == 'order_sand_to_success_time') {
-                this.formOrderSubmit[argument] = value * 60;
+                this.formOrderSubmit[argument] = value * 60
             }
             updateShop(this.formOrderSubmit).then(res => {
                 if (res.code == 200) {
@@ -680,43 +670,43 @@ export default {
                         title: '保存成功',
                         type: 'success',
                         duration: 5000
-                    });
+                    })
                     // this.handleCloseOrder();
-                    this.getList();
+                    this.getList()
                 } else {
-                    this.formOrderSubmit[argument] = oldValue;
+                    this.formOrderSubmit[argument] = oldValue
                     this.$notify({
                         title: res.msg,
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-            });
+            })
         },
         async updateOrder(row) {
-            console.log('输出 ~ row', row);
-            row.shop_admin_id = row.shop_admin_id == 0 ? '' : row.shop_admin_id;
-            this.shopIdSelected = row.id;
-            await this.queryUserList(row.shop_admin_phone);
-            this.formOrder = _.cloneDeep(row);
-            this.formOrderSubmit = _.cloneDeep(row);
-            this.formOrder['order_timeout'] = row['order_timeout'] / 60;
-            this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60;
-            this.formOrder['order_sand_to_success_time'] = row['order_sand_to_success_time'] / 60;
-            this.dialogVisibleOrder = true;
+            console.log('输出 ~ row', row)
+            row.shop_admin_id = row.shop_admin_id == 0 ? '' : row.shop_admin_id
+            this.shopIdSelected = row.id
+            await this.queryUserList(row.shop_admin_phone)
+            this.formOrder = _.cloneDeep(row)
+            this.formOrderSubmit = _.cloneDeep(row)
+            this.formOrder['order_timeout'] = row['order_timeout'] / 60
+            this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60
+            this.formOrder['order_sand_to_success_time'] = row['order_sand_to_success_time'] / 60
+            this.dialogVisibleOrder = true
         },
         handleCloseOrder(row) {
-            this.formOrder = {};
-            this.dialogVisibleOrder = false;
-            this.userList = [];
-            this.getList();
+            this.formOrder = {}
+            this.dialogVisibleOrder = false
+            this.userList = []
+            this.getList()
         },
 
         submitCommission() {
             this.$refs['formCommission'].validate(valid => {
                 if (valid) {
-                    this.formCommission.basic_rate = Number(this.formCommission.basic_rate);
-                    this.formCommission.additional_rate = Number(this.formCommission.additional_rate);
+                    this.formCommission.basic_rate = Number(this.formCommission.basic_rate)
+                    this.formCommission.additional_rate = Number(this.formCommission.additional_rate)
                     updateShop(this.formCommission)
                         .then(res => {
                             if (res.code == 200) {
@@ -724,36 +714,36 @@ export default {
                                     title: '佣金配置成功',
                                     type: 'success',
                                     duration: 5000
-                                });
-                                this.handleCloseCommission();
-                                this.getList();
+                                })
+                                this.handleCloseCommission()
+                                this.getList()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     type: 'warning',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 } else {
                     this.$notify({
                         title: '请填写完成数据后提交',
                         message: '',
                         type: 'warning',
                         duration: 5000
-                    });
+                    })
                 }
-            });
+            })
         },
         updateCommission(row) {
-            this.formCommission = _.cloneDeep(row);
-            this.dialogVisibleCommission = true;
+            this.formCommission = _.cloneDeep(row)
+            this.dialogVisibleCommission = true
         },
         handleCloseCommission(row) {
-            this.formCommission = {};
-            this.dialogVisibleCommission = false;
-            this.getList();
+            this.formCommission = {}
+            this.dialogVisibleCommission = false
+            this.getList()
         },
         // imgPreview(img) {
         //     this.imgVisible = true;
@@ -761,21 +751,21 @@ export default {
         // },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model);
-            this.$refs[formName].resetFields();
-            this.handleFilter();
+            console.log(this.$refs[formName].model)
+            this.$refs[formName].resetFields()
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {
-            this.listQuery.limit = val;
-            this.getList();
+            this.listQuery.limit = val
+            this.getList()
         },
         handleCurrentChange(val) {
-            this.listQuery.page = val;
-            this.getList();
+            this.listQuery.page = val
+            this.getList()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .timg {

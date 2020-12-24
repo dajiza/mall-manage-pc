@@ -17,8 +17,8 @@
                         end-placeholder="结束时间"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         :default-time="['00:00:00', '23:59:59']"
+                        :picker-options="pickerOptions"
                     >
-                        <!--:picker-options="pickerOptions"-->
                     </el-date-picker>
                 </el-form-item>
 
@@ -179,6 +179,16 @@ export default {
     },
 
     mounted() {
+        // 默认搜索一个月
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+        let timeStart = start;
+        let timeEnd = end;
+        timeStart = this.$moment(timeStart).format('yyyy-MM-DD HH:mm:ss');
+        timeEnd = this.$moment(timeEnd).format('yyyy-MM-DD HH:mm:ss');
+        this.formFilter.searchTime = [timeStart, timeEnd];
+
         this.queryShopList();
         this.getList();
     },
