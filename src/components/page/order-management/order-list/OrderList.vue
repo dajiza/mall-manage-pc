@@ -55,6 +55,9 @@
                         <!--:picker-options="pickerOptions"-->
                     </el-date-picker>
                 </el-form-item>
+                <el-form-item label="产品编码" prop="product_code" class="">
+                    <el-input class="filter-item" v-model="searchForm.product_code" placeholder="请输入"></el-input>
+                </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                     <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
@@ -166,7 +169,8 @@ export default {
                 logistics_name: '', // 收货人姓名
                 pay_start_time: '',
                 pay_time: '',
-                unusual_type: ''
+                unusual_type: '',
+                product_code:''
             },
             pageInfo: {
                 name: '',
@@ -191,7 +195,8 @@ export default {
                 logistics_name: '', // 收货人姓名
                 paid_time_le: '', // 结束时间
                 paid_time_ge: '', // 开始时间
-                unusual_type: ''
+                unusual_type: '',
+                product_code:''
             },
             tableHeight: 'calc(100% - 134px)',
             pickerOptions: {
@@ -320,7 +325,8 @@ export default {
                 logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
                 paid_time_le: this.searchParams.paid_time_le ? this.searchParams.paid_time_le : '',
                 paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge : '',
-                err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '-1'
+                err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '-1',
+                product_code: this.searchParams.product_code ? this.searchParams.product_code : ''
             };
             const rLoading = this.openLoading();
             getOrderList(params)
@@ -370,6 +376,7 @@ export default {
             this.$set(this.searchParams, 'paid_time_le', '');
             this.$set(this.searchParams, 'unusual_type', '');
             this.$set(this.pageInfo, 'pageIndex', 1);
+            this.$set(this.searchParams, 'product_code', '');
             this.getListData();
         },
 
@@ -385,6 +392,7 @@ export default {
             this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0]);
             this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1]);
             this.$set(this.searchParams, 'unusual_type', this.searchForm.unusual_type);
+            this.$set(this.searchParams, 'product_code', this.searchForm.product_code);
             this.getListData();
         },
 
@@ -473,6 +481,9 @@ export default {
             }
             if (this.searchParams['logistics_name']) {
                 this.$set(this.searchForm, 'logistics_name', this.searchParams['logistics_name']);
+            }
+            if (this.searchParams['product_code']) {
+                this.$set(this.searchForm, 'product_code', this.searchParams['product_code']);
             }
             if (this.searchParams['unusual_type']) {
                 this.$set(this.searchForm, 'unusual_type', this.searchParams['unusual_type']);

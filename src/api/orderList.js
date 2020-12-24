@@ -23,3 +23,6 @@ export const updateFreight = params => post('/backend/order-freight-update', par
 
 // 修改订单金额
 export const updateOrderDetail = params => post('/backend/order-detail-update', params)
+
+// 查询物流公司和单号
+export const queryOrderSdInfo = params =>post('/backend/order-sd-info',params)

@@ -323,17 +323,33 @@
         <el-dialog
                 title="物流信息"
                 :visible.sync="logisticsVisible"
-                width="380px"
+                width="800px"
                 :destroy-on-close="true"
                 custom-class="logistics-info-dialog"
                 append-to-body
         >
-            <div class="logistics-info-box">
-                <p>快递公司：{{view_logistics_company_name}}</p>
-                <p class="logistics-no">快递单号：{{view_logistics_no}}</p>
+            <div slot="title">
+                <div class="logistics-info-box">
+                    <span>快递公司：{{view_logistics_company_name}}</span>
+                    <span style="margin-left: 20px" class="logistics-no">快递单号：{{view_logistics_no}}</span>
+                </div>
+            </div>
+            <div class="logistics-timeline-box" id="logisticsTimelineBox">
+                <el-timeline>
+                    <el-timeline-item
+                            v-for="(activity, index) in activities"
+                            :key="index"
+                            :icon="activity.icon"
+                            :type="activity.type"
+                            :color="activity.color"
+                            :size="activity.size"
+                            :timestamp="activity.timestamp">
+                        {{activity.content}}
+                    </el-timeline-item>
+                </el-timeline>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="logisticsVisible = false">好 的</el-button>
+                <el-button type="primary" @click="logisticsVisible = false">O K</el-button>
             </span>
         </el-dialog>
         <!-- 修改价格弹出框 -->
@@ -421,7 +437,7 @@
 <script>
     import './OrderList.less';
     import { queryConfigList } from '../../../../api/configManagement';
-    import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail } from '../../../../api/orderList';
+    import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail, queryOrderSdInfo } from '../../../../api/orderList';
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import { queryReasonList } from '../../../../api/afterSaleReason';
@@ -531,6 +547,7 @@
                 modifyShippingReason:[], // 修改运费理由列表
                 priceAfterDiscount:'', // 折后价
                 currentPrice:'',  // 修改时订单价格
+                activities:[]
             }
         },
         components: {
@@ -820,7 +837,53 @@
             handleViewLogistics(index,row){
                 this.view_logistics_company_name = row.logistics_company_name;
                 this.view_logistics_no = row.logistics_no;
-                this.logisticsVisible = true;
+                // this.logisticsVisible = true;
+                // this.logisticsVisible = true;
+                this.getSdInfo(row.id);
+            },
+            // 请求 - 物流信息
+            getSdInfo(id){
+                const params = {
+                    order_id: -1,
+                    order_detail_id: id,
+                    apply_id:-1,
+                }
+                let _this = this;
+                const rLoading = this.openLoading();
+                this.activities = [];
+                queryOrderSdInfo(params)
+                    .then((res) => {
+                        rLoading.close();
+                        if (res.code === 200) {
+                            if (res.data) {
+                                const logistics = res.data.logistics;
+                                _this.view_logistics_company_name = logistics.logistics_company_name;
+                                _this.view_logistics_no = logistics.logistics_no;
+                                // _this.logisticsVisible = true;
+                                let logisticss_list = res.data.lists || [];
+                                let new_arr = logisticss_list.reverse();
+                                new_arr.forEach((ev,index)=>{
+                                    let params = {
+                                        content: ev.message,
+                                        timestamp: _this.formatDate(ev.time)
+                                    }
+                                    if(index === logisticss_list.length -1){
+                                        params['color'] = '#FAAD14'
+                                    }
+                                    _this.activities.push(params);
+                                })
+                                _this.logisticsVisible = true;
+                            }
+                        } else {
+                            _this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
             },
 
             // 发起退款 -手动调整弹出框
@@ -964,9 +1027,86 @@
             },
             discountBlur(){
             },
+            formatDate(val) {
+                if(val){
+                    let dt;
+                    if(val.length > 10){
+                        dt = new Date(Number(val ));
+                    }else {
+                        dt = new Date(Number(val) * 1000);
+                    }
+                    let year = dt.getFullYear(); //年
+                    let month = dt.getMonth() +1; //月
+                    let date = dt.getDate(); //日
+                    let hh = dt.getHours(); //时
+                    let mm = dt.getMinutes(); //分
+                    let ss = dt.getSeconds(); //秒
+                    month = month < 10 ? "0" + month : month;
+                    date  = date <10 ? "0" + date : date;
+                    hh  = hh <10 ? "0" + hh : hh;
+                    mm  = mm <10 ? "0" + mm : mm;
+                    ss  = ss <10 ? "0" + ss : ss;
+                    let new_time = ''
+                    new_time = year + "-" + month + "-" + date + ' ' + hh + ':' + mm + ':' + ss;
+                    return new_time;
+                }
+            }
         }
     };
 </script>
+<style lang="less">
+    .logistics-timeline-box{
+        height: 500px;
+        overflow-y: scroll;
+        //background: #ccc;
+        .el-timeline-item__timestamp.is-bottom{
+            position: absolute;
+            left: -168px;
+            top: 0;
+            font-size: 14px;
+            height: 20px;
+            line-height: 20px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #000000;
+            margin-top: 0 !important;
+            //line-height: 36px;
+        }
+
+        /deep/.el-timeline {
+            padding-left: 220px;
+            padding-top: 10px;
+            height: 100%;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+        }
+        .el-timeline-item__icon{
+            font-size: 10px;
+            color: #D8D8D8;
+        }
+        .el-timeline-item__node--normal{
+            width: 10px;
+            height: 10px;
+            background: #D8D8D8;
+            left: 0;
+        }
+        .el-timeline-item__wrapper{
+            padding-left: 62px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #000000;
+            //line-height: 36px;
+        }
+        .el-timeline{
+            .el-timeline-item:nth-last-child(2) {
+                .el-timeline-item__tail{
+                    border-left: 2px solid #FAAD14;
+                }
+            }
+        }
+    }
+</style>
 <style>
 .update-list-popover,.logistics-update-list-popover{
     padding: 0!important;
