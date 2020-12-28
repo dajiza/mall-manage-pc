@@ -927,6 +927,9 @@ export const mixinsGoods = {
                         for (let j = 0; j < this.basicChecked.length; j++) {
                             const checkId = this.basicChecked[j]
                             let attrInfo = this.basicAttr.find(item => checkId == item.id)
+                            if (!attrInfo) {
+                                continue
+                            }
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
@@ -945,7 +948,35 @@ export const mixinsGoods = {
                             })
                         }
                     }
+                    // 判断任意两个上架商品 所选择的属性值不能完全一致 导致小程序区分不开sku
+                    for (let i = 0; i < params.sku_list.length; i++) {
+                        const skuItem = params.sku_list[i]
+                        // 判断上下架
+                        if (skuItem.status == 1) {
+                            continue
+                        }
 
+                        for (let j = i + 1; j < params.sku_list.length; j++) {
+                            const skuCompare = params.sku_list[j]
+                            // 判断上下架
+                            if (skuCompare.status == 1) {
+                                continue
+                            }
+                            let allSame = skuCompare.attr_list.every((item, index) => {
+                                return item.attr_value == skuItem.attr_list[index].attr_value
+                            })
+                            if (allSame) {
+                                this.$notify({
+                                    title: `SKU第${i + 1}条和第${j + 1}条的展示属性完全一致,请更改属性值或者下架其中一个`,
+                                    message: '',
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                                rLoading.close()
+                                return
+                            }
+                        }
+                    }
                     console.log('GOOGLE: params', params)
                     if (params.goods_id) {
                         // 编辑

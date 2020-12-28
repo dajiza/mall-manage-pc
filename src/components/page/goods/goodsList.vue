@@ -188,11 +188,11 @@
                                 <span>{{ scope.row.title }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU编码" width="140">
+                        <!-- <el-table-column label="SKU编码" width="140">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.title }}</span>
                             </template>
-                        </el-table-column>
+                        </el-table-column> -->
                         <el-table-column label="售价(元)" width="100">
                             <template slot-scope="scope">
                                 <span>{{ formatMoney(scope.row.min_price) }}</span>
@@ -225,7 +225,7 @@
 
             <!-- 被合并列 占位 -->
             <el-table-column label="SKU名称" width="200"> </el-table-column>
-            <el-table-column label="SKU编码" width="140"> </el-table-column>
+            <!-- <el-table-column label="SKU编码" width="140"> </el-table-column> -->
             <el-table-column label="售价(元)" width="100"> </el-table-column>
             <el-table-column label="实际销量" width="100"> </el-table-column>
             <el-table-column label="总库存" width="100"> </el-table-column>

@@ -71,21 +71,10 @@
                     <span>订单列表</span>
                 </div>
             </div>
-            <el-table
-                v-loading="loading"
-                :data="tableData"
-                ref="multipleTable"
-                class="order-list-table"
-                :height="$tableHeight"
-                :header-cell-style="$tableHeaderColor"
-            >
+            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
-                        <el-button
-                            type="text"
-                            class="view-detail"
-                            v-hasPermission="'mall-backend-order-detail'"
-                            @click="handleViewDetail(scope.$index, scope.row)"
+                        <el-button type="text" class="view-detail" v-hasPermission="'mall-backend-order-detail'" @click="handleViewDetail(scope.$index, scope.row)"
                             >查看订单</el-button
                         >
                         <el-button
@@ -159,10 +148,10 @@
 </template>
 
 <script>
-import { getOrderList, queryCancelOrder } from '../../../../api/orderList';
-import EmptyList from '../../../common/empty-list/EmptyList';
-import './OrderList.less';
-import { queryShopList } from '@/api/goods';
+import { getOrderList, queryCancelOrder } from '../../../../api/orderList'
+import EmptyList from '../../../common/empty-list/EmptyList'
+import './OrderList.less'
+import { queryShopList } from '@/api/goods'
 export default {
     name: 'OrderList',
     data() {
@@ -177,7 +166,7 @@ export default {
                 pay_start_time: '',
                 pay_time: '',
                 unusual_type: '',
-                product_code:''
+                product_code: ''
             },
             pageInfo: {
                 name: '',
@@ -203,7 +192,7 @@ export default {
                 paid_time_le: '', // 结束时间
                 paid_time_ge: '', // 开始时间
                 unusual_type: '',
-                product_code:''
+                product_code: ''
             },
             tableHeight: 'calc(100% - 134px)',
             pickerOptions: {
@@ -211,33 +200,33 @@ export default {
                     {
                         text: '最近一周',
                         onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-                            picker.$emit('pick', [start, end]);
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+                            picker.$emit('pick', [start, end])
                         }
                     },
                     {
                         text: '最近一个月',
                         onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-                            picker.$emit('pick', [start, end]);
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+                            picker.$emit('pick', [start, end])
                         }
                     },
                     {
                         text: '最近三个月',
                         onClick(picker) {
-                            const end = new Date();
-                            const start = new Date();
-                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-                            picker.$emit('pick', [start, end]);
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+                            picker.$emit('pick', [start, end])
                         }
                     }
                 ]
             }
-        };
+        }
     },
     components: {
         EmptyList
@@ -246,51 +235,51 @@ export default {
         orderStatus: function() {
             return data => {
                 if (data === 0) {
-                    return '待付款';
+                    return '待付款'
                 } else if (data === 1) {
-                    return '已付款';
+                    return '已付款'
                 } else if (data === 2) {
-                    return '处理中';
+                    return '处理中'
                 } else if (data === 3) {
-                    return '已发货';
+                    return '已发货'
                 } else if (data === 9) {
-                    return '交易关闭';
+                    return '交易关闭'
                 } else if (data === 10) {
-                    return '交易成功';
+                    return '交易成功'
                 }
-            };
+            }
         },
         orderStatusClass: function() {
             return data => {
                 if (data === 0) {
-                    return 'order-pending-payment';
+                    return 'order-pending-payment'
                 } else if (data === 1) {
-                    return 'order-paid';
+                    return 'order-paid'
                 } else if (data === 2) {
-                    return 'order-to-be-delivered';
+                    return 'order-to-be-delivered'
                 } else if (data === 3) {
-                    return 'order-shipped';
+                    return 'order-shipped'
                 } else if (data === 5 || data === 6 || data === 7) {
-                    return 'order-refunding';
+                    return 'order-refunding'
                 } else if (data === 4 || data === 8 || data === 9) {
-                    return 'order-cancelled';
+                    return 'order-cancelled'
                 } else if (data === 10) {
-                    return 'order-successfully';
+                    return 'order-successfully'
                 }
-            };
+            }
         },
         order_err: function() {
             return data => {
                 if (data === 0) {
-                    return '';
+                    return ''
                 } else if (data === 1) {
-                    return '裁布异常';
+                    return '裁布异常'
                 } else if (data === 2) {
-                    return '配货异常';
+                    return '配货异常'
                 } else if (data === 3) {
-                    return '发货异常';
+                    return '发货异常'
                 }
-            };
+            }
         }
     },
     created() {
@@ -302,8 +291,8 @@ export default {
             { id: '3', name: '已发货' },
             { id: '9', name: '交易关闭' },
             { id: '10', name: '交易成功' }
-        ];
-        this.unusualTypeOptions = [{ id: '1', name: '裁布异常' }];
+        ]
+        this.unusualTypeOptions = [{ id: '1', name: '裁布异常' }]
         // 购买渠道 下拉列表
         /*this.channelOptions = [
                 { id: 1, name: '渠道1' },
@@ -315,9 +304,9 @@ export default {
     mounted() {
         // 获取购买渠道列表数据
         // this.getChannelData();
-        this.queryShopList(); // 获取代理店铺列表
+        this.queryShopList() // 获取代理店铺列表
         // 获取订单列表数据
-        this.getListData();
+        this.getListData()
     },
     methods: {
         // 请求-获取订单列表数据
@@ -334,18 +323,18 @@ export default {
                 paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge : '',
                 err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '-1',
                 product_code: this.searchParams.product_code ? this.searchParams.product_code : ''
-            };
-            const rLoading = this.openLoading();
+            }
+            const rLoading = this.openLoading()
             getOrderList(params)
                 .then(res => {
-                    rLoading.close();
+                    rLoading.close()
                     if (res.code === 200) {
                         if (res.data.list) {
-                            this.tableData = res.data.list;
-                            this.pageTotal = res.data.total;
+                            this.tableData = res.data.list
+                            this.pageTotal = res.data.total
                         } else {
-                            this.tableData = [];
-                            this.pageTotal = 0;
+                            this.tableData = []
+                            this.pageTotal = 0
                         }
                     } else {
                         this.$notify({
@@ -353,10 +342,10 @@ export default {
                             message: '',
                             type: 'error',
                             duration: 5000
-                        });
+                        })
                     }
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
 
         // 请求-获取购买渠道列表数据
@@ -366,46 +355,46 @@ export default {
         queryShopList() {
             queryShopList()
                 .then(res => {
-                    this.shopOptions = res.data || [];
+                    this.shopOptions = res.data || []
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.$set(this.searchParams, 'order_no', '');
-            this.$set(this.searchParams, 'status', '');
-            this.$set(this.searchParams, 'shop_id', '');
-            this.$set(this.searchParams, 'channel_id', '');
-            this.$set(this.searchParams, 'logistics_name', '');
-            this.$set(this.searchParams, 'paid_time_ge', '');
-            this.$set(this.searchParams, 'paid_time_le', '');
-            this.$set(this.searchParams, 'unusual_type', '');
-            this.$set(this.pageInfo, 'pageIndex', 1);
-            this.$set(this.searchParams, 'product_code', '');
-            this.getListData();
+            this.$refs[formName].resetFields()
+            this.$set(this.searchParams, 'order_no', '')
+            this.$set(this.searchParams, 'status', '')
+            this.$set(this.searchParams, 'shop_id', '')
+            this.$set(this.searchParams, 'channel_id', '')
+            this.$set(this.searchParams, 'logistics_name', '')
+            this.$set(this.searchParams, 'paid_time_ge', '')
+            this.$set(this.searchParams, 'paid_time_le', '')
+            this.$set(this.searchParams, 'unusual_type', '')
+            this.$set(this.pageInfo, 'pageIndex', 1)
+            this.$set(this.searchParams, 'product_code', '')
+            this.getListData()
         },
 
         // 按钮-触发搜索按钮
         handleSearch(formName) {
-            this.$set(this.pageInfo, 'pageIndex', 1);
+            this.$set(this.pageInfo, 'pageIndex', 1)
             //  存储搜索条件
-            this.$set(this.searchParams, 'order_no', this.searchForm.order_no);
-            this.$set(this.searchParams, 'status', this.searchForm.status);
-            this.$set(this.searchParams, 'shop_id', this.searchForm.shop_id);
-            this.$set(this.searchParams, 'channel_id', this.searchForm.channel_id);
-            this.$set(this.searchParams, 'logistics_name', this.searchForm.logistics_name);
-            this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0]);
-            this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1]);
-            this.$set(this.searchParams, 'unusual_type', this.searchForm.unusual_type);
-            this.$set(this.searchParams, 'product_code', this.searchForm.product_code);
-            this.getListData();
+            this.$set(this.searchParams, 'order_no', this.searchForm.order_no)
+            this.$set(this.searchParams, 'status', this.searchForm.status)
+            this.$set(this.searchParams, 'shop_id', this.searchForm.shop_id)
+            this.$set(this.searchParams, 'channel_id', this.searchForm.channel_id)
+            this.$set(this.searchParams, 'logistics_name', this.searchForm.logistics_name)
+            this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0])
+            this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1])
+            this.$set(this.searchParams, 'unusual_type', this.searchForm.unusual_type)
+            this.$set(this.searchParams, 'product_code', this.searchForm.product_code)
+            this.getListData()
         },
 
         // 按钮-查看订单详情
         handleViewDetail(index, row) {
-            this.$router.push({ path: '/mall-backend-order-detail', query: { order_id: row.id.toString() } });
+            this.$router.push({ path: '/mall-backend-order-detail', query: { order_id: row.id.toString() } })
         },
 
         // 取消订单
@@ -421,88 +410,88 @@ export default {
                         user_id: row.user_id,
                         shop_id: row.shop_id,
                         order_id: row.id
-                    };
-                    const rLoading = this.openLoading();
+                    }
+                    const rLoading = this.openLoading()
                     queryCancelOrder(params)
                         .then(res => {
-                            rLoading.close();
+                            rLoading.close()
                             if (res.code === 200) {
                                 this.$notify({
                                     title: '订单取消成功',
                                     message: '',
                                     type: 'success',
                                     duration: 3000
-                                });
-                                this.getListData();
+                                })
+                                this.getListData()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     message: '',
                                     type: 'error',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(() => {});
+                        .catch(() => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
 
         //时间格式化
         getInitTime(val) {
             if (val) {
-                const dt = new Date(val);
-                let year = dt.getFullYear(); //年
-                let month = dt.getMonth() + 1; //月
-                let date = dt.getDate(); //日
-                let hh = dt.getHours(); //时
-                let mm = dt.getMinutes(); //分
-                let ss = dt.getSeconds(); //秒
-                month = month < 10 ? '0' + month : month;
-                date = date < 10 ? '0' + date : date;
-                hh = hh < 10 ? '0' + hh : hh;
-                mm = mm < 10 ? '0' + mm : mm;
-                ss = ss < 10 ? '0' + ss : ss;
-                let new_time = '';
-                new_time = year + '-' + month + '-' + date + ' ' + hh + ':' + mm + ':' + ss;
-                return new_time;
+                const dt = new Date(val)
+                let year = dt.getFullYear() //年
+                let month = dt.getMonth() + 1 //月
+                let date = dt.getDate() //日
+                let hh = dt.getHours() //时
+                let mm = dt.getMinutes() //分
+                let ss = dt.getSeconds() //秒
+                month = month < 10 ? '0' + month : month
+                date = date < 10 ? '0' + date : date
+                hh = hh < 10 ? '0' + hh : hh
+                mm = mm < 10 ? '0' + mm : mm
+                ss = ss < 10 ? '0' + ss : ss
+                let new_time = ''
+                new_time = year + '-' + month + '-' + date + ' ' + hh + ':' + mm + ':' + ss
+                return new_time
             } else {
-                return '-1';
+                return '-1'
             }
         },
 
         // 按钮-分页导航
         handlePageChange(val) {
-            this.$set(this.pageInfo, 'pageIndex', val);
+            this.$set(this.pageInfo, 'pageIndex', val)
             if (this.searchParams['status']) {
-                this.$set(this.searchForm, 'status', this.searchParams['status']);
+                this.$set(this.searchForm, 'status', this.searchParams['status'])
             }
             if (this.searchParams['order_no']) {
-                this.$set(this.searchForm, 'order_no', this.searchParams['order_no']);
+                this.$set(this.searchForm, 'order_no', this.searchParams['order_no'])
             }
             if (this.searchParams['shop_id']) {
-                this.$set(this.searchForm, 'shop_id', this.searchParams['shop_id']);
+                this.$set(this.searchForm, 'shop_id', this.searchParams['shop_id'])
             }
             if (this.searchParams['channel_id']) {
-                this.$set(this.searchForm, 'channel_id', this.searchParams['channel_id']);
+                this.$set(this.searchForm, 'channel_id', this.searchParams['channel_id'])
             }
             if (this.searchParams['logistics_name']) {
-                this.$set(this.searchForm, 'logistics_name', this.searchParams['logistics_name']);
+                this.$set(this.searchForm, 'logistics_name', this.searchParams['logistics_name'])
             }
             if (this.searchParams['product_code']) {
-                this.$set(this.searchForm, 'product_code', this.searchParams['product_code']);
+                this.$set(this.searchForm, 'product_code', this.searchParams['product_code'])
             }
             if (this.searchParams['unusual_type']) {
-                this.$set(this.searchForm, 'unusual_type', this.searchParams['unusual_type']);
+                this.$set(this.searchForm, 'unusual_type', this.searchParams['unusual_type'])
             }
-            let time_arr = [];
+            let time_arr = []
             if (this.searchParams['paid_time_ge']) {
-                time_arr[0] = this.searchParams['paid_time_ge'];
-                time_arr[1] = this.searchParams['paid_time_le'];
-                this.$set(this.searchForm, 'pay_time', time_arr);
+                time_arr[0] = this.searchParams['paid_time_ge']
+                time_arr[1] = this.searchParams['paid_time_le']
+                this.$set(this.searchForm, 'pay_time', time_arr)
             }
-            this.getListData();
+            this.getListData()
         }
     }
-};
+}
 </script>
