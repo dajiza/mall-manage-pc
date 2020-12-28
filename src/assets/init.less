@@ -2,7 +2,6 @@ html {
     color: rgba(0, 0, 0, 0.65);
     font-size: 14px;
 }
-
 .head-container {
     margin-bottom: 16px;
     padding: 24px 20px 4px 32px;
@@ -103,7 +102,13 @@ html {
         // vertical-align: middle;
     }
 }
-
+// el-table 默认空数据显示 宽度修正
+.el-table__empty-block {
+    justify-content: flex-start;
+    .el-table__empty-text {
+        width: ~'calc(100vw - 208px)';
+    }
+}
 .pagination-container {
     padding: 10px 0;
     background-color: #fff;

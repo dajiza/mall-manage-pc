@@ -39,9 +39,10 @@ export const mixinsGoods = {
                 ],
                 freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
                 category_id: [{ required: true, message: '请选择分类', trigger: 'blur' }]
+                // shelvesTime: [{ required: true, message: '请选择时间', trigger: 'blur' }]
                 // allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
             },
-            rulesRequired: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+            rulesTime: [{ required: true, message: '请输入内容', trigger: 'blur' }],
             rulesPrice: [
                 { required: true, message: '请输入价格', trigger: 'blur' },
                 {
@@ -85,6 +86,7 @@ export const mixinsGoods = {
             options: {},
             miniProgramTags: [],
             backendTags: [],
+            startDatePicker: this.beginDate(), //定时上下架配置
             goods: {
                 title: '', //商品名称 maxlength =200
                 imgs: [
@@ -110,6 +112,10 @@ export const mixinsGoods = {
                 display_sales: 0, //Math.floor(Math.random() * 100) + 1, //展示的销量
                 status: 2, //1下架；2上架
                 freight_id: '', //运费模版id
+                set_time_status: 2, //定时上下架状态 1 设置 2 未设置
+                // shelvesTime: [], //定时上下架时间 暂存
+                set_time_on: '', //定时上架时间时间戳
+                set_time_off: '', //定时下架时间时间戳
                 sku_list: [
                     // {
                     //     storehouse_pid: 84, //所选的仓库产品id
@@ -199,6 +205,10 @@ export const mixinsGoods = {
         pickerTag: function() {
             return this.miniProgramTags.concat(this.backendTags)
         }
+        // 动态生成验证规则 blank_rule空规则,初始化要有值才能正确初始化
+        // shelvesTime: function() {
+        //     return this.goods.set_time_status == 2 ? 'blank_rule' : 'shelvesTime'
+        // }
     },
 
     components: {
@@ -292,7 +302,6 @@ export const mixinsGoods = {
                         // 新建时默认填写库存预警
                         let stockWarn = res[6].data.find(item => item.config_key == 'SYS_STOCK_WARNGING')
                         this.stockWarn = Number(stockWarn.value)
-                        console.log('输出 ~ this.stockWarn', this.stockWarn)
                     }
                     rLoading.close()
                 })
@@ -315,6 +324,18 @@ export const mixinsGoods = {
                 }
             }
         },
+        // 定时上下架配置
+        beginDate() {
+            let self = this
+            return {
+                disabledDate(time) {
+                    const start = new Date(new Date().toLocaleDateString())
+                    start.setTime(start.getTime() - 3600 * 1000 * 24 * 1)
+                    return time.getTime() <= start //开始时间不选时，最小值为今天
+                }
+            }
+        },
+
         // 编辑获取详情
         getDetail() {
             return new Promise((resolve, reject) => {
@@ -785,6 +806,36 @@ export const mixinsGoods = {
                         rLoading.close()
                         return
                     }
+                    // format 上下架时间
+                    if (params.set_time_status == 2) {
+                        params.set_time_on = 0
+                        params.set_time_off = 0
+                    } else {
+                        if (params.set_time_on || params.set_time_off) {
+                            params.set_time_on = params.set_time_on ? Number(this.$moment(params.set_time_on).format('X')) : 0
+                            params.set_time_off = params.set_time_off ? Number(this.$moment(params.set_time_off).format('X')) : 0
+                            if (params.set_time_on != 0 && params.set_time_off != 0 && params.set_time_off <= params.set_time_on) {
+                                this.$notify({
+                                    title: '下架时间不能早于上架时间',
+                                    message: '',
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                                rLoading.close()
+                                return
+                            }
+                        } else {
+                            this.$notify({
+                                title: '请选择上架或者下架时间',
+                                message: '',
+                                type: 'warning',
+                                duration: 5000
+                            })
+                            rLoading.close()
+                            return
+                        }
+                    }
+
                     this.timg[0]['type'] = 1
                     let imgList = this.timg.concat(this.tfile)
                     let length = imgList.length + 1

@@ -34,8 +34,8 @@
                         <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="SKU编码" prop="order_no" class="">
-                    <el-input class="filter-item" v-model="formFilter.order_no" placeholder="请输入"></el-input>
+                <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                    <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -244,6 +244,7 @@
             >
             </el-pagination>
         </div>
+
         <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商">
             <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width: 280px" multiple>
                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
@@ -261,7 +262,7 @@
 import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
-
+import EmptyList from '@/components/common/empty-list/EmptyList'
 export default {
     name: 'goods-list',
     data() {
@@ -314,7 +315,8 @@ export default {
                 type: '',
                 status: '',
                 is_store_shortage: '',
-                allow_agent: ''
+                allow_agent: '',
+                storehouse_code: ''
             },
             // 图片预览
             dialogVisiblePic: false,
@@ -325,7 +327,8 @@ export default {
         }
     },
     components: {
-        ElImageViewer
+        ElImageViewer,
+        EmptyList
     },
     created() {},
     mounted() {

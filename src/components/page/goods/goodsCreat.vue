@@ -85,9 +85,7 @@
                         :value="pickerTag"
                     ></v-tag-picker>
                     <div>
-                        <el-tag class="el-tag" type="warning" @close="handleCloseMiniApp(item)" closable v-for="item in miniProgramTags">{{
-                            item.label
-                        }}</el-tag>
+                        <el-tag class="el-tag" type="warning" @close="handleCloseMiniApp(item)" closable v-for="item in miniProgramTags">{{ item.label }}</el-tag>
                     </div>
                     <div>
                         <el-tag class="el-tag" closable @close="handleCloseBack(item)" v-for="item in backendTags">{{ item.label }}</el-tag>
@@ -146,10 +144,7 @@
                     </el-table-column>
                     <el-table-column label="状态" width="">
                         <template slot-scope="scope">
-                            <span
-                                :class="[scope.row.status == 1 ? 'text-red' : 'text-blue', 'cursor']"
-                                @click="setSkuStatus(scope.row, scope.row.status, scope.$index)"
-                            >
+                            <span :class="[scope.row.status == 1 ? 'text-red' : 'text-blue', 'cursor']" @click="setSkuStatus(scope.row, scope.row.status, scope.$index)">
                                 {{ scope.row.status == 1 ? '已下架' : '已上架' }}
                             </span>
                         </template>
@@ -191,13 +186,7 @@
                             <el-form-item label="" class="table-radio-content">
                                 <el-radio v-model="scope.row.stock" :label="1">同步仓库</el-radio>
                                 <el-radio class="table-radio-last" v-model="scope.row.stock" :label="2">{{ scope.row.stock == 2 ? '' : '自定义' }}</el-radio>
-                                <el-input
-                                    class="default-input"
-                                    placeholder="请输入"
-                                    v-model="scope.row.display_price"
-                                    v-if="scope.row.stock == 2"
-                                    style="width:80px;"
-                                ></el-input>
+                                <el-input class="default-input" placeholder="请输入" v-model="scope.row.display_price" v-if="scope.row.stock == 2" style="width:80px;"></el-input>
                             </el-form-item>
                         </template>
                     </el-table-column>
@@ -298,15 +287,8 @@
                     <el-radio v-model="goods.status" :label="1">否</el-radio>
                 </el-form-item>
                 <div class="option-content">
-                    <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
-                        <el-select
-                            class="filter-item"
-                            :disabled="goods.is_allow_agent == 2"
-                            v-model="goods.allow_shop_ids"
-                            placeholder="请选择"
-                            style="width:200px"
-                            multiple
-                        >
+                    <el-form-item label="指定代理" prop="allow_shop_ids">
+                        <el-select class="filter-item" :disabled="goods.is_allow_agent == 2" v-model="goods.allow_shop_ids" placeholder="请选择" style="width:200px" multiple>
                             <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -320,20 +302,49 @@
                     </el-form-item>
                 </div>
                 <div class="time-content">
-                    <el-form-item label="是否定时上下架" v-if="!goods.goods_id" style="width:200px">
-                        <el-radio v-model="goods.status" :label="2">是</el-radio>
-                        <el-radio v-model="goods.status" :label="1">否</el-radio>
+                    <el-form-item label="是否定时上下架" style="width:200px">
+                        <el-radio v-model="goods.set_time_status" :label="1">是</el-radio>
+                        <el-radio v-model="goods.set_time_status" :label="2">否</el-radio>
                     </el-form-item>
-                    <el-form-item class="long-time" label="上下架时间" prop="createdTime">
+                    <el-form-item class="long-time" label="上架时间">
                         <el-date-picker
+                            style="width:200px"
                             class="filter-item"
-                            v-model="goods.createdTime"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="goods.set_time_on"
+                            type="datetime"
+                            placeholder="选择上架时间"
+                            default-time="00:00:00"
+                            :disabled="goods.set_time_status == 2"
+                            :picker-options="startDatePicker"
+                        >
+                        </el-date-picker>
+
+                        <!-- <el-date-picker
+                            class="filter-item"
+                            v-model="goods.shelvesTime"
                             value-format="yyyy-MM-dd HH:mm:ss"
                             type="datetimerange"
                             range-separator="至"
                             start-placeholder="上架日期"
                             end-placeholder="下架日期"
                             :default-time="['00:00:00', '23:59:59']"
+                            :disabled="goods.set_time_status == 2"
+                            :picker-options="startDatePicker"
+                        >
+                        </el-date-picker> -->
+                    </el-form-item>
+                    <el-form-item class="long-time" label="下架时间">
+                        <el-date-picker
+                            style="width:200px"
+                            class="filter-item"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="goods.set_time_off"
+                            type="datetime"
+                            placeholder="选择下架时间"
+                            default-time="00:00:00"
+                            :disabled="goods.set_time_status == 2"
+                            :picker-options="startDatePicker"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -349,25 +360,12 @@
         <!-- 视频预览 -->
         <el-dialog :visible.sync="dialogVisible" title="预览">
             <img width="100%" :src="dialogImageUrl" alt="" />
-            <video-player
-                class="video-player vjs-custom-skin"
-                ref="videoPlayer"
-                :playsinline="true"
-                :options="playerOptions"
-                v-if="dialogViewType == 2"
-            ></video-player>
+            <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions" v-if="dialogViewType == 2"></video-player>
         </el-dialog>
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
         <!-- 选择类型 -->
-        <el-dialog
-            :visible.sync="dialogVisibleType"
-            width="380px"
-            :close-on-click-modal="false"
-            :close-on-press-escape="false"
-            :show-close="false"
-            title="商品类型选择"
-        >
+        <el-dialog :visible.sync="dialogVisibleType" width="380px" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" title="商品类型选择">
             <div class="dialog-type">
                 <el-radio v-model="goods.type" :label="1">布料</el-radio>
                 <el-radio v-model="goods.type" :label="2">其他</el-radio>
@@ -381,15 +379,15 @@
     </div>
 </template>
 <script>
-import { mixinsGoods } from '@/components/mixins/goods';
+import { mixinsGoods } from '@/components/mixins/goods'
 export default {
     mixins: [mixinsGoods],
     data() {
-        return {};
+        return {}
     },
     created() {},
     methods: {}
-};
+}
 </script>
 
 <style scoped src="./goodsCreat.less" lang="less"></style>
