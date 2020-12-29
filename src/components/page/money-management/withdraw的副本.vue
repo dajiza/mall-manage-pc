@@ -7,17 +7,22 @@
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="管理员昵称" prop="shop_admin_name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_name"></el-input>
+                <el-form-item label="管理员昵称" prop="name">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
                 </el-form-item>
-                <el-form-item label="管理员手机号" prop="shop_admin_phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_phone"></el-input>
+                <el-form-item label="管理员手机号" prop="phone">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="状态" prop="status">
+                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                        <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
+                    </el-select>
                 </el-form-item>
 
-                <el-form-item class="long-time" label="申请时间" prop="applyTime">
+                <el-form-item class="long-time" label="申请时间" prop="createdTime">
                     <el-date-picker
                         class="filter-item"
-                        v-model="formFilter.applyTime"
+                        v-model="formFilter.createdTime"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         type="datetimerange"
                         range-separator="至"
@@ -26,6 +31,19 @@
                     >
                     </el-date-picker>
                 </el-form-item>
+                <el-form-item class="long-time" label="到账时间" prop="createdTime">
+                    <el-date-picker
+                        class="filter-item"
+                        v-model="formFilter.createdTime"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        type="datetimerange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                    >
+                    </el-date-picker>
+                </el-form-item>
+
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -35,59 +53,65 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">代理管理</div>
-            <el-button size="mini" class="title-btn" @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-agent-update-status'">
-                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 4)">
+                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 4)">
                             通过
                         </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 3)">
+                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateAgentStatus(scope.row.id, 3)">
                             拒绝
                         </el-button>
                     </div>
                 </template>
             </el-table-column>
-            <!--1 待审核 2 审核通过 3 拒绝 4 放款成功 5 放款失败-->
             <el-table-column label="状态" width="100">
                 <template slot-scope="scope">
-                    <div class="type-tag type-grey" v-if="scope.row.status == 1">待审核</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 2">审核通过</div>
-                    <div class="type-tag type-yellow" v-if="scope.row.status == 3">拒绝</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 4">放款成功</div>
-                    <div class="type-tag type-yellow" v-if="scope.row.status == 5">放款失败</div>
+                    <div class="type-tag type-yellow" v-if="scope.row.status == 1">审核拒绝</div>
+                    <div class="type-tag type-green" v-if="scope.row.status == 4">审核通过</div>
+                    <div class="type-tag type-grey" v-if="scope.row.status == 5">待审核</div>
                 </template>
             </el-table-column>
             <el-table-column label="管理员昵称" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_admin_name }}</span>
+                    <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="管理员手机号" width="160">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_admin_phone }}</span>
+                    <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="店铺名称" width="180">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_name }}</span>
+                    <span>{{ scope.row.phone }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="申请提现金额" width="140">
                 <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.money) }}</span>
+                    <span>{{ scope.row.phone }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="申请时间" width="180">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.apply_time }}</span>
+                    <span>{{ $moment(scope.row.apply_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="提现方式" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.type == 1 ? '微信钱包' : '银行卡' }}</span>
+                    <span>{{ scope.row.phone }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="请求第三方时间" width="180">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.phone }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="到账时间" width="180">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.phone }}</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -106,10 +130,9 @@
     </div>
 </template>
 <script>
-import { updateAgentStatus } from '@/api/agent'
+import { queryAgentList, updateAgentStatus } from '@/api/agent'
 import { queryWithdrawList } from '@/api/money'
 import { queryShopList } from '@/api/goods'
-import { formatMoney } from '@/plugin/tool'
 
 export default {
     name: 'agent-list',
@@ -146,12 +169,10 @@ export default {
                 }
             ],
             formFilter: {
-                shop_id: '', //不搜索-1
-                shop_admin_name: '', //不搜索为空
-                shop_admin_phone: '', //不搜索为空
-                applyTime: [], //暂存
-                apply_time_lte: '', //不搜索为空
-                apply_time_gte: '' //不搜索为空
+                shop_id: '', //不搜索为0
+                phone: '', //不搜索为空
+                name: '', //不搜索为空
+                status: '' //不搜索为0 //状态：1新增(待审核)；2审核通过（待绑定）；3拒绝；4合作中；5取消合作
             }
         }
     },
@@ -163,24 +184,17 @@ export default {
     },
     inject: ['reload'],
     methods: {
-        formatMoney,
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
-            if (params.applyTime.length == 2) {
-                params['apply_time_gte'] = params.applyTime[0]
-                params['apply_time_lte'] = params.applyTime[1]
-            } else {
-                params['apply_time_gte'] = ''
-                params['apply_time_lte'] = ''
-            }
-            delete params['applyTime']
+            params['shop_id'] = params['shop_id'] == '' ? 0 : params['shop_id']
+            params['status'] = params['status'] == '' ? 0 : params['status']
+
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
             console.log(params)
-            queryWithdrawList(params)
+            queryAgentList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
@@ -189,7 +203,7 @@ export default {
                 .catch(err => {})
         },
         // 更新状态
-        updateStatus(id, status) {
+        updateAgentStatus(id, status) {
             let params = {
                 id: id,
                 status: status //2审核通过（待绑定）；3拒绝；4合作中；5取消合作
@@ -246,11 +260,6 @@ export default {
                     this.shopList = res.data
                 })
                 .catch(err => {})
-        },
-        gotoWithdrawListAll() {
-            this.$router.push({
-                path: 'mall-backend-withdraw-all'
-            })
         },
         // 搜索
         handleFilter() {
@@ -322,9 +331,5 @@ export default {
         height: 8px;
         border-radius: 4px;
     }
-}
-.title-btn {
-    margin-right: 32px;
-    margin-left: auto;
 }
 </style>

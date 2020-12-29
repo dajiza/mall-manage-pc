@@ -54,6 +54,17 @@ export const mixinsGoods = {
                     min: 0.01
                 }
             ],
+            rulesStock: [
+                { required: true, message: '请输入库存', trigger: 'blur' },
+                {
+                    type: 'number',
+                    message: '请输入正确的库存',
+                    transform(value) {
+                        return Number(value)
+                    },
+                    min: 0
+                }
+            ],
             rulesInt: [
                 { required: true, message: '请输入内容', trigger: 'blur' },
                 {
@@ -194,6 +205,7 @@ export const mixinsGoods = {
             deep: true,
             immediate: true
         },
+
         consumeChecked() {
             this.tableKey++ // 为了保证table 每次都会重渲
         },
@@ -526,6 +538,8 @@ export const mixinsGoods = {
             for (let j = 0; j < pList.length; j++) {
                 const element = pList[j]
                 element.stock_warning = this.stockWarn
+                element.stock_sell = 1
+                element.stock_num = 1
             }
             this.goods.sku_list = this.goods.sku_list.concat(pList)
             // this.setTimg();

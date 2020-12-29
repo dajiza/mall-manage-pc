@@ -96,7 +96,12 @@ export default new Router({
                 {
                     path: '/mall-backend-withdraw',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/withdraw.vue'),
-                    meta: { title: '提现管理' }
+                    meta: { title: '提现管理-审核' }
+                },
+                {
+                    path: '/mall-backend-withdraw-all',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/withdrawAll.vue'),
+                    meta: { title: '提现管理-全部' }
                 },
                 {
                     path: '/mall-backend-other-category',

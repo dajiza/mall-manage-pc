@@ -183,10 +183,12 @@
                     </el-table-column>
                     <el-table-column label="可售库存" width="240">
                         <template slot-scope="scope">
-                            <el-form-item label="" class="table-radio-content">
-                                <el-radio v-model="scope.row.stock" :label="1">同步仓库</el-radio>
-                                <el-radio class="table-radio-last" v-model="scope.row.stock" :label="2">{{ scope.row.stock == 2 ? '' : '自定义' }}</el-radio>
-                                <el-input class="default-input" placeholder="请输入" v-model="scope.row.display_price" v-if="scope.row.stock == 2" style="width:80px;"></el-input>
+                            <el-form-item class="table-radio-content">
+                                <el-radio v-model="scope.row.stock_sell" :label="1">同步仓库</el-radio>
+                                <el-radio class="table-radio-last" v-model="scope.row.stock_sell" :label="2">{{ scope.row.stock_sell == 2 ? '' : '自定义' }}</el-radio>
+                                <el-form-item label="" class="" :prop="'sku_list.' + scope.$index + '.stock_num'" :rules="rulesStock" v-if="scope.row.stock_sell == 2">
+                                    <el-input class="default-input" placeholder="请输入" v-model="scope.row.stock_num" style="width:80px;"></el-input>
+                                </el-form-item>
                             </el-form-item>
                         </template>
                     </el-table-column>

@@ -92,7 +92,7 @@
 import { queryCustomerList } from '@/api/customer'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
-
+import commUtil from '@/utils/commUtil'
 export default {
     name: 'customer-list',
     data() {
@@ -126,8 +126,8 @@ export default {
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['consumption_min'] = params['consumption_min'] == '' ? -1 : params['consumption_min'] * 100
-            params['consumption_max'] = params['consumption_max'] == '' ? -1 : params['consumption_max'] * 100
+            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 100)
+            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 100)
             params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
 
             params['limit'] = this.listQuery.limit

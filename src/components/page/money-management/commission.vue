@@ -2,11 +2,11 @@
     <div class="app-container">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <el-form-item label="商品名称" prop="name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
+                <el-form-item label="商品名称" prop="goods_name">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.goods_name"></el-input>
                 </el-form-item>
-                <el-form-item label="订单号" prop="name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
+                <el-form-item label="订单号" prop="order_no">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
                 </el-form-item>
                 <el-form-item label="获佣店铺" prop="shop_id">
                     <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
@@ -32,34 +32,34 @@
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="序号" width="">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="280">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.goods_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="订单号" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.order_no }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="获佣店铺" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="获佣金额(元)" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ formatMoney(scope.row.commission) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100">
                 <template slot-scope="scope">
-                    <div class="type-tag type-blue" v-if="scope.row.status == 2">已结算</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 4">待结算</div>
-                    <div class="type-tag type-grey" v-if="scope.row.status == 5">失效</div>
+                    <div class="type-tag type-blue" v-if="scope.row.status == 1">已结算</div>
+                    <div class="type-tag type-green" v-if="scope.row.status == 2">待结算</div>
+                    <div class="type-tag type-grey" v-if="scope.row.status == 3">失效</div>
                 </template>
             </el-table-column>
         </el-table>
@@ -78,8 +78,9 @@
     </div>
 </template>
 <script>
-import { queryAgentList, updateAgentStatus } from '@/api/agent'
+import { queryCommission } from '@/api/money'
 import { queryShopList } from '@/api/goods'
+import { formatMoney } from '@/plugin/tool'
 
 export default {
     name: 'agent-list',
@@ -96,30 +97,22 @@ export default {
             statusList: [
                 {
                     id: 1,
-                    label: '新增'
+                    label: '已结算'
                 },
                 {
                     id: 2,
-                    label: '待绑定'
+                    label: '待结算'
                 },
                 {
                     id: 3,
-                    label: '已拒绝'
-                },
-                {
-                    id: 4,
-                    label: '合作中'
-                },
-                {
-                    id: 5,
-                    label: '取消合作'
+                    label: '失效'
                 }
             ],
             formFilter: {
-                shop_id: '', //不搜索为0
-                phone: '', //不搜索为空
-                name: '', //不搜索为空
-                status: '' //不搜索为0 //状态：1新增(待审核)；2审核通过（待绑定）；3拒绝；4合作中；5取消合作
+                goods_name: '', //不搜索为空
+                order_no: '', //不搜索为空
+                shop_id: '', //不搜索为-1
+                status: '' //不搜索为-1 1 已经付款  2可提现  3 已取消
             }
         }
     },
@@ -131,17 +124,18 @@ export default {
     },
     inject: ['reload'],
     methods: {
+        formatMoney,
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['shop_id'] = params['shop_id'] == '' ? 0 : params['shop_id']
-            params['status'] = params['status'] == '' ? 0 : params['status']
+            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
+            params['status'] = params['status'] == '' ? -1 : params['status']
 
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
             console.log(params)
-            queryAgentList(params)
+            queryCommission(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
@@ -149,57 +143,7 @@ export default {
                 })
                 .catch(err => {})
         },
-        // 更新状态
-        updateAgentStatus(id, status) {
-            let params = {
-                id: id,
-                status: status //2审核通过（待绑定）；3拒绝；4合作中；5取消合作
-            }
-            let title
-            let type
-            switch (status) {
-                case 3:
-                    title = '确认要取消与该代理的合作吗？'
-                    type = 'warning'
-                    break
-                case 4:
-                    title = '确认要通过该代理申请吗？'
-                    type = 'success'
 
-                    break
-                case 5:
-                    title = '确认要拒绝该代理申请吗？'
-                    type = 'error'
-                    break
-            }
-
-            this.$confirm(title, '确认', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: type
-            })
-                .then(() => {
-                    updateAgentStatus(params)
-                        .then(res => {
-                            if (res.code == 200) {
-                                this.$notify({
-                                    title: '状态设置成功',
-                                    type: 'success',
-                                    duration: 5000
-                                })
-                                this.reload()
-                            } else {
-                                this.$notify({
-                                    title: res.msg,
-                                    type: 'warning',
-                                    duration: 5000
-                                })
-                            }
-                        })
-                        .catch(err => {})
-                })
-                .catch(() => {})
-        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()

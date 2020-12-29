@@ -13,11 +13,27 @@
                 <el-form-item label="管理员手机号" prop="shop_admin_phone">
                     <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_phone"></el-input>
                 </el-form-item>
-
+                <el-form-item label="状态" prop="status">
+                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                        <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item class="long-time" label="申请时间" prop="applyTime">
                     <el-date-picker
                         class="filter-item"
                         v-model="formFilter.applyTime"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        type="datetimerange"
+                        range-separator="至"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期"
+                    >
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item class="long-time" label="到账时间" prop="successTime">
+                    <el-date-picker
+                        class="filter-item"
+                        v-model="formFilter.successTime"
                         value-format="yyyy-MM-dd HH:mm:ss"
                         type="datetimerange"
                         range-separator="至"
@@ -35,7 +51,6 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">代理管理</div>
-            <el-button size="mini" class="title-btn" @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="150">
@@ -85,6 +100,11 @@
                     <span>{{ scope.row.apply_time }}</span>
                 </template>
             </el-table-column>
+            <el-table-column label="到账时间" width="180">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.success_time }}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="提现方式" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.type == 1 ? '微信钱包' : '银行卡' }}</span>
@@ -107,7 +127,7 @@
 </template>
 <script>
 import { updateAgentStatus } from '@/api/agent'
-import { queryWithdrawList } from '@/api/money'
+import { queryWithdrawListAll } from '@/api/money'
 import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 
@@ -126,11 +146,11 @@ export default {
             statusList: [
                 {
                     id: 1,
-                    label: '新增'
+                    label: '待审核'
                 },
                 {
                     id: 2,
-                    label: '待绑定'
+                    label: '审核通过'
                 },
                 {
                     id: 3,
@@ -138,20 +158,25 @@ export default {
                 },
                 {
                     id: 4,
-                    label: '合作中'
+                    label: '放款成功'
                 },
                 {
                     id: 5,
-                    label: '取消合作'
+                    label: '放款失败'
                 }
             ],
             formFilter: {
                 shop_id: '', //不搜索-1
                 shop_admin_name: '', //不搜索为空
                 shop_admin_phone: '', //不搜索为空
+                apply_time_lte: '', //不搜索为空  小于等于
+                apply_time_gte: '', //不搜索为空  小于等于
+
+                success_time_lte: '', //到帐时间 小于等于
+                success_time_gte: '', //到帐时间 大于等于
+                status: '', //1 待审核 2 审核通过 3 拒绝 4 放款成功 5放款失败 -1 搜索全部
                 applyTime: [], //暂存
-                apply_time_lte: '', //不搜索为空
-                apply_time_gte: '' //不搜索为空
+                successTime: [] //暂存
             }
         }
     },
@@ -168,6 +193,7 @@ export default {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
             params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
+            params['status'] = params['status'] == '' ? -1 : params['status']
             if (params.applyTime.length == 2) {
                 params['apply_time_gte'] = params.applyTime[0]
                 params['apply_time_lte'] = params.applyTime[1]
@@ -175,12 +201,20 @@ export default {
                 params['apply_time_gte'] = ''
                 params['apply_time_lte'] = ''
             }
+            if (params.successTime.length == 2) {
+                params['success_time_gte'] = params.successTime[0]
+                params['success_time_lte'] = params.successTime[1]
+            } else {
+                params['success_time_gte'] = ''
+                params['success_time_lte'] = ''
+            }
             delete params['applyTime']
+            delete params['successTime']
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
             console.log(params)
-            queryWithdrawList(params)
+            queryWithdrawListAll(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
@@ -249,7 +283,7 @@ export default {
         },
         gotoWithdrawListAll() {
             this.$router.push({
-                path: 'mall-backend-withdraw-all'
+                path: 'mall-backend-goods-list'
             })
         },
         // 搜索

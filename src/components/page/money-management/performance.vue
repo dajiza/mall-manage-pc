@@ -7,13 +7,13 @@
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="代理姓名" prop="name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
+                <el-form-item label="代理姓名" prop="agent_name">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_name"></el-input>
                 </el-form-item>
                 <el-form-item class="interval" label="总销售额">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.consumption_min"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sale_count_gte"></el-input>
                     <div class="separator">-</div>
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.consumption_max"></el-input>
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sale_count_lte"></el-input>
                 </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -28,46 +28,46 @@
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="店铺名称" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="代理姓名" width="200">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.agent_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="客户数" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ scope.row.user_counts }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="总销售额" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ formatMoney(scope.row.sales_count) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="累计佣金" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ formatMoney(scope.row.commission_count) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="总资产" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
+                    <span>{{ formatMoney(scope.row.total_assets) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="待入账" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_name }}</span>
+                    <span>{{ formatMoney(scope.row.waiting_confirm) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="可提现" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.phone }}</span>
+                    <span>{{ formatMoney(scope.row.can_withdraw) }}</span>
                 </template>
             </el-table-column>
         </el-table>
-        <div class="pagination-container">
+        <!-- <div class="pagination-container">
             <el-pagination
                 background
                 @size-change="handleSizeChange"
@@ -78,12 +78,14 @@
                 :total="total"
             >
             </el-pagination>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
-import { queryAgentList, updateAgentStatus } from '@/api/agent'
+import { queryShopCount } from '@/api/money'
 import { queryShopList } from '@/api/goods'
+import commUtil from '@/utils/commUtil'
+import { formatMoney } from '@/plugin/tool'
 
 export default {
     name: 'agent-list',
@@ -120,10 +122,10 @@ export default {
                 }
             ],
             formFilter: {
-                shop_id: '', //不搜索为0
-                phone: '', //不搜索为空
-                name: '', //不搜索为空
-                status: '' //不搜索为0 //状态：1新增(待审核)；2审核通过（待绑定）；3拒绝；4合作中；5取消合作
+                shop_id: '', //不搜索为-1
+                agent_name: '', //不搜索为空
+                sale_count_lte: '', //销售总额度 小于等于
+                sale_count_gte: '' //销售总额度 大于等于
             }
         }
     },
@@ -135,75 +137,28 @@ export default {
     },
     inject: ['reload'],
     methods: {
+        formatMoney,
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
-            params['shop_id'] = params['shop_id'] == '' ? 0 : params['shop_id']
-            params['status'] = params['status'] == '' ? 0 : params['status']
+            params['sale_count_lte'] = params['sale_count_lte'] == '' ? -1 : commUtil.numberMul(Number(params['sale_count_lte']), 100)
+            params['sale_count_gte'] = params['sale_count_gte'] == '' ? -1 : commUtil.numberMul(Number(params['sale_count_gte']), 100)
+            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
 
-            params['limit'] = this.listQuery.limit
-            params['page'] = this.listQuery.page
+            // params['limit'] = this.listQuery.limit
+            // params['page'] = this.listQuery.page
 
             console.log(params)
-            queryAgentList(params)
+            queryShopCount(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    this.list = res.data.lists
-                    this.total = res.data.total
+                    this.list = res.data
+                    // this.list = res.data.lists
+                    // this.total = res.data.total
                 })
                 .catch(err => {})
         },
-        // 更新状态
-        updateAgentStatus(id, status) {
-            let params = {
-                id: id,
-                status: status //2审核通过（待绑定）；3拒绝；4合作中；5取消合作
-            }
-            let title
-            let type
-            switch (status) {
-                case 3:
-                    title = '确认要取消与该代理的合作吗？'
-                    type = 'warning'
-                    break
-                case 4:
-                    title = '确认要通过该代理申请吗？'
-                    type = 'success'
 
-                    break
-                case 5:
-                    title = '确认要拒绝该代理申请吗？'
-                    type = 'error'
-                    break
-            }
-
-            this.$confirm(title, '确认', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: type
-            })
-                .then(() => {
-                    updateAgentStatus(params)
-                        .then(res => {
-                            if (res.code == 200) {
-                                this.$notify({
-                                    title: '状态设置成功',
-                                    type: 'success',
-                                    duration: 5000
-                                })
-                                this.reload()
-                            } else {
-                                this.$notify({
-                                    title: res.msg,
-                                    type: 'warning',
-                                    duration: 5000
-                                })
-                            }
-                        })
-                        .catch(err => {})
-                })
-                .catch(() => {})
-        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
@@ -221,6 +176,8 @@ export default {
         resetForm(formName) {
             console.log(this.$refs[formName].model)
             this.$refs[formName].resetFields()
+            this.formFilter.sale_count_lte = ''
+            this.formFilter.sale_count_gte = ''
             this.handleFilter()
         },
         // 分页方法
