@@ -11,3 +11,6 @@ export const queryShopCount = params => post('/backend/commission-shop-count', p
 
 // 佣金统计
 export const queryCommission = params => post('/backend/commission-count', params)
+
+// 佣金提现审核接口
+export const putWithdrawCheck = params => post('/backend/commission-withdraw-check', params)

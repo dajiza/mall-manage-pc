@@ -203,11 +203,11 @@
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="可售库存" width="100">
+                        <!-- <el-table-column label="可售库存" width="100">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
-                        </el-table-column>
+                        </el-table-column> -->
                         <el-table-column label="总库存" width="100">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_total }}</span>
@@ -233,7 +233,7 @@
             <el-table-column label="SKU编码" width="140"> </el-table-column>
             <el-table-column label="售价(元)" width="100"> </el-table-column>
             <el-table-column label="实际销量" width="100"> </el-table-column>
-            <el-table-column label="可售库存" width="100"> </el-table-column>
+            <!-- <el-table-column label="可售库存" width="100"> </el-table-column> -->
             <el-table-column label="总库存" width="100"> </el-table-column>
             <el-table-column label="可用库存" width="100"> </el-table-column>
             <el-table-column label="库存预警" width="100"> </el-table-column>
@@ -347,7 +347,7 @@ export default {
         // 合并单元格
         arraySpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 9) {
-                return [1, 9]
+                return [1, 8]
             }
             if (columnIndex > 9) {
                 return [0, 0]

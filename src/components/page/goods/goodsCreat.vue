@@ -181,7 +181,7 @@
                             </el-form-item>
                         </template>
                     </el-table-column>
-                    <el-table-column label="可售库存" width="240">
+                    <!-- <el-table-column label="可售库存" width="240">
                         <template slot-scope="scope">
                             <el-form-item class="table-radio-content">
                                 <el-radio v-model="scope.row.stock_sell" :label="1">同步仓库</el-radio>
@@ -191,7 +191,7 @@
                                 </el-form-item>
                             </el-form-item>
                         </template>
-                    </el-table-column>
+                    </el-table-column> -->
 
                     <el-table-column label="总库存" width="">
                         <template slot-scope="scope">

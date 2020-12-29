@@ -58,12 +58,12 @@
                     {{ goods.title }}
                 </el-form-item>
                 <el-form-item label="分类" v-if="goods.type == 1">
-                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="请选择">
+                    <el-select disabled class="filter-item" v-model="goods.type" placeholder="未设置">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="分类" prop="category_id" v-if="goods.type == 2 || goods.type == 3">
-                    <el-select disabled class="filter-item" v-model="goods.category_id" placeholder="请选择">
+                    <el-select disabled class="filter-item" v-model="goods.category_id" placeholder="未设置">
                         <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -104,9 +104,7 @@
                 </div> -->
                 <el-form-item label="自定义属性">
                     <el-checkbox-group v-model="consumeChecked">
-                        <el-checkbox disabled v-for="item in consumeAttr" @change="handleConsumeBasic" :key="item.id" :label="item.id">{{
-                            item.title
-                        }}</el-checkbox>
+                        <el-checkbox disabled v-for="item in consumeAttr" @change="handleConsumeBasic" :key="item.id" :label="item.id">{{ item.title }}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
             </div>
@@ -232,33 +230,70 @@
             </div>
             <div class="divider"></div>
             <div class="content">
-                <el-form-item label="是否指定店铺">
+                <el-form-item label="是否指定店铺" style="width:200px">
                     <el-radio disabled v-model="goods.is_allow_agent" :label="1">是</el-radio>
                     <el-radio disabled v-model="goods.is_allow_agent" :label="2">否</el-radio>
                 </el-form-item>
-                <!-- <el-form-item label="是否上架商品">
-                    <el-radio disabled v-model="goods.status" :label="2">是</el-radio>
-                    <el-radio disabled v-model="goods.status" :label="1">否</el-radio>
-                </el-form-item> -->
-                <el-form-item label="虚拟销量" prop="display_sales">
-                    {{ goods.display_sales }}
-                </el-form-item>
-                <div>
+
+                <div class="option-content">
+                    <el-form-item label="指定代理" prop="allow_shop_ids">
+                        <el-select
+                            disabled
+                            class="filter-item"
+                            :disabled="goods.is_allow_agent == 2"
+                            v-model="goods.allow_shop_ids"
+                            placeholder="未设置"
+                            style="width:200px"
+                            multiple
+                        >
+                            <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="虚拟销量" prop="display_sales">
+                        {{ goods.display_sales }}
+                    </el-form-item>
                     <el-form-item label="邮费模板" prop="freight_id">
-                        <el-select disabled class="filter-item" v-model="goods.freight_id" placeholder="请选择" style="width:280px">
+                        <el-select disabled class="filter-item" v-model="goods.freight_id" placeholder="未设置" style="width:200px">
                             <el-option v-for="item in freightList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                 </div>
-                <el-form-item label="指定代理" :prop="goods.is_allow_agent == 2 ? '' : 'allow_shop_ids'">
-                    <el-select disabled class="filter-item" v-model="goods.allow_shop_ids" placeholder="请选择" style="width:280px" multiple>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-
-                    <!-- <el-tag class="tag" v-for="tag in statusList" :key="tag.value" size="medium" closable @close="handleCloseTag(tag)">
-                        {{ tag.label }}
-                    </el-tag> -->
-                </el-form-item>
+                <div class="time-content">
+                    <el-form-item label="是否定时上下架" style="width:200px">
+                        <el-radio disabled v-model="goods.set_time_status" :label="1">是</el-radio>
+                        <el-radio disabled v-model="goods.set_time_status" :label="2">否</el-radio>
+                    </el-form-item>
+                    <el-form-item class="long-time" label="上架时间">
+                        <el-date-picker
+                            readonly
+                            style="width:200px"
+                            class="filter-item"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="goods.set_time_on"
+                            type="datetime"
+                            placeholder="未设置"
+                            default-time="00:00:00"
+                            disabled
+                            :picker-options="startDatePicker"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item class="long-time" label="下架时间">
+                        <el-date-picker
+                            readonly
+                            style="width:200px"
+                            class="filter-item"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            v-model="goods.set_time_off"
+                            type="datetime"
+                            placeholder="未设置"
+                            default-time="00:00:00"
+                            disabled
+                            :picker-options="startDatePicker"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                </div>
             </div>
         </el-form>
         <!-- <div class="submit-wrap">
@@ -270,23 +305,17 @@
         <!-- 视频预览 -->
         <el-dialog :visible.sync="dialogVisible" title="预览">
             <img width="100%" :src="dialogImageUrl" alt="" />
-            <video-player
-                class="video-player vjs-custom-skin"
-                ref="videoPlayer"
-                :playsinline="true"
-                :options="playerOptions"
-                v-if="dialogViewType == 2"
-            ></video-player>
+            <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions" v-if="dialogViewType == 2"></video-player>
         </el-dialog>
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
     </div>
 </template>
 <script>
-import { mixinsGoods } from '@/components/mixins/goods';
+import { mixinsGoods } from '@/components/mixins/goods'
 
 export default {
     mixins: [mixinsGoods]
-};
+}
 </script>
 <style scoped src="./goodsCreat.less" lang="less"></style>

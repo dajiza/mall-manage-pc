@@ -56,10 +56,10 @@
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-agent-update-status'">
-                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 4)">
+                        <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 1)">
                             通过
                         </el-button>
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 3)">
+                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 2)">
                             拒绝
                         </el-button>
                     </div>
@@ -126,8 +126,7 @@
     </div>
 </template>
 <script>
-import { updateAgentStatus } from '@/api/agent'
-import { queryWithdrawListAll } from '@/api/money'
+import { queryWithdrawListAll, putWithdrawCheck } from '@/api/money'
 import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 
@@ -222,27 +221,22 @@ export default {
                 })
                 .catch(err => {})
         },
-        // 更新状态
+        // 审核
         updateStatus(id, status) {
             let params = {
                 id: id,
-                status: status //2审核通过（待绑定）；3拒绝；4合作中；5取消合作
+                status: status //1 通过 2 拒绝
             }
             let title
             let type
             switch (status) {
-                case 3:
-                    title = '确认要取消与该代理的合作吗？'
-                    type = 'warning'
-                    break
-                case 4:
-                    title = '确认要通过该代理申请吗？'
+                case 1:
+                    title = '确认通过审核?'
                     type = 'success'
-
                     break
-                case 5:
-                    title = '确认要拒绝该代理申请吗？'
-                    type = 'error'
+                case 2:
+                    title = '确认拒绝审核?'
+                    type = 'warning'
                     break
             }
 
@@ -252,11 +246,11 @@ export default {
                 type: type
             })
                 .then(() => {
-                    updateAgentStatus(params)
+                    putWithdrawCheck(params)
                         .then(res => {
                             if (res.code == 200) {
                                 this.$notify({
-                                    title: '状态设置成功',
+                                    title: '审核处理完成',
                                     type: 'success',
                                     duration: 5000
                                 })
