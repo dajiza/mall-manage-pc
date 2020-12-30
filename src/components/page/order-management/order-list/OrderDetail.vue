@@ -117,7 +117,7 @@
                                 @click="handleUpdatePrice(scope.$index,scope.row)"
                             >修改价格</el-button>
                         </div>
-                        <div v-show="order_info.logistics_no">
+                        <div v-show="order_info.logistics_no" v-hasPermission="'mall-backend-order-sd-info'">
                             <el-button
                                 type="primary"
                                 :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
