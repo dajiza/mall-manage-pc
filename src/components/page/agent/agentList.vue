@@ -53,12 +53,12 @@
                     <div class="type-tag type-grey" v-if="scope.row.status == 5">{{ statusList.find(item => item.id == scope.row.status).label }}</div>
                 </template>
             </el-table-column>
-            <el-table-column label="代理姓名" width="300">
+            <el-table-column label="代理姓名">
                 <template slot-scope="scope">
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="绑定店铺" width="260">
+            <el-table-column label="绑定店铺">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
@@ -68,7 +68,7 @@
                     <span>{{ scope.row.phone }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请时间" width="220">
+            <el-table-column label="申请时间">
                 <template slot-scope="scope">
                     <span>{{ $moment(scope.row.apply_time).format('YYYY-DD-MM HH:mm:ss') }}</span>
                 </template>

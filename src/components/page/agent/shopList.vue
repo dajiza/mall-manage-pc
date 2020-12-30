@@ -53,12 +53,12 @@
                     <img class="timg" :src="scope.row.shop_icon" alt="" @click="openPreview(scope.row.img)" />
                 </template>
             </el-table-column>
-            <el-table-column label="开店时间" width="200">
+            <el-table-column label="开店时间">
                 <template slot-scope="scope">
                     <span>{{ scope.row.created_at }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="绑定代理" width="140">
+            <el-table-column label="绑定代理">
                 <template slot-scope="scope">
                     <span>{{ scope.row.agent_name }}</span>
                 </template>

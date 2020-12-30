@@ -140,7 +140,7 @@
                     <div v-for="item in scope.row.agent_list">{{ item.ShopName }}</div>
                 </template>
             </el-table-column>
-            <el-table-column label="主图" width="128">
+            <el-table-column label="主图">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
@@ -151,7 +151,7 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="商品分类" width="110">
+            <el-table-column label="商品分类" width="140">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
                     <span v-if="scope.row.type == 2">
@@ -162,7 +162,7 @@
                     </span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="120">
+            <el-table-column label="状态">
                 <template slot-scope="scope">
                     <div class="status">
                         <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
@@ -198,7 +198,7 @@
                                 <span>{{ formatMoney(scope.row.min_price) }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="实际销量" width="100">
+                        <el-table-column label="实际销量">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
@@ -208,7 +208,7 @@
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
                         </el-table-column> -->
-                        <el-table-column label="总库存" width="100">
+                        <el-table-column label="总库存">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_total }}</span>
                             </template>

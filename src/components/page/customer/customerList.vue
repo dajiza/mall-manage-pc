@@ -36,17 +36,17 @@
                     <span>{{ scope.row.user_id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="所属店铺" width="180">
+            <el-table-column label="所属店铺">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="客户微信昵称" width="180">
+            <el-table-column label="客户微信昵称">
                 <template slot-scope="scope">
                     <span>{{ scope.row.nick_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="客户微信头像" width="120">
+            <el-table-column label="客户微信头像">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.avatar_url" alt="" />
                 </template>
