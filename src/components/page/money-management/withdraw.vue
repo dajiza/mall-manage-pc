@@ -38,7 +38,7 @@
             <el-button
                 size="mini"
                 class="title-btn"
-                v-hasPermission="'mall-backend-withdraw-all-list'"
+                v-hasPermission="'mall-backend-withdraw-all'"
                 @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
