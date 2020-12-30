@@ -23,45 +23,45 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">代理管理</div>
+            <div class="text">店铺业绩</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="店铺名称" width="200">
+            <el-table-column label="店铺名称">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="代理姓名" width="200">
+            <el-table-column label="代理姓名">
                 <template slot-scope="scope">
                     <span>{{ scope.row.agent_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="客户数" width="140">
+            <el-table-column label="客户数">
                 <template slot-scope="scope">
                     <span>{{ scope.row.user_counts }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="总销售额" width="140">
+            <el-table-column label="总销售额">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.sales_count) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="累计佣金" width="140">
+            <el-table-column label="累计佣金">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.commission_count) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="总资产" width="120">
+            <el-table-column label="总资产">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.total_assets) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="待入账" width="120">
+            <el-table-column label="待入账">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.waiting_confirm) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="可提现" width="120">
+            <el-table-column label="可提现">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.can_withdraw) }}</span>
                 </template>

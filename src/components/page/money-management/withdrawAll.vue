@@ -50,7 +50,7 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">代理管理</div>
+            <div class="text">全部提现列表</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="150">
@@ -85,12 +85,12 @@
                     <span>{{ scope.row.shop_admin_phone }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="店铺名称" width="180">
+            <el-table-column label="店铺名称">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请提现金额" width="140">
+            <el-table-column label="申请提现金额">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.money) }}</span>
                 </template>

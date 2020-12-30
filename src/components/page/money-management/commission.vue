@@ -30,9 +30,9 @@
             <div class="text">佣金统计</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="序号" width="">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.id }}</span>
+            <el-table-column label="序号" width="100" align="left" type="index">
+                <template scope="scope">
+                    <span>{{(listQuery.page - 1) * listQuery.limit + scope.$index + 1}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="280">
@@ -40,28 +40,29 @@
                     <span>{{ scope.row.goods_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="订单号" width="200">
+            <el-table-column label="订单号">
                 <template slot-scope="scope">
                     <span>{{ scope.row.order_no }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="获佣店铺" width="200">
+            <el-table-column label="获佣店铺">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="获佣金额(元)" width="120">
+            <el-table-column label="获佣金额(元)">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.commission) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="100">
+            <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
                     <div class="type-tag type-blue" v-if="scope.row.status == 1">已结算</div>
                     <div class="type-tag type-green" v-if="scope.row.status == 2">待结算</div>
                     <div class="type-tag type-grey" v-if="scope.row.status == 3">失效</div>
                 </template>
             </el-table-column>
+            <el-table-column prop="created_at" label="创建时间" width="180"></el-table-column>
         </el-table>
         <div class="pagination-container">
             <el-pagination
