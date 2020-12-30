@@ -26,12 +26,12 @@
             <div class="text">店铺业绩</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="店铺名称">
+            <el-table-column label="店铺名称" width="200">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="代理姓名">
+            <el-table-column label="代理姓名" width="200">
                 <template slot-scope="scope">
                     <span>{{ scope.row.agent_name }}</span>
                 </template>

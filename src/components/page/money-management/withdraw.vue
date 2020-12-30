@@ -35,11 +35,7 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">提现审核列表</div>
-            <el-button
-                size="mini"
-                class="title-btn"
-                v-hasPermission="'mall-backend-withdraw-all'"
-                @click="gotoWithdrawListAll">全部提现列表</el-button>
+            <el-button size="mini" class="title-btn" v-hasPermission="'mall-backend-withdraw-all'" @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="150">
@@ -64,7 +60,7 @@
                     <div class="type-tag type-yellow" v-if="scope.row.status == 5">放款失败</div>
                 </template>
             </el-table-column>
-            <el-table-column label="管理员昵称">
+            <el-table-column label="管理员昵称" width="140">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_name }}</span>
                 </template>
@@ -79,7 +75,7 @@
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请提现金额">
+            <el-table-column label="申请提现金额" width="140">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.money) }}</span>
                 </template>

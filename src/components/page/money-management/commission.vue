@@ -32,7 +32,7 @@
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="序号" width="100" align="left" type="index">
                 <template scope="scope">
-                    <span>{{(listQuery.page - 1) * listQuery.limit + scope.$index + 1}}</span>
+                    <span>{{ (listQuery.page - 1) * listQuery.limit + scope.$index + 1 }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="280">
@@ -50,7 +50,7 @@
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="获佣金额(元)">
+            <el-table-column label="获佣金额(元)" width="120">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.commission) }}</span>
                 </template>
