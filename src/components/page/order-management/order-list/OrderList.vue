@@ -74,12 +74,12 @@
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
-                        <el-button type="text" class="view-detail" v-hasPermission="'mall-backend-order-detail'" @click="handleViewDetail(scope.$index, scope.row)"
+                        <el-button type="text" class="view-detail table-btn" v-hasPermission="'mall-backend-order-detail'" @click="handleViewDetail(scope.$index, scope.row)"
                             >查看订单</el-button
                         >
                         <el-button
                             type="text"
-                            class="cancel-order delete-color"
+                            class="cancel-order delete-color table-btn"
                             v-show="scope.row.status === 0"
                             v-hasPermission="'mall-backend-order-cancel'"
                             @click="handleCancelOrder(scope.$index, scope.row)"

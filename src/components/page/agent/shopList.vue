@@ -33,11 +33,6 @@
             <el-button type="primary" @click="shopCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">新增店铺</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="店铺名称" width="160">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.name }}</span>
-                </template>
-            </el-table-column>
             <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-shop-update'">
@@ -46,6 +41,11 @@
                         <el-button class="text-blue table-btn" type="text" size="" @click.native="updateCommission(scope.row)">佣金配置</el-button>
                         <el-button class="text-blue table-btn" type="text" size="" @click.native="updateConfig(scope.row)">小程序配置</el-button>
                     </div>
+                </template>
+            </el-table-column>
+            <el-table-column label="店铺名称" width="160">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="店铺logo" width="100">
