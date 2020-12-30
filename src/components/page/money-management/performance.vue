@@ -23,7 +23,7 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">代理管理</div>
+            <div class="text">店铺业绩</div>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="店铺名称" width="200">

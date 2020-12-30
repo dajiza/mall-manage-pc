@@ -34,7 +34,7 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">代理管理</div>
+            <div class="text">提现审核列表</div>
             <el-button size="mini" class="title-btn" @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
         <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
