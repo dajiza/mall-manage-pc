@@ -57,8 +57,8 @@
             </el-table-column>
             <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
-                    <div class="type-tag type-blue" v-if="scope.row.status == 1">已结算</div>
-                    <div class="type-tag type-green" v-if="scope.row.status == 2">待结算</div>
+                    <div class="type-tag type-blue" v-if="scope.row.status == 1">待结算</div>
+                    <div class="type-tag type-green" v-if="scope.row.status == 2">已结算</div>
                     <div class="type-tag type-grey" v-if="scope.row.status == 3">失效</div>
                 </template>
             </el-table-column>
@@ -98,11 +98,11 @@ export default {
             statusList: [
                 {
                     id: 1,
-                    label: '已结算'
+                    label: '待结算'
                 },
                 {
                     id: 2,
-                    label: '待结算'
+                    label: '已结算'
                 },
                 {
                     id: 3,
@@ -113,7 +113,7 @@ export default {
                 goods_name: '', //不搜索为空
                 order_no: '', //不搜索为空
                 shop_id: '', //不搜索为-1
-                status: '' //不搜索为-1 1 已经付款  2可提现  3 已取消
+                status: '' //不搜索为-1 1 已经付款 待结算  2可提现 已结算  3 已取消
             }
         }
     },
