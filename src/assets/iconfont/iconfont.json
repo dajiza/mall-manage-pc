@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "19255785",
+      "name": "coupons",
+      "font_class": "coupons",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
       "icon_id": "18966581",
       "name": "shop",
       "font_class": "shop",

@@ -276,7 +276,7 @@
                     </div>
                     <div class="order-amount-item total-order">
                         <div class="amount-name">订单总计</div>
-                        <div class="amount-value">¥ {{order_info.price_total_detail_end/100 | rounding}}</div>
+                        <div class="amount-value">¥ {{order_info.price_total/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item coupon-total">
                         <div class="amount-name">优惠券总额</div>

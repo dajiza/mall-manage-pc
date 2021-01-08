@@ -84,6 +84,34 @@ export default new Router({
                     meta: { title: '店铺管理' }
                 },
                 {
+                    path: '/mall-backend-coupons',
+                    component: () => import(/* webpackChunkName: "coupons" */ '../components/page/marketing-management/coupons/couponsList.vue'),
+                    meta: { title: '配置优惠券' }
+                },
+                {
+                    path: '/mall-backend-coupons-create',
+                    name: 'coupons-creat',
+                    component: () => import(/* webpackChunkName: "coupons-create" */ '../components/page/marketing-management/coupons/couponsCreat.vue'),
+                    meta: { title: '新增优惠券', name: 'couponsCreat' }
+                },
+                {
+                    path: '/mall-backend-coupons-edit',
+                    name: 'coupons-edit',
+                    component: () => import(/* webpackChunkName: "coupons-edit" */ '../components/page/marketing-management/coupons/couponsCreat.vue'),
+                    meta: { title: '编辑优惠券', name: 'couponsEdit' }
+                },
+                {
+                    path: '/mall-backend-coupons-copy',
+                    name: 'coupons-copy',
+                    component: () => import(/* webpackChunkName: "coupons-copy" */ '../components/page/marketing-management/coupons/couponsCreat.vue'),
+                    meta: { title: '复制优惠券', name: 'couponsCopy' }
+                },
+                {
+                    path: '/mall-backend-recipients-records',
+                    component: () => import(/* webpackChunkName: "recipients-records" */ '../components/page/marketing-management/recipients-records/records.vue'),
+                    meta: { title: '领用记录' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }

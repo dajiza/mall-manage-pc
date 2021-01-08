@@ -92,6 +92,21 @@ export default {
                     ]
                 },
                 {
+                    icon: 'iconfont icon-coupons',
+                    name: 'mall-backend-marketing-management',
+                    display_name: '营销管理',
+                    subs: [
+                        {
+                            name: 'mall-backend-coupons',
+                            display_name: '配置优惠券'
+                        },
+                        {
+                            name: 'mall-backend-recipients-records',
+                            display_name: '领用记录'
+                        }
+                    ]
+                },
+                {
                     icon: 'iconfont icon-money',
                     name: 'mall-backend-money-management',
                     display_name: '资金管理',
