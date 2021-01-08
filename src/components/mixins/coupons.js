@@ -828,15 +828,11 @@ export const mixinsCoupons = {
                     this.selected_goods = [...old_list, ...new_goods_list];
                     tipText = "已移入到'已添加'列表";
                 }else if(str === 'del'){
-                    console.log('new_list', new_list);
-                    console.log('new_goods_list', new_goods_list);
                     let new_arr = _.cloneDeep(this.selected_goods);
                     new_arr = new_arr.filter(function(item){
                         return new_goods_list.indexOf(item) == -1;
                     });
-                    console.log('this.new_arr', new_arr);
                     this.selected_goods = new_arr;
-                    console.log('this.selected_goods', this.selected_goods);
                     tipText = "已移除,可到'未添加'列表查看";
                 }
                 this.$notify({
