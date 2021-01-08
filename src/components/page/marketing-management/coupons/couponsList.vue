@@ -35,7 +35,7 @@
                     <i></i>
                     <span>优惠券列表</span>
                 </div>
-                <el-button type="primary" @click="handleAdd" v-hasPermission="'product-add'">新增优惠券</el-button>
+                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增优惠券</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="190">
@@ -56,7 +56,7 @@
                                 <el-button
                                     type="text"
                                     class="marginLeft0 marginRight0"
-                                    v-hasPermission="'mall-backend'"
+                                    v-hasPermission="'mall-backend-coupon-user-import-excel'"
                                     @click="handleSendStamps(scope.$index, scope.row, 'edit')"
                                 >发券</el-button>
                             </div>
@@ -64,27 +64,27 @@
                                 <el-button
                                     type="text"
                                     class="marginLeft0"
-                                    v-hasPermission="'product-update'"
+                                    v-hasPermission="'mall-backend-coupon-create'"
                                     @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                                 >复制</el-button>
                             </div>
                             <el-button
                                 type="text"
                                 class="marginLeft0 marginRight15"
-                                v-hasPermission="'product-update'"
+                                v-hasPermission="'mall-backend-coupon-update'"
                                 @click="handleEditOrCopy(scope.$index, scope.row, 'edit')"
                             >编辑</el-button>
                             <el-button
                                 type="text"
                                 class="marginLeft0 marginRight15"
-                                v-hasPermission="'product-update'"
+                                v-hasPermission="'mall-backend-coupon-user-import-excel-record'"
                                 @click="handleIssueRecord(scope.$index, scope.row, 'edit')"
                             >发放记录</el-button>
                             <div style="display: inline-block" v-show="scope.row.grant_status < 2">
                                 <el-button
                                     type="text"
                                     class="marginLeft0"
-                                    v-hasPermission="'product-update'"
+                                    v-hasPermission="'mall-backend-coupon-create'"
                                     @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                                 >复制</el-button>
                             </div>
@@ -99,13 +99,13 @@
                             <el-button
                                 type="text"
                                 class="marginLeft0 marginRight15"
-                                v-hasPermission="'product-update'"
+                                v-hasPermission="'mall-backend-coupon-create'"
                                 @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                             >复制</el-button>
                             <el-button
                                 type="text"
                                 class="marginLeft0"
-                                v-hasPermission="'product-update'"
+                                v-hasPermission="'mall-backend-coupon-user-import-excel-record'"
                                 @click="handleEdit(scope.$index, scope.row, 'edit')"
                             >发放记录</el-button>
                         </div>
@@ -192,7 +192,7 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="reasonClose">取 消</el-button>
-                <el-button type="primary" v-hasPermission="'product-lock'" @click="handleSureChangeStatus">确 定</el-button>
+                <el-button type="primary" @click="handleSureChangeStatus">确 定</el-button>
             </span>
         </el-dialog>
 
@@ -226,9 +226,11 @@
             </el-form>
             <div class="upload-box" :class="{'paddingTOP0':fileUrl}">
                 <el-upload
+                        ref="upload"
                         class="upload-demo"
                         :action="uploadFilesUrl"
                         :headers="header"
+                        :data="uploadParams"
                         :before-upload="beforeUploadFiles"
                         :on-success="uploadFilesSuccess"
                         :on-error="uploadFilesImgError"
@@ -240,7 +242,7 @@
                 <div class="file-type">支持扩展名：.rar .zip .doc .docx .pdf .jpg...</div>
 
                 <a class="down-mode" href="https://storehouse-upyun.chuanshui.com/coupon/coupon-excel.xlsx ">
-                    <el-button type="text" class="marginLeft0">发放记录</el-button>
+                    <el-button type="text" class="marginLeft0">下载模版</el-button>
                 </a>
             </div>
             <span slot="footer" class="dialog-footer">
@@ -334,7 +336,8 @@ export default {
             upload_loading:{},
             uploadVisible:false,
             fileUrl:'',
-            fileName:''
+            fileName:'',
+            uploadParams:{}
         }
     },
     components: {
@@ -695,6 +698,9 @@ export default {
             const list = ['rar','zip','doc','docx','pdf','jpg','xlsx'];
             this.upload_loading = this.uploadLoading('上传中');
             this.uploadVisible = false;
+            this.uploadParams['file_name'] = file.name;
+            // this.handleUpload();
+            // return false; //通过返回一个promis对象解决
             // if((file.type.indexOf('/zip') > -1 || file.type === 'application/x-zip-compressed') && file.size < 1024*1024*500){
             //     this.upload_loading = this.uploadLoading('上传中');
             //     this.uploadVisible = false;
