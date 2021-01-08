@@ -303,12 +303,16 @@
                         <el-form-item class="add-btn-box" v-show="tabPosition === 'no_select'">
                             <el-button type="primary" @click="handleAddSelected">添加</el-button>
                             <el-button type="success" @click="handleAddCate">添加该分类</el-button>
-                            <el-button type="primary" @click="handleAddAll">添加全部商品</el-button>
+                            <el-button type="primary" @click="handleAddAll">
+                                {{ (searchParams.goods_name || searchParams.cateArr.length > 0)?'添加搜索列表':'添加全部商品'}}
+                            </el-button>
                         </el-form-item>
                         <el-form-item class="add-btn-box" v-show="tabPosition === 'selected'">
                             <el-button type="warning" @click="handleDelSelected">移除</el-button>
                             <el-button type="primary" @click="handleDelCate">移除该分类</el-button>
-                            <el-button type="warning" @click="handleDelAll">清空已添加</el-button>
+                            <el-button type="warning" @click="handleDelAll">
+                                {{ (searchParams.goods_name || searchParams.cateArr.length > 0)?'清空搜索列表':'清空已添加'}}
+                            </el-button>
                         </el-form-item>
                     </el-form>
                     <el-table
@@ -367,7 +371,7 @@
 
             <div class="operations">
                 <el-button type="primary" :disabled="saveIsClick"  @click="handleSave('operationForm')">保存</el-button>
-                <el-button class="btn-cancel" type="danger" :disabled="saveIsClick"  @click="handleSave('operationForm')">取消</el-button>
+                <el-button class="btn-cancel" type="danger" :disabled="saveIsClick"  @click="handleCancel('operationForm')">取消</el-button>
             </div>
         </el-form>
         <!--大图预览-->

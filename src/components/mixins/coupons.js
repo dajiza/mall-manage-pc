@@ -7,7 +7,6 @@ import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
 import EmptyList from '../common/empty-list/EmptyList'
 import ElImageViewer from '@/components/common/image-viewer'
-import { queryConfigList } from '../../api/configManagement';
 
 export const mixinsCoupons = {
     data() {
@@ -43,8 +42,8 @@ export const mixinsCoupons = {
                 valid_start_time: '',
                 valid_end_time: '',
                 coupon_amount:'', // 优惠券面额 - 满减/折扣
-                threshold: 1, // 有无门槛
-                with_amount: '', // 有门槛时最低消费
+                threshold: 1,     // 有无门槛
+                with_amount: '',  // 有门槛时最低消费
                 have_discount_top: 1, // 有无最高优惠限制
                 discount_top: '', // 最高优惠
                 person_get_type: 1, // 单个用户领取次数限制 1 无限制 2 有限制
@@ -148,8 +147,8 @@ export const mixinsCoupons = {
             },
             labelKey: 1,
             labelOptions: [], // 标签下拉列表
-            labelCloth: [], // 标签(布)列表
-            labelOther: [], // 标签(其它)列表
+            labelCloth: [],   // 标签(布)列表
+            labelOther: [],   // 标签(其它)列表
             label_cloth_list: [],
             label_other_list: [],
             cate_other_list: [], // 其它分类
@@ -162,7 +161,7 @@ export const mixinsCoupons = {
             goodsPage: 1,
             goodsLimit: 10,
             pageTotal: 0,
-            tabPosition:'selected',
+            tabPosition:'no_select',
             selectedStatus: 1,
             searchParams:{
                 goods_name:'',
@@ -181,19 +180,8 @@ export const mixinsCoupons = {
             loadingTip:{},
         }
     },
-    watch: {
-        'operationForm.type': {
-            handler(newVal, oldVal) {
-                this.tableKey++ // 为了保证table 每次都会重渲
-            },
-            deep: true,
-            immediate: true
-        },
-    },
-    computed: {
-
-    },
-
+    watch: {},
+    computed: {},
     components: {
         ElImageViewer,
         EmptyList
@@ -208,9 +196,7 @@ export const mixinsCoupons = {
         }
         this.initData();
     },
-    mounted() {
-
-    },
+    mounted() {},
     methods: {
         formatMoney: formatMoney,
         async initData() {
@@ -286,10 +272,8 @@ export const mixinsCoupons = {
                     }
                     this.labelOptions = labelAllArr;
                     this.categoryData = cateAllArr;
-                    // 2 45 34
                     rLoading.close();
                     if(this.operationTitle !== '新增优惠券'){
-                        console.log('请求优惠券详情');
                         // 请求优惠券详情
                         this.getDetail();
                     }
@@ -298,7 +282,6 @@ export const mixinsCoupons = {
         },
         // 详情回显
         setDetailInfo(info){
-            // use_goods_ids: [],
             this.$set(this.operationForm,'type', Number(info.type));
             this.$set(this.operationForm,'title', info.title);
             this.$set(this.operationForm,'valid_type', Number(info.valid_type));
@@ -314,11 +297,9 @@ export const mixinsCoupons = {
                 }else {
                     this.$set(this.operationForm,'have_discount_top', 1);
                 }
-
             }else {
                 this.$set(this.operationForm,'coupon_amount', Number(info.coupon_amount/100));
             }
-
             if(info.person_get_count > 0){
                 this.$set(this.operationForm,'have_discount_top', 2);
                 this.$set(this.operationForm,'person_get_count', Number(info.person_get_count));
@@ -330,10 +311,6 @@ export const mixinsCoupons = {
                 this.$set(this.operationForm,'with_amount', Number(info.with_amount/100));
             }
             if(info.valid_type > 1){
-               // const start_time =  new Date(parseInt(info.valid_start_time) * 1000);
-               // const end_time =  new Date(parseInt(info.valid_end_time) * 1000);
-               // console.log('start_time', start_time);
-               // console.log('end_time', end_time);
                this.$set(this.operationForm,'valid_start_time', info.valid_start_time);
                this.$set(this.operationForm,'valid_end_time',info.valid_end_time);
             }else {
@@ -341,9 +318,8 @@ export const mixinsCoupons = {
             }
             // const use_start_time =  new Date(parseInt(info.grant_start_time) * 1000);
             // const use_end_time =  new Date(parseInt(info.grant_end_time) * 1000);
-            this.$set(this.operationForm,'grant_start_time', info.grant_end_time);
+            this.$set(this.operationForm,'grant_start_time', info.grant_start_time);
             this.$set(this.operationForm,'grant_end_time',info.grant_end_time);
-
             if(info.use_goods_type === 3){
                 let select_tags = [];
                 let tags_arr = [];
@@ -364,11 +340,11 @@ export const mixinsCoupons = {
                         })
                     })
                 }
-                console.log('tags_arr', tags_arr);
                 this.$set(this.operationForm,'tag_ids',tags_arr);
                 this.setTagsSelect();
             }else if(info.use_goods_type === 2){
-
+                this.selected_goods = info.use_goods_ids;
+                this.getListData();
             }
             if (this.operationTitle === '编辑优惠券') {
 
@@ -382,17 +358,11 @@ export const mixinsCoupons = {
         // 获取优惠券详情
         getDetail() {
             return new Promise((resolve, reject) => {
-                let id = this.$route.query.id
-                console.log('GOOGLE: id', id)
-                if (!id) {
-                    return
-                }
-                let params = {
-                    coupon_id: Number(id)
-                }
+                let id = this.$route.query.id;
+                if (!id) { return }
+                let params = { coupon_id: Number(id) }
                 queryCouponsDetail(params)
                     .then(async res => {
-                        console.log('GOOGLE: goods', res)
                         let data = _.cloneDeep(res.data);
                         // 详情回显
                         this.setDetailInfo(data);
@@ -412,7 +382,6 @@ export const mixinsCoupons = {
         },
         // 使用门槛切换
         chooseThresholdType(){
-            console.log('使用门槛切换', this.operationForm.threshold);
             this.$refs['fullReduction'].clearValidate() // 清除优惠券面额的验证
         },
 
@@ -421,8 +390,8 @@ export const mixinsCoupons = {
 
         },
 
+        // 保存
         handleSave() {
-            console.log('this.operationForm.', this.operationForm.tag_ids);
             this.$refs['operationForm'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
@@ -443,23 +412,11 @@ export const mixinsCoupons = {
                         use_goods_tag_ids: []
                     }
                     params['coupon_amount'] = commUtil.numberMul(Number(this.operationForm.coupon_amount), 100); // 优惠券金额
-                    console.log('params', params);
                     if(this.operationForm.type===2){
                         params['discount_top'] = commUtil.numberMul(Number(this.operationForm.discount_top), 100); // 封顶优惠
                     }else {
 
                     }
-                    if(this.operationForm.valid_type===2){ // 有效期间
-                        // params['valid_start_time'] = this.getTime(this.operationForm.valid_start_time);
-                        // params['valid_end_time'] = this.getTime(this.operationForm.valid_end_time);
-                        params['valid_start_time'] = this.operationForm.valid_start_time.getTime()/1000;
-                        params['valid_end_time'] = this.operationForm.valid_end_time.getTime()/1000;
-                    }else {
-                        params['valid_days'] = Number(this.operationForm.valid_days);
-                    }
-                    // 领用时间
-                    params['grant_start_time'] = this.operationForm.grant_start_time.getTime()/1000;
-                    params['grant_end_time'] = this.operationForm.grant_end_time.getTime()/1000;
                     // 使用门槛
                     if(this.operationForm.threshold===2){
                         params['with_amount'] = commUtil.numberMul(Number(this.operationForm.with_amount), 100);
@@ -471,27 +428,66 @@ export const mixinsCoupons = {
                         use_goods_ids:[],
                         use_goods_tag_ids:[],
                     };
-                    if(this.operationForm.use_goods_type===3){
+                    if (this.operationForm.use_goods_type === 3) {
                         let _list = [];
-                        if(this.operationForm.tag_ids.length){
+                        if (this.operationForm.tag_ids.length) {
                             this.operationForm.tag_ids.forEach((ev)=>{
                                 _list.push(ev[3]);
                             })
                         }
+                        if (_list.length > 0) {
+
+                        } else {
+                            this.$notify({
+                                title: '请选择标签',
+                                message: '',
+                                type: 'warning',
+                                duration: 5000
+                            })
+                            return
+                        }
                         params['use_goods_tag_ids'] = _list;
                         editParams['use_goods_tag_ids'] = _list;
-                        editParams['use_goods_ids'] = [];
                     }
-                    if(this.operationForm.use_goods_type===2){
+                    if (this.operationForm.use_goods_type === 2) {
                         editParams['use_goods_tag_ids'] = [];
-                        editParams['use_goods_ids'] = [];
+                        if (this.selected_goods.length > 0) {
+                            params['use_goods_ids'] = this.selected_goods;
+                            editParams['use_goods_ids'] = this.selected_goods;
+                        }else {
+                            this.$notify({
+                                title: '请先指定商品',
+                                message: '',
+                                type: 'warning',
+                                duration: 5000
+                            })
+                            return
+                        }
                     }
-                    console.log('params22222', params);
                     if(this.operationTitle === '编辑优惠券'){
-                        editParams[id] = Number(this.$route.query.id);
+                        editParams['id'] = Number(this.$route.query.id);
                         // 请求编辑
                         this.queryEdit(editParams);
                     }else {
+                        if(this.operationForm.valid_type===2){ // 有效期间
+                            // params['valid_start_time'] = this.getTime(this.operationForm.valid_start_time);
+                            // params['valid_end_time'] = this.getTime(this.operationForm.valid_end_time);
+                            let valid_start = this.getTime(this.operationForm.valid_start_time).toString();
+                            let valid_end = this.getTime(this.operationForm.valid_end_time);
+                            valid_start = new Date(valid_start);
+                            valid_end = new Date(valid_end);
+                            params['valid_start_time'] = valid_start.getTime()/1000;
+                            params['valid_end_time'] = valid_end.getTime()/1000;
+                        }else {
+                            params['valid_days'] = Number(this.operationForm.valid_days);
+                        }
+                        // 领用时间
+                        let grant_start = this.getTime(this.operationForm.grant_start_time);
+                        let grant_end = this.getTime(this.operationForm.grant_end_time);
+                        grant_start = new Date(grant_start);
+                        grant_end = new Date(grant_end);
+                        params['grant_start_time'] = grant_start.getTime()/1000;
+                        params['grant_end_time'] = grant_end.getTime()/1000;
                         this.queryAdd(params);
                     }
                 } else {
@@ -504,6 +500,15 @@ export const mixinsCoupons = {
                 }
             })
         },
+
+        // 取消
+        handleCancel(){
+            bus.$emit('close_current_tags')
+            this.$router.push({
+                path: 'mall-backend-coupons'
+            })
+        },
+        // 请求 -- 添加
         queryAdd(params){
             const rLoading = this.openLoading();
             let that = this;
@@ -534,7 +539,7 @@ export const mixinsCoupons = {
                     rLoading.close();
                 })
         },
-
+        // 请求 -- 编辑
         queryEdit(editParams){
             const rLoading = this.openLoading();
             let that = this;
@@ -572,11 +577,11 @@ export const mixinsCoupons = {
         getTimeGe(val){
         },
 
+        // 商品筛选 -- 分类选中值变化
         cateChange(ev) {
             const arrIndex = this.searchForm.cateArr.length - 1;
             const cateId = this.searchForm.cateArr[arrIndex];
             this.$set(this.searchForm, 'category', cateId);
-            // this.$set(this.searchParams,'category_id', cateId);
             if (this.$refs.refHandle) {
                 const children = this.$refs.refHandle.getCheckedNodes();
                 if(children.length > 0){
@@ -590,6 +595,7 @@ export const mixinsCoupons = {
             }
         },
 
+        // 选中分类
         handleSelectCate(e, data) {
             let parentPreviousElement = e.target.parentElement.previousElementSibling;
             let inputRadio = parentPreviousElement.children[0].children[1];
@@ -600,7 +606,6 @@ export const mixinsCoupons = {
 
         // 可用商品类型类型
         useGoodsTypeChange(){
-            console.log('operationForm.use_goods_type',this.operationForm.use_goods_type);
             if(Number(this.operationForm.use_goods_type) === 2){
                 this.getListData();
             }
@@ -630,7 +635,6 @@ export const mixinsCoupons = {
         // 重置
         resetForm(formName){
             this.$refs['searchForm'].resetFields();
-            console.log('this.searchForm', this.searchForm);
             this.searchParams = _.cloneDeep(this.searchForm);
             this.getListData();
         },
@@ -638,17 +642,23 @@ export const mixinsCoupons = {
         // 勾选
         handleSelectionChange(val) {
             this.checkedList = val
-            console.log('GOOGLE: val', val)
+            console.log('GOOGLE: val', val);
         },
 
+        goodsInit(){
+            this.goodsPage = 1;
+            this.goodsData = [];
+            this.pageTotal = 0;
+            this.imgList = [];
+            this.previewIndex = 0;
+        },
         // 添加选中
         handleAddSelected(){
             if(this.checkedList.length > 0){
-                let new_add_list = [];
-                this.checkedList.forEach((ev)=>{
-                    new_add_list.push(ev.goods_id);
-                })
-                this.selected_goods = [...this.selected_goods, ...new_add_list];
+                this.loadingTip = this.uploadLoading('加载中');
+                this.addOrDelSuccess(this.checkedList,'add');
+                this.goodsInit();
+                this.getListData();
             }else {
                 this.$notify({
                     title: '请勾选商品后再添加',
@@ -660,20 +670,21 @@ export const mixinsCoupons = {
         },
         // 添加该分类
         handleAddCate(){
-            // this.cateLimit;
+            this.addOrDelCate('add');
+        },
+
+        // 添加/删除分类
+        addOrDelCate(str){
             if(this.searchParams.cateArr.length > 0){
+                this.loadingTip = this.uploadLoading('加载中');
                 if(this.searchParams.goods_name){
-                    // 搜索中 有商品名称  重新请求 该分类下商品列表
+                    // 搜索中 有商品名称  重新请求 该分类下商品列表 先获取商品总数
+                    this.getGoodsListCate(str);
                 }else {
                     // 搜索中 不含有商品名称  可以直接获取到商品总数
                     this.cateLimit = this.pageTotal;
-
+                    this.getAllGoodsListCate('', str);
                 }
-                let new_add_list = [];
-                this.checkedList.forEach((ev)=>{
-                    new_add_list.push(ev.goods_id);
-                })
-                this.selected_goods = [...this.selected_goods, ...new_add_list];
             }else {
                 this.$notify({
                     title: '请选择分类并搜索后再添加该分类',
@@ -685,37 +696,80 @@ export const mixinsCoupons = {
         },
 
         // 添加全部商品
-        handleAddAll(){},
+        handleAddAll(){
+            this.addOrDelAll('add');
+        },
+
+        // 添加或移除全部/搜索
+        addOrDelAll(str){
+            if (this.goodsData.length > 0) {
+                console.log('this.pageTotal',this.pageTotal);
+                this.loadingTip = this.uploadLoading('加载中');
+                this.getAllGoodsListCate(this.searchParams.goods_name, str);
+            } else {
+                this.$notify({
+                    title: str === 'add'?"无可添加商品":"无可移除商品",
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+            }
+        },
 
         // 移除选中
         handleDelSelected(){
-
+            if(this.checkedList.length > 0){
+                this.addOrDelSuccess(this.checkedList,'del');
+                this.goodsInit();
+                this.getListData();
+            }else {
+                this.$notify({
+                    title: '请勾选商品后再移除',
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+            }
         },
         // 移除该分类
-        handleDelCate(){},
+        handleDelCate(){
+            // 请选择分类并搜索后再移除该分类
+            this.addOrDelCate('del');
+        },
 
         // 清空已添加
         handleDelAll(){
-
+            this.addOrDelAll('del');
         },
         // 添加单个
-        handleAddItem(){},
+        handleAddItem(index,row){
+            let _arr = [];
+            _arr.push(row);
+            this.loadingTip = this.uploadLoading('加载中');
+            this.addOrDelSuccess(_arr,'add');
+            this.goodsInit();
+            this.getListData();
+        },
         // 移除单个
-        handleDelItem(){},
+        handleDelItem(index,row){
+            let _arr = [];
+            _arr.push(row);
+            this.loadingTip = this.uploadLoading('加载中');
+            this.addOrDelSuccess(_arr,'del');
+            this.goodsInit();
+            this.getListData();
+        },
 
-        // 按钮-触发搜索
+        // 按钮-触发搜索 -- 存储搜索条件
         handleSearch(formName) {
-            console.log('searchForm.cateArr', this.searchForm.cateArr);
             this.goodsPage = 1;
-            //  存储搜索条件
             this.$set(this.searchParams, 'goods_name', this.searchForm.goods_name);
             this.$set(this.searchParams, 'cateArr', this.searchForm.cateArr);
             this.getListData();
         },
 
         // 获取分类下商品
-        getGoodsListCate(){
-            this.loadingTip = this.uploadLoading('加载中');
+        getGoodsListCate(str){
             let cateId = -1;
             if(this.searchParams.cateArr.length > 0){
                 const selected_cate = this.searchParams.cateArr;
@@ -740,22 +794,9 @@ export const mixinsCoupons = {
                     if(res.data){
                         this.cateLimit = res.data.total;
                         if(res.data.total > 10){
-                            this.getAllGoodsListCate();
+                            this.getAllGoodsListCate('', str);
                         }else {
-                            let new_goods_list = [];
-                            res.data.total.forEach((ev)=>{
-                                new_goods_list.push(ev.goods_id);
-                            });
-                            const old_selected = _.cloneDeep(this.selected_goods);
-                            this.selected_goods = [...old_selected, ...new_goods_list];
-                            console.log('selected_goods', this.selected_goods);
-                            this.loadingTip.close();
-                            this.$notify({
-                                title: '已添加',
-                                message: '',
-                                type: 'success',
-                                duration: 3000
-                            });
+                            this.addOrDelSuccess(res.data.lists || [],str);
                         }
                     }
                 }else {
@@ -772,9 +813,52 @@ export const mixinsCoupons = {
                 this.loadingTip.close();
             });
         },
+        // 添加成功/移除成功
+        addOrDelSuccess(list, str){
+            this.loadingTip.close();
+            if (list.length > 0) {
+                let new_goods_list = [];
+                list.forEach((ev)=>{
+                    new_goods_list.push(ev.goods_id);
+                });
+                let old_list = _.cloneDeep(this.selected_goods);
+                let new_list = _.cloneDeep(this.selected_goods);
+                let tipText = '';
+                if(str === 'add'){
+                    this.selected_goods = [...old_list, ...new_goods_list];
+                    tipText = "已移入到'已添加'列表";
+                }else if(str === 'del'){
+                    console.log('new_list', new_list);
+                    console.log('new_goods_list', new_goods_list);
+                    let new_arr = _.cloneDeep(this.selected_goods);
+                    new_arr = new_arr.filter(function(item){
+                        return new_goods_list.indexOf(item) == -1;
+                    });
+                    console.log('this.new_arr', new_arr);
+                    this.selected_goods = new_arr;
+                    console.log('this.selected_goods', this.selected_goods);
+                    tipText = "已移除,可到'未添加'列表查看";
+                }
+                this.$notify({
+                    title: tipText,
+                    message: '',
+                    type: 'success',
+                    duration: 3000
+                });
+                this.goodsInit();
+                this.getListData();
+            } else {
+                this.$notify({
+                    title: str === 'add'?'无可添加商品':'无可移除商品',
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+            }
+        },
 
         // 获取最终分类下总商品
-        getAllGoodsListCate(){
+        getAllGoodsListCate(name, str){
             let cateId = -1;
             if(this.searchParams.cateArr.length > 0){
                 const selected_cate = this.searchParams.cateArr;
@@ -787,30 +871,18 @@ export const mixinsCoupons = {
             let params = {
                 page: 1,
                 limit: this.cateLimit,
-                goods_name: '',
+                goods_name: name || '',
                 category_id: cateId,
                 goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[],
                 not_goods_ids: this.tabPosition === 'selected' ? []:this.selected_goods,
             };
+            console.log('params825', params);
             queryCouponGoodsList(params).then((res) => {
                 this.imgList = [];
                 this.previewIndex = 0;
                 if(res.code === 200){
                     if(res.data){
-                        let new_goods_list = [];
-                        res.data.total.forEach((ev)=>{
-                            new_goods_list.push(ev.goods_id);
-                        });
-                        const old_selected = _.cloneDeep(this.selected_goods);
-                        this.selected_goods = [...old_selected, ...new_goods_list];
-                        console.log('selected_goods', this.selected_goods);
-                        this.loadingTip.close();
-                        this.$notify({
-                            title: '已添加',
-                            message: '',
-                            type: 'success',
-                            duration: 3000
-                        });
+                        this.addOrDelSuccess(res.data.lists || [], str);
                     }
                 }else {
                     this.loadingTip.close();
@@ -829,7 +901,6 @@ export const mixinsCoupons = {
 
         // 商品列表
         getListData(){
-            console.log('222', this.searchParams.cateArr);
             let cateId = -1;
             if(this.searchParams.cateArr.length > 0){
                 const selected_cate = this.searchParams.cateArr;
@@ -839,7 +910,6 @@ export const mixinsCoupons = {
                     cateId = 0;
                 }
             }
-
             let params = {
                 page: this.goodsPage,
                 limit: this.goodsLimit,
@@ -848,15 +918,17 @@ export const mixinsCoupons = {
                 goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[]
             };
             if(this.tabPosition === 'selected'){
-                params['not_goods_ids'] = [];
                 if(this.selected_goods.length > 0){
                     params['goods_ids'] = this.selected_goods;
                 }else {
-                    this.goodsData = [];
-                    this.pageTotal = 0;
-                    this.imgList = [];
-                    this.previewIndex = 0;
-                    return false
+                    this.goodsInit();
+                    // this.$notify({
+                    //     title: '暂无已选中商品',
+                    //     message: '',
+                    //     type: 'warning',
+                    //     duration: 3000
+                    // });
+                    return
                 }
             }else {
                 params['goods_ids'] = [];
@@ -893,25 +965,21 @@ export const mixinsCoupons = {
         },
         setTagsSelect(){
             let show_tags = [];
-            // 标签(布)列表 labelCloth// 标签(其它)列表 labelOther
+            // 标签(布)列表 labelCloth 标签(其它)列表 labelOther
             let all_Label = [...this.label_cloth_list, ...this.label_other_list];
             all_Label.forEach((ev)=>{
-                console.log('ev.id ', ev.id );
                 this.operationForm.tag_ids.forEach((item)=>{
-                    console.log('item', item);
                     if(ev.id === item[2]){
                         show_tags.push(ev);
                     }
                 })
             });
             this.showTags = show_tags;
-            console.log('showTags', this.showTags);
         },
         // 删除标签 （可用商品 - 指定标签）
         delTags(tag, index){
             let new_tag = _.cloneDeep(this.operationForm.tag_ids);
             new_tag.forEach((item,i)=>{
-                console.log('item', item);
                 if(tag.id === item[2]){
                     new_tag.splice(i,1);
                 }
