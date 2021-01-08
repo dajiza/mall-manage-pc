@@ -172,10 +172,13 @@ export const mixinsCoupons = {
             previewUrlList: [],
             previewIndex: 0,
             imgList:[],
-            selected_goods:[],
-            checkedList: [], //表格选中列表
+            selected_goods:[], // 已选中商品id数组
+            checkedList: [], // 表格当前选中列表
             couponsDetail:{},
-            showTags:[]
+            showTags:[],
+            cateLimit: 10,
+            cateIsAtLast: false, // 最终请求分类商品
+            loadingTip:{},
         }
     },
     watch: {
@@ -595,66 +598,6 @@ export const mixinsCoupons = {
             }
         },
 
-        // 勾选
-        handleSelectionChange(val) {
-            this.checkedList = val
-            console.log('GOOGLE: val', val)
-        },
-
-        // 添加选中
-        handleAddSelected(){
-            if(this.checkedList.length > 0){
-                let new_add_list = [];
-                this.checkedList.forEach((ev)=>{
-                    new_add_list.push(ev.goods_id);
-                })
-                this.selected_goods = [...this.selected_goods, ...new_add_list];
-            }else {
-                this.$notify({
-                    title: '请勾选商品后再添加',
-                    message: '',
-                    type: 'error',
-                    duration: 3000
-                });
-            }
-        },
-        // 添加该分类
-        handleAddCate(){
-            if(this.searchParams.cateArr.length > 0){
-                let new_add_list = [];
-                this.checkedList.forEach((ev)=>{
-                    new_add_list.push(ev.goods_id);
-                })
-                this.selected_goods = [...this.selected_goods, ...new_add_list];
-            }else {
-                this.$notify({
-                    title: '请选择分类并搜索后再添加该分类',
-                    message: '',
-                    type: 'error',
-                    duration: 3000
-                });
-            }
-        },
-
-        // 添加全部商品
-        handleAddAll(){},
-
-        // 移除选中
-        handleDelSelected(){
-
-        },
-        // 移除该分类
-        handleDelCate(){},
-
-        // 清空已添加
-        handleDelAll(){
-
-        },
-        // 添加单个
-        handleAddItem(){},
-        // 移除单个
-        handleDelItem(){},
-
         // 可用商品类型类型
         useGoodsTypeChange(){
             console.log('operationForm.use_goods_type',this.operationForm.use_goods_type);
@@ -692,6 +635,74 @@ export const mixinsCoupons = {
             this.getListData();
         },
 
+        // 勾选
+        handleSelectionChange(val) {
+            this.checkedList = val
+            console.log('GOOGLE: val', val)
+        },
+
+        // 添加选中
+        handleAddSelected(){
+            if(this.checkedList.length > 0){
+                let new_add_list = [];
+                this.checkedList.forEach((ev)=>{
+                    new_add_list.push(ev.goods_id);
+                })
+                this.selected_goods = [...this.selected_goods, ...new_add_list];
+            }else {
+                this.$notify({
+                    title: '请勾选商品后再添加',
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+            }
+        },
+        // 添加该分类
+        handleAddCate(){
+            // this.cateLimit;
+            if(this.searchParams.cateArr.length > 0){
+                if(this.searchParams.goods_name){
+                    // 搜索中 有商品名称  重新请求 该分类下商品列表
+                }else {
+                    // 搜索中 不含有商品名称  可以直接获取到商品总数
+                    this.cateLimit = this.pageTotal;
+
+                }
+                let new_add_list = [];
+                this.checkedList.forEach((ev)=>{
+                    new_add_list.push(ev.goods_id);
+                })
+                this.selected_goods = [...this.selected_goods, ...new_add_list];
+            }else {
+                this.$notify({
+                    title: '请选择分类并搜索后再添加该分类',
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+            }
+        },
+
+        // 添加全部商品
+        handleAddAll(){},
+
+        // 移除选中
+        handleDelSelected(){
+
+        },
+        // 移除该分类
+        handleDelCate(){},
+
+        // 清空已添加
+        handleDelAll(){
+
+        },
+        // 添加单个
+        handleAddItem(){},
+        // 移除单个
+        handleDelItem(){},
+
         // 按钮-触发搜索
         handleSearch(formName) {
             console.log('searchForm.cateArr', this.searchForm.cateArr);
@@ -700,6 +711,120 @@ export const mixinsCoupons = {
             this.$set(this.searchParams, 'goods_name', this.searchForm.goods_name);
             this.$set(this.searchParams, 'cateArr', this.searchForm.cateArr);
             this.getListData();
+        },
+
+        // 获取分类下商品
+        getGoodsListCate(){
+            this.loadingTip = this.uploadLoading('加载中');
+            let cateId = -1;
+            if(this.searchParams.cateArr.length > 0){
+                const selected_cate = this.searchParams.cateArr;
+                if(selected_cate.length > 1){
+                    cateId = selected_cate[1];
+                }else {
+                    cateId = 0;
+                }
+            }
+            let params = {
+                page: 1,
+                limit: 10,
+                goods_name: '',
+                category_id: cateId,
+                goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[],
+                not_goods_ids: this.tabPosition === 'selected' ? []:this.selected_goods,
+            };
+            queryCouponGoodsList(params).then((res) => {
+                this.imgList = [];
+                this.previewIndex = 0;
+                if(res.code === 200){
+                    if(res.data){
+                        this.cateLimit = res.data.total;
+                        if(res.data.total > 10){
+                            this.getAllGoodsListCate();
+                        }else {
+                            let new_goods_list = [];
+                            res.data.total.forEach((ev)=>{
+                                new_goods_list.push(ev.goods_id);
+                            });
+                            const old_selected = _.cloneDeep(this.selected_goods);
+                            this.selected_goods = [...old_selected, ...new_goods_list];
+                            console.log('selected_goods', this.selected_goods);
+                            this.loadingTip.close();
+                            this.$notify({
+                                title: '已添加',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            });
+                        }
+                    }
+                }else {
+                    this.loadingTip.close();
+                    this.$notify({
+                        title: res.msg,
+                        message: '',
+                        type: 'error',
+                        duration: 5000
+                    });
+                }
+
+            }).catch(() => {
+                this.loadingTip.close();
+            });
+        },
+
+        // 获取最终分类下总商品
+        getAllGoodsListCate(){
+            let cateId = -1;
+            if(this.searchParams.cateArr.length > 0){
+                const selected_cate = this.searchParams.cateArr;
+                if(selected_cate.length > 1){
+                    cateId = selected_cate[1];
+                }else {
+                    cateId = 0;
+                }
+            }
+            let params = {
+                page: 1,
+                limit: this.cateLimit,
+                goods_name: '',
+                category_id: cateId,
+                goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[],
+                not_goods_ids: this.tabPosition === 'selected' ? []:this.selected_goods,
+            };
+            queryCouponGoodsList(params).then((res) => {
+                this.imgList = [];
+                this.previewIndex = 0;
+                if(res.code === 200){
+                    if(res.data){
+                        let new_goods_list = [];
+                        res.data.total.forEach((ev)=>{
+                            new_goods_list.push(ev.goods_id);
+                        });
+                        const old_selected = _.cloneDeep(this.selected_goods);
+                        this.selected_goods = [...old_selected, ...new_goods_list];
+                        console.log('selected_goods', this.selected_goods);
+                        this.loadingTip.close();
+                        this.$notify({
+                            title: '已添加',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        });
+                    }
+                }else {
+                    this.loadingTip.close();
+                    this.$notify({
+                        title: res.msg,
+                        message: '',
+                        type: 'error',
+                        duration: 5000
+                    });
+                }
+
+            }).catch(() => {
+                this.loadingTip.close();
+            });
         },
 
         // 商品列表
@@ -723,6 +848,7 @@ export const mixinsCoupons = {
                 goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[]
             };
             if(this.tabPosition === 'selected'){
+                params['not_goods_ids'] = [];
                 if(this.selected_goods.length > 0){
                     params['goods_ids'] = this.selected_goods;
                 }else {
@@ -734,6 +860,7 @@ export const mixinsCoupons = {
                 }
             }else {
                 params['goods_ids'] = [];
+                params['not_goods_ids'] = this.selected_goods;
             }
             const rLoading = this.openLoading();
             queryCouponGoodsList(params).then((res) => {
@@ -746,8 +873,7 @@ export const mixinsCoupons = {
                         this.pageTotal = res.data.total;
                         this.goodsData.forEach((item)=>{
                             this.imgList.push(item.goods_img);
-                        })
-
+                        });
                     }
                 }else {
                     this.$notify({
@@ -781,7 +907,7 @@ export const mixinsCoupons = {
             this.showTags = show_tags;
             console.log('showTags', this.showTags);
         },
-        //
+        // 删除标签 （可用商品 - 指定标签）
         delTags(tag, index){
             let new_tag = _.cloneDeep(this.operationForm.tag_ids);
             new_tag.forEach((item,i)=>{
@@ -793,11 +919,13 @@ export const mixinsCoupons = {
             this.$set(this.operationForm,'tag_ids',new_tag)
             this.setTagsSelect();
         },
+        // 打开大图预览
         openPreview(img, type, index) {
             this.previewUrlList = this.imgList;
             this.previewIndex = index
             this.dialogVisiblePic = true
         },
+        // 关闭大图
         closePreview() {
             this.dialogVisiblePic = false
         },

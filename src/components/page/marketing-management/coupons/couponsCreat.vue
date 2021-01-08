@@ -332,14 +332,14 @@
                         </el-table-column>
                         <el-table-column label="操作" width="110">
                             <template slot-scope="scope">
-                                <div v-if="tabPosition === 'selected'">
+                                <div v-if="tabPosition === 'no_select'">
                                     <el-button
                                         type="text"
                                         class="marginLeft0 marginRight15"
                                         @click="handleAddItem(scope.$index, scope.row)"
                                     >添加</el-button>
                                 </div>
-                                <div v-if="tabPosition === 'no_select'">
+                                <div v-if="tabPosition === 'selected'">
                                     <el-button
                                         type="text"
                                         class="marginLeft0 delete-color marginRight15"
