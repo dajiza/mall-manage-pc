@@ -21,13 +21,22 @@
                         <el-option v-for="state in channelOptions" :key="state.id" :value="state.id" :label="state.name" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="收货人姓名" prop="logistics_name" class="">
-                    <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
-                </el-form-item>
                 <el-form-item label="异常类型" prop="unusual_type" class="">
                     <el-select class="filter-item" v-model="searchForm.unusual_type" placeholder="请选择" clearable>
                         <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
                     </el-select>
+                </el-form-item>
+                <el-form-item label="收货人姓名" prop="logistics_name" class="">
+                    <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="收货人手机号" prop="logistics_phone" class="">
+                    <el-input class="filter-item" v-model="searchForm.logistics_phone" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="用户姓名" prop="user_name" class="">
+                    <el-input class="filter-item" v-model="searchForm.user_name" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="用户手机号" prop="user_phone" class="">
+                    <el-input class="filter-item" v-model="searchForm.user_phone" placeholder="请输入"></el-input>
                 </el-form-item>
                 <el-form-item label="代理店铺" prop="shop_id" class="">
                     <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
@@ -93,12 +102,13 @@
                         <span class="order-status" :class="orderStatusClass(scope.row.status)">{{ orderStatus(scope.row.status) }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="err_type" label="异常类型" width="160">
+                <el-table-column prop="err_type" label="异常类型" width="140">
                     <template slot-scope="scope">
                         {{ order_err(scope.row.err_type) }}
                     </template>
                 </el-table-column>
                 <el-table-column prop="user_name" label="用户昵称" width="180"></el-table-column>
+                <el-table-column prop="user_phone" label="用户手机号" width="120"></el-table-column>
                 <el-table-column prop="shop_name" label="代理店铺" width="200"></el-table-column>
                 <el-table-column prop="price_total_detail_end" label="订单总计(元)" width="120">
                     <template slot-scope="scope">
@@ -122,7 +132,7 @@
                 <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
                 <el-table-column prop="paid_time" label="付款时间" width="180"></el-table-column>
                 <el-table-column prop="logistics_name" label="收货人姓名" width="140"></el-table-column>
-                <el-table-column prop="logistics_phone" label="手机号码" width="140"></el-table-column>
+                <el-table-column prop="logistics_phone" label="收货人手机号" width="140"></el-table-column>
                 <el-table-column prop="channel_name" label="购买渠道" width="140">
                     <template slot-scope="scope"></template>
                 </el-table-column>
@@ -133,11 +143,12 @@
             <div class="pagination-container">
                 <el-pagination
                     background
-                    layout="total, prev, pager, next"
+                    layout="total, prev, pager, next, jumper"
                     :current-page="pageInfo.pageIndex"
                     :page-size="pageInfo.pageSize"
                     :total="pageTotal"
                     @current-change="handlePageChange"
+                    @size-change="handlePageChange"
                 ></el-pagination>
             </div>
             <div class="empty-list-box" v-show="tableData.length === 0">
@@ -163,10 +174,14 @@ export default {
                 shop_id: '', // 代理店铺id
                 channel_id: '', // 购买渠道id
                 logistics_name: '', // 收货人姓名
-                pay_start_time: '',
+                logistics_phone: '', // 收货人手机号
+                paid_time_le: '', // 结束时间
+                paid_time_ge: '', // 开始时间
                 pay_time: '',
                 unusual_type: '',
-                product_code: ''
+                product_code: '',
+                user_name: '',
+                user_phone: ''
             },
             pageInfo: {
                 name: '',
@@ -189,10 +204,14 @@ export default {
                 shop_id: '', // 代理店铺id
                 channel_id: '', // 购买渠道id
                 logistics_name: '', // 收货人姓名
+                logistics_phone: '', // 收货人手机号
                 paid_time_le: '', // 结束时间
                 paid_time_ge: '', // 开始时间
+                pay_time: '',
                 unusual_type: '',
-                product_code: ''
+                product_code: '',
+                user_name: '',
+                user_phone: ''
             },
             tableHeight: 'calc(100% - 134px)',
             pickerOptions: {
@@ -314,15 +333,20 @@ export default {
             let params = {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
-                order_no: this.searchParams.order_no ? this.searchParams.order_no : '',
-                status: this.searchParams.status !== '' ? this.searchParams.status : -1,
-                shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
-                channel_id: this.searchParams.channel_id ? this.searchParams.channel_id : -1,
+                id: -1,
+                order_no: this.searchParams.order_no ? Number(this.searchParams.order_no) : '',
+                user_id: -1,
+                status: this.searchParams.status !=='' ? Number(this.searchParams.status) : -1,
+                shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
+                channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
                 logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
+                logistics_phone: this.searchParams.logistics_phone ? this.searchParams.logistics_phone : '',
                 paid_time_le: this.searchParams.paid_time_le ? this.searchParams.paid_time_le : '',
-                paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge : '',
-                err_type: this.searchParams.unusual_type !== '' ? this.searchParams.unusual_type : '-1',
-                product_code: this.searchParams.product_code ? this.searchParams.product_code : ''
+                paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge: '',
+                err_type: this.searchParams.unusual_type !== '' ? Number(this.searchParams.unusual_type) : -1,
+                product_code: this.searchParams.product_code ? this.searchParams.product_code : '',
+                user_name: this.searchParams.user_name ? this.searchParams.user_name : '',
+                user_phone: this.searchParams.user_phone ? this.searchParams.user_phone : ''
             }
             const rLoading = this.openLoading()
             getOrderList(params)
@@ -362,17 +386,9 @@ export default {
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields()
-            this.$set(this.searchParams, 'order_no', '')
-            this.$set(this.searchParams, 'status', '')
-            this.$set(this.searchParams, 'shop_id', '')
-            this.$set(this.searchParams, 'channel_id', '')
-            this.$set(this.searchParams, 'logistics_name', '')
-            this.$set(this.searchParams, 'paid_time_ge', '')
-            this.$set(this.searchParams, 'paid_time_le', '')
-            this.$set(this.searchParams, 'unusual_type', '')
-            this.$set(this.pageInfo, 'pageIndex', 1)
-            this.$set(this.searchParams, 'product_code', '')
+            this.$refs[formName].resetFields();
+            this.$set(this.pageInfo, 'pageIndex', 1);
+            this.searchParams = _.cloneDeep(this.searchForm);
             this.getListData()
         },
 
@@ -380,16 +396,10 @@ export default {
         handleSearch(formName) {
             this.$set(this.pageInfo, 'pageIndex', 1)
             //  存储搜索条件
-            this.$set(this.searchParams, 'order_no', this.searchForm.order_no)
-            this.$set(this.searchParams, 'status', this.searchForm.status)
-            this.$set(this.searchParams, 'shop_id', this.searchForm.shop_id)
-            this.$set(this.searchParams, 'channel_id', this.searchForm.channel_id)
-            this.$set(this.searchParams, 'logistics_name', this.searchForm.logistics_name)
-            this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0])
-            this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1])
-            this.$set(this.searchParams, 'unusual_type', this.searchForm.unusual_type)
-            this.$set(this.searchParams, 'product_code', this.searchForm.product_code)
-            this.getListData()
+            this.searchParams = _.cloneDeep(this.searchForm);
+            this.$set(this.searchParams,'paid_time_ge', this.searchForm.pay_time[0]);
+            this.$set(this.searchParams,'paid_time_le', this.searchForm.pay_time[1]);
+            this.getListData();
         },
 
         // 按钮-查看订单详情
@@ -463,35 +473,12 @@ export default {
         // 按钮-分页导航
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val)
-            if (this.searchParams['status']) {
-                this.$set(this.searchForm, 'status', this.searchParams['status'])
-            }
-            if (this.searchParams['order_no']) {
-                this.$set(this.searchForm, 'order_no', this.searchParams['order_no'])
-            }
-            if (this.searchParams['shop_id']) {
-                this.$set(this.searchForm, 'shop_id', this.searchParams['shop_id'])
-            }
-            if (this.searchParams['channel_id']) {
-                this.$set(this.searchForm, 'channel_id', this.searchParams['channel_id'])
-            }
-            if (this.searchParams['logistics_name']) {
-                this.$set(this.searchForm, 'logistics_name', this.searchParams['logistics_name'])
-            }
-            if (this.searchParams['product_code']) {
-                this.$set(this.searchForm, 'product_code', this.searchParams['product_code'])
-            }
-            if (this.searchParams['unusual_type']) {
-                this.$set(this.searchForm, 'unusual_type', this.searchParams['unusual_type'])
-            }
-            let time_arr = []
-            if (this.searchParams['paid_time_ge']) {
-                time_arr[0] = this.searchParams['paid_time_ge']
-                time_arr[1] = this.searchParams['paid_time_le']
-                this.$set(this.searchForm, 'pay_time', time_arr)
-            }
-            this.getListData()
-        }
+            this.pageChange();
+        },
+        pageChange() {
+            this.searchForm = _.cloneDeep(this.searchParams);
+            this.getListData();
+        },
     }
 }
 </script>
