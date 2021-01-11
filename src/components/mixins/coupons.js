@@ -642,7 +642,7 @@ export const mixinsCoupons = {
         // 勾选
         handleSelectionChange(val) {
             this.checkedList = val
-            console.log('GOOGLE: val', val);
+            // console.log('GOOGLE: val', val);
         },
 
         goodsInit(){
@@ -703,7 +703,7 @@ export const mixinsCoupons = {
         // 添加或移除全部/搜索
         addOrDelAll(str){
             if (this.goodsData.length > 0) {
-                console.log('this.pageTotal',this.pageTotal);
+                // console.log('this.pageTotal',this.pageTotal);
                 this.loadingTip = this.uploadLoading('加载中');
                 this.getAllGoodsListCate(this.searchParams.goods_name, str);
             } else {
@@ -828,15 +828,15 @@ export const mixinsCoupons = {
                     this.selected_goods = [...old_list, ...new_goods_list];
                     tipText = "已移入到'已添加'列表";
                 }else if(str === 'del'){
-                    console.log('new_list', new_list);
-                    console.log('new_goods_list', new_goods_list);
+                    // console.log('new_list', new_list);
+                    // console.log('new_goods_list', new_goods_list);
                     let new_arr = _.cloneDeep(this.selected_goods);
                     new_arr = new_arr.filter(function(item){
                         return new_goods_list.indexOf(item) == -1;
                     });
-                    console.log('this.new_arr', new_arr);
+                    // console.log('this.new_arr', new_arr);
                     this.selected_goods = new_arr;
-                    console.log('this.selected_goods', this.selected_goods);
+                    // console.log('this.selected_goods', this.selected_goods);
                     tipText = "已移除,可到'未添加'列表查看";
                 }
                 this.$notify({
@@ -876,7 +876,7 @@ export const mixinsCoupons = {
                 goods_ids: this.tabPosition === 'selected' ? this.selected_goods:[],
                 not_goods_ids: this.tabPosition === 'selected' ? []:this.selected_goods,
             };
-            console.log('params825', params);
+            // console.log('params825', params);
             queryCouponGoodsList(params).then((res) => {
                 this.imgList = [];
                 this.previewIndex = 0;
