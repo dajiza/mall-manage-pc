@@ -78,7 +78,7 @@
                                 type="text"
                                 class="marginLeft0 marginRight15"
                                 v-hasPermission="'mall-backend-coupon-user-import-excel-record'"
-                                @click="handleIssueRecord(scope.$index, scope.row, 'edit')"
+                                @click="handleIssueRecord(scope.$index, scope.row)"
                             >发放记录</el-button>
                             <div style="display: inline-block" v-show="scope.row.grant_status < 2">
                                 <el-button
@@ -106,7 +106,7 @@
                                 type="text"
                                 class="marginLeft0"
                                 v-hasPermission="'mall-backend-coupon-user-import-excel-record'"
-                                @click="handleEdit(scope.$index, scope.row, 'edit')"
+                                @click="handleIssueRecord(scope.$index, scope.row)"
                             >发放记录</el-button>
                         </div>
                     </template>
@@ -381,6 +381,7 @@ export default {
     methods: {
         // 请求-获取订单列表数据
         getListData() {
+
             let params = {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
@@ -388,7 +389,10 @@ export default {
                 type: this.searchParams.type ? this.searchParams.type : -1,
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
-                coupon_amount: this.searchParams.coupon_amount ? Number(this.searchParams.coupon_amount) : -1,
+                coupon_amount: -1,
+            }
+            if(this.searchParams.coupon_amount){
+                params['coupon_amount'] = commUtil.numberMul(Number(this.searchParams.coupon_amount), 100);
             }
             const rLoading = this.openLoading()
             queryList(params)
@@ -467,9 +471,6 @@ export default {
             }*/
             this.searchForm = _.cloneDeep(this.searchParams);
             this.getListData();
-        },
-        handleEdit(index,row){
-
         },
         // 启用/停用
         handleChangeStatus(index,row){
