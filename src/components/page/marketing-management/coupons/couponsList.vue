@@ -131,7 +131,7 @@
                 </el-table-column>
                 <el-table-column label="使用门槛" width="100">
                     <template slot-scope="scope">
-                        <div v-if="scope.row.with_amount > 0">满{{(scope.row.coupon_amount/100) | rounding}}元</div>
+                        <div v-if="scope.row.with_amount > 0">满{{(scope.row.with_amount/100) | rounding}}元</div>
                         <div v-else>无门槛</div>
                     </template>
                 </el-table-column>

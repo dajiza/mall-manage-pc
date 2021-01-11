@@ -81,7 +81,7 @@
                     >
                         <template slot="append" class="append-unit">元</template>
                     </el-input>
-                    <div class="tip-text">{{operationForm.type > 1 ?'0.1 ~ 10，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
+                    <div class="tip-text">{{operationForm.type > 1 ?'1 ~ 9.9，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
                 </el-form-item>
                 <el-form-item class="form-item" label="封顶金额:" prop="have_discount_top" required v-if="operationForm.type === 2">
                     <el-radio-group

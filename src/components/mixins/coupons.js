@@ -82,18 +82,18 @@ export const mixinsCoupons = {
                 { required: true, message: '请输入优惠券面额', trigger: 'blur'  },
                 { pattern: /(^[1-9]([0-9]+)?(\.[0-9])?$)|(^(0){1}$)|(^[0-9]\.[0-9]?$)/, message: '请输入正确格式,可保留一位小数' },
                 {   type: 'number',
-                    message: '最小值为0.1',
+                    message: '最小值为1',
                     transform(value) {
                         return Number(value)
                     },
-                    min: 0.1
+                    min: 1
                 },
                 {   type: 'number',
-                    message: '最大值为10',
+                    message: '最大值为9.9',
                     transform(value) {
                         return Number(value)
                     },
-                    max: 10
+                    max: 9.9
                 },
             ],
             rules: {
