@@ -175,7 +175,8 @@ export const mixinsCoupons = {
             checkedList: [], // 表格当前选中列表
             couponsDetail:{},
             showTags:[],
-            cateLimit: 10,
+            cateLimit: 0, // 分类下总条数
+            allLimit: 0,  // 全部商品数量
             cateIsAtLast: false, // 最终请求分类商品
             loadingTip:{},
         }
@@ -678,16 +679,16 @@ export const mixinsCoupons = {
         },
 
         // 添加/删除分类
-        addOrDelCate(str){
+        addOrDelCate(type){
             if(this.searchParams.cateArr.length > 0){
                 this.loadingTip = this.uploadLoading('加载中');
                 if(this.searchParams.goods_name){
-                    // 搜索中 有商品名称  重新请求 该分类下商品列表 先获取商品总数
-                    this.getGoodsListCate(str);
+                    // 搜索中 有商品名称  重新请求 该分类下商品列表数量 先获取商品总数
+                    this.getGoodsListTotal(type);
                 }else {
                     // 搜索中 不含有商品名称  可以直接获取到商品总数
                     this.cateLimit = this.pageTotal;
-                    this.getAllGoodsListCate('', str);
+                    this.getAllGoodsListCate('', type);
                 }
             }else {
                 this.$notify({
@@ -705,14 +706,14 @@ export const mixinsCoupons = {
         },
 
         // 添加或移除全部/搜索
-        addOrDelAll(str){
+        addOrDelAll(type){
             if (this.goodsData.length > 0) {
                 // console.log('this.pageTotal',this.pageTotal);
                 this.loadingTip = this.uploadLoading('加载中');
-                this.getAllGoodsListCate(this.searchParams.goods_name, str);
+                this.getAllGoodsListCate(this.searchParams.goods_name, type);
             } else {
                 this.$notify({
-                    title: str === 'add'?"无可添加商品":"无可移除商品",
+                    title: type === 'add'?"无可添加商品":"无可移除商品",
                     message: '',
                     type: 'error',
                     duration: 3000
@@ -772,8 +773,8 @@ export const mixinsCoupons = {
             this.getListData();
         },
 
-        // 获取分类下商品
-        getGoodsListCate(str){
+        // 获取分类下商品数量/全部商品数量
+        getGoodsListTotal(type){
             let cateId = -1;
             if(this.searchParams.cateArr.length > 0){
                 const selected_cate = this.searchParams.cateArr;
@@ -798,9 +799,9 @@ export const mixinsCoupons = {
                     if(res.data){
                         this.cateLimit = res.data.total;
                         if(res.data.total > 10){
-                            this.getAllGoodsListCate('', str);
+                            this.getAllGoodsListCate('', type);
                         }else {
-                            this.addOrDelSuccess(res.data.lists || [],str);
+                            this.addOrDelSuccess(res.data.lists || [],type);
                         }
                     }
                 }else {
@@ -818,7 +819,7 @@ export const mixinsCoupons = {
             });
         },
         // 添加成功/移除成功
-        addOrDelSuccess(list, str){
+        addOrDelSuccess(list, type){
             this.loadingTip.close();
             if (list.length > 0) {
                 let new_goods_list = [];
@@ -828,10 +829,10 @@ export const mixinsCoupons = {
                 let old_list = _.cloneDeep(this.selected_goods);
                 let new_list = _.cloneDeep(this.selected_goods);
                 let tipText = '';
-                if(str === 'add'){
+                if(type === 'add'){
                     this.selected_goods = [...old_list, ...new_goods_list];
                     tipText = "已移入到'已添加'列表";
-                }else if(str === 'del'){
+                }else if(type === 'del'){
                     // console.log('new_list', new_list);
                     // console.log('new_goods_list', new_goods_list);
                     let new_arr = _.cloneDeep(this.selected_goods);
@@ -853,7 +854,7 @@ export const mixinsCoupons = {
                 this.getListData();
             } else {
                 this.$notify({
-                    title: str === 'add'?'无可添加商品':'无可移除商品',
+                    title: type === 'add'?'无可添加商品':'无可移除商品',
                     message: '',
                     type: 'error',
                     duration: 3000
@@ -862,8 +863,9 @@ export const mixinsCoupons = {
         },
 
         // 获取最终分类下总商品
-        getAllGoodsListCate(name, str){
+        getAllGoodsListCate(name, type){
             let cateId = -1;
+            console.log('cateLimit', this.cateLimit);
             if(this.searchParams.cateArr.length > 0){
                 const selected_cate = this.searchParams.cateArr;
                 if(selected_cate.length > 1){
@@ -886,7 +888,7 @@ export const mixinsCoupons = {
                 this.previewIndex = 0;
                 if(res.code === 200){
                     if(res.data){
-                        this.addOrDelSuccess(res.data.lists || [], str);
+                        this.addOrDelSuccess(res.data.lists || [], type);
                     }
                 }else {
                     this.loadingTip.close();
@@ -926,12 +928,6 @@ export const mixinsCoupons = {
                     params['goods_ids'] = this.selected_goods;
                 }else {
                     this.goodsInit();
-                    // this.$notify({
-                    //     title: '暂无已选中商品',
-                    //     message: '',
-                    //     type: 'warning',
-                    //     duration: 3000
-                    // });
                     return
                 }
             }else {
@@ -947,9 +943,15 @@ export const mixinsCoupons = {
                     if(res.data){
                         this.goodsData = res.data.lists || [];
                         this.pageTotal = res.data.total;
+                        // this.cateLimit = res.data.total;
                         this.goodsData.forEach((item)=>{
                             this.imgList.push(item.goods_img);
                         });
+                        if(!this.searchParams.goods_name && this.category_id < 0){ // 无搜索、全部商品
+                            this.allLimit = res.data.total;
+                        }else if(!this.searchParams.goods_name && this.category_id < 0){
+                            this.cateLimit = res.data.total;
+                        }
                     }
                 }else {
                     this.$notify({
