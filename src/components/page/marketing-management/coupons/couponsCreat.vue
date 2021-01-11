@@ -59,7 +59,7 @@
                     <el-input class="w300" placeholder="" v-model="operationForm.coupon_amount" :disabled="operationTitle === '编辑优惠券'">
                         <template slot="append" class="append-unit">{{operationForm.type > 1 ? '折' : '元'}}</template>
                     </el-input>
-                    <div class="tip-text">{{operationForm.type > 1 ?'0.01 ~ 10，限两位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
+                    <div class="tip-text">{{operationForm.type > 1 ?'0.1 ~ 10，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
                 </el-form-item>
                 <el-form-item class="form-item" label="封顶金额:" prop="have_discount_top" required v-if="operationForm.type === 2">
                     <el-radio-group

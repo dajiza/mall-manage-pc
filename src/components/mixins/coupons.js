@@ -80,13 +80,13 @@ export const mixinsCoupons = {
             ],
             rules_coupon_amount2: [
                 { required: true, message: '请输入优惠券面额', trigger: 'blur'  },
-                { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
+                { pattern: /(^[1-9]([0-9]+)?(\.[0-9])?$)|(^(0){1}$)|(^[0-9]\.[0-9]?$)/, message: '请输入正确格式,可保留一位小数' },
                 {   type: 'number',
-                    message: '最小值为0.01',
+                    message: '最小值为0.1',
                     transform(value) {
                         return Number(value)
                     },
-                    min: 0.01
+                    min: 0.1
                 },
                 {   type: 'number',
                     message: '最大值为10',
@@ -289,7 +289,7 @@ export const mixinsCoupons = {
             this.$set(this.operationForm,'use_goods_type', Number(info.use_goods_type));
             this.$set(this.operationForm,'quota', Number(info.quota));
             if(info.type > 1){
-                this.$set(this.operationForm,'coupon_amount', Number(info.coupon_amount/100).toFixed(2));
+                this.$set(this.operationForm,'coupon_amount', Number(info.coupon_amount/10));
                 // 封顶优惠
                 if(info.discount_top > 0){
                     this.$set(this.operationForm,'have_discount_top', 2);
@@ -375,14 +375,17 @@ export const mixinsCoupons = {
         },
         // 切换类型
         chooseCouponsType() {
-            this.$refs['fullReduction'].clearValidate() // 清除优惠券面额的验证
+            this.$set(this.operationForm, 'coupon_amount' , ''); // 清除优惠券面额
+            this.$nextTick(()=>{
+                this.$refs['fullReduction'].clearValidate(); // 清除优惠券面额的验证
+            })
         },
         chooseValidityType(){
 
         },
         // 使用门槛切换
         chooseThresholdType(){
-            this.$refs['fullReduction'].clearValidate() // 清除优惠券面额的验证
+            this.$refs['fullReduction'].clearValidate(); // 清除优惠券面额的验证
         },
 
         // 有无封顶优惠切换
@@ -411,11 +414,12 @@ export const mixinsCoupons = {
                         use_goods_ids: [],
                         use_goods_tag_ids: []
                     }
-                    params['coupon_amount'] = commUtil.numberMul(Number(this.operationForm.coupon_amount), 100); // 优惠券金额
+
                     if(this.operationForm.type===2){
                         params['discount_top'] = commUtil.numberMul(Number(this.operationForm.discount_top), 100); // 封顶优惠
+                        params['coupon_amount'] = commUtil.numberMul(Number(this.operationForm.coupon_amount), 10); // 优惠券金额-折扣
                     }else {
-
+                        params['coupon_amount'] = commUtil.numberMul(Number(this.operationForm.coupon_amount), 100); // 优惠券金额
                     }
                     // 使用门槛
                     if(this.operationForm.threshold===2){
