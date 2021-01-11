@@ -26,17 +26,20 @@
                         <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
                     </el-select>
                 </el-form-item>
+                <el-form-item label="用户昵称" prop="user_name" class="">
+                    <el-input class="filter-item" v-model="searchForm.user_name" placeholder="请输入"></el-input>
+                </el-form-item>
+                <el-form-item label="用户手机号" prop="user_phone" class="">
+                    <el-input class="filter-item" v-model="searchForm.user_phone" placeholder="请输入"></el-input>
+                </el-form-item>
                 <el-form-item label="收货人姓名" prop="logistics_name" class="">
                     <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
                 </el-form-item>
                 <el-form-item label="收货人手机号" prop="logistics_phone" class="">
                     <el-input class="filter-item" v-model="searchForm.logistics_phone" placeholder="请输入"></el-input>
                 </el-form-item>
-                <el-form-item label="用户姓名" prop="user_name" class="">
-                    <el-input class="filter-item" v-model="searchForm.user_name" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="用户手机号" prop="user_phone" class="">
-                    <el-input class="filter-item" v-model="searchForm.user_phone" placeholder="请输入"></el-input>
+                <el-form-item label="用户id" prop="user_id" class="">
+                    <el-input class="filter-item" v-model="searchForm.user_id" placeholder="请输入"></el-input>
                 </el-form-item>
                 <el-form-item label="代理店铺" prop="shop_id" class="">
                     <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
@@ -96,6 +99,7 @@
                         >
                     </template>
                 </el-table-column>
+                <el-table-column prop="user_id" label="用户id" width="80"></el-table-column>
                 <el-table-column prop="order_no" label="订单号" width="220"></el-table-column>
                 <el-table-column prop="status" label="订单状态" width="150">
                     <template slot-scope="scope">
@@ -335,7 +339,6 @@ export default {
                 limit: this.pageInfo.pageSize,
                 id: -1,
                 order_no: this.searchParams.order_no ? Number(this.searchParams.order_no) : '',
-                user_id: -1,
                 status: this.searchParams.status !=='' ? Number(this.searchParams.status) : -1,
                 shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
                 channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
@@ -346,7 +349,8 @@ export default {
                 err_type: this.searchParams.unusual_type !== '' ? Number(this.searchParams.unusual_type) : -1,
                 product_code: this.searchParams.product_code ? this.searchParams.product_code : '',
                 user_name: this.searchParams.user_name ? this.searchParams.user_name : '',
-                user_phone: this.searchParams.user_phone ? this.searchParams.user_phone : ''
+                user_phone: this.searchParams.user_phone ? this.searchParams.user_phone : '',
+                user_id: this.searchParams.user_id ? Number(this.searchParams.user_id) : -1
             }
             const rLoading = this.openLoading()
             getOrderList(params)
