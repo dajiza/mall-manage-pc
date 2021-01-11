@@ -238,10 +238,8 @@
                         :file-list="fileList">
                     <el-button v-if="!fileUrl"><i class="el-icon-upload el-icon-upload-class"></i>上传文件</el-button>
                 </el-upload>
-
-                <div class="file-type">支持扩展名：.rar .zip .doc .docx .pdf .jpg...</div>
-
-                <a class="down-mode" href="https://storehouse-upyun.chuanshui.com/coupon/coupon-excel.xlsx ">
+                <div class="file-type">只支持.xlsx格式</div>
+                <a class="down-mode" href="https://storehouse-upyun.chuanshui.com/coupon/coupon-excel.xlsx">
                     <el-button type="text" class="marginLeft0">下载模版</el-button>
                 </a>
             </div>
@@ -625,6 +623,8 @@ export default {
             }else {
                 this.couponsWithAmount = '无门槛';
             }
+            this.fileUrl = '';
+            this.fileList = [];
             this.couponsId = row.id;
             this.couponsTitle = row.title;
             this.sendCouponsDialog = true;
@@ -695,24 +695,23 @@ export default {
 
         // 压缩文件上传前回调
         beforeUploadFiles(file){
-            const list = ['rar','zip','doc','docx','pdf','jpg','xlsx'];
-            this.upload_loading = this.uploadLoading('上传中');
+            // const list = ['rar','zip','doc','docx','pdf','jpg','xlsx'];
             this.uploadVisible = false;
             this.uploadParams['file_name'] = file.name;
-            // this.handleUpload();
-            // return false; //通过返回一个promis对象解决
-            // if((file.type.indexOf('/zip') > -1 || file.type === 'application/x-zip-compressed') && file.size < 1024*1024*500){
-            //     this.upload_loading = this.uploadLoading('上传中');
-            //     this.uploadVisible = false;
-            // }else {
-            //     this.$notify({
-            //         title: '请按要求上传',
-            //         message: '',
-            //         type: 'error',
-            //         duration: 5000
-            //     });
-            //     return false
-            // }
+            let nameLength = file.name.length;
+            const _str = file.name.substring(nameLength-5,nameLength);
+            if(_str.indexOf('.xlsx') > -1){
+                this.upload_loading = this.uploadLoading('上传中');
+                this.uploadVisible = false;
+            }else {
+                this.$notify({
+                    title: '只支持.xlsx格式,请按要求上传',
+                    message: '',
+                    type: 'error',
+                    duration: 3000
+                });
+                return false
+            }
         },
 
         // 压缩文件上传成功回调

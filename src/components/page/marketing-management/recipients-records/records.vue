@@ -105,8 +105,8 @@ export default {
     created() {
         // 状态 下拉列表
         this.statusOptions = [
-            { id: 1, name: '已启用' },
-            { id: 2, name: '已停用' },
+            { id: 1, name: '已使用' },
+            { id: 2, name: '未使用' },
         ]
     },
     mounted() {

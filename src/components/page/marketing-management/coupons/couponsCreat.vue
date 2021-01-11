@@ -209,7 +209,7 @@
                 </el-form-item>
                 <el-form-item class="form-item" label="单用户领取次数:" prop="person_get_type" required label-width="120">
                     <el-radio-group
-                            v-model="operationForm.have_discount_top"
+                            v-model="operationForm.person_get_type"
                             :disabled="operationTitle === '编辑优惠券'"
                             @change="disTopChange"
                     >

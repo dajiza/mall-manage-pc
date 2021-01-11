@@ -12,19 +12,19 @@
             :data="tableData"
             ref="multipleTable" tooltip-effect="dark"
         >
-            <el-table-column prop="coupon_title" label="优惠券名称" width="200px"></el-table-column>
-            <el-table-column label="优惠券面额" width="110px">
+            <el-table-column prop="coupon_title" label="优惠券名称" width="180px"></el-table-column>
+            <el-table-column label="优惠券面额" width="100px">
                 <template scope="scope">{{scope.row.coupon_amount / 100}} {{scope.row.coupon_type > 1 ? '折': '元' }}</template>
             </el-table-column>
-            <el-table-column label="使用门槛" width="130">
+            <el-table-column label="使用门槛" width="110">
                 <template scope="scope">
                     <div v-if="scope.row.with_amount > 0 ">满{{scope.row.with_amount/100}}元可用</div>
                     <div v-else>无门槛</div>
                 </template>
             </el-table-column>
             <el-table-column prop="created_at" label="发放时间" width="170"></el-table-column>
-            <el-table-column prop="remark" label="发放说明" width="160"></el-table-column>
-            <el-table-column prop="remark" label="发放用户名单" width="160">
+            <el-table-column prop="remark" label="发放说明" width="150"></el-table-column>
+            <el-table-column prop="remark" label="发放用户名单">
                 <template scope="scope">
                     <i class="el-icon-paperclip"></i>
                     {{scope.row.file_name}}
