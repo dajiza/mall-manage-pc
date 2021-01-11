@@ -125,7 +125,7 @@
                 </el-table-column>
                 <el-table-column label="优惠券面额" width="100">
                     <template slot-scope="scope">
-                        <div v-if="scope.row.type > 1">{{scope.row.coupon_amount/100}}折</div>
+                        <div v-if="scope.row.type > 1">{{scope.row.coupon_amount/10}}折</div>
                         <div v-else>{{ (scope.row.coupon_amount/100) | rounding }}元</div>
                     </template>
                 </el-table-column>
