@@ -55,9 +55,31 @@
                         </el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item ref="fullReduction" class="form-item" label="优惠券面额:" prop="coupon_amount" :rules="operationForm.type > 1 ? rules_coupon_amount2: rules_coupon_amount1">
-                    <el-input class="w300" placeholder="" v-model="operationForm.coupon_amount" :disabled="operationTitle === '编辑优惠券'">
-                        <template slot="append" class="append-unit">{{operationForm.type > 1 ? '折' : '元'}}</template>
+                <el-form-item
+                    ref="fullReduction"
+                    class="form-item"
+                    style="margin-bottom: 20px"
+                    label="优惠券面额:"
+                    prop="coupon_amount"
+                    :rules="operationForm.type > 1 ? rules_coupon_amount2: rules_coupon_amount1"
+                >
+                    <el-input
+                        class="w300"
+                        placeholder=""
+                        v-model="operationForm.coupon_amount"
+                        v-if="operationForm.type > 1"
+                        :disabled="operationTitle === '编辑优惠券'"
+                    >
+                        <template slot="append" class="append-unit">折</template>
+                    </el-input>
+                    <el-input
+                        class="w300"
+                        placeholder=""
+                        v-model.number="operationForm.coupon_amount"
+                        v-else
+                        :disabled="operationTitle === '编辑优惠券'"
+                    >
+                        <template slot="append" class="append-unit">元</template>
                     </el-input>
                     <div class="tip-text">{{operationForm.type > 1 ?'0.1 ~ 10，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
                 </el-form-item>
