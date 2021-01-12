@@ -378,7 +378,7 @@ export const mixinsCoupons = {
                         this.setDetailInfo(data);
                     })
                     .catch(err => {
-                        console.log('err', err);
+                        // console.log('err', err);
                         // reject(err.data)
                     })
             })
