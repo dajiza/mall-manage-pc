@@ -112,6 +112,16 @@ export default new Router({
                     meta: { title: '领用记录' }
                 },
                 {
+                    path: '/mall-backend-adv',
+                    component: () => import(/* webpackChunkName: "recipients-records" */ '../components/page/marketing-management/adv/advList.vue'),
+                    meta: { title: '广告管理' }
+                },
+                {
+                    path: '/mall-backend-activity',
+                    component: () => import(/* webpackChunkName: "recipients-records" */ '../components/page/marketing-management/activity/activityList.vue'),
+                    meta: { title: '活动管理' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }

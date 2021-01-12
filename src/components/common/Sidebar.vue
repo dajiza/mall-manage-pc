@@ -103,6 +103,14 @@ export default {
                         {
                             name: 'mall-backend-recipients-records',
                             display_name: '领用记录'
+                        },
+                        {
+                            name: 'mall-backend-adv',
+                            display_name: '广告管理'
+                        },
+                        {
+                            name: 'mall-backend-activity',
+                            display_name: '活动管理'
                         }
                     ]
                 },
