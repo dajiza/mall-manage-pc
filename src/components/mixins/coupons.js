@@ -212,7 +212,7 @@ export const mixinsCoupons = {
             const rLoading = this.openLoading();
             let labelAllArr = [];
             let cateAllArr = [
-                {id: -1,name:'布'}
+                {id: -1,name:'布料'}
             ];
             Promise.all([
                 queryShopList({}),
