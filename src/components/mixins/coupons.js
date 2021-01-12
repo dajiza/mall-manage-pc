@@ -449,7 +449,7 @@ export const mixinsCoupons = {
                         let _list = [];
                         if (this.operationForm.tag_ids.length) {
                             this.operationForm.tag_ids.forEach((ev)=>{
-                                _list.push(ev[3]);
+                                _list.push(ev[2]);
                             })
                         }
                         if (_list.length > 0) {
