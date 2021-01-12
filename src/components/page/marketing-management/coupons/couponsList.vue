@@ -544,7 +544,8 @@ export default {
                                     duration: 3000
                                 })
                                 this.getListData();
-                                this.reasonDialog = false;
+                                this.reasonClose();
+                                // this.reasonDialog = false;
                             } else {
                                 this.$notify({
                                     title: res.msg,
@@ -680,7 +681,8 @@ export default {
                             type: 'success',
                             duration: 3000
                         });
-                        this.sendCouponsDialog = false;
+                        // this.sendCouponsDialog = false;
+                        this.sendCouponsClose();
                         this.getListData();
                     } else {
                         this.$notify({
