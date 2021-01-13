@@ -30,36 +30,38 @@
                     <span>活动管理</span>
                 </div>
             </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
+            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column prop="id" label="ID" width="90"></el-table-column>
-                <el-table-column prop="coupon_title" label="活动名称"></el-table-column>
-                <el-table-column prop="phone" label="活动优惠类型" width="160"></el-table-column>
+                <el-table-column prop="name" label="活动名称"></el-table-column>
+                <el-table-column prop="phone" label="活动优惠类型" width="150">
+                    <template slot-scope="scope">{{typeBack(scope.row.type)}}</template>
+                </el-table-column>
                 <el-table-column prop="shop_name" label="应用店铺" width="160"></el-table-column>
                 <el-table-column label="活动优惠类型_id" width="160">
                     <template slot-scope="scope">优惠券的名称</template>
                 </el-table-column>
                 <el-table-column prop="get_time" label="时间" width="184">
-                    <template slot-scope="scope">{{scope.row.get_time}}</template>
+                    <template slot-scope="scope">{{scope.row.start_time}} - {{scope.row.end_time || '无限制'}}</template>
                 </el-table-column>
                 <el-table-column prop="status" label="状态" width="100">
                     <template slot-scope="scope">
-                        <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已停用':'已启用' }}</span>
+                        <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已启用':'已停用' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="110">
                     <template slot-scope="scope">
                         <el-button
                             type="text"
-                            class="marginLeft0 marginRight15"
+                            class="marginLeft0 delete-color marginRight15"
                             v-if="scope.row.status > 1"
                             @click="handleChangeStatus(scope.$index, scope.row)"
-                        >启用</el-button>
+                        >停用</el-button>
                         <el-button
                             type="text"
-                            class="marginLeft0 delete-color marginRight15"
+                            class="marginLeft0 marginRight15"
                             v-else
                             @click="handleChangeStatus(scope.$index, scope.row)"
-                        >停用</el-button>
+                        >启用</el-button>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -82,7 +84,7 @@
 </template>
 
 <script>
-import { couponSendUserRecord } from '../../../../api/coupons'
+import { queryActivityList, updateActivityStatus } from '../../../../api/activity'
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './activity.less'
 export default {
@@ -113,7 +115,7 @@ export default {
                 status:'', // 优惠券状态
                 phone:'' // 用户手机号
             },
-            tableHeight: 'calc(100% - 134px)',
+            tableHeight: 'calc(100vh - 244px)',
             activityId: -1,
         }
     },
@@ -126,18 +128,27 @@ export default {
                 if (data === 0) {
                     return 'order-paid'
                 } else if (data === 1) {
-                    return 'order-paid'
-                } else if (data === 2) {
                     return 'order-cancelled'
+                } else if (data === 2) {
+                    return 'order-paid'
                 }
+            }
+        },
+        typeBack: function() {
+            let _type = '';
+            return data => {
+                if (data === 1) {
+                    _type = '优惠券';
+                }
+                return _type
             }
         },
     },
     created() {
         // 状态 下拉列表
         this.statusOptions = [
-            { id: 1, name: '已使用' },
-            { id: 2, name: '未使用' },
+            { id: 1, name: '已启用' },
+            { id: 2, name: '已停用' },
         ]
     },
     mounted() {
@@ -147,17 +158,18 @@ export default {
     methods: {
         // 请求-获取订单列表数据
         getListData() {
-            let params = {
-                page: this.pageInfo.pageIndex,
-                limit: this.pageInfo.pageSize,
-                coupon_id: -1,
+            /* coupon_id: -1,
                 coupon_title: this.searchParams.coupon_title ? this.searchParams.coupon_title : '',
                 nick_name: this.searchParams.nick_name ? this.searchParams.nick_name : '',
                 phone: this.searchParams.phone ? this.searchParams.phone : '',
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
+            */
+            let params = {
+                page: this.pageInfo.pageIndex,
+                limit: this.pageInfo.pageSize
             }
             const rLoading = this.openLoading()
-            couponSendUserRecord(params)
+            queryActivityList(params)
                 .then(res => {
                     rLoading.close()
                     if (res.code === 200) {
@@ -199,14 +211,31 @@ export default {
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val)
             // this.searchForm = _.cloneDeep(this.searchParams);
-            this.getListData()
+            this.getListData();
         },
         // 启用/停用
         handleChangeStatus(index,row){
+            let _start = this.getTime(row.start_time).toString();
+            _start = new Date(_start);
+            let _end ;
+            let has_end = false;
+            if(row.end_time){
+                has_end = true;
+                _end = this.getTime(row.end_time).toString() || 0;
+                _end = new Date(_end);
+            }else {
+
+            }
             this.activityId = row.id;
-            if(row.status > 1){
+            let params = {
+                id: row.id,
+                start_time: _start.getTime()/1000,
+                end_time: has_end ? _end.getTime()/1000 : 0
+            };
+            if(row.status < 2){
                 // 启用
-                this.changeStatus();
+                params['status'] = 2;
+                this.changeStatus(params);
             }else {
                 // 停用
                 // 二次确认
@@ -215,20 +244,15 @@ export default {
                     type: 'warning',
                     center: true
                 }).then(() => {
-                    let params = {
-                        type: this.selectedType
-                    };
-                    params['id'] = row.id;
+                    params['status'] = 1;
                     this.changeStatus(params);
                 }).catch(() => {});
             }
-            this.reasonDialog = true;
         },
         // 改变状态
-        changeStatus(){
-            const params = {};
+        changeStatus(params){
             const rLoading = this.openLoading();
-            couponSendUserRecord(params)
+            updateActivityStatus(params)
                 .then(res => {
                     rLoading.close()
                     if (res.code === 200) {
@@ -249,7 +273,29 @@ export default {
                     }
                 })
                 .catch(() => {})
-        }
+        },
+        //时间格式化
+        getTime(val){
+            if(val){
+                const dt = new Date(val);
+                let year = dt.getFullYear(); //年
+                let month = dt.getMonth() +1; //月
+                let date = dt.getDate(); //日
+                let hh = dt.getHours(); //时
+                let mm = dt.getMinutes(); //分
+                let ss = dt.getSeconds(); //秒
+                month = month < 10 ? "0" + month : month;
+                date  = date <10 ? "0" + date : date;
+                hh  = hh <10 ? "0" + hh : hh;
+                mm  = mm <10 ? "0" + mm : mm;
+                ss  = ss <10 ? "0" + ss : ss;
+                let new_time = ''
+                new_time = year + "-" + month + "-" + date + ' ' + hh + ':' + mm + ':' + ss;
+                return new_time;
+            }else {
+                return '-1'
+            }
+        },
     }
 }
 </script>

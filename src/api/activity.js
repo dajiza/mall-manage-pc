@@ -7,9 +7,9 @@ export const queryAdvList = params => post('/backend/ad-list', params);
 export const updateAdvStatus = params => post('/backend/ad-update-status', params);
 
 // 活动管理列表
-export const queryList = params => post('/backend/coupon-list', params);
+export const queryActivityList = params => post('/backend/activity-list', params);
 
-// 优惠券-启用停用
-
+// 活动-启用停用 activity-update
+export const updateActivityStatus = params => post('/backend/activity-update', params);
 
 
