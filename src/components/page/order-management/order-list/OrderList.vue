@@ -130,7 +130,8 @@
                 </el-table-column>
                 <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
                     <template slot-scope="scope">
-                        {{ (scope.row.price_total_real / 100) | rounding }}
+                        <span v-if="scope.row.status === 9">0.00</span>
+                        <span v-else>{{ (scope.row.price_total_real / 100) | rounding }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
