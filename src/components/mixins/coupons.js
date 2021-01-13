@@ -849,26 +849,65 @@ export const mixinsCoupons = {
                     new_goods_list.push(ev.goods_id);
                 });
                 let tipText = '';
+                let num = new_goods_list.length;
                 if(type === 'add'){
-                    let old_list = _.cloneDeep(this.selected_goods);
-                    this.selected_goods = [...old_list, ...new_goods_list];
-                    tipText = "已移入到'已添加'列表";
+                    let _text = '';
+                    if(num > 1){
+                        _text = '确定要添加'+ num +'件商品到已添加列表吗？'
+                    }else {
+                        _text = '确定要添加该件商品到已添加列表吗？'
+                    }
+                    this.$confirm(_text, '', {
+                        customClass: 'message-delete',
+                        type: 'warning',
+                        center: true
+                    })
+                        .then(() => {
+                            let old_list = _.cloneDeep(this.selected_goods);
+                            this.selected_goods = [...old_list, ...new_goods_list];
+                            tipText = "已移入到'已添加'列表";
+                            this.$notify({
+                                title: tipText,
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            });
+                            this.goodsInit();
+                            this.getListData();
+                        })
+                        .catch(()=> {})
+
                 }else if(type === 'del'){
-                    let new_arr = _.cloneDeep(this.selected_goods);
-                    new_arr = new_arr.filter(function(item){
-                        return new_goods_list.indexOf(item) == -1;
-                    });
-                    this.selected_goods = new_arr;
-                    tipText = "已移除,可到'未添加'列表查看";
+                    let del_text = '';
+                    if(num > 1){
+                        del_text = '确定将'+ num +'件商品从已添加列表移除吗？'
+                    }else {
+                        del_text = '确定将该件商品从已添加列表移除吗？'
+                    }
+                    this.$confirm(del_text, '', {
+                        customClass: 'message-delete',
+                        type: 'warning',
+                        center: true
+                    })
+                        .then(()=>{
+                            let new_arr = _.cloneDeep(this.selected_goods);
+                            new_arr = new_arr.filter(function(item){
+                                return new_goods_list.indexOf(item) == -1;
+                            });
+                            this.selected_goods = new_arr;
+                            tipText = "已移除,可到'未添加'列表查看";
+                            this.$notify({
+                                title: tipText,
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            });
+                            this.goodsInit();
+                            this.getListData();
+                        })
+                        .catch(()=>{})
                 }
-                this.$notify({
-                    title: tipText,
-                    message: '',
-                    type: 'success',
-                    duration: 3000
-                });
-                this.goodsInit();
-                this.getListData();
+
             } else {
                 this.$notify({
                     title: type === 'add'?'无可添加商品':'无可移除商品',
