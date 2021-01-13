@@ -616,7 +616,7 @@ export default {
         // 按钮-发券
         handleSendStamps(index,row){
             if(row.type > 1){
-                this.couponsAmount = row.coupon_amount/100  + '折';
+                this.couponsAmount = row.coupon_amount/10  + '折';
             }else {
                 this.couponsAmount = row.coupon_amount/100 + '元';
             }
