@@ -65,7 +65,7 @@
                             <span>{{ formatMoney(scope.row.price) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="数量">
+                    <el-table-column label="数量" width="80">
                         <template slot-scope="scope">
                             <span>{{ scope.row.num }}</span>
                         </template>
@@ -75,15 +75,19 @@
                             <span>{{ formatMoney(scope.row.price * scope.row.num) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="折扣优惠(元)">
+                    <el-table-column label="活动优惠总额(元)">
                         <template slot-scope="scope">
                             <span>{{scope.row.off_2/100 | rounding}}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column prop="off_1" label="优惠券(元)" width="120">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.off_1/100 | rounding}}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="改价(元)">
                         <template slot-scope="scope">
-                            <span>{{formatMoney(scope.row.price * scope.row.num) - formatMoney(scope.row.price_sum_end) > 0 ? '-':'+'}}</span>
-                            <span>{{ scope.row.off_1/100 | rounding}}</span>
+                            <span>{{ scope.row.price_sum_change/100 | rounding}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="实付(元)">
