@@ -8,7 +8,7 @@ const service = axios.create({
     // process.env.NODE_ENV === 'development' 来判断是否开发环境
     // baseURL: process.env.VUE_APP_MODE === 'local' ? '/api' : process.env.VUE_APP_MODE === 'pro'? 'https://storehouse-api.chuanshui.com' : 'http://storehouse.api.chuanshui.cn',
     baseURL: process.env.VUE_APP_BASE_API,
-    timeout: 10000,
+    timeout: 60000,
     //transformRequest 这里主要是 post请求时 请求成功了，但是后台并没有获取到前端的请求参数。如果后台是直接从请求体里取的话，请忽略
     // transformRequest:[
     //     data => {

@@ -645,7 +645,7 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     if(this.fileUrl){
-                        const rLoading = this.openLoading();
+                        // const rLoading = this.openLoading();
                         params['file_name'] = this.fileName;
                         params['remark'] = this.sendCouponsDialogForm.instructions;
                         params['file_url'] = this.fileUrl;
@@ -670,10 +670,11 @@ export default {
         },
         //
         querySendCoupons(params){
-            const rLoading = this.openLoading()
+            // const rLoading = this.openLoading()
+            this.upload_loading = this.uploadLoading('操作中');
             querySendCoupons(params)
                 .then(res => {
-                    rLoading.close()
+                    this.upload_loading.close();
                     if (res.code === 200) {
                         this.$notify({
                             title: '操作成功',
