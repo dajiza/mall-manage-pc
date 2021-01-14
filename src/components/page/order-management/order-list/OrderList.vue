@@ -125,7 +125,7 @@
                         <span v-else>无运费</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_total_real" label="折扣优惠(元)" width="120">
+                <el-table-column prop="off_2" label="折扣优惠(元)" width="120">
                     <template slot-scope="scope"></template>
                 </el-table-column>
                 <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
