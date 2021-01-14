@@ -670,11 +670,12 @@ export default {
         },
         //
         querySendCoupons(params){
-            // const rLoading = this.openLoading()
-            this.upload_loading = this.uploadLoading('操作中');
+            const rLoading = this.openLoading('操作中');
+            // this.upload_loading = this.uploadLoading('操作中');
             querySendCoupons(params)
                 .then(res => {
-                    this.upload_loading.close();
+                    rLoading.close();
+                    // this.upload_loading.close();
                     if (res.code === 200) {
                         this.$notify({
                             title: '操作成功',
