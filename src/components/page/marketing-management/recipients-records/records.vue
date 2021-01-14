@@ -42,7 +42,9 @@
                 <el-table-column prop="price_total_detail_end" label="状态" width="80">
                     <template slot-scope="scope">{{scope.row.status > 1 ? '已使用':'未使用'}}</template>
                 </el-table-column>
-                <el-table-column prop="order_no" label="订单号" width="155"></el-table-column>
+                <el-table-column prop="order_no" label="订单号" width="155">
+                    <template slot-scope="scope">{{scope.row.order_no ? scope.row.order_no:''}}</template>
+                </el-table-column>
                 <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
@@ -105,8 +107,8 @@ export default {
     created() {
         // 状态 下拉列表
         this.statusOptions = [
-            { id: 1, name: '已使用' },
-            { id: 2, name: '未使用' },
+            { id: 2, name: '已使用' },
+            { id: 1, name: '未使用' },
         ]
     },
     mounted() {

@@ -14,7 +14,7 @@
         >
             <el-table-column prop="coupon_title" label="优惠券名称" width="180px"></el-table-column>
             <el-table-column label="优惠券面额" width="100px">
-                <template scope="scope">{{scope.row.coupon_amount / 100}} {{scope.row.coupon_type > 1 ? '折': '元' }}</template>
+                <template scope="scope">{{scope.row.coupon_type > 1 ? scope.row.coupon_amount / 10 : scope.row.coupon_amount / 100}} {{scope.row.coupon_type > 1 ? '折': '元' }}</template>
             </el-table-column>
             <el-table-column label="使用门槛" width="110">
                 <template scope="scope">

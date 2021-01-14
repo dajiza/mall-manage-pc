@@ -50,7 +50,7 @@
 
             <div class="substance">
                 <el-table :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-                    <el-table-column label="图片" width="">
+                    <el-table-column label="图片" width="130">
                         <template slot-scope="scope">
                             <img class="goods-img" :src="scope.row.goods_img" />
                         </template>
@@ -62,27 +62,33 @@
                     </el-table-column>
                     <el-table-column label="单价(元)">
                         <template slot-scope="scope">
-                            <span>{{ formatMoney(scope.row.order_detail_money) }}</span>
+                            <span>{{ formatMoney(scope.row.price) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="数量">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.order_detail_num }}</span>
+                            <span>{{ scope.row.num }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="总价(元)">
                         <template slot-scope="scope">
-                            <span>{{ formatMoney(scope.row.order_detail_num * scope.row.order_detail_money) }}</span>
+                            <span>{{ formatMoney(scope.row.price * scope.row.num) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="折扣优惠(元)">
                         <template slot-scope="scope">
-                            <!-- <span>{{ formatMoney(scope.row.goods_name) }}</span> -->
+                            <span>{{scope.row.off_2/100 | rounding}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="改价(元)">
+                        <template slot-scope="scope">
+                            <span>{{formatMoney(scope.row.price * scope.row.num) - formatMoney(scope.row.price_sum_end) > 0 ? '-':'+'}}</span>
+                            <span>{{ scope.row.off_1/100 | rounding}}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="实付(元)">
                         <template slot-scope="scope">
-                            <span>{{ formatMoney(scope.row.order_detail_money_end) }}</span>
+                            <span>{{ formatMoney(scope.row.price_sum_end) }}</span>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -352,7 +358,7 @@ export default {
                     this.detail = res.data
                     // 处理商品显示
                     this.list = []
-                    this.list.push(res.data)
+                    this.list.push(res.data.order_detail_data)
                     // 处理模块显示
                     const type = res.data.type
                     const status = res.data.status

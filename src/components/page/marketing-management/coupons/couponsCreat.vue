@@ -352,7 +352,11 @@
                             </template>
                         </el-table-column>
                         <el-table-column prop="goods_name" label="商品名称"></el-table-column>
-                        <el-table-column prop="category_name" label="商品分类"></el-table-column>
+                        <el-table-column prop="category_name" label="商品分类">
+                            <template slot-scope="scope">
+                                {{scope.row.category_id === 0 ? '布料' : scope.row.category_name}}
+                            </template>
+                        </el-table-column>
                         <el-table-column prop="channel_name" label="售价(元)" width="100">
                             <template slot-scope="scope">{{scope.row.goods_price/100 | rounding}}</template>
                         </el-table-column>

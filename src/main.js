@@ -104,7 +104,7 @@ Vue.prototype.openLoading = function(str) {
     setTimeout(function() {
         // 设定定时器，超时5S后自动关闭遮罩层，避免请求失败时，遮罩层一直存在的问题
         loading.close(); // 关闭遮罩层
-    }, 5000);
+    }, 30000);
     return loading;
 };
 

@@ -8,7 +8,7 @@ const service = axios.create({
     // process.env.NODE_ENV === 'development' 来判断是否开发环境
     // baseURL: process.env.VUE_APP_MODE === 'local' ? '/api' : process.env.VUE_APP_MODE === 'pro'? 'https://storehouse-api.chuanshui.com' : 'http://storehouse.api.chuanshui.cn',
     baseURL: process.env.VUE_APP_BASE_API,
-    timeout: 10000,
+    timeout: 30000,
     //transformRequest 这里主要是 post请求时 请求成功了，但是后台并没有获取到前端的请求参数。如果后台是直接从请求体里取的话，请忽略
     // transformRequest:[
     //     data => {
@@ -64,6 +64,11 @@ service.interceptors.response.use(
     },
     error => {
         // token 过期
+        if(error.message.includes('timeout')){   // 判断请求异常信息中是否含有超时timeout字符串
+            Message.error('请求超时(数据过大)，请稍后再试');
+            return Promise.reject(error);          // reject这个错误信息
+        }
+
         if(error.response.status === 401){
             // notify({
             //     title: '请重新登录',

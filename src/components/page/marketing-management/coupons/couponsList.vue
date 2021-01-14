@@ -544,7 +544,8 @@ export default {
                                     duration: 3000
                                 })
                                 this.getListData();
-                                this.reasonDialog = false;
+                                this.reasonClose();
+                                // this.reasonDialog = false;
                             } else {
                                 this.$notify({
                                     title: res.msg,
@@ -615,7 +616,7 @@ export default {
         // 按钮-发券
         handleSendStamps(index,row){
             if(row.type > 1){
-                this.couponsAmount = row.coupon_amount/100  + '折';
+                this.couponsAmount = row.coupon_amount/10  + '折';
             }else {
                 this.couponsAmount = row.coupon_amount/100 + '元';
             }
@@ -644,7 +645,7 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     if(this.fileUrl){
-                        const rLoading = this.openLoading();
+                        // const rLoading = this.openLoading();
                         params['file_name'] = this.fileName;
                         params['remark'] = this.sendCouponsDialogForm.instructions;
                         params['file_url'] = this.fileUrl;
@@ -669,10 +670,12 @@ export default {
         },
         //
         querySendCoupons(params){
-            const rLoading = this.openLoading()
+            const rLoading = this.openLoading('操作中');
+            // this.upload_loading = this.uploadLoading('操作中');
             querySendCoupons(params)
                 .then(res => {
-                    rLoading.close()
+                    rLoading.close();
+                    // this.upload_loading.close();
                     if (res.code === 200) {
                         this.$notify({
                             title: '操作成功',
@@ -680,7 +683,8 @@ export default {
                             type: 'success',
                             duration: 3000
                         });
-                        this.sendCouponsDialog = false;
+                        // this.sendCouponsDialog = false;
+                        this.sendCouponsClose();
                         this.getListData();
                     } else {
                         this.$notify({
