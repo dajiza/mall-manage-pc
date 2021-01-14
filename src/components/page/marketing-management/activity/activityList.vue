@@ -37,9 +37,7 @@
                     <template slot-scope="scope">{{typeBack(scope.row.type)}}</template>
                 </el-table-column>
                 <el-table-column prop="shop_name" label="应用店铺" width="160"></el-table-column>
-                <el-table-column label="活动优惠类型_id" width="160">
-                    <template slot-scope="scope">优惠券的名称</template>
-                </el-table-column>
+                <el-table-column prop="type_id" label="活动优惠类型_id" width="140"></el-table-column>
                 <el-table-column prop="get_time" label="时间" width="184">
                     <template slot-scope="scope">{{scope.row.start_time}} - {{scope.row.end_time || '无限制'}}</template>
                 </el-table-column>
