@@ -125,7 +125,7 @@
                         <span v-else>无运费</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_1" label="优惠金额(元)" width="120">
+                <el-table-column prop="off_1" label="优惠券(元)" width="120">
                     <template slot-scope="scope"> {{ (scope.row.off_1 / 100) | rounding }}</template>
                 </el-table-column>
                 <el-table-column prop="price_total_real" label="实付金额(元)" width="120">

@@ -20,7 +20,7 @@
                         <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
                     </el-select>
                 </el-form-item>
-                <el-form-item label="广告时间" prop="pay_time" class="long-time">
+                <el-form-item label="广告时间" prop="adv_time" class="long-time">
                     <el-date-picker
                         class="filter-item"
                         v-model="searchForm.adv_time"
@@ -137,18 +137,14 @@ export default {
                 location:'', // 位置
                 status:'', // 优惠券状态
                 shop_id:'', // 优惠券店铺
-                adv_time:'', // 广告时间
-                start_time:'',
-                end_time:'',
+                adv_time: [], // 广告时间
             },
             searchParams: {
                 title:'', // 优惠券名称
                 location:'', // 位置
                 status:'', // 优惠券状态
                 shop_id:'', // 优惠券店铺
-                adv_time:'', // 广告时间
-                start_time:'',
-                end_time:'',
+                adv_time: [], // 广告时间
             },
             pageInfo: {
                 name: '',
@@ -222,6 +218,16 @@ export default {
     methods: {
         // 请求-获取订单列表数据
         getListData() {
+            let time_start, time_end,start_time = 0,end_time = 0;
+            console.log('this.searchParams.adv_time', this.searchParams.adv_time);
+            if(this.searchParams.adv_time.length > 0){
+                time_start = this.getTime(this.searchParams.adv_time[0]).toString();
+                time_end = this.getTime(this.searchParams.adv_time[1]).toString();
+                time_start = new Date(time_start);
+                time_end = new Date(time_end);
+                start_time = time_start.getTime()/1000;
+                end_time = time_end.getTime()/1000;
+            }
             let params = {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
@@ -229,8 +235,8 @@ export default {
                 location: this.searchParams.location > 0 ? this.searchParams.location : -1,
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
-                start_time: -1,
-                end_time: -1,
+                start_time: start_time || -1,
+                end_time: end_time || -1,
             }
             const rLoading = this.openLoading();
             queryAdvList(params)
@@ -272,8 +278,10 @@ export default {
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields()
+            this.$refs[formName].resetFields();
             this.searchParams = _.cloneDeep(this.searchForm);
+            // this.$set(this.searchParams,'adv_time', '');
+            console.log('this.searchParams',this.searchParams)
             this.getListData()
         },
 
@@ -363,7 +371,28 @@ export default {
         closeViewer() {
             this.dialogVisible = false;
         },
-
+        //时间格式化
+        getTime(val){
+            if(val){
+                const dt = new Date(val);
+                let year = dt.getFullYear(); //年
+                let month = dt.getMonth() +1; //月
+                let date = dt.getDate(); //日
+                let hh = dt.getHours(); //时
+                let mm = dt.getMinutes(); //分
+                let ss = dt.getSeconds(); //秒
+                month = month < 10 ? "0" + month : month;
+                date  = date <10 ? "0" + date : date;
+                hh  = hh <10 ? "0" + hh : hh;
+                mm  = mm <10 ? "0" + mm : mm;
+                ss  = ss <10 ? "0" + ss : ss;
+                let new_time = ''
+                new_time = year + "-" + month + "-" + date + ' ' + hh + ':' + mm + ':' + ss;
+                return new_time;
+            }else {
+                return '-1'
+            }
+        },
     }
 }
 </script>
