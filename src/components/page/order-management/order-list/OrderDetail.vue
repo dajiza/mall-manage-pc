@@ -156,19 +156,14 @@
                         <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140">
+                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" v-if="false">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_1" label="优惠券(元)" width="120">
+                <el-table-column prop="off_1" label="优惠金额(元)" width="120">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_1/100 | rounding}}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column v-if="false" prop="off_2" label="折扣优惠(元)" width="140">
-                    <template slot-scope="scope">
-                        <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="price_real" label="改价(元)"  width="120">

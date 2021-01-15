@@ -125,8 +125,8 @@
                         <span v-else>无运费</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="折扣优惠(元)" width="120">
-                    <template slot-scope="scope"></template>
+                <el-table-column prop="off_1" label="优惠金额(元)" width="120">
+                    <template slot-scope="scope"> {{ (scope.row.off_1 / 100) | rounding }}</template>
                 </el-table-column>
                 <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
                     <template slot-scope="scope">
@@ -340,7 +340,7 @@ export default {
                 limit: this.pageInfo.pageSize,
                 id: -1,
                 order_no: this.searchParams.order_no ? Number(this.searchParams.order_no) : '',
-                status: this.searchParams.status !=='' ? Number(this.searchParams.status) : -1,
+                status: this.searchParams.status !=='' ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
                 channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
                 logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
