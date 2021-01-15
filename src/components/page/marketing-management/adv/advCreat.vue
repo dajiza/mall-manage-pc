@@ -18,7 +18,6 @@
                 <el-form-item class="form-item" label="广告状态:" prop="status">
                     <el-radio-group
                         v-model="operationForm.status"
-                        :disabled="operationTitle === '编辑优惠券'"
                         @change="chooseStatusType"
                     >
                         <el-radio :label="2">上架</el-radio>
@@ -26,7 +25,13 @@
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item class="form-item" label="location:" prop="location">
-                    <el-select class="w300" filterable placeholder="请选择广告位" v-model="operationForm.location" :disabled="operationTitle === '编辑优惠券'">
+                    <el-select
+                        class="w300"
+                        filterable
+                        placeholder="请选择广告位"
+                        v-model="operationForm.location"
+                        @change="locationChange"
+                    >
                         <el-option
                                 v-for="item in locationOptions"
                                 :key="item.id"
@@ -47,6 +52,7 @@
                             :on-remove="handleRemove"
                             :show-file-list="false"
                             :headers="header"
+                            :disabled="!operationForm.location"
                     >
                         <img
                             v-if="imageUrl"
@@ -70,16 +76,16 @@
                     </el-upload>
                 </el-form-item>
                 <el-form-item class="form-item" label="广告名称:" prop="title">
-                    <el-input class="w300" placeholder="请输入广告名称" v-model="operationForm.title" :disabled="operationTitle === '编辑优惠券'"/>
+                    <el-input class="w300" placeholder="请输入广告名称" v-model="operationForm.title"/>
                 </el-form-item>
                 <el-form-item class="form-item" label="Link:" prop="link">
-                    <el-input class="w300" placeholder="请输入活动链接" v-model="operationForm.link" :disabled="operationTitle === '编辑优惠券'"/>
+                    <el-input class="w300" placeholder="请输入活动链接" v-model="operationForm.link"/>
                 </el-form-item>
                 <el-form-item class="form-item" label="描述:" prop="description">
-                    <el-input class="w300" placeholder="请输入广告描述" v-model="operationForm.description" :disabled="operationTitle === '编辑优惠券'"/>
+                    <el-input class="w300" placeholder="请输入广告描述" v-model="operationForm.description"/>
                 </el-form-item>
                 <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑优惠券'">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id">
                         <el-option
                                 v-for="item in shopList"
                                 :key="item.id"
@@ -90,7 +96,7 @@
                     </el-select>
                 </el-form-item>
                 <template>
-                    <el-form-item class="form-item inline-block" label="时间:" prop="start_time" :disabled="operationTitle === '编辑优惠券'">
+                    <el-form-item class="form-item inline-block" label="时间:" prop="start_time">
                         <el-date-picker
                                 style="width:200px"
                                 class="filter-item"
@@ -100,7 +106,6 @@
                                 default-time="00:00:00"
                                 format="yyyy-MM-dd HH:mm:ss"
                                 :picker-options="optionsStart"
-                                :disabled="operationTitle === '编辑优惠券'"
                         >
                         </el-date-picker>
                     </el-form-item>
@@ -115,7 +120,6 @@
                                 default-time="23:59:59"
                                 format="yyyy-MM-dd HH:mm:ss"
                                 :picker-options="optionsEnd"
-                                :disabled="operationTitle === '编辑优惠券'"
                         >
                         </el-date-picker>
                     </el-form-item>

@@ -74,7 +74,6 @@ export const mixinsAdv = {
             imgSrcList:[],
             loadingTip:{},
             imageUrl: '',  // 展示小图 （可访问，尺寸限制240）
-            completeImageUrl:'',  // 完整图片url（可访问，不加尺寸限制）
             imgBaseUrl:'',    //   图片读取地址（存储）
             uploadImgUrl:'',  //   图片上传地址
             back_img_url:'',  //   上传后台返回图片地址（不完整）
@@ -118,7 +117,7 @@ export const mixinsAdv = {
                         }
                     }
                     rLoading.close();
-                    if(this.operationTitle !== '新增优惠券'){
+                    if(this.operationTitle !== '新增广告'){
                         // 请求优惠券详情
                         this.getDetail();
                     }
@@ -134,7 +133,6 @@ export const mixinsAdv = {
             // this.$set(this.operationForm,'start_time', info.start_time);
             // this.$set(this.operationForm,'end_time',info.end_time);
             // this.$set(this.operationForm,'logo',info.logo);
-            this.completeImageUrl = info.logo;
             this.imageUrl = info.logo + '!/fw/240';
             this.bigImgUrl = info.logo + '!/fw/640';
             this.imgSrcList = [];
@@ -166,54 +164,70 @@ export const mixinsAdv = {
             })
         },
 
+        // 切换location
+        locationChange(){
+            console.log('this.operationForm.location', this.operationForm.location);
+            this.imageUrl = '';
+            this.back_img_url = '';
+            this.bigImgUrl = '';
+            this.imgSrcList = [];
+            this.$set(this.operationForm,'logo', '');
+        },
 
         // 保存
         handleSave() {
-            this.$refs['operationForm'].validate(valid => {
-                // 验证表单内容
-                if (valid) {
-                    let params = _.cloneDeep(this.operationForm);
-                    let time_start,time_end;
-                    time_start = this.getTime(this.operationForm.start_time).toString();
-                    if (this.operationForm.end_time) {
-                        time_end = this.getTime(this.operationForm.end_time);
-                        time_end = new Date(time_end);
-                        params['end_time'] = time_end.getTime()/1000;
+            if(!this.saveIsClick){
+                this.$refs['operationForm'].validate(valid => {
+                    // 验证表单内容
+                    if (valid) {
+                        let params = _.cloneDeep(this.operationForm);
+                        let time_start,time_end;
+                        time_start = this.getTime(this.operationForm.start_time).toString();
+                        if (this.operationForm.end_time) {
+                            time_end = this.getTime(this.operationForm.end_time);
+                            time_end = new Date(time_end);
+                            params['end_time'] = time_end.getTime()/1000;
+                        } else {
+                            params['end_time'] = 0;
+                        }
+                        time_start = new Date(time_start);
+                        params['start_time'] = time_start.getTime()/1000;
+                        if(this.operationTitle === '编辑广告'){ // 请求编辑
+                            params['id'] = Number(this.$route.query.id);
+                            this.queryEdit(params);
+                        }else {
+                            this.queryAdd(params);
+                        }
                     } else {
-                        params['end_time'] = 0;
+                        this.$notify({
+                            title: '请填写完成数据后提交',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
                     }
-                    time_start = new Date(time_start);
-                    params['start_time'] = time_start.getTime()/1000;
-                    if(this.operationTitle === '编辑广告'){ // 请求编辑
-                        params['id'] = Number(this.$route.query.id);
-                        this.queryEdit(params);
-                    }else {
-                        this.queryAdd(params);
-                    }
-                } else {
-                    this.$notify({
-                        title: '请填写完成数据后提交',
-                        message: '',
-                        type: 'warning',
-                        duration: 5000
-                    })
-                }
-            })
+                })
+            }
         },
 
         // 取消
         handleCancel(){
-            bus.$emit('close_current_tags');
-            this.$router.push({ path: 'mall-backend-adv' });
+            if(!this.saveIsClick){
+                this.saveIsClick = false;
+                bus.$emit('close_current_tags');
+                this.$router.push({ path: 'mall-backend-adv' });
+            }
         },
 
         // 请求 -- 添加
         queryAdd(params){
+            this.saveIsClick = true;
             const rLoading = this.openLoading();
             let that = this;
             createAdv(params)
                 .then(async res => {
                     rLoading.close();
+                    that.saveIsClick = false;
                     if (res.code === 200) {
                         that.$notify({
                             title: '添加成功',
@@ -234,16 +248,19 @@ export const mixinsAdv = {
                 })
                 .catch(err => {
                     rLoading.close();
+                    that.saveIsClick = false;
                 })
         },
 
         // 请求 -- 编辑
         queryEdit(editParams){
+            this.saveIsClick = true;
             const rLoading = this.openLoading();
             let that = this;
             updateAdv(editParams)
                 .then(async res => {
                     rLoading.close();
+                    that.saveIsClick = false;
                     if (res.code === 200) {
                         that.$notify({
                             title: '编辑成功',
@@ -264,6 +281,7 @@ export const mixinsAdv = {
                 })
                 .catch(err => {
                     rLoading.close();
+                    that.saveIsClick = false;
                 })
         },
 
@@ -287,7 +305,6 @@ export const mixinsAdv = {
             this.uploadingTip.close();
             if(response.code === 200){
                 this.back_img_url = response.data.file_url;
-                this.completeImageUrl = response.data.file_url;
                 this.imageUrl = response.data.file_url + '!/fw/200';
                 this.bigImgUrl = response.data.file_url + '!/fw/640';
                 this.imgSrcList = [];
@@ -321,6 +338,9 @@ export const mixinsAdv = {
 
         handleRemove(file, fileList) {
             this.imageUrl = '';
+            this.back_img_url = '';
+            this.bigImgUrl = '';
+            this.imgSrcList = [];
             this.$set(this.operationForm,'logo', '');
         },
 
