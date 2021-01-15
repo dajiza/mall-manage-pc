@@ -287,7 +287,7 @@
                         <div class="amount-name">优惠券总额</div>
                         <div class="amount-value">¥ {{order_info.off_1/100 | rounding}}</div>
                     </div>
-                    <div class="order-amount-item activity-discount">
+                    <div class="order-amount-item activity-discount" v-if="false">
                         <div class="amount-name">活动优惠总额</div>
                         <div class="amount-value">¥ {{order_info.off_2/100 | rounding}}</div>
                     </div>
