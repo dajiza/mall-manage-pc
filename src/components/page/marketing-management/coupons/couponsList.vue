@@ -729,7 +729,7 @@ export default {
                     type: 'success',
                     duration: 3000
                 });
-                console.log('response', response);
+                // console.log('response', response);
                 this.fileName = file.name;
                 this.fileUrl = response.data.file_url;
             }else {
