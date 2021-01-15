@@ -44,9 +44,9 @@
             <div class="global-table-title">
                 <div class="title">
                     <i></i>
-                    <span>优惠券列表</span>
+                    <span>广告管理</span>
                 </div>
-                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增优惠券</el-button>
+                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增广告</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="110">
@@ -65,25 +65,30 @@
                         >编辑</el-button>
                     </template>
                 </el-table-column>
-                <el-table-column prop="id" label="ID" width="70"></el-table-column>
+                <el-table-column prop="id" label="ID" width="60"></el-table-column>
                 <el-table-column prop="status" label="状态" width="90">
                     <template slot-scope="scope">
                         <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已上架':'已下架' }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="title" label="优惠券名称"></el-table-column>
+                <el-table-column label="图片" width="110">
+                    <template slot-scope="scope">
+                        <img class="list-img" :src="getImg(scope.row.logo)" alt="" @click="viewBigImg(scope.row.logo,scope.$index)" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="title" label="广告名称"></el-table-column>
                 <el-table-column label="link" class="">
                     <template slot-scope="scope">
                         {{ scope.row.link || '' }}
                     </template>
                 </el-table-column>
                 <el-table-column label="描述" prop="description" class=""></el-table-column>
-                <el-table-column prop="location" label="location" width="150">
+                <el-table-column prop="location" label="location" width="120">
                     <template slot-scope="scope">
                         <span>{{ scope.row.location > 1 ? '首页分享位':'首页banner位' }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="shop_name" label="应用店铺" width="150"></el-table-column>
+                <el-table-column prop="shop_name" label="应用店铺" width="140"></el-table-column>
                 <el-table-column label="时间" width="176">
                     <template slot-scope="scope">
                         {{scope.row.start_time}} - {{scope.row.end_time || '无限制'}}
@@ -107,20 +112,23 @@
                 <EmptyList></EmptyList>
             </div>
         </div>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex"/>
     </div>
 </template>
 
 <script>
-import { queryAdvList, updateAdvStatus } from '../../../../api/activity'
+    import { queryAdvList, updateAdvStatus } from '../../../../api/activity';
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './adv.less'
 import { queryShopList } from '@/api/goods'
 import IssueRecord from '../../../common/issue-record/IssueRecord.vue'
+import ElImageViewer from '../../..//common/image-viewer';
 import commUtil from '@/utils/commUtil'
 import { getToken } from '@/utils/auth'
 
 export default {
-    name: 'OrderList',
+    name: 'AdvList',
     data() {
         return {
             searchForm: {
@@ -158,14 +166,17 @@ export default {
             locationOptions: [
                 { id: 1, name: '首页banner位' },
                 { id: 2, name: '首页分享位' }
-            ], // 类型下拉列表
+            ], // location下拉列表
             tableHeight: 'calc(100% - 114px)',
-            couponsId:-1
+            imgSrcList: [],
+            previewIndex: 0,
+            dialogVisible: false
         }
     },
     components: {
         EmptyList,
-        IssueRecord
+        IssueRecord,
+        ElImageViewer
     },
     computed: {
         statusClass: function() {
@@ -192,6 +203,14 @@ export default {
                 return str
             }
         },
+        //  拼接图片地址
+        getImg: function() {
+            return data => {
+                if (data) {
+                    return data + '!/fw/' + 80;
+                }
+            };
+        },
     },
     created() {},
     mounted() {
@@ -202,12 +221,11 @@ export default {
     methods: {
         // 请求-获取订单列表数据
         getListData() {
-
             let params = {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
                 title: this.searchParams.title,
-                location: -1,
+                location: this.searchParams.location > 0 ? this.searchParams.location : -1,
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
                 start_time: -1,
@@ -219,11 +237,16 @@ export default {
                     rLoading.close()
                     if (res.code === 200) {
                         if (res.data.lists) {
-                            this.tableData = res.data.lists
-                            this.pageTotal = res.data.total
+                            this.tableData = res.data.lists;
+                            this.pageTotal = res.data.total;
+                            this.imgSrcList = [];
+                            this.previewIndex = 0;
+                            this.tableData.forEach((ev)=>{
+                                this.imgSrcList.push(ev.logo + '!/fw/640');
+                            })
                         } else {
-                            this.tableData = []
-                            this.pageTotal = 0
+                            this.tableData = [];
+                            this.pageTotal = 0;
                         }
                     } else {
                         this.$notify({
@@ -267,41 +290,41 @@ export default {
             this.searchForm = _.cloneDeep(this.searchParams);
             this.getListData();
         },
-        // 启用/停用
+        // 上架/下架
         handleChangeStatus(index,row){
-            this.couponsId = row.id;
-
-        },
-
-        //
-        handleAdd(){
-            this.$router.push({ path: '/mall-backend-coupons-create' });
-        },
-
-        // 编辑/复制优惠券
-        handleEditOrCopy(index, row, status) {
-            this.$router.push({
-                path: status === 'edit' ? '/mall-backend-coupons-edit' : '/mall-backend-coupons-copy',
-                query: { id: row.id, status }
-            });
-        },
-
-        // 确定停用启用
-        handleSureChangeStatus(){
             let params = {
-                id: this.couponsId
+                id: Number(row.id)
             }
-            const rLoading = this.openLoading()
+            if(row.status < 2){
+                // 上架
+                params['status'] = 2;
+                this.changeStatus(params);
+            }else {
+                // 下架
+                // 二次确认
+                this.$confirm('确定要下架该广告吗？', '', {
+                    customClass: 'message-delete',
+                    type: 'warning',
+                    center: true
+                }).then(() => {
+                    params['status'] = 1;
+                    this.changeStatus(params);
+                }).catch(() => {});
+            }
+        },
+        // 改变状态
+        changeStatus(params){
+            const rLoading = this.openLoading();
             updateAdvStatus(params)
                 .then(res => {
-                    rLoading.close();
+                    rLoading.close()
                     if (res.code === 200) {
                         this.$notify({
                             title: '操作成功',
                             message: '',
                             type: 'success',
                             duration: 3000
-                        })
+                        });
                         this.getListData();
                     } else {
                         this.$notify({
@@ -312,7 +335,32 @@ export default {
                         })
                     }
                 })
-                .catch(err => {})
+                .catch(() => {})
+        },
+        //
+        handleAdd(){
+            this.$router.push({ path: '/mall-backend-adv-create' });
+        },
+
+        // 编辑/复制优惠券
+        handleEditOrCopy(index, row, status) {
+            this.$router.push({
+                path: status === 'edit' ? '/mall-backend-adv-edit' : '/mall-backend-adv-copy',
+                query: { id: row.id, status }
+            });
+        },
+
+        // 查看大图
+        viewBigImg(pic_url, index) {
+            if (pic_url) {
+                this.bigImgUrl = pic_url + '!/fw/640';
+                // this.$refs.bigImg.show();
+                this.previewIndex = index;
+                this.dialogVisible = true;
+            }
+        },
+        closeViewer() {
+            this.dialogVisible = false;
         },
 
     }

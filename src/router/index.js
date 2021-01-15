@@ -117,6 +117,18 @@ export default new Router({
                     meta: { title: '广告管理' }
                 },
                 {
+                    path: '/mall-backend-adv-create',
+                    name: 'coupons-creat',
+                    component: () => import(/* webpackChunkName: "coupons-create" */ '../components/page/marketing-management/adv/advCreat.vue'),
+                    meta: { title: '新增广告', name: 'advCreat' }
+                },
+                {
+                    path: '/mall-backend-adv-edit',
+                    name: 'coupons-edit',
+                    component: () => import(/* webpackChunkName: "coupons-edit" */ '../components/page/marketing-management/adv/advCreat.vue'),
+                    meta: { title: '编辑广告', name: 'advEdit' }
+                },
+                {
                     path: '/mall-backend-activity',
                     component: () => import(/* webpackChunkName: "recipients-records" */ '../components/page/marketing-management/activity/activityList.vue'),
                     meta: { title: '活动管理' }

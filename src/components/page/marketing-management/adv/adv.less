@@ -5,6 +5,14 @@
     padding-top: 0;
 }
 .order-list-container {
+    .list-img{
+        width: 80px;
+        height: 60px;
+        display: inline-block;
+        vertical-align: bottom;
+        cursor: pointer;
+        object-fit:cover;
+    }
     .container-table-has-search {
         padding: 0 0 0px;
         .global-table-title {
@@ -277,6 +285,100 @@
         .el-tag--medium{
             margin-right: 10px;
             margin-bottom: 10px;
+        }
+    }
+    .has-pic{
+        .el-upload{
+            //border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            background: #fff !important;
+        }
+    }
+    .avatar-uploader .el-upload {
+        width: 162px;
+        height: 162px;
+        //padding: 7px;
+        border: 1px dashed #d9d9d9;
+        background: rgba(0, 0, 0, 0.04);
+        border-radius: 2px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        display: flex;
+        align-items: center;
+    }
+    .avatar-uploader .el-upload:hover {
+        //border-color: #409eff;
+    }
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 160px;
+        height: 160px;
+        line-height: 160px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        img{
+            margin: 0 auto;
+            display: block;
+            vertical-align: bottom;
+        }
+        .choose-location{
+            padding-top: 20px;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .add-img-text{
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.65);
+            line-height: 22px;
+            display: inline-block;
+        }
+    }
+    .avatar {
+        width: 160px;
+        //height: 160px;
+        display: block;
+        //object-fit:cover;
+        border-radius: 2px;
+    }
+    .magnifier-box{
+        width: 36px;
+        height: 36px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px 0 2px 0;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        .magnifier-img{
+            width: 36px;
+            height: 36px;
+            vertical-align: bottom;
+            display: inline-block;
+        }
+        .small-img{
+            width: 100%;
+            height: 100%;
+            //opacity: 0.5;
+            .el-icon-circle-close{
+                color: #000;
+            }
+            .el-image-viewer__img{
+                width: 640px;
+            }
         }
     }
 }

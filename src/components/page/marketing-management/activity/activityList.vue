@@ -86,7 +86,7 @@ import { queryActivityList, updateActivityStatus } from '../../../../api/activit
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './activity.less'
 export default {
-    name: 'OrderList',
+    name: 'ActivityList',
     data() {
         return {
             searchForm: {
