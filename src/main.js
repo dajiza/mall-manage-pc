@@ -102,9 +102,9 @@ Vue.prototype.openLoading = function(str) {
         customClass: 'loading-mask' // 遮罩层新增类名
     });
     setTimeout(function() {
-        // 设定定时器，超时5S后自动关闭遮罩层，避免请求失败时，遮罩层一直存在的问题
+        // 设定定时器，超时5min后自动关闭遮罩层，避免请求失败时，遮罩层一直存在的问题
         loading.close(); // 关闭遮罩层
-    }, 30000);
+    }, 300000);
     return loading;
 };
 
