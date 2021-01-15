@@ -46,7 +46,7 @@
                     <i></i>
                     <span>广告管理</span>
                 </div>
-                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增广告</el-button>
+                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-adv-create'">新增广告</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="110">
@@ -55,12 +55,13 @@
                                 type="text"
                                 class="marginLeft0 marginRight15"
                                 :class="{'delete-color': scope.row.status > 1}"
+                                v-hasPermission="'mall-backend-adv-change-status'"
                                 @click="handleChangeStatus(scope.$index, scope.row)"
                         >{{scope.row.status > 1 ? '下架':'上架'}}</el-button>
                         <el-button
                                 type="text"
                                 class="marginLeft0"
-                                v-hasPermission="'mall-backend-coupon-update'"
+                                v-hasPermission="'mall-backend-adv-update'"
                                 @click="handleEditOrCopy(scope.$index, scope.row, 'edit')"
                         >编辑</el-button>
                     </template>

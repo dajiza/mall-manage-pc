@@ -50,16 +50,12 @@
                     <template slot-scope="scope">
                         <el-button
                             type="text"
-                            class="marginLeft0 delete-color marginRight15"
-                            v-if="scope.row.status > 1"
-                            @click="handleChangeStatus(scope.$index, scope.row)"
-                        >停用</el-button>
-                        <el-button
-                            type="text"
                             class="marginLeft0 marginRight15"
-                            v-else
+                            :class="{'delete-color':scope.row.status > 1}"
+                            v-hasPermission="'mall-backend-activity-change-status'"
                             @click="handleChangeStatus(scope.$index, scope.row)"
-                        >启用</el-button>
+                        >{{scope.row.status > 1 ? '停用':'启用'}}</el-button>
+
                     </template>
                 </el-table-column>
                 <template slot="empty">
