@@ -291,6 +291,10 @@
                         <div class="amount-name">活动优惠总额</div>
                         <div class="amount-value">¥ {{order_info.off_2/100 | rounding}}</div>
                     </div>
+                    <div class="order-amount-item activity-discount">
+                        <div class="amount-name">改价总额</div>
+                        <div class="amount-value">¥ {{order_info.price_total_changed/100 | rounding}}</div>
+                    </div>
                     <div class="order-amount-item buyer-pays">
                         <div class="amount-name">买家实付</div>
                         <div class="amount-value">¥
@@ -991,7 +995,7 @@
                 this.orderDetailId = row.id;
                 this.dialogTitle = '修改订单价格';
                 // 子订单价格 单价*数量
-                this.currentPrice = commUtil.numberMul(Number(row.price),Number(row.num));
+                this.currentPrice = Number(row.price_real_sum);
                 const min = 100 - Number(this.MoneyChangeMax);
                 const min_price = ((min * this.currentPrice)/10000).toFixed(2);
                 this.minPrice = min_price;

@@ -219,7 +219,7 @@ export default {
         // 请求-获取订单列表数据
         getListData() {
             let time_start, time_end,start_time = 0,end_time = 0;
-            console.log('this.searchParams.adv_time', this.searchParams.adv_time);
+            // console.log('this.searchParams.adv_time', this.searchParams.adv_time);
             if(this.searchParams.adv_time.length > 0){
                 time_start = this.getTime(this.searchParams.adv_time[0]).toString();
                 time_end = this.getTime(this.searchParams.adv_time[1]).toString();
@@ -281,7 +281,7 @@ export default {
             this.$refs[formName].resetFields();
             this.searchParams = _.cloneDeep(this.searchForm);
             // this.$set(this.searchParams,'adv_time', '');
-            console.log('this.searchParams',this.searchParams)
+            // console.log('this.searchParams',this.searchParams)
             this.getListData()
         },
 
