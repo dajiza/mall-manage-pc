@@ -44,12 +44,14 @@
                             <el-button
                                 type="text"
                                 class="marginLeft0 delete-color marginRight15"
+                                v-hasPermission="'mall-backend-coupon-update-status'"
                                 @click="handleChangeStatus(scope.$index, scope.row)"
                             >停用</el-button>
                             <el-button
                                 type="text"
                                 class="marginLeft0 marginRight15"
                                 :class="{'delete-color':scope.row.grant_status < 2}"
+                                v-hasPermission="'mall-backend-coupon-update-grant-status'"
                                 @click="handleChangeGrantStatus(scope.$index, scope.row)"
                             >{{scope.row.grant_status > 1?'启用发放':'停止发放'}}</el-button>
                             <div style="display: inline-block" v-show="scope.row.grant_status < 2">
