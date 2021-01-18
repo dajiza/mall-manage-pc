@@ -64,7 +64,7 @@
                                 <el-button
                                     type="text"
                                     class="marginLeft0"
-                                    v-hasPermission="'mall-backend-coupon-create'"
+                                    v-hasPermission="'mall-backend-coupons-copy'"
                                     @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                                 >复制</el-button>
                             </div>
@@ -84,7 +84,7 @@
                                 <el-button
                                     type="text"
                                     class="marginLeft0"
-                                    v-hasPermission="'mall-backend-coupon-create'"
+                                    v-hasPermission="'mall-backend-coupons-copy'"
                                     @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                                 >复制</el-button>
                             </div>
@@ -99,7 +99,7 @@
                             <el-button
                                 type="text"
                                 class="marginLeft0 marginRight15"
-                                v-hasPermission="'mall-backend-coupon-create'"
+                                v-hasPermission="'mall-backend-coupons-copy'"
                                 @click="handleEditOrCopy(scope.$index, scope.row, 'copy')"
                             >复制</el-button>
                             <el-button
@@ -485,13 +485,13 @@ export default {
 
         //
         handleAdd(){
-            this.$router.push({ path: '/mall-backend-coupons-create' });
+            this.$router.push({ path: '/mall-backend-coupon-create' });
         },
 
         // 编辑/复制优惠券
         handleEditOrCopy(index, row, status) {
             this.$router.push({
-                path: status === 'edit' ? '/mall-backend-coupons-edit' : '/mall-backend-coupons-copy',
+                path: status === 'edit' ? '/mall-backend-coupon-update' : '/mall-backend-coupons-copy',
                 query: { id: row.id, status }
             });
         },

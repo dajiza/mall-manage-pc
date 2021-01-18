@@ -354,7 +354,7 @@ export default {
         // 编辑/复制优惠券
         handleEditOrCopy(index, row, status) {
             this.$router.push({
-                path: status === 'edit' ? '/mall-backend-adv-edit' : '/mall-backend-adv-copy',
+                path: status === 'edit' ? '/mall-backend-adv-update' : '/mall-backend-adv-copy',
                 query: { id: row.id, status }
             });
         },

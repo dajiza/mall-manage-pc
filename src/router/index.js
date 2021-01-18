@@ -89,13 +89,13 @@ export default new Router({
                     meta: { title: '配置优惠券' }
                 },
                 {
-                    path: '/mall-backend-coupons-create',
+                    path: '/mall-backend-coupon-create',
                     name: 'coupons-creat',
                     component: () => import(/* webpackChunkName: "coupons-create" */ '../components/page/marketing-management/coupons/couponsCreat.vue'),
                     meta: { title: '新增优惠券', name: 'couponsCreat' }
                 },
                 {
-                    path: '/mall-backend-coupons-edit',
+                    path: 'mall-backend-coupon-update',
                     name: 'coupons-edit',
                     component: () => import(/* webpackChunkName: "coupons-edit" */ '../components/page/marketing-management/coupons/couponsCreat.vue'),
                     meta: { title: '编辑优惠券', name: 'couponsEdit' }
@@ -118,19 +118,19 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-adv-create',
-                    name: 'coupons-creat',
-                    component: () => import(/* webpackChunkName: "coupons-create" */ '../components/page/marketing-management/adv/advCreat.vue'),
+                    name: 'adv-creat',
+                    component: () => import(/* webpackChunkName: "adv-create" */ '../components/page/marketing-management/adv/advCreat.vue'),
                     meta: { title: '新增广告', name: 'advCreat' }
                 },
                 {
-                    path: '/mall-backend-adv-edit',
-                    name: 'coupons-edit',
-                    component: () => import(/* webpackChunkName: "coupons-edit" */ '../components/page/marketing-management/adv/advCreat.vue'),
+                    path: '/mall-backend-adv-update',
+                    name: 'adv-edit',
+                    component: () => import(/* webpackChunkName: "adv-edit" */ '../components/page/marketing-management/adv/advCreat.vue'),
                     meta: { title: '编辑广告', name: 'advEdit' }
                 },
                 {
                     path: '/mall-backend-activity',
-                    component: () => import(/* webpackChunkName: "recipients-records" */ '../components/page/marketing-management/activity/activityList.vue'),
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/activity/activityList.vue'),
                     meta: { title: '活动管理' }
                 },
                 {
