@@ -247,7 +247,7 @@
             </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="sendCouponsClose">取 消</el-button>
-                <el-button type="primary" v-hasPermission="'product-lock'" @click="handleSureSendCoupons">确 定</el-button>
+                <el-button type="primary" @click="handleSureSendCoupons">确 定</el-button>
             </span>
         </el-dialog>
 
