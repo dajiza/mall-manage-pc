@@ -440,6 +440,17 @@ export const mixinsCoupons = {
                     if(this.operationForm.person_get_type===2){
                         params['person_get_count'] = this.operationForm.person_get_count;
                     }
+                    if(this.operationForm.threshold === 2 && this.operationForm.type === 1){
+                        if(params['with_amount'] < params['coupon_amount']){
+                            this.$notify({
+                                title: '优惠券面额应小于门槛数值',
+                                message: '',
+                                type: 'warning',
+                                duration: 3000
+                            })
+                            return
+                        }
+                    }
                     let editParams = {
                         id: Number(this.$route.query.id),
                         use_goods_ids:[],
@@ -509,7 +520,7 @@ export const mixinsCoupons = {
                     }
                 } else {
                     this.$notify({
-                        title: '请填写完成数据后提交',
+                        title: '请检查数据是否符合要求后提交',
                         message: '',
                         type: 'warning',
                         duration: 5000
