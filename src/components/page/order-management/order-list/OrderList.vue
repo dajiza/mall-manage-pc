@@ -339,7 +339,7 @@ export default {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
                 id: -1,
-                order_no: this.searchParams.order_no ? Number(this.searchParams.order_no) : '',
+                order_no: this.searchParams.order_no ? this.searchParams.order_no : '',
                 status: this.searchParams.status !=='' ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
                 channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
