@@ -16,6 +16,25 @@
                         <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
                     </el-select>
                 </el-form-item>
+                <el-form-item label="店铺" prop="shop_id">
+                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" filterable>
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="领用时间" prop="searchTime" class="long-time">
+                    <el-date-picker
+                        class="filter-item"
+                        v-model="searchForm.searchTime"
+                        type="datetimerange"
+                        range-separator="至"
+                        align="left"
+                        start-placeholder="开始时间"
+                        end-placeholder="结束时间"
+                        :default-time="['00:00:00', '23:59:59']"
+                        :picker-options="pickerOptions"
+                    >
+                    </el-date-picker>
+                </el-form-item>
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                     <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
@@ -35,15 +54,15 @@
                 <el-table-column prop="phone" label="用户手机号" width="110"></el-table-column>
                 <el-table-column prop="shop_name" label="所属店铺"></el-table-column>
                 <el-table-column prop="order_no" label="获取途径" width="110">
-                    <template slot-scope="scope">{{scope.row.source > 1 ? '前台发放':'后台excel导入'}}</template>
+                    <template slot-scope="scope">{{ scope.row.source > 1 ? '前台发放' : '后台excel导入' }}</template>
                 </el-table-column>
                 <el-table-column prop="get_time" label="领取时间" width="168"></el-table-column>
                 <el-table-column prop="use_time" label="使用时间" width="168"></el-table-column>
                 <el-table-column prop="price_total_detail_end" label="状态" width="80">
-                    <template slot-scope="scope">{{scope.row.status > 1 ? '已使用':'未使用'}}</template>
+                    <template slot-scope="scope">{{ scope.row.status > 1 ? '已使用' : '未使用' }}</template>
                 </el-table-column>
                 <el-table-column prop="order_no" label="订单号" width="155">
-                    <template slot-scope="scope">{{scope.row.order_no ? scope.row.order_no:''}}</template>
+                    <template slot-scope="scope">{{ scope.row.order_no ? scope.row.order_no : '' }}</template>
                 </el-table-column>
                 <template slot="empty">
                     <EmptyList></EmptyList>
@@ -65,17 +84,23 @@
 
 <script>
 import { couponSendUserRecord } from '../../../../api/coupons'
+import { queryShopList } from '@/api/goods'
+
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './records.less'
 export default {
     name: 'OrderList',
     data() {
         return {
+            shopList: [],
+
             searchForm: {
-                coupon_title:'', // 优惠券名称
-                nick_name:'', // 铜壶微信名
-                status:'', // 优惠券状态
-                phone:'' // 用户手机号
+                coupon_title: '', // 优惠券名称
+                nick_name: '', // 铜壶微信名
+                status: '', // 优惠券状态
+                phone: '', // 用户手机号
+                shop_id: '',
+                searchTime: null
             },
             pageInfo: {
                 name: '',
@@ -90,34 +115,68 @@ export default {
             statusOptions: [], // 状态下拉
             shopOptions: [], // 代理店铺下拉列表
             searchParams: {
-                coupon_title:'', // 优惠券名称
-                nick_name:'', // 微信名
-                status:'', // 优惠券状态
-                phone:'' // 用户手机号
+                coupon_title: '', // 优惠券名称
+                nick_name: '', // 微信名
+                status: '', // 优惠券状态
+                phone: '', // 用户手机号
+                shop_id: '',
+                searchTime: null
             },
             tableHeight: 'calc(100% - 134px)',
+            pickerOptions: {
+                shortcuts: [
+                    {
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+                            picker.$emit('pick', [start, end])
+                        }
+                    },
+                    {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+                            picker.$emit('pick', [start, end])
+                        }
+                    },
+                    {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date()
+                            const start = new Date()
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+                            picker.$emit('pick', [start, end])
+                        }
+                    }
+                ]
+            }
         }
     },
     components: {
         EmptyList
     },
-    computed: {
-
-    },
+    computed: {},
     created() {
         // 状态 下拉列表
         this.statusOptions = [
             { id: 2, name: '已使用' },
-            { id: 1, name: '未使用' },
+            { id: 1, name: '未使用' }
         ]
     },
     mounted() {
         // 获取列表数据
-        this.getListData();
+        this.getListData()
+        this.queryShopList()
     },
     methods: {
         // 请求-获取订单列表数据
         getListData() {
+            console.log('输出 ~ this.searchParams', this.searchForm)
+
             let params = {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
@@ -126,6 +185,9 @@ export default {
                 nick_name: this.searchParams.nick_name ? this.searchParams.nick_name : '',
                 phone: this.searchParams.phone ? this.searchParams.phone : '',
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
+                shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
+                get_time_let: this.searchParams.searchTime ? Number(this.$moment(this.searchParams.searchTime[0]).format('X')) : -1,
+                get_time_gte: this.searchParams.searchTime ? Number(this.$moment(this.searchParams.searchTime[1]).format('X')) : -1
             }
             const rLoading = this.openLoading()
             couponSendUserRecord(params)
@@ -133,11 +195,11 @@ export default {
                     rLoading.close()
                     if (res.code === 200) {
                         if (res.data.lists) {
-                            this.tableData = res.data.lists;
-                            this.pageTotal = res.data.total;
+                            this.tableData = res.data.lists
+                            this.pageTotal = res.data.total
                         } else {
-                            this.tableData = [];
-                            this.pageTotal = 0;
+                            this.tableData = []
+                            this.pageTotal = 0
                         }
                     } else {
                         this.$notify({
@@ -150,25 +212,38 @@ export default {
                 })
                 .catch(() => {})
         },
-
+        // 代理店铺列表
+        queryShopList() {
+            queryShopList()
+                .then(res => {
+                    this.shopList = res.data
+                })
+                .catch(err => {})
+        },
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.$set(this.searchParams, 'coupon_title', '');
-            this.$set(this.searchParams, 'status', '');
-            this.$set(this.searchParams, 'nick_name', '');
-            this.$set(this.searchParams, 'phone', '');
-            this.getListData();
+            this.$refs[formName].resetFields()
+            this.$set(this.searchParams, 'coupon_title', '')
+            this.$set(this.searchParams, 'status', '')
+            this.$set(this.searchParams, 'nick_name', '')
+            this.$set(this.searchParams, 'phone', '')
+            this.$set(this.searchParams, 'shop_id', '')
+            this.$set(this.searchParams, 'searchTime', null)
+            this.$set(this.searchForm, 'searchTime', null)
+            this.getListData()
         },
 
         // 按钮-触发搜索按钮
         handleSearch(formName) {
             this.$set(this.pageInfo, 'pageIndex', 1)
             //  存储搜索条件
-            this.$set(this.searchParams, 'coupon_title', this.searchForm.coupon_title);
-            this.$set(this.searchParams, 'status', this.searchForm.status);
-            this.$set(this.searchParams, 'nick_name', this.searchForm.nick_name);
-            this.$set(this.searchParams, 'phone', this.searchForm.phone);
+            this.$set(this.searchParams, 'coupon_title', this.searchForm.coupon_title)
+            this.$set(this.searchParams, 'status', this.searchForm.status)
+            this.$set(this.searchParams, 'nick_name', this.searchForm.nick_name)
+            this.$set(this.searchParams, 'phone', this.searchForm.phone)
+            this.$set(this.searchParams, 'shop_id', this.searchForm.shop_id)
+            this.$set(this.searchParams, 'searchTime', this.searchForm.searchTime)
+
             this.getListData()
         },
 
@@ -186,6 +261,12 @@ export default {
             }
             if (this.searchParams['phone']) {
                 this.$set(this.searchForm, 'phone', this.searchParams['phone'])
+            }
+            if (this.searchParams['shop_id']) {
+                this.$set(this.searchForm, 'shop_id', this.searchParams['shop_id'])
+            }
+            if (this.searchParams['searchTime']) {
+                this.$set(this.searchForm, 'searchTime', this.searchParams['searchTime'])
             }
             this.getListData()
         }
