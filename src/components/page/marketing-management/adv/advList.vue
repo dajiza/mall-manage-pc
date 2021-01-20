@@ -72,18 +72,18 @@
                         <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已上架':'已下架' }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="图片" width="110">
+                <el-table-column label="图片" width="120">
                     <template slot-scope="scope">
                         <img class="list-img" :src="getImg(scope.row.logo)" alt="" @click="viewBigImg(scope.row.logo,scope.$index)" />
                     </template>
                 </el-table-column>
-                <el-table-column prop="title" label="广告名称"></el-table-column>
-                <el-table-column label="link" class="">
+                <el-table-column prop="title" label="广告名称" width="200"></el-table-column>
+                <el-table-column label="link" class="" width="300">
                     <template slot-scope="scope">
                         {{ scope.row.link || '' }}
                     </template>
                 </el-table-column>
-                <el-table-column label="描述" prop="description" class=""></el-table-column>
+                <el-table-column label="描述" prop="description" class="" width="300"></el-table-column>
                 <el-table-column prop="location" label="location" width="120">
                     <template slot-scope="scope">
                         <span>{{ scope.row.location > 1 ? '首页分享位':'首页banner位' }}</span>

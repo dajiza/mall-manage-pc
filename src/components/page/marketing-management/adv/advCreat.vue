@@ -79,7 +79,12 @@
                     <el-input class="w300" placeholder="请输入广告名称" v-model="operationForm.title"/>
                 </el-form-item>
                 <el-form-item class="form-item" label="Link:" prop="link">
-                    <el-input class="w300" placeholder="请输入活动链接" v-model="operationForm.link"/>
+                    <el-input type="textarea" :rows="3" class="w500" placeholder="请输入活动链接" v-model="operationForm.link"/>
+                    <div class="tip-text">
+                        <div>需要跳转到搜索页时请使用以下格式：（/pages/goodsSearchResult/goodsSearchResult 是必需的,后面为搜索条件，可选择性添加）</div>
+                        <div>ps: other_id最多只能有一个值,属性和标签可以有多个值</div>
+                        <div>/pages/goodsSearchResult/goodsSearchResult?name=布组&brand=川水&color=红色||灰色&material=棉&origin=中国&pattern=&other_id=-1&tag_id=34||37</div>
+                    </div>
                 </el-form-item>
                 <el-form-item class="form-item" label="描述:" prop="description">
                     <el-input class="w300" placeholder="请输入广告描述" v-model="operationForm.description"/>
