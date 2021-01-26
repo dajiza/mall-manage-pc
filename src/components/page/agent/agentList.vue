@@ -80,7 +80,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="listQuery.page"
-                :page-size="listQuery.size"
+                :page-size="listQuery.limit"
                 layout="total, prev, pager, next, jumper"
                 :total="total"
             >
