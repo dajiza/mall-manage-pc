@@ -63,11 +63,11 @@
                         <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
                     </el-form-item>
                     <el-form-item class="form-item-btn" label="" style="margin-left:0">
-                        <el-popover placement="bottom" width="300" trigger="click">
+                        <el-popover placement="bottom" width="300" trigger="click" popper-class="group-popper">
                             <div class="row-list">
                                 <span v-if="checkedList.length == 0">无数据</span>
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
-                                    <div class="name">{{ item.name }}</div>
+                                    <div class="name">{{ item.name ? item.name : item.title }}</div>
                                     <i class="el-icon-error row-delete" @click="cancelSelection(item)"></i>
                                 </div>
                             </div>
@@ -277,10 +277,12 @@ export default {
             this.getAllAttr()
             this.getList()
 
+            console.log('输出 ~ this.checkedSku', this.checkedSku)
             this.$refs.multipleTable.clearSelection()
             let list = this.checkedSku.map(item => {
                 return {
-                    id: item.storehouse_pid
+                    id: item.storehouse_pid,
+                    title: item.title
                 }
             })
             list.forEach(row => {
@@ -347,6 +349,7 @@ export default {
                 .catch(err => {})
         },
         handleSelectionChange(val) {
+            console.log('输出 ~ val', val)
             this.checkedList = val
         },
         // 搜索
@@ -381,7 +384,6 @@ export default {
             }
 
             const rLoading = that.openLoading()
-            console.log('输出 ~ that.type', that.type)
 
             // 获取 产品分类、产品标签（布）、产品标签（其它）
             this.$ajax
@@ -519,7 +521,6 @@ export default {
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (resCate.code === 200) {
-                            console.log('输出 ~ resCate', resCate)
                             //0: {id: 1, name: "可裁布", level: 0, parent_id: 0}
                             // 2: {id: 2, name: "成品布", level: 0, parent_id: 0}
                             // 1: {id: 3, name: "其他", level: 0, parent_id: 0}
@@ -616,7 +617,6 @@ export default {
                     })
                 }
             })
-            console.log('输出 ~ dealOptions', dealOptions)
             return dealOptions
         },
 
