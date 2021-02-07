@@ -26,3 +26,12 @@ export const updateOrderDetail = params => post('/backend/order-detail-update', 
 
 // 查询物流公司和单号
 export const queryOrderSdInfo = params =>post('/backend/order-sd-info',params)
+
+// 部分退款
+export const updateRebatesMoney = params => post('/backend/order-apply', params)
+
+// 部分退运费
+export const updateRebatesFreight = params => post('/backend/order-apply-freight', params)
+
+// 子订单退款金额记录
+export const queryDetailReturnMoneyRecord = params => post('/backend/order-apply-freight', params)

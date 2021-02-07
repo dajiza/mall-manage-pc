@@ -6,6 +6,9 @@
                 <el-form-item label="订单号" prop="order_no">
                     <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
                 </el-form-item>
+                <el-form-item label="子订单号" prop="order_detail_no">
+                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_detail_no"></el-input>
+                </el-form-item>
                 <el-form-item label="退款类型" prop="type">
                     <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
@@ -47,7 +50,7 @@
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-after-sale-audit'">
-                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 0" @click.native="gotoDetail(scope.row.id)">审核</el-button>
+                        <el-button class="text-red" type="text" size="" v-if="scope.row.status == 0" @click.native="gotoDetail(scope.row.id, scope.row.order_id)">审核</el-button>
                     </div>
                     <div v-hasPermission="'mall-backend-afterSaleDetail'">
                         <el-button
@@ -55,7 +58,7 @@
                             type="text"
                             size=""
                             v-if="scope.row.status == 2 || scope.row.status == 4 || scope.row.status == 7 || scope.row.status == 8 || scope.row.status == 9"
-                            @click.native="gotoDetail(scope.row.id)"
+                            @click.native="gotoDetail(scope.row.id, scope.row.order_id)"
                             >详情</el-button
                         >
                     </div>
@@ -65,7 +68,7 @@
                             type="text"
                             size=""
                             v-if="scope.row.status == 1 || scope.row.status == 5 || scope.row.status == 6"
-                            @click.native="gotoDetail(scope.row.id)"
+                            @click.native="gotoDetail(scope.row.id, scope.row.order_id)"
                             >处理</el-button
                         >
                     </div>
@@ -86,6 +89,8 @@
                     <div class="type-tag type-red" v-if="scope.row.type == 0">{{ REFUND_TYPE[scope.row.type] }}</div>
                     <div class="type-tag type-purple" v-if="scope.row.type == 1">{{ REFUND_TYPE[scope.row.type] }}</div>
                     <div class="type-tag type-yellow" v-if="scope.row.type == 2">{{ REFUND_TYPE[scope.row.type] }}</div>
+                    <div class="type-tag type-red" v-if="scope.row.type == 3">{{ REFUND_TYPE[scope.row.type] }}</div>
+                    <div class="type-tag type-red" v-if="scope.row.type == 4">{{ REFUND_TYPE[scope.row.type] }}</div>
                 </template>
             </el-table-column>
             <el-table-column label="退款状态" fit>
@@ -156,7 +161,9 @@ export default {
             typeList: [
                 { value: '0', label: '仅退款' },
                 { value: '1', label: '退货退款' },
-                { value: '2', label: '换货' }
+                { value: '2', label: '换货' },
+                { value: '3', label: '部分退款' },
+                { value: '4', label: '退运费' }
                 // { value: '3', label: '后台关闭' }
             ],
             statusList: [
@@ -177,6 +184,7 @@ export default {
                 type: '', //不检索传“”
                 status: '',
                 order_no: '',
+                order_detail_no: '',
                 reason_id: '',
                 createdTime: '',
                 created_time_le: '',
@@ -237,11 +245,12 @@ export default {
                 .catch(err => {})
         },
 
-        gotoDetail(id) {
+        gotoDetail(id, order_id) {
             this.$router.push({
                 name: 'afterSaleDetail',
                 query: {
-                    id: id
+                    id: id,
+                    orderId: order_id
                 }
             })
         },

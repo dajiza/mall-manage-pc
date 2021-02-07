@@ -6,6 +6,28 @@
                 <div class="global-table-title">
                     <div class="title">
                         <i></i>
+                        <span>用户信息</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-content">
+                <div class="info-content-box">
+                    <div class="info-content-item">
+                        <p class="label">微信昵称：</p>
+                        <p class="info-value">{{order_info.user_name}}</p>
+                    </div>
+                    <div class="info-content-item">
+                        <p class="label">用户手机号：</p>
+                        <p class="info-value">{{order_info.user_phone}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-box m-t-16 p-t-0">
+            <div class="info-title">
+                <div class="global-table-title">
+                    <div class="title">
+                        <i></i>
                         <span>收货信息</span>
                     </div>
                 </div>
@@ -21,16 +43,19 @@
                         <p class="info-value">{{order_info.logistics_name}}</p>
                     </div>
                     <div class="info-content-item">
-                        <p class="label">用户手机号：</p>
+                        <p class="label">收货人手机号：</p>
                         <p class="info-value">{{order_info.logistics_phone}}</p>
                     </div>
+                    <div class="info-content-item" style="width: unset">
+                        <p class="label">收货地址：</p>
+                        <p class="info-value">{{order_info.logistics_province}}{{order_info.logistics_city}}{{order_info.logistics_area}}{{order_info.logistics_address}}</p>
+                    </div>
                 </div>
-                <div class="logistics-address">
+                <!--<div class="logistics-address">
                     <p class="label">收货地址：</p>
                     <p class="info-value">{{order_info.logistics_province}}{{order_info.logistics_city}}{{order_info.logistics_area}}{{order_info.logistics_address}}</p>
-                </div>
+                </div>-->
             </div>
-
         </div>
         <div class="container-box m-t-16 p-t-0">
             <div class="info-title">
@@ -77,7 +102,7 @@
                         <p class="info-value">{{order_info.message}}</p>
                     </div>
                     <div class="info-content-item info-remarks" v-show="order_info.remark">
-                        <span class="label">备注信息：</span>
+                        <span class="label">平台留言：</span>
                         <p class="info-value remark-text-color">{{order_info.remark}}</p>
                     </div>
                 </div>
@@ -104,24 +129,31 @@
                 class="order-detail-info"
             >
                 <el-table-column
-                    :fixed="true"
-                    label="操作"
-                    width="130"
-                    v-if="order_info.status === 0 || order_info.logistics_no"
+                        label="操作"
+                        width="130"
+                        v-if="order_info.status !== 9"
                 >
                     <template slot-scope="scope">
+                        <div v-show="scope.row.status > 0 && scope.row.status < 4">
+                            <el-button
+                                    type="danger"
+                                    v-hasPermission="'mall-backend-order-apply'"
+                                    @click="handleRebates(scope.$index,scope.row)"
+                            >部分退款</el-button>
+                        </div>
                         <div v-show="order_info.status === 0">
                             <el-button
-                                type="primary"
-                                v-hasPermission="'mall-backend-order-detail-update'"
-                                @click="handleUpdatePrice(scope.$index,scope.row)"
+                                    type="primary"
+                                    v-hasPermission="'mall-backend-order-detail-update'"
+                                    @click="handleUpdatePrice(scope.$index,scope.row)"
                             >修改价格</el-button>
                         </div>
+                        <!--                        v-if="order_info.status === 0 || order_info.logistics_no"-->
                         <div v-show="order_info.logistics_no" v-hasPermission="'mall-backend-order-sd-info'">
                             <el-button
-                                type="primary"
-                                :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
-                                @click="handleViewLogistics(scope.$index,scope.row)"
+                                    type="primary"
+                                    :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
+                                    @click="handleViewLogistics(scope.$index,scope.row)"
                             >查看物流</el-button>
                         </div>
                     </template>
@@ -210,6 +242,50 @@
                         <span>{{scope.row.price_sum_end/100 | rounding}}</span>
                     </template>
                 </el-table-column>
+                <el-table-column prop="refund_money" label="退款金额(元)"  width="120">
+                    <template slot-scope="scope">
+                        <div class="change-price">
+                            <span>{{ scope.row.refund_money/100 | rounding}}</span>
+                            <el-popover
+                                    popper-class="update-list-popover"
+                                    placement="top-end"
+                                    width="640"
+                                    trigger="click">
+                                <div class="popover-title">退款金额记录</div>
+                                <el-table style="margin: 16px 0 36px" :data="detailReturnMoneyList">
+                                    <el-table-column width="100" property="date" label="金额(元)">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{childrenScope.row.money/100 | rounding}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="100" property="date" label="类型">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{back_type_cn(childrenScope.row.type)}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="260" property="reason" label="原因"></el-table-column>
+                                    <!--<el-table-column width="100" property="user_name" label="操作人"></el-table-column>-->
+                                    <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
+                                </el-table>
+                                <div
+                                        class="pos-absolute"
+                                        ref="returnMoneyTip"
+                                        slot="reference"
+                                        v-hasPermission="'mall-backend-order-detail-change-list'"
+                                >
+                                    <i class="remark-tip-img cursor-class"></i>
+                                </div>
+                            </el-popover>
+                            <div
+                                    class="remark-tip-wrap"
+                                    slot="reference"
+                                    v-hasPermission="'mall-backend-order-detail-change-list'"
+                                    @click="getDetailReturnMoney(scope.$index,scope.row)">
+                                <i class="remark-tip-img cursor-class"></i>
+                            </div>
+                        </div>
+                    </template>
+                </el-table-column>
                 <template slot="empty">
                     <EmptyList></EmptyList>
                 </template>
@@ -238,18 +314,32 @@
                     </div>
                 </div>
                 <div class="order-amount clearfix">
+                    <div class="order-amount-item total-order">
+                        <div class="amount-name">数量合计</div>
+                        <div class="amount-value" style="color: #333333">{{order_info.product_total_num}}</div>
+                    </div>
                     <div class="order-amount-item shipping">
                         <div class="amount-name">
                             <span>运费</span>
                             <div
-                                class="update-icon-box"
-                                v-show="order_info.status === 0"
-                                v-hasPermission="'mall-backend-order-freight-update'"
-                                @click="updateShipping">
+                                    class="update-icon-box"
+                                    v-show="order_info.status === 0"
+                                    v-hasPermission="'mall-backend-order-freight-update'"
+                                    @click="updateShipping">
                                 <img
-                                    class="update-icon"
-                                    src="../../../../assets/img/updateIcon.svg"
-                                    alt="" />
+                                        class="update-icon"
+                                        src="../../../../assets/img/updateIcon.svg"
+                                        alt="" />
+                            </div>
+                            <div
+                                    class="update-icon-box"
+                                    v-show="order_info.status > 0 && order_info.status!==9 && order_info.logistics_money > 0"
+                                    v-hasPermission="'mall-backend-order-apply-freight'"
+                                    @click="handleReturnFreight">
+                                <img
+                                        class="update-icon"
+                                        src="../../../../assets/img/return-freight.svg"
+                                        alt="" />
                             </div>
                         </div>
                         <div class="amount-value">
@@ -270,9 +360,9 @@
                                     <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
                                 </el-table>
                                 <i
-                                    class="remark-tip-img cursor-class marginRight8"
-                                    slot="reference"
-                                    v-hasPermission="'mall-backend-freight-change-list'"
+                                        class="remark-tip-img cursor-class marginRight8"
+                                        slot="reference"
+                                        v-hasPermission="'mall-backend-freight-change-list'"
                                 ></i>
                             </el-popover>
                             <span v-show="order_info.logistics_money > 0">¥ {{order_info.logistics_money/100 | rounding}}</span>
@@ -300,6 +390,32 @@
                         <div class="amount-value">¥
                             <span v-if="order_info.status === 9">0.00</span>
                             <span v-else>{{ (order_info.price_total_real / 100) | rounding }}</span>
+                        </div>
+                    </div>
+                    <div class="order-amount-item shipping">
+                        <div class="amount-name">退款金额</div>
+                        <div class="amount-value">
+                            <el-popover
+                                    popper-class="logistics-update-list-popover"
+                                    placement="top"
+                                    width="260"
+                                    trigger="click">
+                                <div class="popover-title">退款金额记录</div>
+                                <el-table style="margin: 16px 0 36px" :data="returnMoneyList">
+                                    <el-table-column width="100" property="date" label="金额(元)">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{childrenScope.row.money/100 | rounding}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="160" property="type" label="类型"></el-table-column>
+                                </el-table>
+                                <i
+                                        class="remark-tip-img cursor-class marginRight8"
+                                        slot="reference"
+                                        v-hasPermission="'mall-backend-freight-change-list'"
+                                ></i>
+                            </el-popover>
+                            <span>¥ {{refund_money_all/100 | rounding}}</span>
                         </div>
                     </div>
                 </div>
@@ -441,6 +557,30 @@
                 <el-button type="primary" @click="sureUpdate">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 部分退款/部分退运费 弹出框 -->
+        <el-dialog :title=" '部分' + rebatesDialogTitle" :visible.sync="rebatesDialogVisible" width="380px"
+                   :before-close="rebatesDialogClose" :destroy-on-close="true" :close-on-click-modal="false">
+            <el-form class="update-price-form" ref="rebatesFormBox" :model="rebatesForm" :rules="rebatesFormRules">
+                <el-form-item :label="rebatesDialogTitle === '退款' ? '部分退款金额' : '部分退运费金额'" prop="money">
+                    <el-input
+                            placeholder="请输入金额"
+                            :precision="2"
+                            autofocus="autofocus"
+                            v-model="rebatesForm.money"
+                    ></el-input>
+                </el-form-item>
+                <el-form-item :label="rebatesDialogTitle === '退款' ? '部分退款原因' : '部分退运费原因'" prop="reason">
+                    <el-input
+                            placeholder="请输入原因"
+                            v-model="rebatesForm.reason"
+                    ></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="rebatesDialogClose">取 消</el-button>
+                <el-button type="primary" @click="handleSureRebates('rebatesFormBox')">确 定</el-button>
+            </span>
+        </el-dialog>
         <transition name="el-fade-in-linear">
             <BigImg ref="bigImg" :imgUrl="bigImgUrl"></BigImg>
         </transition>
@@ -450,7 +590,9 @@
 <script>
     import './OrderList.less';
     import { queryConfigList } from '../../../../api/configManagement';
-    import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight, updateOrderDetail, queryOrderSdInfo } from '../../../../api/orderList';
+    import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight,
+        updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord } from '../../../../api/orderList';
+    import { queryAfterSaleList } from '../../../../api/afterSale';
     import BigImg from '../../../common/big-img/BigImg';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import { queryReasonList } from '../../../../api/afterSaleReason';
@@ -458,6 +600,17 @@
     export default {
         name: 'OrderDetail',
         data() {
+            var checkRebatesMoney = (rule, value, callback) => {
+                setTimeout(() => {
+                    const num1 = commUtil.numberMul(Number(value),100);
+                    const num2 = commUtil.numberMul(Number(this.realPay),100);
+                    if ( num1 > num2) {
+                        callback(new Error('退款金额不得高于实付金额' + this.realPay));
+                    } else {
+                        callback();
+                    }
+                }, 10);
+            };
             var checkLastNum = (rule, value, callback) => {
                 setTimeout(() => {
                     const num1 = commUtil.numberMul(Number(value),100);
@@ -560,7 +713,27 @@
                 modifyShippingReason:[], // 修改运费理由列表
                 priceAfterDiscount:'', // 折后价
                 currentPrice:'',  // 修改时订单价格
-                activities:[]
+                activities:[],
+                rebatesDialogVisible: false, // 部分退款 || 退运费 弹框 显示隐藏
+                rebatesDialogTitle: '退款', // 部分退款/退运费 弹框标题
+                rebatesForm: {
+                    money:'', // 退款||运费
+                    reason:''
+                },
+                rebatesFormRules: {
+                    money: [
+                        { required: true, message: '请输入金额', trigger: 'blur' },
+                        { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
+                        { validator: checkRebatesMoney, trigger: ['blur'] },
+                    ],
+                    reason: [
+                        { required: true, message: '请输入原因', trigger: 'blur' }
+                    ]
+                },
+                realPay: 0, // 实际支付（部分退款）
+                returnMoneyList: [], // 退款金额记录列表
+                detailReturnMoneyList: [], // 子订单退款金记录列表
+                refund_money_all: 0, // 退款总额
             }
         },
         components: {
@@ -640,6 +813,19 @@
                     return attr_arr
                 }
             },
+            back_type_cn:function() {
+                let type_cn = ''
+                return (data) =>{
+                    if(data < 3 ){
+                        type_cn = '用户申请'
+                    }else if(data === 3 ){
+                        type_cn = '部分退款'
+                    }else if(data === 4){
+                        type_cn = '退运费'
+                    }
+                    return type_cn
+                }
+            }
         },
         created() {
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
@@ -651,6 +837,7 @@
         },
         mounted() {
             this.getOrderInfo();
+            this.getFreightUpdateList(); // 请求运费修改列表
         },
         methods:{
             // 请求 - 获取配置
@@ -732,9 +919,12 @@
                     .then((res) => {
                         rLoading.close();
                         if (res.code === 200) {
-                            this.getFreightUpdateList(); // 请求运费修改列表
                             if (res.data) {
                                 this.order_info = res.data;
+                                this.returnMoneyList.push({money:res.data.refund_money,type:'商品退款'})
+                                this.returnMoneyList.push({money:res.data.refund_freight,type:'运费退款'})
+                                this.refund_money_all = Number(res.data.refund_money) + Number(res.data.refund_freight)
+                                // this.
                             } else {
                                 this.order_info = {};
                             }
@@ -776,8 +966,10 @@
                 const params = {
                     order_detail_id: row.id
                 }
+                const rLoading = this.openLoading();
                 queryOrderDetailChangeList(params)
                     .then((res) => {
+                        rLoading.close()
                         if (res.code === 200) {
                             this.orderPriceUpdateList = res.data || [];
                             this.$refs.changeListTip.click();
@@ -1063,7 +1255,115 @@
                     new_time = year + "-" + month + "-" + date + ' ' + hh + ':' + mm + ':' + ss;
                     return new_time;
                 }
-            }
+            },
+
+            /**
+             * 部分退款||退运费 操作
+             */
+            // 按钮 - 打开 部分修改金额/运费 弹框
+            handleRebates(i,row){
+                this.orderDetailId = row.id;
+                this.rebatesDialogTitle = '退款';
+                // 退款金额不得高于实付金额
+                this.realPay = (row.price_sum_end/100).toFixed(2);
+                console.log('realPay', this.realPay)
+                this.rebatesDialogVisible = true;
+            },
+
+            // 按钮 - 打开 部分修改金额/运费 弹框
+            handleReturnFreight(){
+                this.rebatesDialogTitle = '退运费';
+                // 退款运费不得高于实付运费
+                this.realPay = (this.order_info.logistics_money/100).toFixed(2);
+                console.log('realPay', this.realPay)
+                this.rebatesDialogVisible = true;
+            },
+
+            // 部分退款||运费 弹框关闭
+            rebatesDialogClose(){
+                this.$refs['rebatesFormBox'].clearValidate();
+                this.$refs['rebatesFormBox'].resetFields();
+                this.rebatesDialogVisible = false;
+            },
+            // 按钮 - 确认部分退款/退运费
+            handleSureRebates() {
+                // params['order_detail_id'] = Number(this.orderDetailId);
+                this.$refs['rebatesFormBox'].validate(valid => {
+                    if (valid) {
+                        const _money = commUtil.numberMul(Number(this.rebatesForm.money),100);
+                        const params = {
+                            money: _money,
+                            reason: this.rebatesForm.reason
+                        };
+                        const rLoading = this.openLoading();
+                        const _this = this;
+                        if (this.rebatesDialogTitle === '退款') {
+                            params['order_detail_id'] = Number(this.orderDetailId);
+                            updateRebatesMoney(params)
+                                .then((res) => {
+                                    rLoading.close();
+                                    if (res.code === 200) {
+                                        _this.queryRebatesAPISuccess();
+                                    } else {
+                                        _this.queryAPIError(res.msg)
+                                    }
+                                })
+                                .catch(() => {});
+                        } else { // 退运费
+                            params['order_id'] = Number(this.$route.query.order_id);
+                            updateRebatesFreight(params)
+                                .then((res) => {
+                                    rLoading.close();
+                                    if (res.code === 200) {
+                                        _this.queryRebatesAPISuccess();
+                                    } else {
+                                        _this.queryAPIError(res.msg)
+                                    }
+                                })
+                                .catch(() => {});
+                        }
+                    } else {
+                        return false;
+                    }
+                })
+            },
+            queryRebatesAPISuccess() {
+                this.$notify({
+                    title: '操作成功',
+                    message: '',
+                    type: 'success',
+                    duration: 3000
+                });
+                this.getOrderInfo();
+                this.rebatesDialogClose();
+            },
+            queryAPIError(msg) {
+                this.$notify({ title: msg, message: '', type: 'error', duration: 5000 });
+            },
+
+            // 子订单退款金额记录列表
+            getDetailReturnMoney(i,row){
+                const params = {
+                    order_detail_no: row.order_detail_no.toString()
+                }
+                const rLoading = this.openLoading();
+                queryAfterSaleList(params)
+                    .then((res) => {
+                        rLoading.close()
+                        if (res.code === 200) {
+                            this.detailReturnMoneyList = res.data.lists || [];
+                            this.$refs.returnMoneyTip.click();
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
         }
     };
 </script>

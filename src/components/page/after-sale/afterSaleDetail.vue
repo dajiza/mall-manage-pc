@@ -1,6 +1,63 @@
 <template>
     <div class="app-container" v-if="detail">
         <div class="page-title">退款状态：{{ REFUND_STATUS[detail.status] }}</div>
+        <!-- 原订单信息 -->
+        <div class="wrap detail">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">原订单信息</div>
+            </div>
+            <div class="divider"></div>
+            <div class="substance" style="padding: 22px 32px 32px">
+                <div class="order-info">
+                    <div class="sheet w280">
+                        <span class="label">微信昵称：</span>
+                        <span class="value">{{ order_info.user_name }}</span>
+                    </div>
+                    <div class="sheet w280">
+                        <span class="label">用户手机号：</span>
+                        <span class="value">{{ order_info.user_phone }}</span>
+                    </div>
+                </div>
+                <div class="order-info">
+                    <div class="sheet w280">
+                        <span class="label">收货人姓名：</span>
+                        <span class="value">{{ order_info.logistics_name }}</span>
+                    </div>
+                    <div class="sheet w280">
+                        <span class="label">收货人手机号：</span>
+                        <span class="value">{{ order_info.logistics_phone }}</span>
+                    </div>
+                    <div class="sheet">
+                        <span class="label">收货地址：</span>
+                        <span class="value">{{order_info.logistics_province}}{{order_info.logistics_city}}{{order_info.logistics_area}}
+                            {{order_info.logistics_address}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 订单备注 -->
+        <div class="wrap detail">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">订单备注</div>
+            </div>
+            <div class="divider"></div>
+            <div class="substance" style="padding: 22px 32px 32px">
+                <div class="order-info">
+                    <div class="sheet remark-box">
+                        <span class="label">用户留言：</span>
+                        <span class="value">{{ order_info.message }}</span>
+                    </div>
+                </div>
+                <div class="order-info">
+                    <div class="sheet remark-box">
+                        <span class="label">平台留言：</span>
+                        <span class="value">{{ order_info.remark }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- 退款详情 -->
         <div class="wrap detail">
             <div class="table-title">
@@ -41,7 +98,7 @@
             </div>
         </div>
         <!-- 退款商品 -->
-        <div class="wrap goods">
+        <div class="wrap goods" v-if="detail.type !== 4 && list.length > 0">
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">退款商品</div>
@@ -287,7 +344,9 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt, querySDList, putResand, queryReasonList } from '@/api/afterSale'
+import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt,
+    querySDList, putResand, queryReasonList, queryOrderDetail } from '@/api/afterSale'
+import { getOrderDetail } from '@/api/orderList'
 import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant'
 import { getToken } from '@/utils/auth'
 
@@ -329,16 +388,20 @@ export default {
             imgVisible: false,
             imgCertificate: '',
             filePic: '',
-            header: {}
+            header: {},
+            order_id: -1,
+            order_info: {}
         }
     },
 
     created() {
         this.id = Number(this.$route.query.id)
+        this.order_id = Number(this.$route.query.orderId)
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
         this.header['token'] = getToken()
         this.getDetail()
+        this.getOrderData() // 订单详情
         this.getLog()
         this.getRefuseReasonList()
     },
@@ -361,8 +424,8 @@ export default {
                     }
                     this.detail = res.data
                     // 处理商品显示
-                    this.list = []
-                    this.list.push(res.data.order_detail_data)
+                    // this.list = []
+                    // this.list.push(res.data.order_detail_data)
                     // 处理模块显示
                     const type = res.data.type
                     const status = res.data.status
@@ -377,6 +440,9 @@ export default {
                     } else if (status == 6) {
                         this.showChangeSeller = true
                         this.getSDList()
+                    }
+                    if(res.data.order_detail_id){
+                        this.getOrderDetailData(res.data.order_detail_id)
                     }
                 })
                 .catch(err => {})
@@ -784,6 +850,35 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields()
             this.handleFilter()
+        },
+
+        // 订单详情
+        getOrderData() {
+            this.list = []
+            // this.list.push()
+            let params = {
+                id: this.order_id,
+                order_no: ''
+            }
+            getOrderDetail(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    this.order_info = res.data || {}
+                })
+                .catch(err => {})
+        },
+        // 子订单详情
+        getOrderDetailData(detail_id) {
+            this.list = []
+            let params = {
+                id: detail_id
+            }
+            queryOrderDetail(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    this.list.push(res.data || {})
+                })
+                .catch(err => {})
         }
     }
 }
@@ -815,6 +910,34 @@ export default {
         }
         .label {
             color: rgba(0, 0, 0, 0.85);
+        }
+        .order-info{
+            display: flex;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            .sheet{
+                padding-top: 10px;
+                margin-right: 20px;
+            }
+            .w280{
+                /*width: 300px;*/
+                min-width: 280px;
+            }
+            &:first-child{
+                padding-top: 0;
+                /*.sheet{*/
+                /*    padding-top: 0;*/
+                /*}*/
+            }
+            .remark-box{
+                display: flex;
+                .label{
+                    width: 72px;
+                }
+                .value{
+                    flex: 1;
+                }
+            }
         }
         .info {
             display: flex;

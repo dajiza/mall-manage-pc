@@ -24,6 +24,11 @@
                         <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="出售状态" prop="status" v-if="false">
+                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="库存预警" prop="is_store_shortage">
                     <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
                         <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
@@ -174,6 +179,10 @@
                     </div>
                 </template>
             </el-table-column>
+
+            <el-table-column label="出售状态" v-if="false">
+                <template slot-scope="scope">{{scope.row.status == 1?'可出售':'不可售'}}</template>
+            </el-table-column>
             <!-- sku 合并行 -->
             <el-table-column label="SKU图片" width="128" class="sku-column">
                 <template slot-scope="scope">
@@ -300,6 +309,10 @@ export default {
             statusList: [
                 { value: '1', label: '下架' },
                 { value: '2', label: '上架' }
+            ],
+            saleStatusList: [
+                { value: '1', label: '可出售' },
+                { value: '2', label: '不可出售' }
             ],
             // 是否库存不足 1 足 2 不足(只有当所有sku 全部库存不足 为2
             shortageList: [

@@ -29,3 +29,6 @@ export const querySDList = params => post('/backend/sd-company-list-all');
 
 // 换货-重新发货
 export const putResand = params => post('/backend/order-apply-resand', params);
+
+// 子订单详情
+export const queryOrderDetail = params => post('/backend/order-detail-data', params);
