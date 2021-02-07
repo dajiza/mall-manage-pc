@@ -316,7 +316,7 @@
                 <div class="order-amount clearfix">
                     <div class="order-amount-item total-order">
                         <div class="amount-name">数量合计</div>
-                        <div class="amount-value" style="color: #333333">{{order_info.product_total_num}}</div>
+                        <div class="amount-value" style="color: #333333">{{num_total_all}}</div>
                     </div>
                     <div class="order-amount-item shipping">
                         <div class="amount-name">
@@ -392,7 +392,7 @@
                             <span v-else>{{ (order_info.price_total_real / 100) | rounding }}</span>
                         </div>
                     </div>
-                    <div class="order-amount-item shipping">
+                    <div class="order-amount-item shipping" v-if="returnMoneyList.length > 0">
                         <div class="amount-name">退款金额</div>
                         <div class="amount-value">
                             <el-popover
@@ -734,6 +734,7 @@
                 returnMoneyList: [], // 退款金额记录列表
                 detailReturnMoneyList: [], // 子订单退款金记录列表
                 refund_money_all: 0, // 退款总额
+                num_total_all: 0, // 商品总数
             }
         },
         components: {
@@ -918,13 +919,23 @@
                 getOrderDetail(params)
                     .then((res) => {
                         rLoading.close();
+                        this.returnMoneyList = []
                         if (res.code === 200) {
                             if (res.data) {
                                 this.order_info = res.data;
-                                this.returnMoneyList.push({money:res.data.refund_money,type:'商品退款'})
-                                this.returnMoneyList.push({money:res.data.refund_freight,type:'运费退款'})
+                                if(res.data.refund_money > 0){
+                                    this.returnMoneyList.push({money:res.data.refund_money,type:'商品退款'})
+                                }
+                                if(res.data.refund_freight > 0){
+                                    this.returnMoneyList.push({money:res.data.refund_freight,type:'运费退款'})
+                                }
                                 this.refund_money_all = Number(res.data.refund_money) + Number(res.data.refund_freight)
-                                // this.
+                                this.num_total_all = 0
+                                if(res.data.detail) {
+                                    res.data.detail.forEach((ev,i)=>{
+                                        this.num_total_all += Number(ev.num)
+                                    })
+                                }
                             } else {
                                 this.order_info = {};
                             }
