@@ -128,6 +128,15 @@
                 <el-table-column prop="off_1" label="优惠券(元)" width="120">
                     <template slot-scope="scope"> {{ (scope.row.off_1 / 100) | rounding }}</template>
                 </el-table-column>
+                <el-table-column prop="off_1" label="改价(元)" width="120">
+                    <template slot-scope="scope"> {{ (scope.row.price_total_changed / 100) | rounding }}</template>
+                </el-table-column>
+                <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.status === 9">0.00</span>
+                        <span v-else>{{ (scope.row.price_total_real / 100) | rounding }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="price_total" label="退款金额(元)" width="120">
                     <template slot-scope="scope">
                         {{ (scope.row.refund_money/100) | rounding}}
@@ -136,12 +145,6 @@
                 <el-table-column prop="price_total" label="退运费(元)" width="120">
                     <template slot-scope="scope">
                         {{ (scope.row.refund_freight/100) | rounding}}
-                    </template>
-                </el-table-column>
-                <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
-                    <template slot-scope="scope">
-                        <span v-if="scope.row.status === 9">0.00</span>
-                        <span v-else>{{ (scope.row.price_total_real / 100) | rounding }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
