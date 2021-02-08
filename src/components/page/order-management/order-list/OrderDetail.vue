@@ -1277,7 +1277,7 @@
                 this.rebatesDialogTitle = '退款';
                 // 退款金额不得高于实付金额
                 this.realPay = (row.price_sum_end/100).toFixed(2);
-                console.log('realPay', this.realPay)
+                // console.log('realPay', this.realPay)
                 this.rebatesDialogVisible = true;
             },
 
