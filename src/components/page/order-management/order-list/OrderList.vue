@@ -160,14 +160,14 @@
             </el-table>
             <div class="pagination-container">
                 <el-pagination
-                    background
-                    layout="total, prev, pager, next, jumper"
-                    :current-page="pageInfo.pageIndex"
-                    :page-size="pageInfo.pageSize"
-                    :total="pageTotal"
-                    @current-change="handlePageChange"
-                    @size-change="handlePageChange"
-                ></el-pagination>
+                        @size-change="handleSizeChange"
+                        @current-change="handlePageChange"
+                        :current-page="pageInfo.pageIndex"
+                        :page-sizes="[10, 20, 30, 40, 50, 100]"
+                        :page-size="10"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="pageTotal">
+                </el-pagination>
             </div>
             <div class="empty-list-box" v-show="tableData.length === 0">
                 <EmptyList></EmptyList>
@@ -491,6 +491,13 @@ export default {
         // 按钮-分页导航
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val)
+            this.pageChange();
+        },
+        // 切换每页显示条数
+        handleSizeChange(val){
+            console.log(`每页 ${val} 条`);
+            this.$set(this.pageInfo, 'pageSize', val);
+            this.$set(this.pageInfo, 'pageIndex', 1);
             this.pageChange();
         },
         pageChange() {

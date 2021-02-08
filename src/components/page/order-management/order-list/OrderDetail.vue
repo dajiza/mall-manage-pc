@@ -116,22 +116,37 @@
                     <i></i>
                     <span>订单信息</span>
                 </div>
-                <el-button
+                <div class="field-show">
+                    <el-popover popper-class="field-pop" placement="bottom-end" width="250" trigger="click">
+                        <span slot="reference" class="icon iconfont icon-open1"></span>
+                        <div class="all-select">
+                            <el-checkbox v-model="is_all_select" @change="isAllChange" >全选</el-checkbox>
+                        </div>
+                        <div class="list-box">
+                            <div class="list-item" v-for="(item, i) in allList">
+                                <el-checkbox v-model="item.is_show" @change="itemChange">{{item.name}}</el-checkbox>
+                            </div>
+                        </div>
+                    </el-popover>
+                </div>
+                <!--<el-button
                     class="btn-refund"
                     type="danger"
                     v-if="false"
                     @click="handleRefundAll()"
-                >全部退款</el-button>
+                >全部退款</el-button>-->
             </div>
             <el-table
                 :data="order_info.detail"
+                :border="true"
                 ref="multipleTable"
                 class="order-detail-info"
             >
                 <el-table-column
                         label="操作"
                         width="130"
-                        v-if="order_info.status !== 9"
+                        :resizable="true"
+                        v-if="order_info.status !== 9 && back_field_show('操作')"
                 >
                     <template slot-scope="scope">
                         <div v-show="scope.row.status > 0 && scope.row.status < 4">
@@ -158,47 +173,47 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column label="图片" width="140">
+                <el-table-column label="图片" width="140" :resizable="true" v-if="back_field_show('图片')">
                     <template slot-scope="scope">
                         <img class="product-img" :src="getImg(scope.row.product_img)" alt="" @click="viewBigImg(scope.row.product_img)">
                     </template>
                 </el-table-column>
-                <el-table-column prop="product_name" label="产品名称" width="200"></el-table-column>
-                <el-table-column prop="product_code" label="SKU编码" width="150"></el-table-column>
-                <el-table-column prop="goods_name" label="商品名称" width="200"></el-table-column>
-                <el-table-column label="规格" width="160">
+                <el-table-column prop="product_name" label="产品名称" width="200" :resizable="true" v-if="back_field_show('产品名称')"></el-table-column>
+                <el-table-column prop="product_code" label="SKU编码" width="150" :resizable="true" v-if="back_field_show('SKU编码')"></el-table-column>
+                <el-table-column prop="goods_name" label="商品名称" width="200" :resizable="true" v-if="back_field_show('商品名称')"></el-table-column>
+                <el-table-column label="规格" width="160" :resizable="true" v-if="back_field_show('规格')">
                     <template slot-scope="scope">
                         <p v-for="(item,i) in back_goods_attr(scope.row.goods_attr)">{{item['Title']}}：{{item['Value']}}</p>
                     </template>
                 </el-table-column>
-                <el-table-column prop="status" label="订单状态" width="133">
+                <el-table-column prop="status" label="订单状态" width="133" :resizable="true" v-if="back_field_show('订单状态')">
                     <template slot-scope="scope">
                         <span class="order-status" :class="orderStatusClass(scope.row.status)"
                         >{{scope.row.status_name}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price" label="单价(元)">
+                <el-table-column prop="price" label="单价(元)" :resizable="true" v-if="back_field_show('单价(元)')">
                     <template slot-scope="scope">
                         <span>{{(scope.row.price/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="num" label="数量"></el-table-column>
-                <el-table-column label="总价(元)">
+                <el-table-column prop="num" label="数量" :resizable="true" v-if="back_field_show('数量')"></el-table-column>
+                <el-table-column label="总价(元)" v-if="back_field_show('总价(元)')">
                     <template slot-scope="scope">
                         <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" v-if="false">
+                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" :resizable="true" v-if="false">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_1" label="优惠券(元)" width="120">
+                <el-table-column prop="off_1" label="优惠券(元)" width="120" :resizable="true" v-if="back_field_show('优惠券(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_1/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_real" label="改价(元)"  width="120">
+                <el-table-column prop="price_real" label="改价(元)" width="120" :resizable="true" v-if="back_field_show('改价(元)')">
                     <template slot-scope="scope">
                         <div class="change-price">
                             <span>{{ scope.row.price_sum_change/100 | rounding}}</span>
@@ -237,19 +252,19 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="price_real" label="实付(元)">
+                <el-table-column prop="price_real" label="实付(元)" :resizable="true" v-if="back_field_show('实付(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.price_sum_end/100 | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="refund_money" label="退款金额(元)"  width="120">
+                <el-table-column prop="refund_money" label="退款金额(元)" width="120" :resizable="true" v-if="back_field_show('退款金额(元)')">
                     <template slot-scope="scope">
                         <div class="change-price">
                             <span>{{ scope.row.refund_money/100 | rounding}}</span>
                             <el-popover
                                     popper-class="update-list-popover"
                                     placement="top-end"
-                                    width="640"
+                                    width="740"
                                     trigger="click">
                                 <div class="popover-title">退款金额记录</div>
                                 <el-table style="margin: 16px 0 36px" :data="detailReturnMoneyList">
@@ -261,6 +276,11 @@
                                     <el-table-column width="100" property="date" label="类型">
                                         <template slot-scope="childrenScope">
                                             <span>{{back_type_cn(childrenScope.row.type)}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column width="100" property="date" label="状态">
+                                        <template slot-scope="childrenScope">
+                                            <span>{{ REFUND_STATUS[childrenScope.row.status] }}</span>
                                         </template>
                                     </el-table-column>
                                     <el-table-column width="260" property="reason" label="原因"></el-table-column>
@@ -392,7 +412,7 @@
                             <span v-else>{{ (order_info.price_total_real / 100) | rounding }}</span>
                         </div>
                     </div>
-                    <div class="order-amount-item shipping" v-if="returnMoneyList.length > 0">
+                    <div class="order-amount-item shipping">
                         <div class="amount-name">退款金额</div>
                         <div class="amount-value">
                             <el-popover
@@ -584,6 +604,7 @@
         <transition name="el-fade-in-linear">
             <BigImg ref="bigImg" :imgUrl="bigImgUrl"></BigImg>
         </transition>
+        <!--<ListFieldShow :local="'orderDetailField'" :allList="allList"></ListFieldShow>-->
     </div>
 </template>
 
@@ -597,6 +618,8 @@
     import EmptyList from '../../../common/empty-list/EmptyList';
     import { queryReasonList } from '../../../../api/afterSaleReason';
     import commUtil from '../../../../utils/commUtil';
+    import { REFUND_STATUS } from '@/plugin/constant'
+    import ListFieldShow from '../../../common/list-field-show/listFieldShow';
     export default {
         name: 'OrderDetail',
         data() {
@@ -635,6 +658,7 @@
                 }, 10);
             };
             return{
+                REFUND_STATUS,
                 pageInfo: {
                     name: '',
                     pageIndex: 1,
@@ -735,11 +759,33 @@
                 detailReturnMoneyList: [], // 子订单退款金记录列表
                 refund_money_all: 0, // 退款总额
                 num_total_all: 0, // 商品总数
+                allList:[
+                    {name:'操作', is_show: true},
+                    {name:'图片', is_show: true},
+                    {name:'产品名称', is_show: true},
+                    {name:'SKU编码', is_show: true},
+                    {name:'商品名称', is_show: true},
+                    {name:'规格', is_show: true},
+                    {name:'订单状态', is_show: true},
+                    {name:'单价(元)', is_show: true},
+                    {name:'数量', is_show: true},
+                    {name:'总价(元)', is_show: true},
+                    // {name:'活动优惠总额(元)', is_show: true},
+                    {name:'优惠券(元)', is_show: true},
+                    {name:'改价(元)', is_show: true},
+                    {name:'实付(元)', is_show: true},
+                    {name:'退款金额(元)', is_show: true}
+                ],
+                all_List:['操作','图片','产品名称', 'SKU编码','商品名称','规格','订单状态','单价(元)','数量',
+                    '总价(元)','活动优惠总额(元)','优惠券(元)', '改价(元)', '实付(元)', '退款金额(元)'],
+                local_show:[],
+                is_all_select: true,
             }
         },
         components: {
             BigImg,
-            EmptyList
+            EmptyList,
+            ListFieldShow
         },
         computed: {
             //  拼接图片地址
@@ -826,6 +872,19 @@
                     }
                     return type_cn
                 }
+            },
+
+            back_field_show:function() {
+                let blo = true
+                return (data) =>{
+                    console.log('allList', this.allList)
+                    this.allList.forEach((ev,i)=>{
+                        if(ev.name === data){
+                            blo = ev.is_show
+                        }
+                    })
+                    return blo
+                }
             }
         },
         created() {
@@ -835,6 +894,13 @@
             this.getReason1(5);
             // 获取修改运费理由列表
             this.getReason2(6);
+
+            // 本地记录 字段显示列表 local_show
+            console.log('orderDetailField', localStorage.getItem('orderDetailField'))
+            if(localStorage.getItem('orderDetailField')){
+                this.allList = JSON.parse(localStorage.getItem('orderDetailField'))
+                this.itemChange();
+            }
         },
         mounted() {
             this.getOrderInfo();
@@ -1375,6 +1441,37 @@
                     })
                     .catch(() => {});
             },
+
+            // 全选 || 取消全选
+            isAllChange(){
+                console.log('this.is_all_select', this.is_all_select);
+                if(this.is_all_select){
+                    this.allList.forEach((ev,i)=>{
+                        ev.is_show = true;
+                    })
+                }else {
+                    this.allList.forEach((ev,i)=>{
+                        ev.is_show = false;
+                    })
+                }
+                this.$nextTick(()=>{
+                    let obj = JSON.stringify(this.allList)
+                    localStorage.setItem('orderDetailField', obj)
+                })
+            },
+            itemChange(){
+                let new_arr = this.allList.filter((item)=>{return item.is_show});
+                console.log('new_arr', new_arr.length)
+                if (new_arr.length === this.allList.length) {
+                    this.is_all_select = true;
+                } else {
+                    this.is_all_select = false;
+                }
+                this.$nextTick(()=>{
+                    let obj = JSON.stringify(this.allList)
+                    localStorage.setItem('orderDetailField', obj)
+                })
+            }
         }
     };
 </script>
