@@ -277,7 +277,6 @@ export default {
             this.getAllAttr()
             this.getList()
 
-            console.log('输出 ~ this.checkedSku', this.checkedSku)
             this.$refs.multipleTable.clearSelection()
             let list = this.checkedSku.map(item => {
                 return {
@@ -349,7 +348,6 @@ export default {
                 .catch(err => {})
         },
         handleSelectionChange(val) {
-            console.log('输出 ~ val', val)
             this.checkedList = val
         },
         // 搜索
@@ -663,11 +661,12 @@ export default {
         },
         async save() {
             let listClone = _.cloneDeep(this.checkedList)
+            console.log('输出 ~ listClone', listClone)
 
             let skuList = await Promise.all(
                 listClone.map(async m => {
                     let item = {}
-                    if (m.title) {
+                    if (m.name) {
                         item = m
                     } else {
                         // 商品创建页面传入sku id列表,回传前查询详情数据返回
