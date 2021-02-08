@@ -391,6 +391,10 @@
 }
 .order-list-container,
 .order-detail-container {
+    .icon-open1{
+        margin-left: auto;
+        cursor: pointer;
+    }
     /*表格-订单状态*/
     .order-status {
         display: inline-block;
@@ -442,5 +446,38 @@
 .manual-adjust-dialog {
     .empty-list {
         min-height: 300px;
+    }
+}
+.field-pop{
+    padding: 12px 0;
+    .all-select{
+        padding: 4px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.14);
+        font-size: 14px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: rgba(0, 0, 0, 0.65);
+        .el-checkbox{
+            width: 100%;
+            padding: 8px 0;
+        }
+    }
+    .list-box{
+        height: 300px;
+        overflow-y: scroll;
+        width: 100%;
+        padding: 8px 20px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        .list-item{
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.65);
+            .el-checkbox{
+                width: 100%;
+                padding: 8px 0;
+            }
+        }
     }
 }
