@@ -277,6 +277,10 @@ export default {
             this.getAllAttr()
             this.getList()
 
+<<<<<<< HEAD
+=======
+            console.log('输出 ~ this.checkedSku', this.checkedSku)
+>>>>>>> ad58d718c9165f53da05d46b6b3aec260e5dacf1
             this.$refs.multipleTable.clearSelection()
             let list = this.checkedSku.map(item => {
                 return {
@@ -348,6 +352,10 @@ export default {
                 .catch(err => {})
         },
         handleSelectionChange(val) {
+<<<<<<< HEAD
+=======
+            console.log('输出 ~ val', val)
+>>>>>>> ad58d718c9165f53da05d46b6b3aec260e5dacf1
             this.checkedList = val
         },
         // 搜索
@@ -661,7 +669,10 @@ export default {
         },
         async save() {
             let listClone = _.cloneDeep(this.checkedList)
+<<<<<<< HEAD
             console.log('输出 ~ listClone', listClone)
+=======
+>>>>>>> ad58d718c9165f53da05d46b6b3aec260e5dacf1
 
             let skuList = await Promise.all(
                 listClone.map(async m => {
