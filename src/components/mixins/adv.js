@@ -145,9 +145,9 @@ export const mixinsAdv = {
         // 详情回显
         setDetailInfo(info){
             this.operationForm = _.cloneDeep(info);
-            // console.log('link', info.link)
+            console.log('link', info.link)
             let advType = 1,
-                _link
+                _link = ''
             if (info.link.indexOf('/pages/goodsSearchResult/goodsSearchResult?') > -1) { // 商品列表
                 advType = 1
                 _link = info.link.split('/pages/goodsSearchResult/goodsSearchResult?')[1]
@@ -210,7 +210,7 @@ export const mixinsAdv = {
 
         // 切换location
         locationChange(){
-            console.log('this.operationForm.location', this.operationForm.location);
+            // console.log('this.operationForm.location', this.operationForm.location);
             this.imageUrl = '';
             this.back_img_url = '';
             this.bigImgUrl = '';
@@ -225,7 +225,6 @@ export const mixinsAdv = {
                     // 验证表单内容
                     if (valid) {
                         let params = _.cloneDeep(this.operationForm);
-                        console.log('this.operationForm.link =====>', this.operationForm.link)
                         let new_link = '';
                         if (this.operationForm.adv_type === 1) { // 商品列表
                             new_link = '/pages/goodsSearchResult/goodsSearchResult?' + this.operationForm.link
@@ -236,7 +235,7 @@ export const mixinsAdv = {
                         } else if(this.operationForm.adv_type === 4) { // 自定义
                             new_link = this.operationForm.link
                         }
-                        console.log('new_link', new_link)
+                        // console.log('new_link', new_link)
                         params['link'] = new_link
                         let time_start,time_end;
                         time_start = this.getTime(this.operationForm.start_time).toString();
