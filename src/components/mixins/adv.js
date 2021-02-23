@@ -28,6 +28,7 @@ export const mixinsAdv = {
                 shop_id: '',     // 可用店铺
                 start_time: '',  // 开始时间
                 end_time: '',    // 结束时间
+                adv_type: 1, // 广告类型 1 商品列表  2 商品详情 3 直播间 4 自定义
             },
             rules: {
                 status: [{ required: true, message: '请选择类型', trigger: 'change' }],
@@ -38,7 +39,7 @@ export const mixinsAdv = {
                     { min: 1, max: 255, message: '长度在 1 到 255 个字符', trigger: 'blur' }
                 ],
                 link:[
-                    { required: true, message: '请输入链接', trigger: 'blur' },
+                    { required: true, message: '请输入', trigger: 'blur' },
                     { min: 1, max: 255, message: '长度在 1 到 255 个字符', trigger: 'blur' }
                 ],
                 description: [
@@ -83,7 +84,24 @@ export const mixinsAdv = {
         }
     },
     watch: {},
-    computed: {},
+    computed: {
+        // back_link_label
+        back_link_label:function() {
+            let link_label = ''
+            return (data) =>{
+                if(data === 1 ){
+                    link_label = '参数:'
+                }else if(data === 2 ){
+                    link_label = '商品ID:'
+                }else if(data === 3){
+                    link_label = '房间号:'
+                }else {
+                    link_label = 'link:'
+                }
+                return link_label
+            }
+        },
+    },
     components: {
         ElImageViewer,
         EmptyList
@@ -127,6 +145,25 @@ export const mixinsAdv = {
         // 详情回显
         setDetailInfo(info){
             this.operationForm = _.cloneDeep(info);
+            console.log('link', info.link)
+            let advType = 1,
+                _link
+            if (info.link.indexOf('/pages/goodsSearchResult/goodsSearchResult?') > -1) { // 商品列表
+                advType = 1
+                _link = info.link.split('/pages/goodsSearchResult/goodsSearchResult?')[1]
+            } else if (info.link.indexOf('/pages/goodsDetail/goodsDetail?goodsId=') > -1) { // 商品详情
+                advType = 2
+                _link = info.link.split('/pages/goodsDetail/goodsDetail?goodsId=')[1]
+            } else if (info.link.indexOf('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=') > -1) { // 直播间
+                advType = 3
+                _link = info.link.split('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=')[1]
+            } else { // 自定义
+                advType = 4
+                _link = info.link
+            }
+            console.log('_link', _link)
+            this.$set(this.operationForm,'adv_type', advType);
+            this.$set(this.operationForm,'link', _link);
             // this.$set(this.operationForm,'status', Number(info.status));
             // this.$set(this.operationForm,'title', info.title);
             // this.$set(this.operationForm,'shop_id', Number(info.shop_id));
@@ -164,6 +201,13 @@ export const mixinsAdv = {
             })
         },
 
+        // 切换链接类型
+        chooseLinkType() {
+            this.$nextTick(()=>{
+                this.$set(this.operationForm, 'link' , ''); // 清除link内容
+            })
+        },
+
         // 切换location
         locationChange(){
             console.log('this.operationForm.location', this.operationForm.location);
@@ -181,6 +225,19 @@ export const mixinsAdv = {
                     // 验证表单内容
                     if (valid) {
                         let params = _.cloneDeep(this.operationForm);
+                        console.log('this.operationForm.link =====>', this.operationForm.link)
+                        let new_link = '';
+                        if (this.operationForm.adv_type === 1) { // 商品列表
+                            new_link = '/pages/goodsSearchResult/goodsSearchResult?' + this.operationForm.link
+                        } else if(this.operationForm.adv_type === 2) { // 商品详情
+                            new_link = '/pages/goodsDetail/goodsDetail?goodsId=' + this.operationForm.link
+                        } else if(this.operationForm.adv_type === 3) { // 直播间
+                            new_link = 'plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=' + this.operationForm.link
+                        } else if(this.operationForm.adv_type === 4) { // 自定义
+                            new_link = this.operationForm.link
+                        }
+                        console.log('new_link', new_link)
+                        params['link'] = new_link
                         let time_start,time_end;
                         time_start = this.getTime(this.operationForm.start_time).toString();
                         if (this.operationForm.end_time) {

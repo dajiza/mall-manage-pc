@@ -1,12 +1,12 @@
 <template>
     <div class="app-container operation-container">
         <el-form
-            class="freight-form"
-            label-position="right"
-            :model="operationForm"
-            :rules="rules"
-            ref="operationForm"
-            label-width="100px"
+                class="freight-form"
+                label-position="right"
+                :model="operationForm"
+                :rules="rules"
+                ref="operationForm"
+                label-width="100px"
         >
             <!-- 新增商品 -->
             <div class="table-title">
@@ -17,8 +17,8 @@
             <div class="form-content">
                 <el-form-item class="form-item" label="广告状态:" prop="status">
                     <el-radio-group
-                        v-model="operationForm.status"
-                        @change="chooseStatusType"
+                            v-model="operationForm.status"
+                            @change="chooseStatusType"
                     >
                         <el-radio :label="2">上架</el-radio>
                         <el-radio :label="1">下架</el-radio>
@@ -26,11 +26,11 @@
                 </el-form-item>
                 <el-form-item class="form-item" label="location:" prop="location">
                     <el-select
-                        class="w300"
-                        filterable
-                        placeholder="请选择广告位"
-                        v-model="operationForm.location"
-                        @change="locationChange"
+                            class="w300"
+                            filterable
+                            placeholder="请选择广告位"
+                            v-model="operationForm.location"
+                            @change="locationChange"
                     >
                         <el-option
                                 v-for="item in locationOptions"
@@ -55,9 +55,9 @@
                             :disabled="!operationForm.location"
                     >
                         <img
-                            v-if="imageUrl"
-                            :src="imageUrl"
-                            class="avatar"
+                                v-if="imageUrl"
+                                :src="imageUrl"
+                                class="avatar"
                         />
                         <div v-else class="avatar-uploader-icon">
                             <img src="../../../../assets/img/Icon-Plus.svg" alt="">
@@ -78,13 +78,34 @@
                 <el-form-item class="form-item" label="广告名称:" prop="title">
                     <el-input class="w300" placeholder="请输入广告名称" v-model="operationForm.title"/>
                 </el-form-item>
-                <el-form-item class="form-item" label="Link:" prop="link">
-                    <el-input type="textarea" :rows="3" class="w500" placeholder="请输入活动链接" v-model="operationForm.link"/>
-                    <div class="tip-text">
-                        <div>需要跳转到搜索页时请使用以下格式：（/pages/goodsSearchResult/goodsSearchResult 是必需的,后面为搜索条件，可选择性添加）</div>
-                        <div>ps: other_id最多只能有一个值,属性和标签可以有多个值</div>
-                        <div>/pages/goodsSearchResult/goodsSearchResult?name=布组&brand=川水&color=红色||灰色&material=棉&origin=中国&pattern=&other_id=-1&tag_id=34||37</div>
-                    </div>
+                <el-form-item class="form-item" label="广告类型:" prop="adv_type">
+                    <el-radio-group
+                            v-model="operationForm.adv_type"
+                            @change="chooseLinkType"
+                    >
+                        <el-radio :label="1">商品列表页</el-radio>
+                        <el-radio :label="2">商品详情页</el-radio>
+                        <el-radio :label="3">直播页</el-radio>
+                        <el-radio :label="4">自定义</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item class="form-item" :label="back_link_label(operationForm.adv_type)" prop="link">
+                    <el-input type="textarea" :rows="3" class="w500" placeholder="请输入" v-model="operationForm.link"/>
+                    <template v-if="operationForm.adv_type==1">
+                        <div class="tip-text">
+                            <div>示例：name=布组&brand=川水&color=红色||灰色&material=棉&origin=中国&pattern=&other_id=-1&tag_id=34||3 。</div>
+                            <div>其中other_id最多只能有一个值,属性和标签可以有多个值。</div>
+                        </div>
+                    </template>
+                    <template v-if="operationForm.adv_type==2">
+                        <div class="tip-text">商品id可以在商品列表页中查看。</div>
+                    </template>
+                    <template v-if="operationForm.adv_type==3">
+                        <div class="tip-text">房间号可以通过在微信后台查看。</div>
+                    </template>
+                    <template v-if="operationForm.adv_type==4">
+                        <div class="tip-text">请填写完整路径，如果您不知道如何填写，请勿使用该选项。</div>
+                    </template>
                 </el-form-item>
                 <el-form-item class="form-item" label="描述:" prop="description">
                     <el-input class="w300" placeholder="请输入广告描述" v-model="operationForm.description"/>
@@ -143,17 +164,17 @@
     </div>
 </template>
 <script>
-import { mixinsAdv } from '../../../mixins/adv'
-import './adv.less'
-export default {
-    name: 'AdvCreat',
-    mixins: [mixinsAdv],
-    data() {
-        return {}
-    },
-    created() {},
-    methods: {}
-}
+    import { mixinsAdv } from '../../../mixins/adv'
+    import './adv.less'
+    export default {
+        name: 'AdvCreat',
+        mixins: [mixinsAdv],
+        data() {
+            return {}
+        },
+        created() {},
+        methods: {}
+    }
 </script>
 
 <style lang="less">
