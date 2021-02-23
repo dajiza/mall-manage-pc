@@ -11,7 +11,7 @@
                     </keep-alive>
                     <!--<router-view  :key="key"></router-view>-->
                 </transition>
-                <el-backtop class="backtop" target=".content" right="20" bottom="20"></el-backtop>
+                <!-- <el-backtop class="backtop" target=".content" :right="20" :bottom="20"></el-backtop> -->
             </div>
         </div>
     </div>
@@ -59,5 +59,4 @@ export default {
 .backtop {
     background: rgba(255, 255, 255, 0.4);
 }
-
 </style>

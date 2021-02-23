@@ -190,11 +190,12 @@
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
                 </el-form-item>
-                <el-form-item label="绑定管理员">
+                <el-form-item label="" label-width="120px">
+                    <span slot="label">绑定管理员<br />(输入手机号搜索)</span>
                     <el-select
                         class="dialog-item"
                         v-model="formOrder.shop_admin_id"
-                        style="width:237px"
+                        style="width:200px;margin-top:12px"
                         filterable
                         remote
                         placeholder="请输入手机搜索"
