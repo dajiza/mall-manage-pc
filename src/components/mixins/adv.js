@@ -145,7 +145,7 @@ export const mixinsAdv = {
         // 详情回显
         setDetailInfo(info){
             this.operationForm = _.cloneDeep(info);
-            console.log('link', info.link)
+            // console.log('link', info.link)
             let advType = 1,
                 _link
             if (info.link.indexOf('/pages/goodsSearchResult/goodsSearchResult?') > -1) { // 商品列表
