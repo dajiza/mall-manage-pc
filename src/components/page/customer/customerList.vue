@@ -177,8 +177,8 @@ export default {
 </script>
 <style scoped="scoped" lang="less">
 .timg {
-    width: 80px;
-    // height: 60px;
+    width: 40px;
+    height: 40px;
 }
 .type-tag {
     // display: block;
