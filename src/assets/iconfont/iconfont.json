@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "20047540",
+      "name": "加号icon (4)",
+      "font_class": "minus",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "20047528",
+      "name": "加号icon (3)",
+      "font_class": "plus",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
       "icon_id": "19892286",
       "name": "open",
       "font_class": "open1",

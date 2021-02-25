@@ -1,53 +1,62 @@
 <template>
     <div class="app-container goods-list">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
-                <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                <el-form-item label="商品名称" prop="title" label-width="">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
-                </el-form-item>
-                <el-form-item label="商品ID" prop="id">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
-                </el-form-item>
-                <el-form-item label="商品类型" prop="type">
-                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
-                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="商品分类" prop="category_id">
-                    <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
-                        <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="商品状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="出售状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
-                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="库存预警" prop="is_store_shortage">
-                    <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
-                        <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="是否指定店铺" prop="allow_agent">
-                    <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
-                        <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                    <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
+        <div class="table-title">
+            <div class="line"></div>
+            <div class="text">商品列表</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow">
+                    <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
+                        <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
+                        <el-form-item label="商品名称" prop="title" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
+                        </el-form-item>
+                        <el-form-item label="商品ID" prop="id">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
+                        </el-form-item>
+                        <el-form-item label="商品类型" prop="type">
+                            <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
+                                <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="商品分类" prop="category_id">
+                            <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
+                                <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="商品状态" prop="status">
+                            <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="出售状态" prop="status">
+                            <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
+                                <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="库存预警" prop="is_store_shortage">
+                            <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
+                                <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="是否指定店铺" prop="allow_agent">
+                            <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
+                                <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                            <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
         </div>
+        <div class="divider"></div>
         <div class="operate">
             <!-- <el-button type="primary" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(2)">上架</el-button> -->
             <el-button type="warning" v-hasPermission="'mall-backend-goods-dismounting'" @click="updateStatusMultiple(1)">下架</el-button>
@@ -55,13 +64,6 @@
             <el-button type="warning" v-hasPermission="'mall-backend-goods-distribution'" @click="updateIsAgentMultiple(2)">取消指定店铺</el-button>
             <el-button type="primary" @click="goodsCreat" class="creat-goods" v-hasPermission="'mall-backend-goods-add'">新增商品</el-button>
         </div>
-        <div class="divider"></div>
-
-        <div class="table-title">
-            <div class="line"></div>
-            <div class="text">商品列表</div>
-        </div>
-
         <el-table
             :height="$tableHeight"
             class="table"
@@ -70,15 +72,81 @@
             :header-cell-style="$tableHeaderColor"
             element-loading-text="Loading"
             @selection-change="handleSelectionChange"
-            :span-method="arraySpanMethod"
+            :default-expand-all="false"
+            row-key="id"
+            :cell-class-name="goodsTable"
         >
+            <el-table-column label="-" type="expand" width="60">
+                <template slot-scope="props">
+                    <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
+                        <el-table-column label="状态" width="90">
+                            <template slot-scope="scope">
+                                <span class="text-red" v-show="scope.row.status == 1">已下架</span>
+                                <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="SKU图片" width="118">
+                            <template slot-scope="scope">
+                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="SKU名称" width="200">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.title }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="SKU编码" width="140">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.storehouse_code }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="售价(元)" width="100">
+                            <template slot-scope="scope">
+                                <span>{{ formatMoney(scope.row.min_price) }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="实际销量">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.real_sales }}</span>
+                            </template>
+                        </el-table-column>
+                        <!-- <el-table-column label="可售库存" width="100">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.real_sales }}</span>
+                            </template>
+                        </el-table-column> -->
+                        <el-table-column label="总库存">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.stock_total }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="可用库存" width="100">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.stock_available }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="库存预警" width="90">
+                            <template slot-scope="scope">
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
+                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="" fit>
+                <template slot-scope="scope">
+                    <span>({{ scope.row.onsaleNum }}/{{ scope.row.goods_sku.length }})</span>
+                </template>
+            </el-table-column>
             <el-table-column type="selection" width="55"> </el-table-column>
             <el-table-column label="商品ID" width="80">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
                         <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-goods-update'" @click.native="goodsEdit(scope.row.id)">
@@ -93,16 +161,7 @@
                         >
                             查看
                         </el-button>
-                        <el-button
-                            class="text-blue btn-opt table-btn"
-                            type="text"
-                            size=""
-                            @click.native="goodsAssign(scope.row.id, scope.row)"
-                            v-show="scope.row.allow_agent == 1"
-                            v-hasPermission="'mall-backend-goods-assign-shop'"
-                        >
-                            指定代理
-                        </el-button>
+
                         <el-button
                             class="text-blue btn-opt table-btn"
                             type="text"
@@ -122,6 +181,16 @@
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                         >
                             下架
+                        </el-button>
+                        <el-button
+                            class="text-blue btn-opt table-btn"
+                            type="text"
+                            size=""
+                            @click.native="goodsAssign(scope.row.id, scope.row)"
+                            v-show="scope.row.allow_agent == 1"
+                            v-hasPermission="'mall-backend-goods-assign-shop'"
+                        >
+                            指定代理
                         </el-button>
                     </div>
                 </template>
@@ -184,68 +253,18 @@
                 <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
             </el-table-column>
             <!-- sku 合并行 -->
-            <el-table-column label="SKU图片" width="128" class="sku-column">
-                <template slot-scope="scope">
-                    <el-table class="sku-table" :data="scope.row.goods_sku" :header-cell-style="$tableHeaderColor" :show-header="false">
-                        <el-table-column label="SKU图片" width="118">
-                            <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="SKU名称" width="200">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.title }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="SKU编码" width="140">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.storehouse_code }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="售价(元)" width="100">
-                            <template slot-scope="scope">
-                                <span>{{ formatMoney(scope.row.min_price) }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="实际销量">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.real_sales }}</span>
-                            </template>
-                        </el-table-column>
-                        <!-- <el-table-column label="可售库存" width="100">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.real_sales }}</span>
-                            </template>
-                        </el-table-column> -->
-                        <el-table-column label="总库存">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.stock_total }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="可用库存" width="100">
-                            <template slot-scope="scope">
-                                <span>{{ scope.row.stock_available }}</span>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="库存预警" width="90">
-                            <template slot-scope="scope">
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
-                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </template>
-            </el-table-column>
+            <!-- <el-table-column label="SKU图片" width="128" class="sku-column">
+                <template slot-scope="scope"> </template>
+            </el-table-column> -->
 
             <!-- 被合并列 占位 -->
-            <el-table-column label="SKU名称" width="200"> </el-table-column>
+            <!-- <el-table-column label="SKU名称" width="200"> </el-table-column>
             <el-table-column label="SKU编码" width="140"> </el-table-column>
             <el-table-column label="售价(元)" width="100"> </el-table-column>
             <el-table-column label="实际销量" width="100"> </el-table-column>
-            <!-- <el-table-column label="可售库存" width="100"> </el-table-column> -->
             <el-table-column label="总库存" width="100"> </el-table-column>
             <el-table-column label="可用库存" width="100"> </el-table-column>
-            <el-table-column label="库存预警" width="100"> </el-table-column>
+            <el-table-column label="库存预警" width="100"> </el-table-column> -->
         </el-table>
         <div class="pagination-container">
             <el-pagination
@@ -282,7 +301,8 @@ export default {
     name: 'goods-list',
     data() {
         return {
-            list: null,
+            searchShow: false, //搜索表单显示
+            list: [],
             total: 0,
             listLoading: false,
             listQuery: {
@@ -359,14 +379,20 @@ export default {
     methods: {
         formatMoney: formatMoney,
         // 合并单元格
-        arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-            if (columnIndex === 10) {
-                return [1, 8]
-            }
-            if (columnIndex > 10) {
-                return [0, 0]
+        // arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+        //     if (columnIndex === 10) {
+        //         return [1, 8]
+        //     }
+        //     if (columnIndex > 10) {
+        //         return [0, 0]
+        //     }
+        // },
+        goodsTable(row) {
+            if (row.columnIndex == 2) {
+                return 'checkboxColumn'
             }
         },
+
         closePreview() {
             this.dialogVisiblePic = false
         },
@@ -409,6 +435,7 @@ export default {
                         if (!product.goods_sku) {
                             continue
                         }
+                        product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
                             let parameters = { sku_id: sku.storehouse_pid }
@@ -709,6 +736,39 @@ export default {
         margin-left: auto;
     }
 }
+.table-title {
+    position: relative;
+    .search {
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .grey-line {
+        margin: 0 20px;
+        width: 1px;
+        height: 26px;
+        background: #e6e6e6;
+    }
+    .head-container {
+        position: absolute;
+        top: 63px;
+        z-index: 9;
+        // border: 1px solid #000;
+        border-radius: 2px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
+        // transition: all 3s ease-in-out;
+    }
+}
+.slide-fade-enter-active {
+    transition: all 0.3s ease;
+}
+.slide-fade-leave-active {
+    transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-30px);
+}
 .type-tag {
     // display: block;
     padding: 0 11px;
@@ -745,5 +805,38 @@ export default {
         height: 8px;
         border-radius: 4px;
     }
+}
+.sku-table {
+    margin: 0px 60px;
+}
+.goods-list /deep/ .el-table__expand-icon > .el-icon {
+    margin-top: -10px;
+}
+.goods-list /deep/ .el-table__expand-icon--expanded {
+    transform: rotate(0deg);
+}
+.goods-list /deep/ .el-icon-arrow-right:before {
+    color: #1890ff;
+    content: '\e61a';
+    font-size: 19px;
+    font-family: 'iconfont';
+}
+.goods-list /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+    color: #6d7278;
+    content: '\e617';
+}
+</style>
+<style lang="less">
+.goods-list {
+    .checkboxColumn {
+        .cell {
+            padding-left: 10px;
+        }
+    }
+    // .statusColumn {
+    //     .cell {
+    //         padding-left: 10px !important;
+    //     }
+    // }
 }
 </style>
