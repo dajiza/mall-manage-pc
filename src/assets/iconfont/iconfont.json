@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "19506034",
+      "name": "收缩备份",
+      "font_class": "compose",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "19506032",
+      "name": "收缩",
+      "font_class": "collapse",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "14548572",
+      "name": "铃铛",
+      "font_class": "lingdang",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
       "icon_id": "20047540",
       "name": "加号icon (4)",
       "font_class": "minus",

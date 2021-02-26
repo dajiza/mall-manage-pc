@@ -85,27 +85,27 @@
                                 <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU图片" width="118">
+                        <el-table-column label="SKU图片" width="120">
                             <template slot-scope="scope">
                                 <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU名称" width="200">
+                        <el-table-column label="SKU名称" width="180">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.title }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU编码" width="140">
+                        <el-table-column label="SKU编码" width="180">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.storehouse_code }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="售价(元)" width="100">
+                        <el-table-column label="售价(元)" width="80">
                             <template slot-scope="scope">
                                 <span>{{ formatMoney(scope.row.min_price) }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="实际销量">
+                        <el-table-column label="实际销量" width="80">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
@@ -115,12 +115,12 @@
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
                         </el-table-column> -->
-                        <el-table-column label="总库存">
+                        <el-table-column label="总库存" width="80">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_total }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="可用库存" width="100">
+                        <el-table-column label="可用库存" width="80">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_available }}</span>
                             </template>
@@ -195,7 +195,7 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="是否指定店铺" width="120">
+            <el-table-column label="是否指定店铺" width="110">
                 <template slot-scope="scope">
                     <el-switch
                         v-model="scope.row.allow_agent"
@@ -209,7 +209,7 @@
                     </el-switch>
                 </template>
             </el-table-column>
-            <el-table-column label="指定代理" width="200">
+            <el-table-column label="指定代理" width="120">
                 <template slot-scope="scope" v-if="scope.row.allow_agent == 1">
                     <div v-for="item in scope.row.agent_list">{{ item.ShopName }}</div>
                 </template>
@@ -219,13 +219,13 @@
                     <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
             </el-table-column>
-            <el-table-column label="商品名称" width="200">
+            <el-table-column label="商品名称" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.title }}</span>
                 </template>
             </el-table-column>
 
-            <el-table-column label="商品分类" width="140">
+            <el-table-column label="商品分类" width="80">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
                     <span v-if="scope.row.type == 2">
@@ -807,7 +807,9 @@ export default {
     }
 }
 .sku-table {
+    box-sizing: border-box;
     margin: 0px 60px;
+    max-width: calc(100% - 60px);
 }
 .goods-list /deep/ .el-table__expand-icon > .el-icon {
     margin-top: -10px;

@@ -26,7 +26,7 @@ a {
     position: absolute;
     left: 208px;
     right: 0;
-    top: 48px;
+    top: 0px;
     bottom: 0;
     /*padding-bottom: 30px;*/ /*after*/
     -webkit-transition: left 0.3s ease-in-out;
