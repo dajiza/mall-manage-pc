@@ -482,6 +482,8 @@ export default {
                                     element.type = Number(element.type);
                                     if (element.type == 2) {
                                         element.num = commUtil.numberMul(Number(element.num), 100);
+                                    } else {
+                                        element.num = Number(element.num)
                                     }
                                 }
                             }
