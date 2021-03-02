@@ -43,6 +43,7 @@ export const mixinsGoods = {
                 // allow_shop_ids: [{ required: true, message: '请选择代理', trigger: 'blur' }]
             },
             rulesTime: [{ required: true, message: '请输入内容', trigger: 'blur' }],
+            rulesRequired: [{ required: true, message: '请输入内容', trigger: 'blur' }],
             rulesPrice: [
                 { required: true, message: '请输入价格', trigger: 'blur' },
                 {
@@ -884,8 +885,8 @@ export const mixinsGoods = {
 
                     if (attrLength == 0 || attrLength > 3) {
                         this.$notify({
-                            title: '请选择至少1条展示属性',
-                            message: '',
+                            title: '保存失败',
+                            message: '请选择至少1条展示属性',
                             type: 'warning',
                             duration: 5000
                         })
@@ -893,10 +894,10 @@ export const mixinsGoods = {
                         return
                     }
                     // 判断sku数量
-                    if (params.sku_list <= 0) {
+                    if (params.sku_list.length <= 0) {
                         this.$notify({
-                            title: '请添加至少一条sku',
-                            message: '',
+                            title: '保存失败',
+                            message: '请添加至少一条sku',
                             type: 'warning',
                             duration: 5000
                         })
@@ -914,8 +915,8 @@ export const mixinsGoods = {
                     }
                     if (!skuStatus && this.goods.status == 2) {
                         this.$notify({
-                            title: '商品上架状态至少需要一个sku处于上架',
-                            message: '',
+                            title: '保存失败',
+                            message: '商品上架状态至少需要一个sku处于上架',
                             type: 'warning',
                             duration: 5000
                         })
@@ -929,8 +930,8 @@ export const mixinsGoods = {
                         if (skuItem.min_price > skuItem.display_price) {
                             let num = i + 1
                             this.$notify({
-                                title: `第${num}条sku,显示售价不能低于最低售价`,
-                                message: '',
+                                title: '保存失败',
+                                message: `第${num}条sku,显示售价不能低于最低售价`,
                                 type: 'warning',
                                 duration: 5000
                             })
@@ -981,8 +982,8 @@ export const mixinsGoods = {
                             })
                             if (allSame) {
                                 this.$notify({
-                                    title: `SKU第${i + 1}条和第${j + 1}条的展示属性完全一致,请更改属性值或者下架其中一个`,
-                                    message: '',
+                                    title: '保存失败',
+                                    message: `SKU第${i + 1}条和第${j + 1}条的展示属性完全一致,请更改属性值或者下架其中一个`,
                                     type: 'warning',
                                     duration: 5000
                                 })

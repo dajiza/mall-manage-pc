@@ -81,6 +81,8 @@
                     <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
                         <el-table-column label="状态" width="90">
                             <template slot-scope="scope">
+                                <!-- <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row)">已下架</span>
+                                <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row)">已上架</span> -->
                                 <span class="text-red" v-show="scope.row.status == 1">已下架</span>
                                 <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
                             </template>
@@ -214,7 +216,7 @@
                     <div v-for="item in scope.row.agent_list">{{ item.ShopName }}</div>
                 </template>
             </el-table-column>
-            <el-table-column label="主图">
+            <el-table-column label="主图" width="120">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
@@ -293,7 +295,17 @@
     </div>
 </template>
 <script>
-import { queryGoodsList, queryStoreProduct, updateAllow, updateGoodsStatus, updateGoodsAssign, queryShopList, queryCategoryListAll } from '@/api/goods'
+import {
+    queryGoodsList,
+    queryStoreProduct,
+    updateAllow,
+    updateGoodsStatus,
+    updateGoodsAssign,
+    queryShopList,
+    queryCategoryListAll,
+    queryGoodsDetail,
+    updateGoods
+} from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
@@ -683,6 +695,164 @@ export default {
                 }
             })
         },
+        // 编辑获取详情
+        getDetail(id) {
+            return new Promise((resolve, reject) => {
+                let params = {
+                    goods_id: Number(id)
+                }
+                queryGoodsDetail(params)
+                    .then(async res => {
+                        let data = _.cloneDeep(res.data)
+
+                        resolve(data)
+                    })
+                    .catch(err => {
+                        reject()
+                    })
+            })
+        },
+        async setSkuStatus(goods, sku) {
+            console.log('输出 ~ sku', sku)
+            console.log('输出 ~ goods', goods)
+            let goodsData = await this.getDetail(goods.id)
+            let skuData = goodsData.sku_list.find(item => item.sku_id == sku.id)
+            console.log('输出 ~ skuData', skuData)
+            if (skuData.stock_available == 0 && skuData.sku_status == 1) {
+                this.$notify({
+                    title: 'SKU上架失败',
+                    message: '可用库存为0,不能上架',
+                    type: 'warning',
+                    duration: 5000
+                })
+                return
+            }
+            // return
+            skuData.sku_status = skuData.sku_status == 1 ? 2 : 1
+            // console.log('GOOGLE: goods', this.goods)
+            const rLoading = this.openLoading()
+
+            let params = _.cloneDeep(goodsData)
+            console.log('输出 ~ params', params)
+
+            // 判断sku数量
+            // if (params.sku_list.length <= 0) {
+            //     this.$notify({
+            //         title: '请添加至少一条sku',
+            //         message: '',
+            //         type: 'warning',
+            //         duration: 5000
+            //     })
+            //     rLoading.close()
+            //     return
+            // }
+            // format is_allow_agent
+            // 判断失少有一个sku为上架
+            let skuStatus = false
+            for (let i = 0; i < params.sku_list.length; i++) {
+                const skuItem = params.sku_list[i]
+                if (skuItem.sku_status == 2) {
+                    skuStatus = true
+                    break
+                }
+            }
+            if (!skuStatus && params.status == 2) {
+                this.$notify({
+                    title: 'SKU下架失败',
+                    message: '商品上架状态至少需要一个sku处于上架',
+                    type: 'warning',
+                    duration: 5000
+                })
+                rLoading.close()
+                return
+            }
+            // for (let i = 0; i < params.sku_list.length; i++) {
+            //     const skuItem = params.sku_list[i]
+            //     if (skuItem.min_price > skuItem.display_price) {
+            //         let num = i + 1
+            //         this.$notify({
+            //             title: 'SKU上/下架失败',
+            //             message: `第${num}条sku,显示售价不能低于最低售价`,
+            //             type: 'warning',
+            //             duration: 5000
+            //         })
+            //         rLoading.close()
+            //         return
+            //     }
+            // }
+
+            // 判断任意两个上架商品 所选择的属性值不能完全一致 导致小程序区分不开sku
+            for (let i = 0; i < params.sku_list.length; i++) {
+                const skuItem = params.sku_list[i]
+                // 判断上下架
+                if (skuItem.sku_status == 1) {
+                    continue
+                }
+
+                for (let j = i + 1; j < params.sku_list.length; j++) {
+                    const skuCompare = params.sku_list[j]
+                    // 判断上下架
+                    if (skuCompare.sku_status == 1) {
+                        continue
+                    }
+                    let allSame = skuCompare.sku_attr_list.every((item, index) => {
+                        return item.attr_value == skuItem.sku_attr_list[index].attr_value
+                    })
+                    if (allSame) {
+                        this.$notify({
+                            title: 'SKU上架失败',
+                            message: `SKU第${i + 1}条和第${j + 1}条的展示属性完全一致,请更改属性值或者下架其中一个`,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        rLoading.close()
+                        return
+                    }
+                }
+            }
+
+            // 格式化
+            params['id'] = params['goods_id']
+            params['set_time_off'] = params['set_time_off'] ? this.$moment(params['set_time_off']).format('X') : 0
+            params['set_time_on'] = params['set_time_on'] ? this.$moment(params['set_time_on']).format('X') : 0
+
+            params['tag_ids'] = params['tag_detail_list'] ? params['tag_detail_list'].map(item => item.tag_id) : []
+            params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids']
+
+            params.sku_list.map(item => {
+                item['status'] = item['sku_status']
+                item['attr_list'] = item['sku_attr_list']
+                return item
+            })
+            updateGoods(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: 'SKU上/下架成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        })
+                        // this.initData();
+                        // bus.$emit('close_current_tags')
+                        // this.$router.push({
+                        //     path: 'mall-backend-goods-list'
+                        // })
+                    } else {
+                        this.$notify({
+                            title: 'SKU上/下架失败',
+                            message: res.msg,
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
+                    rLoading.close()
+                })
+                .catch(err => {
+                    rLoading.close()
+                })
+        },
         handleSelectionChange(val) {
             this.checkedList = val
             console.log('GOOGLE: val', val)
@@ -691,6 +861,7 @@ export default {
         handleFilter() {
             this.listQuery.page = 1
             this.getList()
+            this.searchShow = false
         },
         // 重置
         resetForm(formName) {
@@ -811,21 +982,25 @@ export default {
     margin: 0px 60px;
     max-width: calc(100% - 60px);
 }
-.goods-list /deep/ .el-table__expand-icon > .el-icon {
+.goods-list .table /deep/ .el-table__expand-icon > .el-icon {
     margin-top: -10px;
 }
-.goods-list /deep/ .el-table__expand-icon--expanded {
+.goods-list .table /deep/ .el-table__expand-icon--expanded {
     transform: rotate(0deg);
 }
-.goods-list /deep/ .el-icon-arrow-right:before {
+.goods-list .table /deep/ .el-icon-arrow-right:before {
     color: #1890ff;
     content: '\e61a';
     font-size: 19px;
     font-family: 'iconfont';
 }
-.goods-list /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+.goods-list .table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
     color: #6d7278;
     content: '\e617';
+}
+
+.cursor {
+    cursor: pointer;
 }
 </style>
 <style lang="less">
