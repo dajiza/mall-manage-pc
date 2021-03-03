@@ -75,37 +75,38 @@
             :default-expand-all="false"
             row-key="id"
             :cell-class-name="goodsTable"
+            :cell-style="{ background: '#fff' }"
         >
             <el-table-column label="-" type="expand" width="60">
                 <template slot-scope="props">
                     <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
-                        <!-- <el-table-column label="状态" width="90">
+                        <el-table-column label="状态" width="90">
                             <template slot-scope="scope">
                                 <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已下架</span>
                                 <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已上架</span>
                             </template>
-                        </el-table-column> -->
+                        </el-table-column>
                         <el-table-column label="SKU图片" width="120">
                             <template slot-scope="scope">
                                 <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU名称" width="180">
+                        <el-table-column label="SKU名称">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.title }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="SKU编码" width="180">
+                        <el-table-column label="SKU编码">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.storehouse_code }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="售价(元)" width="80">
+                        <el-table-column label="售价(元)" width="90">
                             <template slot-scope="scope">
                                 <span>{{ formatMoney(scope.row.min_price) }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="实际销量" width="80">
+                        <el-table-column label="实际销量" width="90">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
@@ -115,12 +116,12 @@
                                 <span>{{ scope.row.real_sales }}</span>
                             </template>
                         </el-table-column> -->
-                        <el-table-column label="总库存" width="80">
+                        <el-table-column label="总库存" width="90">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_total }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="可用库存" width="80">
+                        <el-table-column label="可用库存" width="90">
                             <template slot-scope="scope">
                                 <span>{{ scope.row.stock_available }}</span>
                             </template>
@@ -135,12 +136,12 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="" fit>
+            <el-table-column label="" width="70">
                 <template slot-scope="scope">
                     <span>({{ scope.row.onsaleNum }}/{{ scope.row.goods_sku.length }})</span>
                 </template>
             </el-table-column>
-            <el-table-column type="selection" width="55"> </el-table-column>
+            <el-table-column type="selection" width="40"> </el-table-column>
             <el-table-column label="商品ID" width="80">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
@@ -302,7 +303,8 @@ import {
     queryShopList,
     queryCategoryListAll,
     queryGoodsDetail,
-    updateGoods
+    updateGoods,
+    updateSkuStatus
 } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
@@ -710,7 +712,37 @@ export default {
                     })
             })
         },
-        async setSkuStatus(goods, sku, goodsIndex, skuIndex) {
+        setSkuStatus(goods, sku) {
+            console.log('输出 ~ sku', sku)
+            let status = sku.status == 1 ? 2 : 1
+            let params = {
+                sku_id: sku.id,
+                status: status //1下架，2上架
+            }
+            updateSkuStatus(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: 'SKU上/下架成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        })
+                        sku.status = status
+                        // this.list[goodsIndex].goods_sku[skuIndex].status = this.list[goodsIndex].goods_sku[skuIndex].status == 1 ? 2 : 1
+                    } else {
+                        this.$notify({
+                            title: 'SKU上/下架失败',
+                            message: res.msg,
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(err => {})
+        },
+        async setSkuStatus1(goods, sku, goodsIndex, skuIndex) {
             let goodsData = await this.getDetail(goods.id)
             let skuData = goodsData.sku_list.find(item => item.sku_id == sku.id)
             if (skuData.stock_available == 0 && skuData.sku_status == 1) {
@@ -948,8 +980,8 @@ export default {
 }
 .sku-table {
     box-sizing: border-box;
-    margin: 0px 60px;
-    max-width: calc(100% - 60px);
+    margin: 0px 138px;
+    max-width: calc(100% - 138px);
 }
 .goods-list .table /deep/ .el-table__expand-icon > .el-icon {
     margin-top: -10px;
@@ -970,6 +1002,15 @@ export default {
 
 .cursor {
     cursor: pointer;
+}
+.goods-list .table /deep/ .el-table__body tr:hover > td {
+    background-color: #fff !important;
+}
+.goods-list .table .sku-table /deep/ .el-table__body tr:hover > td {
+    background-color: #f6faff !important;
+}
+.goods-list .table /deep/ .el-table__expanded-cell {
+    padding: 0 !important;
 }
 </style>
 <style lang="less">

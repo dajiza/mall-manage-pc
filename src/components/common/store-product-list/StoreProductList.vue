@@ -87,7 +87,7 @@
                 element-loading-text="Loading"
                 fit
             >
-                <el-table-column type="selection" width="55" :reserve-selection="true"> </el-table-column>
+                <el-table-column type="selection" width="55" :reserve-selection="true" :selectable="row => row.mall_sku_yet == 0"> </el-table-column>
                 <el-table-column label="产品图片" width="120">
                     <template slot-scope="scope">
                         <img class="timg" :src="scope.row.img" alt="" />
