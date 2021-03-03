@@ -30,7 +30,7 @@
                                 <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="出售状态" prop="status">
+                        <el-form-item label="出售状态" prop="is_sale">
                             <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
                                 <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>

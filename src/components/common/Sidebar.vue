@@ -20,8 +20,8 @@
                     <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
-            <span class="icon iconfont icon-lingdang message" v-show="!collapse"></span>
-            <div class="point" v-show="!collapse"></div>
+            <!-- <span class="icon iconfont icon-lingdang message" v-show="!collapse"></span>
+            <div class="point" v-show="!collapse"></div> -->
         </div>
         <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router>
             <template v-for="item in items">
