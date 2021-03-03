@@ -79,14 +79,12 @@
             <el-table-column label="-" type="expand" width="60">
                 <template slot-scope="props">
                     <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
-                        <el-table-column label="状态" width="90">
+                        <!-- <el-table-column label="状态" width="90">
                             <template slot-scope="scope">
-                                <!-- <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row)">已下架</span>
-                                <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row)">已上架</span> -->
-                                <span class="text-red" v-show="scope.row.status == 1">已下架</span>
-                                <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
+                                <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已下架</span>
+                                <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已上架</span>
                             </template>
-                        </el-table-column>
+                        </el-table-column> -->
                         <el-table-column label="SKU图片" width="120">
                             <template slot-scope="scope">
                                 <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
@@ -712,12 +710,9 @@ export default {
                     })
             })
         },
-        async setSkuStatus(goods, sku) {
-            console.log('输出 ~ sku', sku)
-            console.log('输出 ~ goods', goods)
+        async setSkuStatus(goods, sku, goodsIndex, skuIndex) {
             let goodsData = await this.getDetail(goods.id)
             let skuData = goodsData.sku_list.find(item => item.sku_id == sku.id)
-            console.log('输出 ~ skuData', skuData)
             if (skuData.stock_available == 0 && skuData.sku_status == 1) {
                 this.$notify({
                     title: 'SKU上架失败',
@@ -727,7 +722,6 @@ export default {
                 })
                 return
             }
-            // return
             skuData.sku_status = skuData.sku_status == 1 ? 2 : 1
             // console.log('GOOGLE: goods', this.goods)
             const rLoading = this.openLoading()
@@ -735,18 +729,6 @@ export default {
             let params = _.cloneDeep(goodsData)
             console.log('输出 ~ params', params)
 
-            // 判断sku数量
-            // if (params.sku_list.length <= 0) {
-            //     this.$notify({
-            //         title: '请添加至少一条sku',
-            //         message: '',
-            //         type: 'warning',
-            //         duration: 5000
-            //     })
-            //     rLoading.close()
-            //     return
-            // }
-            // format is_allow_agent
             // 判断失少有一个sku为上架
             let skuStatus = false
             for (let i = 0; i < params.sku_list.length; i++) {
@@ -766,20 +748,6 @@ export default {
                 rLoading.close()
                 return
             }
-            // for (let i = 0; i < params.sku_list.length; i++) {
-            //     const skuItem = params.sku_list[i]
-            //     if (skuItem.min_price > skuItem.display_price) {
-            //         let num = i + 1
-            //         this.$notify({
-            //             title: 'SKU上/下架失败',
-            //             message: `第${num}条sku,显示售价不能低于最低售价`,
-            //             type: 'warning',
-            //             duration: 5000
-            //         })
-            //         rLoading.close()
-            //         return
-            //     }
-            // }
 
             // 判断任意两个上架商品 所选择的属性值不能完全一致 导致小程序区分不开sku
             for (let i = 0; i < params.sku_list.length; i++) {
@@ -815,13 +783,13 @@ export default {
             params['id'] = params['goods_id']
             params['set_time_off'] = params['set_time_off'] ? this.$moment(params['set_time_off']).format('X') : 0
             params['set_time_on'] = params['set_time_on'] ? this.$moment(params['set_time_on']).format('X') : 0
-
-            params['tag_ids'] = params['tag_detail_list'] ? params['tag_detail_list'].map(item => item.tag_id) : []
+            params['tag_ids'] = params['tag_detail_list'] ? params['tag_detail_list'].map(item => item.tag_id).join(',') : ''
             params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids']
-
             params.sku_list.map(item => {
                 item['status'] = item['sku_status']
                 item['attr_list'] = item['sku_attr_list']
+                item['storehouse_pid'] = item['store_house_id']
+                item['title'] = item['sku_title']
                 return item
             })
             updateGoods(params)
@@ -834,6 +802,7 @@ export default {
                             type: 'success',
                             duration: 3000
                         })
+                        this.list[goodsIndex].goods_sku[skuIndex].status = this.list[goodsIndex].goods_sku[skuIndex].status == 1 ? 2 : 1
                         // this.initData();
                         // bus.$emit('close_current_tags')
                         // this.$router.push({
