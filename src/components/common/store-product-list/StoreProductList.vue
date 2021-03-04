@@ -674,6 +674,7 @@ export default {
                     return {
                         sku_id: 0,
                         storehouse_pid: item.id, //所选的仓库产品id
+                        storehouse_code: item.product_code, //所选的仓库产品code
                         title: item.name,
                         min_price: item.price_out / 100,
                         display_price: item.price_out / 100,

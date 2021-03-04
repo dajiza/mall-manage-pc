@@ -417,6 +417,7 @@ export const mixinsGoods = {
                             skuItem.display_price = skuItem.display_price / 100
                             skuItem['attrDiyValue'] = ['', '', '']
                             skuItem['storehouse_pid'] = skuItem['store_house_id']
+                            skuItem['storehouse_code'] = skuItem['store_house_code']
                             skuItem['title'] = skuItem['sku_title']
                             skuItem['status'] = skuItem['sku_status']
                             const attrList = skuItem['sku_attr_list']
