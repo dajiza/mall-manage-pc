@@ -760,7 +760,7 @@ export default {
         },
         gotoDetail(id) {
             this.$router.push({
-                name: 'goods-edit',
+                name: 'goods-preview',
                 query: {
                     id: id
                 }
