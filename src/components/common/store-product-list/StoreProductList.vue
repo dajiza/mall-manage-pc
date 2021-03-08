@@ -164,6 +164,16 @@
                         <span>{{ scope.row.stock_available }}</span>
                     </template>
                 </el-table-column>
+                <el-table-column label="是否占用" width="100">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.mall_sku_yet == 0 ? '是' : '否' }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="占用商品名" width="180">
+                    <template slot-scope="scope">
+                        <span class="gotoDetail" @click="gotoDetail()">{{ scope.row.mall_sku_goods_title }}</span>
+                    </template>
+                </el-table-column>
 
                 <!-- <el-table-column label="操作"  width="250">
                 <template slot-scope="scope">
@@ -747,6 +757,14 @@ export default {
                         reject(err)
                     })
             })
+        },
+        gotoDetail(id) {
+            this.$router.push({
+                name: 'goods-edit',
+                query: {
+                    id: id
+                }
+            })
         }
     }
 }
@@ -794,5 +812,9 @@ export default {
     .check-city {
         margin-bottom: 20px;
     }
+}
+.gotoDetail {
+    color: #1890ff;
+    cursor: pointer;
 }
 </style>
