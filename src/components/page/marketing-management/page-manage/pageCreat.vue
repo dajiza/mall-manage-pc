@@ -14,6 +14,9 @@
 
             <Editor :content="editContent" v-model="validate.content"></Editor>
         </div>
+        <div class="submit-wrap">
+            <el-button class="submit-btn" type="primary" size="small" @click.native="submit">提交</el-button>
+        </div>
     </div>
 </template>
 
@@ -181,12 +184,17 @@ export default {
     }
 }
 </script>
-<style scoped="scoped">
+<style scoped="scoped" lang="less">
 .form-content {
     padding: 37px 24px;
     background: #fff;
 }
 .table-title {
     border-bottom: 1px solid #e9e9e9;
+}
+.submit-wrap {
+    // text-align: center;
+    padding: 3px 24px 40px;
+    background: #fff;
 }
 </style>

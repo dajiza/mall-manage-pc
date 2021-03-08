@@ -19,7 +19,7 @@
 
 import { Jodit } from 'jodit'
 import 'jodit/build/jodit.es2018.min.css'
-
+import { getToken } from '@/utils/auth'
 export default {
     name: 'Editor',
     props: {
@@ -37,7 +37,7 @@ export default {
             // headers: {
             //     Authorization: ' ' + getToken()
             // },
-
+            header: {},
             editorContent: ``,
             editor: ''
         }
@@ -53,7 +53,11 @@ export default {
             this.editor.value = this.editorContent
         }
     },
-
+    created() {
+        // 图片上传地址
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
+        this.header['token'] = getToken()
+    },
     mounted() {
         const that = this
         // var editor = new E(this.$refs.editor)
@@ -68,49 +72,47 @@ export default {
             width: 600,
             height: 680,
             askBeforePasteHTML: false,
-            language: 'zh_cn'
-            // uploader: {
-            //     url: uploadImages,
-            //     filesVariableName: function(e) {
-            //         return 'files'
-            //     },
+            language: 'zh_cn',
+            uploader: {
+                url: this.uploadImgUrl,
+                filesVariableName: function(e) {
+                    return 'files'
+                },
+                insertImageAsBase64URI: false,
+                imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
+                withCredentials: true,
+                headers: this.header,
 
-            //     insertImageAsBase64URI: false,
-            //     imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
-            //     withCredentials: true,
-            //     headers: this.headers,
-
-            //     prepareData: function(data) {
-            //         console.log(data)
-            //         data.append('id', 24)
-            //         return data
-            //     },
-            //     isSuccess: function(resp) {
-            //         console.log('0>>>' + JSON.stringify(resp[0]))
-            //         return resp
-            //     },
-            //     process: function(resp) {
-            //         console.log('GOOGLE: resp', resp)
-            //         return {
-            //             files: ['', resp.data[0] + '?time=' + new Date().valueOf()],
-            //             isImages: [false, true],
-            //             baseurl: ''
-
-            //         }
-            //     }
-            // }
-            // events: {
-            //     beforePaste: function(event) {
-            //         console.log('GOOGLE: beforePaste')
-            //     },
-            //     processPaste: function(event, html) {
-            //         console.log('GOOGLE: html', html)
-            //         html = '1234'
-            //     },
-            //     afterPaste: function(event) {
-            //         console.log('GOOGLE: afterPaste')
-            //     }
-            // }
+                prepareData: function(data) {
+                    console.log(data)
+                    data.append('id', 24)
+                    return data
+                },
+                isSuccess: function(resp) {
+                    console.log('0>>>' + JSON.stringify(resp[0]))
+                    return resp
+                },
+                process: function(resp) {
+                    console.log('GOOGLE: resp', resp)
+                    return {
+                        files: ['', resp.data[0] + '?time=' + new Date().valueOf()],
+                        isImages: [false, true],
+                        baseurl: ''
+                    }
+                }
+            },
+            events: {
+                beforePaste: function(event) {
+                    console.log('GOOGLE: beforePaste')
+                },
+                processPaste: function(event, html) {
+                    console.log('GOOGLE: html', html)
+                    html = '1234'
+                },
+                afterPaste: function(event) {
+                    console.log('GOOGLE: afterPaste')
+                }
+            }
         })
         this.editor = editor
         // 监听编辑器内容改变 给预览 父组件赋值
