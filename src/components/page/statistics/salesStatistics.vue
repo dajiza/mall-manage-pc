@@ -2,8 +2,10 @@
     <div class="app-container goods-list">
         <div class="head-container">
             <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
-                <el-form-item label="SKU产品编码" prop="product_code" class="">
-                    <el-input class="filter-item" v-model="formFilter.product_code" placeholder="请输入"></el-input>
+                <el-form-item label="店铺名称" prop="shop_id" class="">
+                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
+                    </el-select>
                 </el-form-item>
 
                 <el-form-item label="时间区间" prop="searchTime" class="long-time">
@@ -21,13 +23,6 @@
                     >
                     </el-date-picker>
                 </el-form-item>
-
-                <el-form-item label="店铺名称" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-
                 <el-form-item class="form-item-btn" label="">
                     <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
                     <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
@@ -36,7 +31,7 @@
         </div>
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">SKU销量排行统计</div>
+            <div class="text">销售统计</div>
             <div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span class="text">所有店铺</span></div>
             <div class="shop-icon shop-filter" v-if="filterShop.id">
                 <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
@@ -46,18 +41,9 @@
                 <el-radio-button label="order">订单量</el-radio-button>
                 <el-radio-button label="amount">销售额</el-radio-button>
             </el-radio-group>
-            <el-popover placement="right" width="100" trigger="click" popper-class="statistics-popover">
-                <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-                <el-checkbox-group v-model="checkedColumn" @change="handleCheckedColumnChange">
-                    <el-col :span="24" v-for="item in columns" :key="item.key">
-                        <el-checkbox :label="item.key">{{ item.label }}</el-checkbox>
-                    </el-col>
-                </el-checkbox-group>
-                <span slot="reference" class="icon iconfont icon-open1 "></span>
-            </el-popover>
         </div>
-        {{ checkedColumn }}
         <el-table
+            ref="table"
             :height="$tableHeight"
             class="table"
             :data="list"
@@ -65,8 +51,14 @@
             :header-cell-style="$tableHeaderColor"
             element-loading-text="Loading"
             :key="tableKey"
+            show-summary
         >
-            <el-table-column label="SKU图片" width="128" fixed>
+            <el-table-column label="店铺名称" width="160">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.product_code }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="SKU图片">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.product_img" alt="" />
                 </template>
@@ -78,37 +70,8 @@
                     <span v-else>{{ scope.row[item.key] }}</span>
                 </template>
             </el-table-column>
-            <!-- <el-table-column label="SKU名字">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.product_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="SKU编码" width="160">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.product_code }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="商品名称" width="220">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.goods_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="规格">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.goods_attr.join(',') }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="可用库存" width="116">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.storage }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="销售单价(元)" width="120">
-                <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.price) }}</span>
-                </template>
-            </el-table-column> -->
-            <el-table-column label="小计" width="120" sortable>
+
+            <el-table-column label="小计" width="120" sortable prop="money_total">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.money_total) }}</span>
                 </template>
@@ -148,7 +111,7 @@ export default {
             listLoading: false,
             loading: false,
             tableData: [],
-            list: null,
+            list: [],
             total: 0,
             listQuery: {
                 page: 1,
@@ -238,12 +201,16 @@ export default {
             ]
         }
     },
-
+    updated() {
+        this.$nextTick(() => {
+            this.$refs['table'].doLayout()
+        })
+    },
     mounted() {
         // 默认搜索一个月
         const end = new Date()
         const start = new Date()
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 14)
         let timeStart = start
         let timeEnd = end
         timeStart = this.$moment(timeStart).format('yyyy-MM-DD HH:mm:ss')
@@ -336,18 +303,44 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        getSummaries(param) {
+            console.log('输出 ~ param', param)
+            const { columns, data } = param
+            const sums = []
+            columns.forEach((column, index) => {
+                if (index === 0) {
+                    sums[index] = '总计'
+                    return
+                }
+                const values = data.map(item => Number(item[column.property]))
+                console.log('输出 ~ values', values)
+                if (!values.every(value => isNaN(value))) {
+                    sums[index] = values.reduce((prev, curr) => {
+                        const value = Number(curr)
+                        if (!isNaN(value)) {
+                            return prev + curr
+                        } else {
+                            return prev
+                        }
+                    }, 0)
+                    sums[index] += ' 元'
+                } else {
+                    sums[index] = 'N/A'
+                }
+            })
+
+            return sums
         }
     }
 }
 </script>
 <style scoped="scoped" lang="less">
 .tab-way {
+    margin-right: 30px;
     margin-left: auto;
 }
-.icon-open1 {
-    margin: 0 30px;
-    cursor: pointer;
-}
+
 .el-col {
     margin-top: 10px;
 }
