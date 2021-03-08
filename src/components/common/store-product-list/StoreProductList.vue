@@ -171,7 +171,7 @@
                 </el-table-column>
                 <el-table-column label="占用商品名" width="180">
                     <template slot-scope="scope">
-                        <span class="gotoDetail" @click="gotoDetail()">{{ scope.row.mall_sku_goods_title }}</span>
+                        <span class="gotoDetail" @click="gotoDetail(scope.row.goods_id)">{{ scope.row.mall_sku_goods_title }}</span>
                     </template>
                 </el-table-column>
 
