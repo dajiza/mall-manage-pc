@@ -185,6 +185,10 @@ export default {
                         {
                             name: 'mall-backend-activity',
                             display_name: '活动管理'
+                        },
+                        {
+                            name: 'mall-backend-page',
+                            display_name: '页面管理'
                         }
                     ]
                 },
@@ -241,6 +245,10 @@ export default {
                         {
                             name: 'mall-backend-statistics-sku',
                             display_name: 'SKU销量排行统计'
+                        },
+                        {
+                            name: 'mall-backend-statistics-sales',
+                            display_name: '销售统计'
                         }
                     ]
                 },

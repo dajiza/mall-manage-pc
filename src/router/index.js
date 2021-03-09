@@ -134,6 +134,16 @@ export default new Router({
                     meta: { title: '活动管理' }
                 },
                 {
+                    path: '/mall-backend-page',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/page-manage/pageManage.vue'),
+                    meta: { title: '页面管理' }
+                },
+                {
+                    path: '/mall-backend-page-creat',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/page-manage/pageCreat.vue'),
+                    meta: { title: '新建页面' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
@@ -186,8 +196,13 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-statistics-sku',
-                    component: () => import(/* webpackChunkName: "statistics-sku" */ '../components/page/statistics/SKUStatistics.vue'),
+                    component: () => import(/* webpackChunkName: "statistics-sku" */ '../components/page/statistics/skuStatistics.vue'),
                     meta: { title: 'SKU销量排行统计' }
+                },
+                {
+                    path: '/mall-backend-statistics-sales',
+                    component: () => import(/* webpackChunkName: "statistics-sku" */ '../components/page/statistics/salesStatistics.vue'),
+                    meta: { title: '销售统计' }
                 },
                 {
                     path: '/mall-backend-parameter-setting',
