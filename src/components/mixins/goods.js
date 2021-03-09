@@ -318,7 +318,9 @@ export const mixinsGoods = {
                     }
                     rLoading.close()
                 })
-                .catch(() => {})
+                .catch(() => {
+                    rLoading.close()
+                })
         },
         setCellColor({ row, column, rowIndex, columnIndex }) {
             // if (this.basicChecked == 0) {

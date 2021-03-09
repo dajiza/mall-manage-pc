@@ -315,6 +315,7 @@
 import { mixinsGoods } from '@/components/mixins/goods'
 
 export default {
+    name: 'goods-preview',
     mixins: [mixinsGoods]
 }
 </script>

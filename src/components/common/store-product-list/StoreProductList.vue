@@ -166,7 +166,7 @@
                 </el-table-column>
                 <el-table-column label="是否占用" width="100">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.mall_sku_yet == 0 ? '是' : '否' }}</span>
+                        <span>{{ scope.row.mall_sku_yet == 0 ? '否' : '是' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="占用商品名" width="180">
@@ -759,6 +759,7 @@ export default {
             })
         },
         gotoDetail(id) {
+            this.close()
             this.$router.push({
                 name: 'goods-preview',
                 query: {
