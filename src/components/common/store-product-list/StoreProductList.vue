@@ -338,6 +338,7 @@ export default {
         getList() {
             this.listLoading = true
             let params = this.$refs['formFilter'].model
+            console.log('输出 ~ params', params)
 
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1])
@@ -351,7 +352,7 @@ export default {
             params['page'] = this.listQuery.page
             queryProduceList(params)
                 .then(async res => {
-                    this.list = res.data.list
+                    this.list = res.data.list ? res.data.list : []
                     this.total = res.data.total
                     this.refreshSelection()
                     this.listLoading = false
@@ -369,6 +370,7 @@ export default {
         // 重置
         resetForm(formName) {
             this.$refs[formName].resetFields()
+            this.formFilter.tag_id = ''
             this.handleFilter()
         },
         // 分页方法
