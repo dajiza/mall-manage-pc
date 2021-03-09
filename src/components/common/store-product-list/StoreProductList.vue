@@ -61,8 +61,6 @@
                     <el-form-item class="form-item-btn" label="" style="margin-left:0">
                         <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                         <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                    </el-form-item>
-                    <el-form-item class="form-item-btn" label="" style="margin-left:0">
                         <el-popover placement="bottom" width="300" trigger="click" popper-class="group-popper">
                             <div class="row-list">
                                 <span v-if="checkedList.length == 0">无数据</span>
@@ -71,9 +69,12 @@
                                     <i class="el-icon-error row-delete" @click="cancelSelection(item)"></i>
                                 </div>
                             </div>
-                            <el-button slot="reference" class="filter-btn" size="" type="success">已选商品</el-button>
+                            <el-button slot="reference" class="filter-btn" size="" type="success" style="margin-left:20px">已选商品</el-button>
                         </el-popover>
                     </el-form-item>
+                    <!-- <el-form-item class="form-item-btn" label="" style="margin-left:0">
+
+                    </el-form-item> -->
                 </el-form>
             </div>
 
