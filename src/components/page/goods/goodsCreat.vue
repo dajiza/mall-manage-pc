@@ -383,6 +383,7 @@
 <script>
 import { mixinsGoods } from '@/components/mixins/goods'
 export default {
+    name: 'goods-creat',
     mixins: [mixinsGoods],
     data() {
         return {}
