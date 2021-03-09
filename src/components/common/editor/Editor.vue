@@ -72,45 +72,58 @@ export default {
             width: 600,
             height: 680,
             askBeforePasteHTML: false,
+            toolbarSticky: false,
+            toolbarButtonSize: 'small',
             language: 'zh_cn',
+            method: 'POST',
+            format: 'json',
             uploader: {
                 url: this.uploadImgUrl,
                 filesVariableName: function(e) {
-                    return 'files'
+                    return 'file'
                 },
                 insertImageAsBase64URI: false,
                 imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
-                withCredentials: true,
+                withCredentials: false,
                 headers: this.header,
 
-                prepareData: function(data) {
-                    console.log(data)
-                    data.append('id', 24)
-                    return data
-                },
+                // prepareData: function(data) {
+                //     console.log('输出 ~ data', data)
+                //     console.log('输出 ~ data', data.path)
+                //     // delete data.path
+                //     // data.append('id', 24)
+                //     return data
+                // },
+                // buildData: function(data) {
+                //     console.log('输出 ~ data', data)
+                //     return { files: data }
+                // },
                 isSuccess: function(resp) {
-                    console.log('0>>>' + JSON.stringify(resp[0]))
+                    console.log('输出 ~ resp', resp)
                     return resp
                 },
                 process: function(resp) {
-                    console.log('GOOGLE: resp', resp)
+                    console.log('输出 ~ resp', resp)
                     return {
-                        files: ['', resp.data[0] + '?time=' + new Date().valueOf()],
+                        files: ['', resp.data.file_url + '?time=' + new Date().valueOf()],
                         isImages: [false, true],
                         baseurl: ''
                     }
+                },
+                error: function(e) {
+                    console.log('输出 ~ e', e)
                 }
             },
             events: {
                 beforePaste: function(event) {
-                    console.log('GOOGLE: beforePaste')
+                    // console.log('GOOGLE: beforePaste')
                 },
                 processPaste: function(event, html) {
-                    console.log('GOOGLE: html', html)
+                    // console.log('GOOGLE: html', html)
                     html = '1234'
                 },
                 afterPaste: function(event) {
-                    console.log('GOOGLE: afterPaste')
+                    // console.log('GOOGLE: afterPaste')
                 }
             }
         })
