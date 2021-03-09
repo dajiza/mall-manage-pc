@@ -338,7 +338,6 @@ export default {
         getList() {
             this.listLoading = true
             let params = this.$refs['formFilter'].model
-            console.log('输出 ~ params', params)
 
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1])
