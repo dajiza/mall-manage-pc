@@ -626,16 +626,23 @@
                         },
                         formatter: function(params) {
                             let point = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #1890FF;display: inline-block;margin: 0 5px 2px 0"></span>'
+                            let point2 = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #c3c3c3;display: inline-block;margin: 0 5px 2px 0"></span>'
                             let line = '<div style="width: 100%;height: 1px;background: #E8E8E8;position: absolute;top: 100px;left: 0"></div>'
                             let x_name = '',res = ''
                             for (var i = 0; i < params.length; i++) {
                                 if(i === 1){
                                     res += '<div style="height: 15px"></div>'
+                                    res += params[i].data.date + '<br/>';
+                                    res += point2 + params[i].seriesName + '：' + params[i].data.value + '<br/>';
+                                    res += point2 + '销量：' + params[i].data.all_num + '<br/>';
+                                    res += point2 + '订单数：' + params[i].data.all_order_count + '<br/>';
+                                } else {
+                                    res += params[i].data.date + '<br/>';
+                                    res += point + params[i].seriesName + '：' + params[i].data.value + '<br/>';
+                                    res += point + '销量：' + params[i].data.all_num + '<br/>';
+                                    res += point + '订单数：' + params[i].data.all_order_count + '<br/>';
                                 }
-                                res += params[i].data.date + '<br/>';
-                                res += point + params[i].seriesName + '：' + params[i].data.value + '<br/>';
-                                res += point + '销量：' + params[i].data.all_num + '<br/>';
-                                res += point + '订单数：' + params[i].data.all_order_count + '<br/>';
+
                                 if(i < params.length - 1){
                                     res += line
                                 }
