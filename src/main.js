@@ -23,10 +23,13 @@ import _ from 'lodash'; //引入lodash
 import VideoPlayer from 'vue-video-player';
 import less from 'less';
 import moment from 'moment';
+// import echarts from 'echarts'
+import * as echarts from 'echarts';
 // import NP from 'number-precision';
 // Vue.prototype.$NP = NP;
 require('video.js/dist/video-js.css');
 require('vue-video-player/src/custom-theme.css');
+Vue.prototype.$echarts = echarts
 Vue.prototype._ = _;
 Vue.prototype.$moment = moment;
 Vue.prototype.$signOut = signOut;
