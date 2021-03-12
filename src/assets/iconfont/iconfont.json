@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "20256836",
+      "name": "downArrow",
+      "font_class": "downArrow",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "20256833",
+      "name": "upArrow",
+      "font_class": "upArrow",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
       "icon_id": "19506034",
       "name": "收缩备份",
       "font_class": "compose",
