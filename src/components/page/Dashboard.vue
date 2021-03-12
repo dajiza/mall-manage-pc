@@ -858,10 +858,10 @@
                         //清除自己设置的key
                         if (getKey.indexOf(local_name_list) > -1) {
                             const nameObj = JSON.parse(name);
-                            console.log('nameObj', nameObj)
+                            // console.log('nameObj', nameObj)
                             if (nameObj.time && nameObj.expire) {
-                                console.log('nameObj.time', nameObj.time)
-                                console.log('nameObj.expire', nameObj.expire)
+                                // console.log('nameObj.time', nameObj.time)
+                                // console.log('nameObj.expire', nameObj.expire)
                                 if(new Date().getTime() - nameObj.time >= nameObj.expire){
                                     localStorage.removeItem(getKey)
                                 }
