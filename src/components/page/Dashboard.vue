@@ -172,7 +172,7 @@
             this.todayHourList = this.returnHourList(0)
             this.yesterdayHourList = this.returnHourList(1)
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
-            const name_list = ['mall_sku_sales', 'mall_seven_new_user', 'mall_daily_sales']
+            const name_list = ['mall_sku_sales', 'mall_seven_new_user', 'mall_daily_sales_data']
             this.clearLocalStorageData(name_list)
             // localStorage.removeItem('mall_seven_new_user')
         },
@@ -227,7 +227,7 @@
                         .then(res => {
                             this.skuList = res.data || []
                             this.skuLoading = false
-                            this.store('mall_sku_sales', JSON.stringify(res.data));
+                            this.store('mall_sku_sales', JSON.stringify(this.skuList));
                         })
                         .catch(err => {})
                 }
@@ -305,7 +305,7 @@
                                 this.allNewUserData = res.data || []
                                 this.showNewUserData = this.allNewUserData
                                 this.setNewUserOptions()
-                                this.store('mall_seven_new_user', JSON.stringify(res.data));
+                                this.store('mall_seven_new_user', JSON.stringify(this.allNewUserData));
                             }
                         } else {
                             this.newUserLoading = false
@@ -470,10 +470,10 @@
              * 销售统计 - 7日/14日
              */
             getSalesStatistics() {
-                let mall_daily_sales = localStorage.getItem('mall_daily_sales')
-                if(mall_daily_sales){
-                    console.log('mall_daily_sales', JSON.parse(JSON.parse(mall_daily_sales).value))
-                    this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales).value)
+                let mall_daily_sales_data = localStorage.getItem('mall_daily_sales_data')
+                if(mall_daily_sales_data){
+                    console.log('mall_daily_sales_data', JSON.parse(JSON.parse(mall_daily_sales_data).value))
+                    this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales_data).value)
                     this.showSaleData = this.allSalesData
                     // 默认 14天 全部店铺
                     console.log('showSaleData', this.showSaleData)
@@ -486,7 +486,7 @@
                         this.showSaleData = this.allSalesData
                         // 默认 14天 全部店铺
                         this.setSalesOptions(14)
-                        this.store('mall_daily_sales', JSON.stringify(res.data));
+                        this.store('mall_daily_sales_data', JSON.stringify(this.allSalesData));
                     })
                     .catch(err => {})
             },
