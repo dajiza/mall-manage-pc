@@ -172,6 +172,9 @@
             this.todayHourList = this.returnHourList(0)
             this.yesterdayHourList = this.returnHourList(1)
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
+            const name_list = ['mall_sku_sales', 'mall_seven_new_user', 'mall_daily_sales']
+            this.clearLocalStorageData(name_list)
+            // localStorage.removeItem('mall_seven_new_user')
         },
         mounted() {
             this.queryShopList()  // 请求店铺列表
@@ -214,12 +217,21 @@
 
             // 请求sku排名接口
             getSKUReport() {
-                querySKUReport()
-                    .then(res => {
-                        this.skuList = res.data || []
-                        this.skuLoading = false
-                    })
-                    .catch(err => {})
+                let mall_sku_sales = localStorage.getItem('mall_sku_sales')
+                if(mall_sku_sales){
+                    console.log('mall_sku_sales', JSON.parse(JSON.parse(mall_sku_sales).value))
+                    this.skuList = JSON.parse(JSON.parse(mall_sku_sales).value)
+                    this.skuLoading = false
+                } else {
+                    querySKUReport()
+                        .then(res => {
+                            this.skuList = res.data || []
+                            this.skuLoading = false
+                            this.store('mall_sku_sales', JSON.stringify(res.data));
+                        })
+                        .catch(err => {})
+                }
+
             },
 
             // 代理店铺列表
@@ -278,6 +290,14 @@
 
             // 请求七日新用户数据
             getNewUserData() {
+                let mall_seven_new_user = localStorage.getItem('mall_seven_new_user')
+                if(mall_seven_new_user){
+                    console.log('mall_seven_new_user', JSON.parse(JSON.parse(mall_seven_new_user).value))
+                    this.allNewUserData = JSON.parse(JSON.parse(mall_seven_new_user).value)
+                    this.showNewUserData = this.allNewUserData
+                    this.setNewUserOptions()
+                    return
+                }
                 queryNewCustomer()
                     .then((res) => {
                         if (res.code === 200) {
@@ -285,6 +305,7 @@
                                 this.allNewUserData = res.data || []
                                 this.showNewUserData = this.allNewUserData
                                 this.setNewUserOptions()
+                                this.store('mall_seven_new_user', JSON.stringify(res.data));
                             }
                         } else {
                             this.newUserLoading = false
@@ -351,7 +372,8 @@
                     map.has(item.date) ? map.get(item.date).push(item) : map.set(item.date, [item]);
                 })
                 newArr = [...map.values()];
-                let series_data = []
+                let series_data = [],
+                    y_value_arr = []
                 newArr.forEach((event)=>{
                     let _obj = {
                         value: 0,
@@ -372,8 +394,12 @@
                         _obj.count_invite += ev.count_invite
                         _obj.date = ev.date
                     })
+                    y_value_arr.push(_obj.value)
                     series_data.push(_obj)
                 })
+                let max_value = 0;
+                max_value = Math.max.apply(null,y_value_arr)
+                console.log('max_value', max_value)
                 let option = {
                     title: {
                         text: '',
@@ -408,6 +434,8 @@
                     ],
                     yAxis: [
                         {
+                            max: max_value,
+                            splitNumber: max_value,
                             type: 'value'
                         }
                     ],
@@ -442,12 +470,22 @@
              * 销售统计 - 7日/14日
              */
             getSalesStatistics() {
+                let mall_daily_sales = localStorage.getItem('mall_daily_sales')
+                if(mall_daily_sales){
+                    console.log('mall_daily_sales', JSON.parse(JSON.parse(mall_daily_sales).value))
+                    this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales).value)
+                    this.showSaleData = this.allSalesData
+                    // 默认 14天 全部店铺
+                    this.setSalesOptions(14)
+                    return
+                }
                 queryOrderDaily()
                     .then(res => {
                         this.allSalesData = res.data || []
                         this.showSaleData = this.allSalesData
                         // 默认 14天 全部店铺
                         this.setSalesOptions(14)
+                        this.store('mall_daily_sales', JSON.stringify(res.data));
                     })
                     .catch(err => {})
             },
@@ -577,6 +615,7 @@
                 this.fillSalesOptions(x_axis,_list)
 
             },
+            // 填充 option
             fillSalesOptions(x_axis, _list) {
                 let all_data = this.returnNewArr(_list)
                 let series_data = this.returnSeriesData(all_data)
@@ -791,6 +830,62 @@
                     series_data.push(_obj)
                 })
                 return series_data
+            },
+
+            // 获取指定时间的时间戳
+            convertTime(nowDate, deadLine){
+                // 分割参数Deadline
+                let _dateArr = deadLine.split(':');
+                // 分别获取参数中对应的时、分、秒
+                let hours = parseInt(_dateArr[0]);
+                let minutes = parseInt(_dateArr[1]);
+                let seconds = parseInt(_dateArr[2]);
+                // 设置对应时分秒
+                nowDate.setHours(hours);
+                nowDate.setMinutes(minutes);
+                nowDate.setSeconds(seconds);
+                // 获取当前天中指定时分秒对应的毫秒数
+                return  Date.parse(nowDate);
+            },
+            // 超过时间，清除缓存数据
+            clearLocalStorageData(local_name_list){
+                let len = localStorage.length
+                for(var i = 0; i < len; i++) {
+                    const getKey = localStorage.key(i);
+                    // console.log('getKey', getKey)
+                    if(localStorage.getItem(getKey)){
+                        const name = localStorage.getItem(getKey);
+                        //清除自己设置的key
+                        if (getKey.indexOf(local_name_list) > -1) {
+                            const nameObj = JSON.parse(name);
+                            console.log('nameObj', nameObj)
+                            if (nameObj.time && nameObj.expire) {
+                                console.log('nameObj.time', nameObj.time)
+                                console.log('nameObj.expire', nameObj.expire)
+                                if(new Date().getTime() - nameObj.time >= nameObj.expire){
+                                    localStorage.removeItem(getKey)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            // 写入缓存
+            store(key, value) {
+                const curDate = new Date();
+                // 获取当前日期对应的时间戳
+                const curTime = curDate.getTime();
+                // 获取指定时间的时间戳
+                const endTime = this.convertTime(curDate, '24:00:00');
+                // 计算出指定时间与当前时间的时间差
+                const disTime = endTime - curTime;
+                let obj = {
+                    time: new Date().getTime(),
+                    value: value,
+                    expire: disTime,
+                };
+                let objStr = JSON.stringify(obj);
+                localStorage.setItem(key,objStr);
             }
 
         }
