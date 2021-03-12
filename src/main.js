@@ -14,7 +14,6 @@ import 'babel-polyfill'
 import Print from './utils/print.js'
 import axios from 'axios'
 // import global from './utils/global.js';
-<<<<<<< HEAD
 import commUtil from './utils/commUtil'
 import { signOut } from './utils/loginOut'
 import 'default-passive-events'
@@ -24,39 +23,18 @@ import _ from 'lodash' //引入lodash
 import VideoPlayer from 'vue-video-player'
 import less from 'less'
 import moment from 'moment'
+// import echarts from 'echarts'
+import * as echarts from 'echarts'
 // import NP from 'number-precision';
 // Vue.prototype.$NP = NP;
 require('video.js/dist/video-js.css')
 require('vue-video-player/src/custom-theme.css')
-
+Vue.prototype.$echarts = echarts
 Vue.prototype._ = _
 Vue.prototype.$moment = moment
 Vue.prototype.$signOut = signOut
 Vue.prototype.$ajax = axios
 Vue.config.productionTip = false
-=======
-import commUtil from './utils/commUtil';
-import { signOut } from './utils/loginOut';
-import 'default-passive-events';
-import TableHeaderColor from './plugin/tableConfig'; // 引入通用表头样式
-import TableHeight from './plugin/tableConfig'; // 引入通用表头样式
-import _ from 'lodash'; //引入lodash
-import VideoPlayer from 'vue-video-player';
-import less from 'less';
-import moment from 'moment';
-// import echarts from 'echarts'
-import * as echarts from 'echarts';
-// import NP from 'number-precision';
-// Vue.prototype.$NP = NP;
-require('video.js/dist/video-js.css');
-require('vue-video-player/src/custom-theme.css');
-Vue.prototype.$echarts = echarts
-Vue.prototype._ = _;
-Vue.prototype.$moment = moment;
-Vue.prototype.$signOut = signOut;
-Vue.prototype.$ajax = axios;
-Vue.config.productionTip = false;
->>>>>>> b23c3d25769eb32a1d448387e645f8eaa22116b3
 // Vue.use(VueI18n);
 Vue.use(ElementUI, {
     size: 'small'
