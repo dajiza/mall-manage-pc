@@ -476,6 +476,7 @@
                     this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales).value)
                     this.showSaleData = this.allSalesData
                     // 默认 14天 全部店铺
+                    console.log('showSaleData', this.showSaleData)
                     this.setSalesOptions(14)
                     return
                 }
