@@ -39,6 +39,7 @@ Vue.config.productionTip = false
 Vue.use(ElementUI, {
     size: 'small'
 })
+
 Vue.use(Print)
     .use(less)
     .use(TableHeaderColor)
