@@ -18,6 +18,7 @@
                         value-format="yyyy-MM-dd HH:mm:ss"
                         :default-time="['00:00:00', '23:59:59']"
                         :picker-options="pickerOptions"
+                        :clearable="false"
                     >
                     </el-date-picker>
                 </el-form-item>
@@ -41,10 +42,10 @@
             <div class="shop-icon shop-filter" v-if="filterShop.id">
                 <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
             </div>
-            <el-radio-group v-model="tabWay" class="tab-way">
-                <el-radio-button label="sales">销量</el-radio-button>
-                <el-radio-button label="order">订单量</el-radio-button>
-                <el-radio-button label="amount">销售额</el-radio-button>
+            <el-radio-group v-model="orderByField" class="tab-way">
+                <el-radio-button :label="1">销量</el-radio-button>
+                <el-radio-button :label="2">订单量</el-radio-button>
+                <el-radio-button :label="3">销售额</el-radio-button>
             </el-radio-group>
             <el-popover placement="right" width="100" trigger="click" popper-class="statistics-popover">
                 <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
@@ -56,7 +57,6 @@
                 <span slot="reference" class="icon iconfont icon-open1 "></span>
             </el-popover>
         </div>
-        {{ checkedColumn }}
         <el-table
             :height="$tableHeight"
             class="table"
@@ -65,6 +65,7 @@
             :header-cell-style="$tableHeaderColor"
             element-loading-text="Loading"
             :key="tableKey"
+            @sort-change="sortColumn"
         >
             <el-table-column label="SKU图片" width="128" fixed>
                 <template slot-scope="scope">
@@ -78,39 +79,19 @@
                     <span v-else>{{ scope.row[item.key] }}</span>
                 </template>
             </el-table-column>
-            <!-- <el-table-column label="SKU名字">
+
+            <el-table-column label="小计" width="120" prop="xj" sortable="custom">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.product_name }}</span>
+                    <span v-if="orderByField == 1">{{ scope.row.num }}</span>
+                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.order_count) }}</span>
+                    <span v-if="orderByField == 3">{{ formatMoney(scope.row.money_total) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="SKU编码" width="160">
+            <el-table-column :label="$moment(item).format('MM-DD')" :prop="item" v-for="(item, index) in columnName" :key="item" sortable="custom" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.product_code }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="商品名称" width="220">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.goods_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="规格">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.goods_attr.join(',') }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="可用库存" width="116">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.storage }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="销售单价(元)" width="120">
-                <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.price) }}</span>
-                </template>
-            </el-table-column> -->
-            <el-table-column label="小计" width="120" sortable>
-                <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.money_total) }}</span>
+                    <span v-if="orderByField == 1">{{ scope.row.date_info[index].num }}</span>
+                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.date_info[index].order_count) }}</span>
+                    <span v-if="orderByField == 3">{{ formatMoney(scope.row.date_info[index].money_total) }}</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -192,7 +173,11 @@ export default {
                     }
                 ]
             },
-            tabWay: 'sales',
+            columnName: [], //按日期统计的表头
+            orderByField: 1, //1按num 2orderCount 3money
+            orderAsc: '', //1 顺序 2倒序 不排为空
+            orderByDate: '', //排序日期
+
             tableKey: 0,
             isIndeterminate: false,
             checkAll: true,
@@ -240,15 +225,7 @@ export default {
     },
 
     mounted() {
-        // 默认搜索一个月
-        const end = new Date()
-        const start = new Date()
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-        let timeStart = start
-        let timeEnd = end
-        timeStart = this.$moment(timeStart).format('yyyy-MM-DD HH:mm:ss')
-        timeEnd = this.$moment(timeEnd).format('yyyy-MM-DD HH:mm:ss')
-        this.formFilter.searchTime = [timeStart, timeEnd]
+        this.setDefaultDate()
 
         // 默认显示全部列表
         this.handleCheckAllChange(true)
@@ -266,19 +243,36 @@ export default {
                 this.filterShop = {}
             }
 
-            if (params['searchTime'].length == 2) {
+            if (params['searchTime'] && params['searchTime'].length == 2) {
                 params['created_time_ge'] = params.searchTime[0]
                 params['created_time_le'] = params.searchTime[1]
             } else {
                 params['created_time_ge'] = ''
                 params['created_time_le'] = ''
+                this.$notify({
+                    title: '请选择时间区间',
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                })
+                return
             }
+
+            //1按num 2orderCount 3money
+            params['order_by_field'] = this.orderByField
+            //1 顺序 2倒序
+            params['order_asc'] = this.orderAsc
+            // 2021-03-08 00:00:00
+            params['order_by_date'] = this.orderByDate
+
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
             console.log(params)
             queryOrderReportSku(params)
                 .then(res => {
+                    console.log('输出 ~ res', res)
+                    this.total = res.data.total
                     if (res.data.lists == null) {
                         this.list = res.data.lists
                         return
@@ -288,12 +282,84 @@ export default {
                         element['goods_attr'] = JSON.parse(element['goods_attr'])
                         element['goods_attr'] = element['goods_attr'].map(item => item.Value)
                     }
+                    // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
+                    let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
+                    let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
+                    let pointer = start
+                    let columnName = []
+
+                    // 生成统计显示表头
+                    while (this.$moment(pointer).diff(this.$moment(end), 'days') <= 0) {
+                        columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
+                        pointer = this.$moment(pointer).add(1, 'd')
+                    }
+                    this.columnName = columnName
+                    for (let i = 0; i < res.data.lists.length; i++) {
+                        const element = res.data.lists[i]
+                        for (let j = 0; j < columnName.length; j++) {
+                            const dateItem = element.date_info[j] ? element.date_info[j].key_name : null
+                            const column = columnName[j]
+                            if (!dateItem || this.$moment(dateItem).diff(this.$moment(column), 'days') != 0) {
+                                let insertData = {
+                                    key_name: column,
+                                    money_total: 0,
+                                    num: 0,
+                                    order_count: 0
+                                }
+                                element.date_info.splice(j, 0, insertData)
+                            }
+                        }
+                    }
 
                     this.list = res.data.lists
-                    this.total = res.data.total
+                    console.log('输出 ~ res.data.lists', res.data.lists)
                 })
                 .catch(err => {})
         },
+        // 设置默认时间 搜索7天
+        setDefaultDate() {
+            const end = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            let timeStart = start
+            let timeEnd = end
+            timeStart = this.$moment(timeStart).format('yyyy-MM-DD HH:mm:ss')
+            timeEnd = this.$moment(timeEnd)
+                .add(-1, 'm')
+                .format('yyyy-MM-DD HH:mm:ss')
+            this.formFilter.searchTime = [timeStart, timeEnd]
+        },
+        // 排序
+        sortColumn(value) {
+            console.log('输出 ~ value', value)
+            if (value.prop == 'xj') {
+                this.orderByDate = ''
+            } else {
+                this.orderByDate = this.$moment(value.prop).format('YYYY-MM-DD HH:mm:ss')
+            }
+            switch (value.order) {
+                case 'ascending':
+                    this.orderAsc = 1
+                    break
+                case 'descending':
+                    this.orderAsc = 2
+                    break
+                case null:
+                    this.orderAsc = ''
+                    this.orderByDate = ''
+                    break
+                default:
+                    this.orderAsc = ''
+                    this.orderByDate = ''
+                    break
+            }
+
+            this.getList()
+        },
+        // tab
+        // handleTabClick(value) {
+        //     this.getList()
+        // },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
@@ -316,7 +382,6 @@ export default {
             this.isIndeterminate = checkedCount > 0 && checkedCount < this.columns.length
 
             this.showColumn = value.map(item => this.columns.find(column => column.key == item)).sort((a, b) => a.index - b.index)
-            console.log('输出 ~ this.showColumn', this.showColumn)
         },
         // 搜索
         handleFilter() {
@@ -326,6 +391,12 @@ export default {
         // 重置
         resetForm(formName) {
             this.$refs[formName].resetFields()
+
+            this.setDefaultDate()
+            this.orderByField = 1
+            this.orderAsc = ''
+            this.orderByDate = ''
+
             this.handleFilter()
         },
         // 分页方法

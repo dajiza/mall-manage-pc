@@ -144,6 +144,11 @@ export default new Router({
                     meta: { title: '新建页面' }
                 },
                 {
+                    path: '/mall-backend-page-edit',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/page-manage/pageCreat.vue'),
+                    meta: { title: '编辑页面' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }

@@ -344,9 +344,11 @@ export const mixinsGoods = {
             let self = this
             return {
                 disabledDate(time) {
-                    const start = new Date(new Date().toLocaleDateString())
+                    let start = new Date(new Date().toLocaleDateString())
+                    let end = new Date(new Date().toLocaleDateString())
                     start.setTime(start.getTime() - 3600 * 1000 * 24 * 1)
-                    return time.getTime() <= start //开始时间不选时，最小值为今天
+                    end.setTime(end.getTime() + 3600 * 1000 * 24 * 20)
+                    return time.getTime() <= start || time.getTime() >= end //开始时间不选时，最小值为今天
                 }
             }
         },
