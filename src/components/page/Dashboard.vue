@@ -174,7 +174,6 @@
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
             const name_list = ['mall_sku_sales', 'mall_seven_new_user', 'mall_daily_sales_data']
             this.clearLocalStorageData(name_list)
-            // localStorage.removeItem('mall_seven_new_user')
         },
         mounted() {
             this.queryShopList()  // 请求店铺列表

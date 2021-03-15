@@ -182,6 +182,10 @@ export default {
                         global.loginCheck = result.user_id;
                         localStorage.setItem('userId', result.admin_id); // 同时也要做的是将这个用户id存进localStorage
                         let params = { admin_id: result.admin_id };
+                        // 清空首页缓存
+                        localStorage.removeItem('mall_sku_sales')
+                        localStorage.removeItem('mall_seven_new_user')
+                        localStorage.removeItem('mall_daily_sales_data')
                         this.getUserDetailData(params);
                     } else {
                         this.login_loading.close();

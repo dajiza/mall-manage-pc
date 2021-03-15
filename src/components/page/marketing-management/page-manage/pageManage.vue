@@ -31,7 +31,7 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">页面管理</div>
-            <el-button type="primary" @click="pageCreat" class="creat-page" v-hasPermission="'mall-backend-goods-add'">新增商品</el-button>
+            <el-button type="primary" @click="pageCreat" class="creat-page" v-hasPermission="'mall-backend-page-manage-goods-add'">新增商品</el-button>
         </div>
         <el-table :height="$tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
             <el-table-column label="页面ID" width="100">
@@ -51,10 +51,10 @@
             </el-table-column>
             <el-table-column label="操作" width="126">
                 <template slot-scope="scope">
-                    <el-button class="text-blue btn-opt table-btn" type="text" size="" @click="pageEdit(scope.row.id)">
+                    <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-page-manage-goods-update'" @click="pageEdit(scope.row.id)">
                         编辑
                     </el-button>
-                    <el-button class="text-red btn-opt table-btn" type="text" size="" @click="pageDelete(scope.row.id, scope.$index)">
+                    <el-button class="text-red btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-page-manage-goods-delete'" @click="pageDelete(scope.row.id, scope.$index)">
                         删除
                     </el-button>
                 </template>
