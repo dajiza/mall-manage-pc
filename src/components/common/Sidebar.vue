@@ -112,7 +112,7 @@ export default {
             all_menu: [
                 {
                     icon: 'iconfont icon-home',
-                    name: 'dashboard',
+                    name: 'mall-backend-dashboard',
                     display_name: '系统首页'
                 },
                 {
@@ -306,7 +306,7 @@ export default {
                 roleAuthList.push(ev.name)
             })
 
-            roleAuthList.unshift('dashboard')
+            roleAuthList.unshift('mall-backend-dashboard')
             const menuList = this.commonMenu(this.all_menu, roleAuthList)
             const newList = this.filterMenu(menuList)
             this.items = newList

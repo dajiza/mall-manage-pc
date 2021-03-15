@@ -17,7 +17,7 @@ export default {
           this.$router.go(-1);
       },
       goHome(){
-          this.$router.push({path:'/dashboard'});
+          this.$router.push({path:'/mall-backend-dashboard'});
       },
       goLogin(){
           this.$signOut();

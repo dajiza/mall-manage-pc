@@ -137,7 +137,7 @@ router.beforeEach((to, from, next) => {
         // 判断当前浏览器的本地存储里面是不是有已经登录的信息
         if (to.path === '/login' || to.path === '/') {
             // 如果要去的是登录页,直接跳转
-            next({ path: '/dashboard' })
+            next({ path: '/mall-backend-dashboard' })
         } else if (to.path === '/404' || to.path === '/403') {
             next()
         } else {
@@ -164,7 +164,7 @@ router.beforeEach((to, from, next) => {
                     })
                 }
             })
-            permissions.push('dashboard')
+            permissions.push('mall-backend-dashboard')
             // console.log('permissions', permissions);
             const path_url = to.path.replace('/', '')
             // console.log('permissions', permissions);
