@@ -115,7 +115,7 @@
     import { queryShopList } from '@/api/goods'
     import { queryOrderStatusReport, querySKUReport, queryNewCustomer, queryOrderDaily, queryOrderHour } from '@/api/homePageReport'
     export default {
-        name: 'dashboard',
+        name: 'mall-backend-dashboard',
         data() {
             return {
                 name: localStorage.getItem('ms_username'),

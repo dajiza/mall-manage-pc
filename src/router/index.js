@@ -18,9 +18,9 @@ export default new Router({
             meta: { title: '自述文件' },
             children: [
                 {
-                    path: '/dashboard',
+                    path: '/mall-backend-dashboard',
                     component: () => import(/* webpackChunkName: "dashboard" */ '../components/page/Dashboard.vue'),
-                    meta: { title: '系统首页', name: 'dashboard' }
+                    meta: { title: '系统首页', name: 'mall-backend-dashboard' }
                 },
                 {
                     path: '/mall-backend-goods-list',

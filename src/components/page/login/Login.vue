@@ -219,7 +219,7 @@ export default {
                         if (result.is_admin) {
                             this.login_loading.close();
                             this.$message.success('登录成功');
-                            this.$router.push('/dashboard');
+                            this.$router.push('/mall-backend-dashboard');
                         } else {
                             let params = {
                                 role_id: result.role_id
@@ -248,7 +248,7 @@ export default {
                             this.login_loading.close();
                             localStorage.setItem('roleAuthList', JSON.stringify(res.data));
                             this.$message.success('登录成功');
-                            this.$router.push('/dashboard');
+                            this.$router.push('/mall-backend-dashboard');
                         } else {
                             this.login_loading.close();
                             this.$notify({
