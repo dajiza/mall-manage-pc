@@ -86,6 +86,7 @@
                         <el-radio :label="1">商品列表页</el-radio>
                         <el-radio :label="2">商品详情页</el-radio>
                         <el-radio :label="3">直播页</el-radio>
+                        <el-radio :label="5">页面</el-radio>
                         <el-radio :label="4">自定义</el-radio>
                     </el-radio-group>
                 </el-form-item>
@@ -105,6 +106,9 @@
                     </template>
                     <template v-if="operationForm.adv_type==4">
                         <div class="tip-text">请填写完整路径，如果您不知道如何填写，请勿使用该选项。</div>
+                    </template>
+                    <template v-if="operationForm.adv_type==5">
+                        <div class="tip-text">页面id可以在页面列表页中查看。</div>
                     </template>
                 </el-form-item>
                 <el-form-item class="form-item" label="描述:" prop="description">

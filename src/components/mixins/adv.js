@@ -28,7 +28,7 @@ export const mixinsAdv = {
                 shop_id: '',     // 可用店铺
                 start_time: '',  // 开始时间
                 end_time: '',    // 结束时间
-                adv_type: 1, // 广告类型 1 商品列表  2 商品详情 3 直播间 4 自定义
+                adv_type: 1, // 广告类型 1 商品列表  2 商品详情 3 直播间 4 自定义 5 页面
             },
             rules: {
                 status: [{ required: true, message: '请选择类型', trigger: 'change' }],
@@ -95,6 +95,8 @@ export const mixinsAdv = {
                     link_label = '商品ID:'
                 }else if(data === 3){
                     link_label = '房间号:'
+                }else if(data === 5){
+                    link_label = '页面ID:'
                 }else {
                     link_label = 'link:'
                 }
@@ -157,6 +159,9 @@ export const mixinsAdv = {
             } else if (info.link.indexOf('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=') > -1) { // 直播间
                 advType = 3
                 _link = info.link.split('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=')[1]
+            } else if (info.link.indexOf('/pages/article/article?id=') > -1) { // 商品详情
+                advType = 5
+                _link = info.link.split('/pages/article/article?id=')[1]
             } else { // 自定义
                 advType = 4
                 _link = info.link
@@ -234,6 +239,8 @@ export const mixinsAdv = {
                             new_link = 'plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=' + this.operationForm.link
                         } else if(this.operationForm.adv_type === 4) { // 自定义
                             new_link = this.operationForm.link
+                        } else if(this.operationForm.adv_type === 5) { // 页面
+                            new_link = '/pages/article/article?id=' + this.operationForm.link
                         }
                         // console.log('new_link', new_link)
                         params['link'] = new_link
