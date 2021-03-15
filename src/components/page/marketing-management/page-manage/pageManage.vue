@@ -54,7 +54,13 @@
                     <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-page-manage-goods-update'" @click="pageEdit(scope.row.id)">
                         编辑
                     </el-button>
-                    <el-button class="text-red btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-page-manage-goods-delete'" @click="pageDelete(scope.row.id, scope.$index)">
+                    <el-button
+                        class="text-red btn-opt table-btn"
+                        type="text"
+                        size=""
+                        v-hasPermission="'mall-backend-page-manage-goods-delete'"
+                        @click="pageDelete(scope.row.id, scope.$index)"
+                    >
                         删除
                     </el-button>
                 </template>
@@ -106,8 +112,8 @@ export default {
                     {
                         text: '最近一周',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
                             picker.$emit('pick', [start, end])
                         }
@@ -115,8 +121,8 @@ export default {
                     {
                         text: '最近一个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
                             picker.$emit('pick', [start, end])
                         }
@@ -124,8 +130,8 @@ export default {
                     {
                         text: '最近三个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
                             picker.$emit('pick', [start, end])
                         }
@@ -170,15 +176,13 @@ export default {
         },
         // 设置默认时间 搜索7天
         setDefaultDate() {
-            const end = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
             const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
             let timeStart = start
             let timeEnd = end
             timeStart = this.$moment(timeStart).format('yyyy-MM-DD HH:mm:ss')
-            timeEnd = this.$moment(timeEnd)
-                .add(-1, 'm')
-                .format('yyyy-MM-DD HH:mm:ss')
+            timeEnd = this.$moment(timeEnd).format('yyyy-MM-DD HH:mm:ss')
             this.formFilter.searchTime = [timeStart, timeEnd]
         },
         pageCreat() {

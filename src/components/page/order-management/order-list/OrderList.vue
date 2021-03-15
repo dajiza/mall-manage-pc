@@ -139,12 +139,12 @@
                 </el-table-column>
                 <el-table-column prop="price_total" label="退款金额(元)" width="120">
                     <template slot-scope="scope">
-                        {{ (scope.row.refund_money/100) | rounding}}
+                        {{ (scope.row.refund_money / 100) | rounding }}
                     </template>
                 </el-table-column>
                 <el-table-column prop="price_total" label="退运费(元)" width="120">
                     <template slot-scope="scope">
-                        {{ (scope.row.refund_freight/100) | rounding}}
+                        {{ (scope.row.refund_freight / 100) | rounding }}
                     </template>
                 </el-table-column>
                 <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
@@ -160,13 +160,14 @@
             </el-table>
             <div class="pagination-container">
                 <el-pagination
-                        @size-change="handleSizeChange"
-                        @current-change="handlePageChange"
-                        :current-page="pageInfo.pageIndex"
-                        :page-sizes="[10, 20, 30, 40, 50, 100]"
-                        :page-size="10"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        :total="pageTotal">
+                    @size-change="handleSizeChange"
+                    @current-change="handlePageChange"
+                    :current-page="pageInfo.pageIndex"
+                    :page-sizes="[10, 20, 30, 40, 50, 100]"
+                    :page-size="10"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="pageTotal"
+                >
                 </el-pagination>
             </div>
             <div class="empty-list-box" v-show="tableData.length === 0">
@@ -237,8 +238,8 @@ export default {
                     {
                         text: '最近一周',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
                             picker.$emit('pick', [start, end])
                         }
@@ -246,8 +247,8 @@ export default {
                     {
                         text: '最近一个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
                             picker.$emit('pick', [start, end])
                         }
@@ -255,8 +256,8 @@ export default {
                     {
                         text: '最近三个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
                             picker.$emit('pick', [start, end])
                         }
@@ -353,13 +354,13 @@ export default {
                 limit: this.pageInfo.pageSize,
                 id: -1,
                 order_no: this.searchParams.order_no ? this.searchParams.order_no : '',
-                status: this.searchParams.status !=='' ? this.searchParams.status : -1,
+                status: this.searchParams.status !== '' ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
                 channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
                 logistics_name: this.searchParams.logistics_name ? this.searchParams.logistics_name : '',
                 logistics_phone: this.searchParams.logistics_phone ? this.searchParams.logistics_phone : '',
                 paid_time_le: this.searchParams.paid_time_le ? this.searchParams.paid_time_le : '',
-                paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge: '',
+                paid_time_ge: this.searchParams.paid_time_ge ? this.searchParams.paid_time_ge : '',
                 err_type: this.searchParams.unusual_type !== '' ? Number(this.searchParams.unusual_type) : -1,
                 product_code: this.searchParams.product_code ? this.searchParams.product_code : '',
                 user_name: this.searchParams.user_name ? this.searchParams.user_name : '',
@@ -404,9 +405,9 @@ export default {
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.$set(this.pageInfo, 'pageIndex', 1);
-            this.searchParams = _.cloneDeep(this.searchForm);
+            this.$refs[formName].resetFields()
+            this.$set(this.pageInfo, 'pageIndex', 1)
+            this.searchParams = _.cloneDeep(this.searchForm)
             this.getListData()
         },
 
@@ -414,10 +415,10 @@ export default {
         handleSearch(formName) {
             this.$set(this.pageInfo, 'pageIndex', 1)
             //  存储搜索条件
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.$set(this.searchParams,'paid_time_ge', this.searchForm.pay_time[0]);
-            this.$set(this.searchParams,'paid_time_le', this.searchForm.pay_time[1]);
-            this.getListData();
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0])
+            this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1])
+            this.getListData()
         },
 
         // 按钮-查看订单详情
@@ -491,19 +492,19 @@ export default {
         // 按钮-分页导航
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val)
-            this.pageChange();
+            this.pageChange()
         },
         // 切换每页显示条数
-        handleSizeChange(val){
-            console.log(`每页 ${val} 条`);
-            this.$set(this.pageInfo, 'pageSize', val);
-            this.$set(this.pageInfo, 'pageIndex', 1);
-            this.pageChange();
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`)
+            this.$set(this.pageInfo, 'pageSize', val)
+            this.$set(this.pageInfo, 'pageIndex', 1)
+            this.pageChange()
         },
         pageChange() {
-            this.searchForm = _.cloneDeep(this.searchParams);
-            this.getListData();
-        },
+            this.searchForm = _.cloneDeep(this.searchParams)
+            this.getListData()
+        }
     }
 }
 </script>

@@ -128,8 +128,8 @@ export default {
                     {
                         text: '最近一周',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
                             picker.$emit('pick', [start, end])
                         }
@@ -137,8 +137,8 @@ export default {
                     {
                         text: '最近一个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
                             picker.$emit('pick', [start, end])
                         }
@@ -146,8 +146,8 @@ export default {
                     {
                         text: '最近三个月',
                         onClick(picker) {
-                            const end = new Date()
-                            const start = new Date()
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
                             start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
                             picker.$emit('pick', [start, end])
                         }
