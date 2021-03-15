@@ -67,7 +67,7 @@
             >
                 <template slot-scope="scope">
                     <span v-if="orderByField == 1">{{ scope.row.num }}</span>
-                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.order_count) }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.order_count }}</span>
                     <span v-if="orderByField == 3">{{ formatMoney(scope.row.money_total) }}</span>
                 </template>
             </el-table-column>
@@ -82,7 +82,7 @@
             >
                 <template slot-scope="scope">
                     <span v-if="orderByField == 1">{{ scope.row.date_info[index].num }}</span>
-                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.date_info[index].order_count) }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.date_info[index].order_count }}</span>
                     <span v-if="orderByField == 3">{{ formatMoney(scope.row.date_info[index].money_total) }}</span>
                 </template>
             </el-table-column>

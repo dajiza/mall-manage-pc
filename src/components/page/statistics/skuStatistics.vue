@@ -83,14 +83,14 @@
             <el-table-column label="小计" width="120" prop="xj" sortable="custom">
                 <template slot-scope="scope">
                     <span v-if="orderByField == 1">{{ scope.row.num }}</span>
-                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.order_count) }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.order_count }}</span>
                     <span v-if="orderByField == 3">{{ formatMoney(scope.row.money_total) }}</span>
                 </template>
             </el-table-column>
             <el-table-column :label="$moment(item).format('MM-DD')" :prop="item" v-for="(item, index) in columnName" :key="item" sortable="custom" width="100">
                 <template slot-scope="scope">
                     <span v-if="orderByField == 1">{{ scope.row.date_info[index].num }}</span>
-                    <span v-if="orderByField == 2">{{ formatMoney(scope.row.date_info[index].order_count) }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.date_info[index].order_count }}</span>
                     <span v-if="orderByField == 3">{{ formatMoney(scope.row.date_info[index].money_total) }}</span>
                 </template>
             </el-table-column>
