@@ -69,9 +69,9 @@
                             <div class="trend-value">
                                 <div class="amount">¥{{salesInfo.all_money}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-downArrow" v-if="salesInfo.money_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.money_change || 0}}%</span>
+                                    <i class="iconfont icon-upArrow" v-if="salesInfo.money_is_up"></i>
+                                    <i class="iconfont icon-downArrow" v-else></i>
+                                    <span>{{salesInfo.money_change ? salesInfo.money_change >= 1000 ? '≥' + salesInfo.money_change : salesInfo.money_change : 0}}%</span>
                                 </div>
                             </div>
                         </div>
@@ -80,9 +80,9 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_num}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-downArrow" v-if="salesInfo.num_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.num_change || 0}}%</span>
+                                    <i class="iconfont icon-upArrow" v-if="salesInfo.num_is_up"></i>
+                                    <i class="iconfont icon-downArrow" v-else></i>
+                                    <span>{{salesInfo.num_change ? salesInfo.num_change >= 1000 ? '≥' + salesInfo.num_change : salesInfo.num_change : 0}}%</span>
                                 </div>
                             </div>
                         </div>
@@ -91,9 +91,9 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_order_count}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-downArrow" v-if="salesInfo.order_count_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.order_count_change || 0}}%</span>
+                                    <i class="iconfont icon-upArrow" v-if="salesInfo.order_count_is_up"></i>
+                                    <i class="iconfont icon-downArrow" v-else></i>
+                                    <span>{{salesInfo.order_count_change ? salesInfo.order_count_change >= 1000 ? '≥' + salesInfo.order_count_change : salesInfo.order_count_change : 0}}%</span>
                                 </div>
                             </div>
                         </div>
@@ -144,10 +144,13 @@
                 salesInfo:{
                     all_money: 0,
                     money_change: 0,
+                    money_is_up: true,
                     all_num: 0,
                     num_change: 0,
+                    num_is_up: true,
                     all_order_count: 0,
-                    order_count_change: 0
+                    order_count_change: 0,
+                    order_count_is_up: true,
                 },
                 allNewUserData: [],
                 showNewUserData: [],
@@ -680,22 +683,34 @@
                 if(all_money_before !== 0 && all_money_now !== 0 ) {
                     money_change = ((commUtil.numberSub(all_money_now, all_money_before) / all_money_before) * 100).toFixed(2)
                 } else if(all_money_before === 0){
-                    money_change = '≥1000'
+                    money_change = '1000'
                 }
 
                 if(all_num_now !== 0 && all_num_before !== 0 ) {
                     num_change = ((commUtil.numberSub(all_num_now, all_num_before) / all_num_before) * 100).toFixed(2)
                 } else if(all_num_before === 0){
-                    num_change = '≥1000'
+                    num_change = '1000'
                 }
                 if(all_order_count_now !== 0 && all_order_count_before !== 0 ) {
                     order_count_change = ((commUtil.numberSub(all_order_count_now, all_order_count_before) / all_order_count_before) * 100).toFixed(2)
                 } else if(all_order_count_before === 0){
-                    order_count_change = '≥1000'
+                    order_count_change = '1000'
                 }
-                if(money_change >= 1000){ money_change = '≥1000'}
-                if(num_change >= 1000){ num_change = '≥1000'}
-                if(order_count_change >= 1000){ order_count_change = '≥1000'}
+                if(money_change < 0){
+                    this.$set(this.salesInfo,'money_is_up', false)
+                    money_change = 0 - money_change
+                }
+                if(num_change < 0){
+                    this.$set(this.salesInfo,'num_is_up', false)
+                    num_change = 0 - num_change
+                }
+                if(order_count_change < 0){
+                    this.$set(this.salesInfo,'order_count_is_up', false)
+                    order_count_change = 0 - order_count_change
+                }
+                if(money_change >= 1000){ money_change = '1000'}
+                if(num_change >= 1000){ num_change = '1000'}
+                if(order_count_change >= 1000){ order_count_change = '1000'}
                 this.$set(this.salesInfo,'money_change', money_change)
                 this.$set(this.salesInfo,'num_change', num_change)
                 this.$set(this.salesInfo,'order_count_change', order_count_change)
@@ -713,17 +728,18 @@
                             let point = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #1890FF;display: inline-block;margin: 0 5px 2px 0"></span>'
                             let point2 = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #c3c3c3;display: inline-block;margin: 0 5px 2px 0"></span>'
                             let line = '<div style="width: 100%;height: 1px;background: #E8E8E8;position: absolute;top: 100px;left: 0"></div>'
+                            let unit = '<span style="margin-right: 2px">¥</span>'
                             let x_name = '',res = ''
                             for (var i = 0; i < params.length; i++) {
                                 if(i === 1){
                                     res += '<div style="height: 15px"></div>'
                                     res += params[i].data.date + '<br/>';
-                                    res += point2 + params[i].seriesName + '：¥ ' + params[i].data.value + '<br/>';
+                                    res += point2 + params[i].seriesName + '：' + unit + params[i].data.value.toFixed(2) + '<br/>';
                                     res += point2 + '销量：' + params[i].data.all_num + '<br/>';
                                     res += point2 + '订单数：' + params[i].data.all_order_count + '<br/>';
                                 } else {
                                     res += params[i].data.date + '<br/>';
-                                    res += point + params[i].seriesName + '：¥ ' + params[i].data.value + '<br/>';
+                                    res += point + params[i].seriesName + '：' + unit + params[i].data.value.toFixed(2) + '<br/>';
                                     res += point + '销量：' + params[i].data.all_num + '<br/>';
                                     res += point + '订单数：' + params[i].data.all_order_count + '<br/>';
                                 }
