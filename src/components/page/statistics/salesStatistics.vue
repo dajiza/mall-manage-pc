@@ -386,4 +386,7 @@ export default {
         }
     }
 }
+.table /deep/ .el-table__footer {
+    font-weight: 500;
+}
 </style>
