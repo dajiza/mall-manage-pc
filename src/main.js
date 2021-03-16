@@ -59,10 +59,11 @@ Vue.directive('hasPermission', {
         if (localStorage.getItem('is_admin') > 0) {
             // 我是超级管理员
         } else {
-            const role_auth_list = commUtil.processData(JSON.parse(localStorage.getItem('roleAuthList') || '[]'))
+            // const role_auth_list = commUtil.processData(JSON.parse(localStorage.getItem('roleAuthList') || '[]'))
+            const role_auth_list = JSON.parse(localStorage.getItem('roleAuthList') || '[]')
             // 我是普通用户
             let permissions = []
-            role_auth_list.map(item => {
+            /*role_auth_list.map(item => {
                 if (item.subs && item.subs.length) {
                     item.subs.map(v => {
                         if (v.subs && v.subs.length) {
@@ -78,6 +79,9 @@ Vue.directive('hasPermission', {
                         }
                     })
                 }
+            })*/
+            role_auth_list.forEach((ev)=>{
+                permissions.push(ev.name)
             })
             // console.log('permissions', permissions);
             // console.log('binding.value', binding.value);

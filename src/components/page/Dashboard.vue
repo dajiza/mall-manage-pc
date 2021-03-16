@@ -1,6 +1,6 @@
 <template>
     <div class="dashboard-page page-contain">
-        <div class="wrap-box-item marginRight24">
+        <div class="wrap-box-item marginRight24" v-if="show_home">
             <div class="top-box">
                 <el-main class="box-el-main" v-loading="statusCountLoading">
                     <div class="left-box">
@@ -46,7 +46,7 @@
                 </el-main>
             </div>
         </div>
-        <div class="wrap-box-item">
+        <div class="wrap-box-item" v-if="show_home">
             <div class="sales-statistics-wrap">
                 <div class="title-box">
                     <div class="title-left-box">销售统计</div>
@@ -154,6 +154,7 @@
                 todayHourList: [], // 今日时间
                 yesterdayHourList: [], // 昨日时间
                 allHourList: [], // 昨天今日时间
+                show_home: false
             };
         },
         components: {
@@ -165,7 +166,6 @@
             }
         },
         created() {
-
             let _arr = [7,6,5,4,3,2,1]
             _arr.forEach((ev)=>{
                 this.dateList.push(this.returnDate(ev))
@@ -173,8 +173,6 @@
             this.todayHourList = this.returnHourList(0)
             this.yesterdayHourList = this.returnHourList(1)
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
-            console.log('baseUrl', baseUrl)
-
             const name_list = [
                 baseUrl +'_' + 'mall_sku_sales',
                 baseUrl +'_' + 'mall_seven_new_user',
@@ -183,16 +181,47 @@
             this.clearLocalStorageData(name_list)
         },
         mounted() {
-            this.queryShopList()  // 请求店铺列表
+            let is_admin = localStorage.getItem('is_admin') > 0
+            if(!is_admin) {
+                // 普通用户
+                // console.log('普通用户')
+                const PermissionsList = this.returnPermissionsList()
+                // console.log('PermissionsList', PermissionsList)
+                if( PermissionsList.indexOf('mall-backend-order-report-index-status') > -1 &&
+                    PermissionsList.indexOf('mall-backend-order-report-index-sku') > -1 &&
+                    PermissionsList.indexOf('mall-backend-order-report-index-order-daily') > -1 &&
+                    PermissionsList.indexOf('mall-backend-order-report-index-order-hourly') > -1 &&
+                    PermissionsList.indexOf('mall-backend-report-index-customer') > -1 &&
+                    PermissionsList.indexOf('mall-backend-home-shop-all') > -1){
+                    console.log('有首页权限')
+                    this.show_home = true
+                } else {
+                    console.log('无首页权限')
+                    this.show_home = false
+                    return
+                }
+            } else {
+                this.show_home = true
+            }
+            this.$nextTick(()=>{
+                this.userSourceChart = this.$echarts.init(this.$refs.userSourceChart);
+                this.saleTrendEChart = this.$echarts.init(this.$refs.saleTrendEChart);
 
-            this.getOrderReport() // 请求订单状态数量接口
+                this.queryShopList()  // 请求店铺列表
 
-            this.getSKUReport() // 请求sku销量排行数据
+                this.getOrderReport() // 请求订单状态数量接口
 
-            window.addEventListener('resize', this.resizeChart);
+                this.getSKUReport() // 请求sku销量排行数据
+
+                if(this.userSourceChart && this.saleTrendEChart){
+                    window.addEventListener('resize', this.resizeChart);
+                }
+            })
         },
         beforeDestroy() {
-            window.removeEventListener('resize', this.resizeChart)
+            if(this.userSourceChart && this.saleTrendEChart){
+                window.removeEventListener('resize', this.resizeChart)
+            }
         },
         methods: {
             formatMoney: formatMoney,
@@ -206,7 +235,7 @@
              * 跳转到销售报表
              */
             onGoSalesRanking() {
-                // this.$router.push('/mall-backend-statistics-sku')
+                this.$router.push('/mall-backend-statistics-sales')
             },
             // 请求订单状态数量接口
             getOrderReport() {
@@ -247,7 +276,7 @@
                         this.shopOptions = res.data || []
                         this.shopOptions.unshift({
                             id: -1,
-                            shop_name: '全部门店'
+                            shop_name: '所有店铺'
                         })
                         this.getNewUserData() // 七日新用户统计
                         this.getSalesStatistics()  // 销售统计 - 7日/14日
@@ -638,6 +667,7 @@
                     all_num_now = commUtil.numberAdd(ev.all_num, all_num_now)
                     all_order_count_now = commUtil.numberAdd(ev.all_order_count, all_order_count_now)
                 })
+                all_money_now = all_money_now.toFixed(2)
                 this.$set(this.salesInfo,'all_money', all_money_now)
                 this.$set(this.salesInfo,'all_num', all_num_now)
                 this.$set(this.salesInfo,'all_order_count', all_order_count_now)
@@ -649,14 +679,23 @@
                 let money_change = 0, num_change = 0, order_count_change = 0
                 if(all_money_before !== 0 && all_money_now !== 0 ) {
                     money_change = ((commUtil.numberSub(all_money_now, all_money_before) / all_money_before) * 100).toFixed(2)
+                } else if(all_money_before === 0){
+                    money_change = '≥1000'
                 }
+
                 if(all_num_now !== 0 && all_num_before !== 0 ) {
                     num_change = ((commUtil.numberSub(all_num_now, all_num_before) / all_num_before) * 100).toFixed(2)
+                } else if(all_num_before === 0){
+                    num_change = '≥1000'
                 }
                 if(all_order_count_now !== 0 && all_order_count_before !== 0 ) {
                     order_count_change = ((commUtil.numberSub(all_order_count_now, all_order_count_before) / all_order_count_before) * 100).toFixed(2)
+                } else if(all_order_count_before === 0){
+                    order_count_change = '≥1000'
                 }
-
+                if(money_change >= 1000){ money_change = '≥1000'}
+                if(num_change >= 1000){ num_change = '≥1000'}
+                if(order_count_change >= 1000){ order_count_change = '≥1000'}
                 this.$set(this.salesInfo,'money_change', money_change)
                 this.$set(this.salesInfo,'num_change', num_change)
                 this.$set(this.salesInfo,'order_count_change', order_count_change)
@@ -679,12 +718,12 @@
                                 if(i === 1){
                                     res += '<div style="height: 15px"></div>'
                                     res += params[i].data.date + '<br/>';
-                                    res += point2 + params[i].seriesName + '：' + params[i].data.value + '<br/>';
+                                    res += point2 + params[i].seriesName + '：¥ ' + params[i].data.value + '<br/>';
                                     res += point2 + '销量：' + params[i].data.all_num + '<br/>';
                                     res += point2 + '订单数：' + params[i].data.all_order_count + '<br/>';
                                 } else {
                                     res += params[i].data.date + '<br/>';
-                                    res += point + params[i].seriesName + '：' + params[i].data.value + '<br/>';
+                                    res += point + params[i].seriesName + '：¥ ' + params[i].data.value + '<br/>';
                                     res += point + '销量：' + params[i].data.all_num + '<br/>';
                                     res += point + '订单数：' + params[i].data.all_order_count + '<br/>';
                                 }
@@ -893,6 +932,16 @@
                 };
                 let objStr = JSON.stringify(obj);
                 localStorage.setItem(key,objStr);
+            },
+
+            // 返回普通用户权限
+            returnPermissionsList(){
+                const role_auth_list = JSON.parse(localStorage.getItem('roleAuthList') || '[]')
+                let permissions = []
+                role_auth_list.forEach((ev)=>{
+                    permissions.push(ev.name)
+                })
+                return permissions
             }
 
         }

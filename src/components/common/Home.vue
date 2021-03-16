@@ -47,7 +47,7 @@ export default {
             for (let i = 0, len = msg.length; i < len; i++) {
                 // console.log('msg[i]', msg[i]);
                 // msg[i].name && arr.push(msg[i].name);
-                if (msg[i].name !== 'goods-preview' && msg[i].name !=='mall-backend-dashboard') {
+                if (msg[i].name !== 'goods-preview') {
                     msg[i].name && arr.push(msg[i].name)
                 }
             }
