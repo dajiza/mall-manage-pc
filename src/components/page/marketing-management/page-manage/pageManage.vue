@@ -31,7 +31,7 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">页面管理</div>
-            <el-button type="primary" @click="pageCreat" class="creat-page" v-hasPermission="'mall-backend-page-manage-goods-add'">新增商品</el-button>
+            <el-button type="primary" @click="pageCreat" class="creat-page" v-hasPermission="'mall-backend-page-manage-goods-add'">新增页面</el-button>
         </div>
         <el-table :height="$tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
             <el-table-column label="页面ID" width="100">
