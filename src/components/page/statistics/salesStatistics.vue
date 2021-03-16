@@ -314,7 +314,7 @@ export default {
                     break
                 case 2:
                     paramName = 'order_count'
-                    magnificat = 0.01
+                    magnificat = 1
                     break
                 case 3:
                     paramName = 'money_total'
