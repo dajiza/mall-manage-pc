@@ -314,6 +314,7 @@ export default {
                     }
 
                     this.list = res.data.lists
+                    this.tableKey++
                     console.log('输出 ~ res.data.lists', res.data.lists)
                 })
                 .catch(err => {})
