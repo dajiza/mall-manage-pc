@@ -114,6 +114,7 @@
     import { formatMoney } from '@/plugin/tool'
     import { queryShopList } from '@/api/goods'
     import { queryOrderStatusReport, querySKUReport, queryNewCustomer, queryOrderDaily, queryOrderHour } from '@/api/homePageReport'
+    const baseUrl = process.env.VUE_APP_BASE_API
     export default {
         name: 'mall-backend-dashboard',
         data() {
@@ -172,7 +173,13 @@
             this.todayHourList = this.returnHourList(0)
             this.yesterdayHourList = this.returnHourList(1)
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
-            const name_list = ['mall_sku_sales', 'mall_seven_new_user', 'mall_daily_sales_data']
+            console.log('baseUrl', baseUrl)
+
+            const name_list = [
+                baseUrl +'_' + 'mall_sku_sales',
+                baseUrl +'_' + 'mall_seven_new_user',
+                baseUrl +'_' + 'mall_daily_sales_data'
+            ]
             this.clearLocalStorageData(name_list)
         },
         mounted() {
@@ -216,9 +223,9 @@
 
             // 请求sku排名接口
             getSKUReport() {
-                let mall_sku_sales = localStorage.getItem('mall_sku_sales')
+                let mall_sku_sales = localStorage.getItem(baseUrl +'_' + 'mall_sku_sales')
                 if(mall_sku_sales){
-                    console.log('mall_sku_sales', JSON.parse(JSON.parse(mall_sku_sales).value))
+                    // console.log('mall_sku_sales', JSON.parse(JSON.parse(mall_sku_sales).value))
                     this.skuList = JSON.parse(JSON.parse(mall_sku_sales).value)
                     this.skuLoading = false
                 } else {
@@ -226,7 +233,7 @@
                         .then(res => {
                             this.skuList = res.data || []
                             this.skuLoading = false
-                            this.store('mall_sku_sales', JSON.stringify(this.skuList));
+                            this.store(baseUrl +'_' + 'mall_sku_sales', JSON.stringify(this.skuList));
                         })
                         .catch(err => {})
                 }
@@ -289,9 +296,9 @@
 
             // 请求七日新用户数据
             getNewUserData() {
-                let mall_seven_new_user = localStorage.getItem('mall_seven_new_user')
+                let mall_seven_new_user = localStorage.getItem(baseUrl +'_' + 'mall_seven_new_user')
                 if(mall_seven_new_user){
-                    console.log('mall_seven_new_user', JSON.parse(JSON.parse(mall_seven_new_user).value))
+                    // console.log('mall_seven_new_user', JSON.parse(JSON.parse(mall_seven_new_user).value))
                     this.allNewUserData = JSON.parse(JSON.parse(mall_seven_new_user).value)
                     this.showNewUserData = this.allNewUserData
                     this.setNewUserOptions()
@@ -304,7 +311,7 @@
                                 this.allNewUserData = res.data || []
                                 this.showNewUserData = this.allNewUserData
                                 this.setNewUserOptions()
-                                this.store('mall_seven_new_user', JSON.stringify(this.allNewUserData));
+                                this.store(baseUrl +'_' + 'mall_seven_new_user', JSON.stringify(this.allNewUserData));
                             }
                         } else {
                             this.newUserLoading = false
@@ -398,7 +405,7 @@
                 })
                 let max_value = 0;
                 max_value = Math.max.apply(null,y_value_arr)
-                console.log('max_value', max_value)
+                // console.log('max_value', max_value)
                 let option = {
                     title: {
                         text: '',
@@ -469,13 +476,13 @@
              * 销售统计 - 7日/14日
              */
             getSalesStatistics() {
-                let mall_daily_sales_data = localStorage.getItem('mall_daily_sales_data')
+                let mall_daily_sales_data = localStorage.getItem(baseUrl +'_' + 'mall_daily_sales_data')
                 if(mall_daily_sales_data){
-                    console.log('mall_daily_sales_data', JSON.parse(JSON.parse(mall_daily_sales_data).value))
+                    // console.log('mall_daily_sales_data', JSON.parse(JSON.parse(mall_daily_sales_data).value))
                     this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales_data).value)
                     this.showSaleData = this.allSalesData
                     // 默认 14天 全部店铺
-                    console.log('showSaleData', this.showSaleData)
+                    // console.log('showSaleData', this.showSaleData)
                     this.setSalesOptions(14)
                     return
                 }
@@ -485,7 +492,7 @@
                         this.showSaleData = this.allSalesData
                         // 默认 14天 全部店铺
                         this.setSalesOptions(14)
-                        this.store('mall_daily_sales_data', JSON.stringify(this.allSalesData));
+                        this.store(baseUrl +'_' + 'mall_daily_sales_data', JSON.stringify(this.allSalesData));
                     })
                     .catch(err => {})
             },
@@ -852,13 +859,13 @@
                 let len = localStorage.length
                 for(var i = 0; i < len; i++) {
                     const getKey = localStorage.key(i);
-                    // console.log('getKey', getKey)
                     if(localStorage.getItem(getKey)){
                         const name = localStorage.getItem(getKey);
-                        //清除自己设置的key
-                        if (getKey.indexOf(local_name_list) > -1) {
+                        // 清除自己设置的key
+                        // console.log('getKey', getKey)
+                        if (local_name_list.indexOf(getKey) > -1) {
                             const nameObj = JSON.parse(name);
-                            // console.log('nameObj', nameObj)
+                            // console.log('getKey===>', getKey)
                             if (nameObj.time && nameObj.expire) {
                                 // console.log('nameObj.time', nameObj.time)
                                 // console.log('nameObj.expire', nameObj.expire)
