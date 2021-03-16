@@ -76,7 +76,8 @@
             <el-table-column :label="item.label" v-for="(item, index) in showColumn" :key="index" :width="item.width">
                 <template slot-scope="scope">
                     <span v-if="item.key == 'goods_attr'">{{ scope.row.goods_attr.join(',') }}</span>
-                    <span v-else>{{ scope.row[item.key] }}</span>
+                    <span v-else-if="item.key == 'price'">{{ formatMoney(scope.row.price) }}</span>
+                    <span v-else style="word-break: break-word;">{{ scope.row[item.key] }}</span>
                 </template>
             </el-table-column>
 

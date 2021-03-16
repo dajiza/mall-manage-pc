@@ -140,10 +140,10 @@ export default {
             }
         }
     },
-
+    inject: ['reload'],
     mounted() {
         // 默认搜索7天
-        this.setDefaultDate()
+        // this.setDefaultDate()
 
         bus.$on('refresh-page-manage', () => {
             this.getList()
@@ -214,7 +214,8 @@ export default {
                                     type: 'success',
                                     duration: 2000
                                 })
-                                this.list.splice(index, 1)
+                                this.reload()
+                                // this.list.splice(index, 1)
                             } else {
                                 this.$notify({
                                     title: res.msg,
@@ -236,7 +237,7 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields()
 
-            this.setDefaultDate()
+            // this.setDefaultDate()
 
             this.handleFilter()
         },
