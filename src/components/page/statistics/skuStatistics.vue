@@ -226,7 +226,6 @@ export default {
         }
     },
     updated() {
-        console.log('输出 ~ updated')
         this.$nextTick(() => {
             this.$refs['table'].doLayout()
         })
@@ -244,7 +243,6 @@ export default {
 
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
-            console.log('输出 ~ params', params)
             if (params['shop_id']) {
                 this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
             } else {
@@ -275,29 +273,28 @@ export default {
 
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-            // 生成统计显示表头
-            let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
-            let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-            let pointer = end
-            let columnName = []
-            while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
-                columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
-                pointer = this.$moment(pointer).add(-1, 'd')
-            }
-            this.columnName = columnName
+
             queryOrderReportSku(params)
                 .then(res => {
                     this.total = res.data.total
                     if (res.data.lists == null) {
-                        this.list = res.data.lists
-                        return
+                        res.data.lists = []
                     }
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const element = res.data.lists[i]
                         element['goods_attr'] = JSON.parse(element['goods_attr'])
                         element['goods_attr'] = element['goods_attr'].map(item => item.Value)
                     }
-
+                    // 生成统计显示表头
+                    let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
+                    let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
+                    let pointer = end
+                    let columnName = []
+                    while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
+                        columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
+                        pointer = this.$moment(pointer).add(-1, 'd')
+                    }
+                    this.columnName = columnName
                     // 日期排序
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const element = res.data.lists[i]

@@ -199,20 +199,20 @@ export default {
             }
             // params['limit'] = this.listQuery.limit
             // params['page'] = this.listQuery.page
-            // 生成统计显示表头
-            let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
-            let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-            let pointer = end
-            let columnName = []
-            while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
-                columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
-                pointer = this.$moment(pointer).add(-1, 'd')
-            }
-            this.columnName = columnName
+
             queryOrderReportShop(params)
                 .then(res => {
                     console.log('输出 ~ res', res)
-
+                    // 生成统计显示表头
+                    let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
+                    let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
+                    let pointer = end
+                    let columnName = []
+                    while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
+                        columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
+                        pointer = this.$moment(pointer).add(-1, 'd')
+                    }
+                    this.columnName = columnName
                     // 日期排序
                     for (let i = 0; i < res.data.length; i++) {
                         const element = res.data[i]
@@ -221,6 +221,7 @@ export default {
                             return this.$moment(b.key_name).diff(this.$moment(a.key_name), 'days')
                         })
                     }
+
                     // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
                     for (let i = 0; i < res.data.length; i++) {
                         const element = res.data[i]
