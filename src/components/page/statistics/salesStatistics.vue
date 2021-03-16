@@ -203,13 +203,13 @@ export default {
                     // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
                     let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
                     let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-                    let pointer = start
+                    let pointer = end
                     let columnName = []
 
                     // 生成统计显示表头
-                    while (this.$moment(pointer).diff(this.$moment(end), 'days') <= 0) {
+                    while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
                         columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
-                        pointer = this.$moment(pointer).add(1, 'd')
+                        pointer = this.$moment(pointer).add(-1, 'd')
                     }
                     this.columnName = columnName
                     // 日期排序
@@ -217,7 +217,7 @@ export default {
                         const element = res.data[i]
                         element.date_info = element.date_info ? element.date_info : []
                         element.date_info = element.date_info.sort((a, b) => {
-                            return this.$moment(a.key_name).diff(this.$moment(b.key_name), 'days')
+                            return this.$moment(b.key_name).diff(this.$moment(a.key_name), 'days')
                         })
                     }
                     for (let i = 0; i < res.data.length; i++) {
