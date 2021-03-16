@@ -49,9 +49,8 @@
             element-loading-text="Loading"
             show-summary
             :summary-method="getSummaries"
-            :key="tableKey"
         >
-            <el-table-column label="店铺名称" width="160" fixed>
+            <el-table-column label="店铺名称" min-width="160" fixed>
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
@@ -161,7 +160,6 @@ export default {
                     }
                 ]
             },
-            tableKey: 1,
             columnName: [], //按日期统计的表头
             orderByField: 1 //1按num 2orderCount 3money
         }
@@ -191,27 +189,30 @@ export default {
             } else {
                 params['created_time_ge'] = ''
                 params['created_time_le'] = ''
+                this.$notify({
+                    title: '请选择时间区间',
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                })
+                return
             }
             // params['limit'] = this.listQuery.limit
             // params['page'] = this.listQuery.page
-
-            console.log(params)
+            // 生成统计显示表头
+            let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
+            let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
+            let pointer = end
+            let columnName = []
+            while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
+                columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
+                pointer = this.$moment(pointer).add(-1, 'd')
+            }
+            this.columnName = columnName
             queryOrderReportShop(params)
                 .then(res => {
                     console.log('输出 ~ res', res)
 
-                    // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
-                    let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
-                    let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-                    let pointer = end
-                    let columnName = []
-
-                    // 生成统计显示表头
-                    while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
-                        columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
-                        pointer = this.$moment(pointer).add(-1, 'd')
-                    }
-                    this.columnName = columnName
                     // 日期排序
                     for (let i = 0; i < res.data.length; i++) {
                         const element = res.data[i]
@@ -220,11 +221,10 @@ export default {
                             return this.$moment(b.key_name).diff(this.$moment(a.key_name), 'days')
                         })
                     }
+                    // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
                     for (let i = 0; i < res.data.length; i++) {
                         const element = res.data[i]
-
                         element.date_info = element.date_info ? element.date_info : []
-
                         for (let j = 0; j < columnName.length; j++) {
                             const dateItem = element.date_info[j] ? element.date_info[j].key_name : null
                             const column = columnName[j]
@@ -280,7 +280,7 @@ export default {
                 .catch(err => {})
         },
         onTabClick() {
-            this.tableKey++
+            // this.tableKey++
         },
         // 搜索
         handleFilter() {

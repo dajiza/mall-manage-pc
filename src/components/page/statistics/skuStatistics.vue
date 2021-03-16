@@ -58,18 +58,18 @@
             </el-popover>
         </div>
         <el-table
+            ref="table"
             :height="$tableHeight"
             class="table"
             :data="list"
             v-loading.body="listLoading"
             :header-cell-style="$tableHeaderColor"
             element-loading-text="Loading"
-            :key="tableKey"
             @sort-change="sortColumn"
         >
-            <el-table-column label="SKU图片" width="128" fixed>
+            <el-table-column label="SKU图片" min-width="128" fixed>
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.product_img" alt="" />
+                    <img class="timg" :src="scope.row.product_img" alt="" :key="scope.row.product_img" />
                 </template>
             </el-table-column>
 
@@ -180,7 +180,7 @@ export default {
             orderAsc: '', //1 顺序 2倒序 不排为空
             orderByDate: '', //排序日期
 
-            tableKey: 0,
+            // tableKey: 0,
             isIndeterminate: false,
             checkAll: true,
             checkedColumn: ['product_name', 'product_code', 'goods_name', 'goods_attr', 'storage', 'price'],
@@ -225,7 +225,12 @@ export default {
             ]
         }
     },
-
+    updated() {
+        console.log('输出 ~ updated')
+        this.$nextTick(() => {
+            this.$refs['table'].doLayout()
+        })
+    },
     mounted() {
         this.setDefaultDate()
 
@@ -239,6 +244,7 @@ export default {
 
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
+            console.log('输出 ~ params', params)
             if (params['shop_id']) {
                 this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
             } else {
@@ -269,11 +275,18 @@ export default {
 
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-
-            console.log(params)
+            // 生成统计显示表头
+            let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
+            let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
+            let pointer = end
+            let columnName = []
+            while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
+                columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
+                pointer = this.$moment(pointer).add(-1, 'd')
+            }
+            this.columnName = columnName
             queryOrderReportSku(params)
                 .then(res => {
-                    console.log('输出 ~ res', res)
                     this.total = res.data.total
                     if (res.data.lists == null) {
                         this.list = res.data.lists
@@ -284,18 +297,7 @@ export default {
                         element['goods_attr'] = JSON.parse(element['goods_attr'])
                         element['goods_attr'] = element['goods_attr'].map(item => item.Value)
                     }
-                    // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
-                    let start = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
-                    let end = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-                    let pointer = end
-                    let columnName = []
 
-                    // 生成统计显示表头
-                    while (this.$moment(pointer).diff(this.$moment(start), 'days') >= 0) {
-                        columnName.push(this.$moment(pointer).format('YYYY-MM-DD'))
-                        pointer = this.$moment(pointer).add(-1, 'd')
-                    }
-                    this.columnName = columnName
                     // 日期排序
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const element = res.data.lists[i]
@@ -304,6 +306,7 @@ export default {
                             return this.$moment(b.key_name).diff(this.$moment(a.key_name), 'days')
                         })
                     }
+                    // 补齐所有日期数据 请求的数据当日为0则没有该日期数据
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const element = res.data.lists[i]
                         for (let j = 0; j < columnName.length; j++) {
@@ -322,8 +325,7 @@ export default {
                     }
 
                     this.list = res.data.lists
-                    this.tableKey++
-                    console.log('输出 ~ res.data.lists', res.data.lists)
+                    // this.tableKey++
                 })
                 .catch(err => {})
         },
@@ -340,7 +342,6 @@ export default {
         },
         // 排序
         sortColumn(value) {
-            console.log('输出 ~ value', value)
             if (value.prop == 'xj') {
                 this.orderByDate = ''
             } else {
@@ -379,13 +380,13 @@ export default {
         },
         // 全选
         handleCheckAllChange(val) {
-            this.tableKey++
+            // this.tableKey++
             this.checkedColumn = val ? this.columns.map(item => item.key) : []
             this.showColumn = val ? this.columns.map(item => item).sort((a, b) => a.index - b.index) : []
             this.isIndeterminate = false
         },
         handleCheckedColumnChange(value) {
-            this.tableKey++
+            // this.tableKey++
             let checkedCount = value.length
             this.checkAll = checkedCount === this.columns.length
             this.isIndeterminate = checkedCount > 0 && checkedCount < this.columns.length
