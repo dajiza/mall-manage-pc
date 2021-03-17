@@ -195,7 +195,7 @@ export default {
                 {
                     label: 'SKU编码',
                     key: 'product_code',
-                    width: 160,
+                    width: 120,
                     index: 2
                 },
                 {
@@ -207,7 +207,7 @@ export default {
                 {
                     label: '规格',
                     key: 'goods_attr',
-                    width: 120,
+                    width: 160,
                     index: 4
                 },
                 {
