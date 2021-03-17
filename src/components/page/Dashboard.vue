@@ -67,7 +67,7 @@
                         <div class="trend-item">
                             <div class="trend-title">销售额</div>
                             <div class="trend-value">
-                                <div class="amount">¥{{salesInfo.all_money}}</div>
+                                <div class="amount"><span style="margin-right: 2px">¥</span>{{salesInfo.all_money}}</div>
                                 <div class="percentage-value">
                                     <template v-if="salesInfo.money_change < 0">
                                         <i class="iconfont icon-downArrow"></i>
@@ -77,9 +77,6 @@
                                         <i class="iconfont icon-upArrow"></i>
                                         <span>{{salesInfo.money_change < 1000 ? salesInfo.money_change : '≥1000'}}%</span>
                                     </template>
-                                    <!--<i class="iconfont icon-downArrow" v-if="salesInfo.money_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.money_change ? salesInfo.money_change >= 1000 ? '≥' + salesInfo.money_change : salesInfo.money_change : 0}}%</span>-->
                                 </div>
                             </div>
                         </div>
@@ -88,9 +85,14 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_num}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-downArrow " v-if="salesInfo.num_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.num_change ? salesInfo.num_change >= 1000 ? '≥' + salesInfo.num_change : salesInfo.num_change : 0}}%</span>
+                                    <template v-if="salesInfo.num_change < 0">
+                                        <i class="iconfont icon-downArrow"></i>
+                                        <span>{{0 - salesInfo.num_change < 1000 ? 0 - salesInfo.num_change : '≥1000' }}%</span>
+                                    </template>
+                                    <template v-else>
+                                        <i class="iconfont icon-upArrow"></i>
+                                        <span>{{salesInfo.num_change < 1000 ? salesInfo.num_change : '≥1000'}}%</span>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -99,9 +101,14 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_order_count}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-downArrow " v-if="salesInfo.order_count_change < 0"></i>
-                                    <i class="iconfont icon-upArrow" v-else></i>
-                                    <span>{{salesInfo.order_count_change ? salesInfo.order_count_change >= 1000 ? '≥' + salesInfo.order_count_change : salesInfo.order_count_change : 0}}%</span>
+                                    <template v-if="salesInfo.order_count_change < 0">
+                                        <i class="iconfont icon-downArrow"></i>
+                                        <span>{{0 - salesInfo.order_count_change < 1000 ? 0 - salesInfo.order_count_change : '≥1000' }}%</span>
+                                    </template>
+                                    <template v-else>
+                                        <i class="iconfont icon-upArrow"></i>
+                                        <span>{{salesInfo.order_count_change < 1000 ? salesInfo.order_count_change : '≥1000'}}%</span>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -1165,13 +1172,17 @@
                             font-weight: 400;
                             color: rgba(0, 0, 0, 0.85);
                             line-height: 17px;
+                            display: flex;
+                            align-items: center;
                             .icon-upArrow{
                                 color: #3BA508;
                                 font-size: 14px;
+                                margin-right: 2px;
                             }
                             .icon-downArrow{
                                 color: #B5090B;
                                 font-size: 14px;
+                                margin-right: 2px;
                             }
                         }
                     }
