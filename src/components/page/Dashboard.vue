@@ -69,9 +69,17 @@
                             <div class="trend-value">
                                 <div class="amount">¥{{salesInfo.all_money}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-upArrow" v-if="salesInfo.money_is_up"></i>
-                                    <i class="iconfont icon-downArrow" v-else></i>
-                                    <span>{{salesInfo.money_change ? salesInfo.money_change >= 1000 ? '≥' + salesInfo.money_change : salesInfo.money_change : 0}}%</span>
+                                    <template v-if="salesInfo.money_change < 0">
+                                        <i class="iconfont icon-downArrow"></i>
+                                        <span>{{0 - salesInfo.money_change < 1000 ? 0 - salesInfo.money_change : '≥1000' }}%</span>
+                                    </template>
+                                    <template v-else>
+                                        <i class="iconfont icon-upArrow"></i>
+                                        <span>{{salesInfo.money_change < 1000 ? salesInfo.money_change : '≥1000'}}%</span>
+                                    </template>
+                                    <!--<i class="iconfont icon-downArrow" v-if="salesInfo.money_change < 0"></i>
+                                    <i class="iconfont icon-upArrow" v-else></i>
+                                    <span>{{salesInfo.money_change ? salesInfo.money_change >= 1000 ? '≥' + salesInfo.money_change : salesInfo.money_change : 0}}%</span>-->
                                 </div>
                             </div>
                         </div>
@@ -80,8 +88,8 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_num}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-upArrow" v-if="salesInfo.num_is_up"></i>
-                                    <i class="iconfont icon-downArrow" v-else></i>
+                                    <i class="iconfont icon-downArrow " v-if="salesInfo.num_change < 0"></i>
+                                    <i class="iconfont icon-upArrow" v-else></i>
                                     <span>{{salesInfo.num_change ? salesInfo.num_change >= 1000 ? '≥' + salesInfo.num_change : salesInfo.num_change : 0}}%</span>
                                 </div>
                             </div>
@@ -91,8 +99,8 @@
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_order_count}}</div>
                                 <div class="percentage-value">
-                                    <i class="iconfont icon-upArrow" v-if="salesInfo.order_count_is_up"></i>
-                                    <i class="iconfont icon-downArrow" v-else></i>
+                                    <i class="iconfont icon-downArrow " v-if="salesInfo.order_count_change < 0"></i>
+                                    <i class="iconfont icon-upArrow" v-else></i>
                                     <span>{{salesInfo.order_count_change ? salesInfo.order_count_change >= 1000 ? '≥' + salesInfo.order_count_change : salesInfo.order_count_change : 0}}%</span>
                                 </div>
                             </div>
@@ -670,7 +678,7 @@
                     all_num_now = commUtil.numberAdd(ev.all_num, all_num_now)
                     all_order_count_now = commUtil.numberAdd(ev.all_order_count, all_order_count_now)
                 })
-                all_money_now = all_money_now.toFixed(2)
+                // all_money_now = all_money_now.toFixed(2)
                 this.$set(this.salesInfo,'all_money', all_money_now)
                 this.$set(this.salesInfo,'all_num', all_num_now)
                 this.$set(this.salesInfo,'all_order_count', all_order_count_now)
@@ -680,37 +688,22 @@
                     all_order_count_before += ev.all_order_count
                 })
                 let money_change = 0, num_change = 0, order_count_change = 0
-                if(all_money_before !== 0 && all_money_now !== 0 ) {
+                if(all_money_before != 0 && all_money_now != 0 ) {
                     money_change = ((commUtil.numberSub(all_money_now, all_money_before) / all_money_before) * 100).toFixed(2)
-                } else if(all_money_before === 0){
+                } else if(all_money_before == 0){
                     money_change = '1000'
                 }
 
-                if(all_num_now !== 0 && all_num_before !== 0 ) {
+                if(all_num_now != 0 && all_num_before != 0 ) {
                     num_change = ((commUtil.numberSub(all_num_now, all_num_before) / all_num_before) * 100).toFixed(2)
-                } else if(all_num_before === 0){
+                } else if(all_num_before == 0){
                     num_change = '1000'
                 }
-                if(all_order_count_now !== 0 && all_order_count_before !== 0 ) {
+                if(all_order_count_now != 0 && all_order_count_before != 0 ) {
                     order_count_change = ((commUtil.numberSub(all_order_count_now, all_order_count_before) / all_order_count_before) * 100).toFixed(2)
-                } else if(all_order_count_before === 0){
+                } else if(all_order_count_before == 0){
                     order_count_change = '1000'
                 }
-                if(money_change < 0){
-                    this.$set(this.salesInfo,'money_is_up', false)
-                    money_change = 0 - money_change
-                }
-                if(num_change < 0){
-                    this.$set(this.salesInfo,'num_is_up', false)
-                    num_change = 0 - num_change
-                }
-                if(order_count_change < 0){
-                    this.$set(this.salesInfo,'order_count_is_up', false)
-                    order_count_change = 0 - order_count_change
-                }
-                if(money_change >= 1000){ money_change = '1000'}
-                if(num_change >= 1000){ num_change = '1000'}
-                if(order_count_change >= 1000){ order_count_change = '1000'}
                 this.$set(this.salesInfo,'money_change', money_change)
                 this.$set(this.salesInfo,'num_change', num_change)
                 this.$set(this.salesInfo,'order_count_change', order_count_change)
