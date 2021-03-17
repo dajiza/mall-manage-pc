@@ -448,19 +448,20 @@ export default {
     left: 0;
     z-index: 1;
     display: block;
-    overflow-y: scroll;
+    overflow-y: hidden;
     /* width: 64px; */
     background: #ffffff !important;
     box-shadow: 2px 0 6px 0 rgba(0, 21, 41, 0.12) !important;
 }
-.sidebar::-webkit-scrollbar {
+.sidebar > ul::-webkit-scrollbar {
     width: 0;
 }
 .sidebar-el-menu:not(.el-menu--collapse) {
     width: 208px;
 }
 .sidebar > ul {
-    height: calc(100% - 60px);
+    height: calc(100% - 160px);
+    overflow-y: scroll;
     background: #ffffff !important;
 }
 
