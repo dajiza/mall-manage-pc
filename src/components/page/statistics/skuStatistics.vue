@@ -226,6 +226,7 @@ export default {
         }
     },
     updated() {
+        console.log('输出 ~ updated')
         this.$nextTick(() => {
             this.$refs['table'].doLayout()
         })
@@ -242,6 +243,7 @@ export default {
         formatMoney: formatMoney,
 
         getList() {
+            this.listLoading = true
             let params = _.cloneDeep(this.$refs['formFilter'].model)
             if (params['shop_id']) {
                 this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
@@ -261,6 +263,7 @@ export default {
                     type: 'warning',
                     duration: 5000
                 })
+                this.listLoading = false
                 return
             }
 
@@ -322,9 +325,12 @@ export default {
                     }
 
                     this.list = res.data.lists
+                    this.listLoading = false
                     // this.tableKey++
                 })
-                .catch(err => {})
+                .catch(err => {
+                    this.listLoading = false
+                })
         },
         // 设置默认时间 搜索7天
         setDefaultDate() {
