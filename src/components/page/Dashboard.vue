@@ -196,6 +196,10 @@
                 baseUrl +'_' + 'mall_seven_new_user',
                 baseUrl +'_' + 'mall_daily_sales_data'
             ]
+            // 清空首页缓存
+            localStorage.removeItem(baseUrl +'_' + 'mall_sku_sales')
+            localStorage.removeItem(baseUrl +'_' + 'mall_seven_new_user')
+            localStorage.removeItem(baseUrl +'_' + 'mall_daily_sales_data')
             this.clearLocalStorageData(name_list)
         },
         mounted() {
