@@ -930,7 +930,6 @@
                     if(localStorage.getItem(getKey)){
                         const name = localStorage.getItem(getKey);
                         // 清除自己设置的key
-                        // console.log('getKey', getKey)
                         if (local_name_list.indexOf(getKey) > -1) {
                             const nameObj = JSON.parse(name);
                             // console.log('getKey===>', getKey)
