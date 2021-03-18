@@ -71,11 +71,12 @@
                                 <div class="percentage-value">
                                     <template v-if="salesInfo.money_change < 0">
                                         <i class="iconfont icon-downArrow"></i>
-                                        <span>{{0 - salesInfo.money_change < 1000 ? 0 - salesInfo.money_change : '≥1000' }}%</span>
+                                        <span>{{0 - salesInfo.money_change < 1000 ? 0 - salesInfo.money_change : '≥1000.00' }}%</span>
                                     </template>
                                     <template v-else>
                                         <i class="iconfont icon-upArrow"></i>
-                                        <span>{{salesInfo.money_change < 1000 ? salesInfo.money_change : '≥1000'}}%</span>
+                                        <span v-if="salesInfo.money_change == 0">0.00%</span>
+                                        <span v-else>{{salesInfo.money_change < 1000 ? salesInfo.money_change : '≥1000.00'}}%</span>
                                     </template>
                                 </div>
                             </div>
@@ -87,11 +88,12 @@
                                 <div class="percentage-value">
                                     <template v-if="salesInfo.num_change < 0">
                                         <i class="iconfont icon-downArrow"></i>
-                                        <span>{{0 - salesInfo.num_change < 1000 ? 0 - salesInfo.num_change : '≥1000' }}%</span>
+                                        <span>{{0 - salesInfo.num_change < 1000 ? 0 - salesInfo.num_change : '≥1000.00' }}%</span>
                                     </template>
                                     <template v-else>
                                         <i class="iconfont icon-upArrow"></i>
-                                        <span>{{salesInfo.num_change < 1000 ? salesInfo.num_change : '≥1000'}}%</span>
+                                        <span v-if="salesInfo.num_change == 0">0.00%</span>
+                                        <span v-else>{{salesInfo.num_change < 1000 ? salesInfo.num_change : '≥1000.00'}}%</span>
                                     </template>
                                 </div>
                             </div>
@@ -103,11 +105,12 @@
                                 <div class="percentage-value">
                                     <template v-if="salesInfo.order_count_change < 0">
                                         <i class="iconfont icon-downArrow"></i>
-                                        <span>{{0 - salesInfo.order_count_change < 1000 ? 0 - salesInfo.order_count_change : '≥1000' }}%</span>
+                                        <span>{{0 - salesInfo.order_count_change < 1000 ? 0 - salesInfo.order_count_change : '≥1000.00' }}%</span>
                                     </template>
                                     <template v-else>
                                         <i class="iconfont icon-upArrow"></i>
-                                        <span>{{salesInfo.order_count_change < 1000 ? salesInfo.order_count_change : '≥1000'}}%</span>
+                                        <span v-if="salesInfo.order_count_change == 0">0.00%</span>
+                                        <span v-else>{{salesInfo.order_count_change < 1000 ? salesInfo.order_count_change : '≥1000.00'}}%</span>
                                     </template>
                                 </div>
                             </div>
