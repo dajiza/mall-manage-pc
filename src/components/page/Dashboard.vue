@@ -701,19 +701,25 @@
                 let money_change = 0, num_change = 0, order_count_change = 0
                 if(all_money_before != 0 && all_money_now != 0 ) {
                     money_change = ((commUtil.numberSub(all_money_now, all_money_before) / all_money_before) * 100).toFixed(2)
-                } else if(all_money_before == 0){
-                    money_change = '1000'
+                } else if(all_money_before == 0 && all_money_now != 0){
+                    money_change = 1000
+                } else if(all_money_before == 0 && all_money_now == 0){
+                    money_change = 0
                 }
 
                 if(all_num_now != 0 && all_num_before != 0 ) {
                     num_change = ((commUtil.numberSub(all_num_now, all_num_before) / all_num_before) * 100).toFixed(2)
-                } else if(all_num_before == 0){
-                    num_change = '1000'
+                } else if(all_num_before == 0 && all_num_now != 0){
+                    num_change = 1000
+                } else if(all_num_before == 0 && all_num_now == 0){
+                    num_change = 0
                 }
                 if(all_order_count_now != 0 && all_order_count_before != 0 ) {
                     order_count_change = ((commUtil.numberSub(all_order_count_now, all_order_count_before) / all_order_count_before) * 100).toFixed(2)
-                } else if(all_order_count_before == 0){
-                    order_count_change = '1000'
+                } else if(all_order_count_before == 0 && all_order_count_now != 0){
+                    order_count_change = 1000
+                } else if(all_order_count_before == 0 && all_order_count_now == 0){
+                    order_count_change = 0
                 }
                 this.$set(this.salesInfo,'money_change', money_change)
                 this.$set(this.salesInfo,'num_change', num_change)
