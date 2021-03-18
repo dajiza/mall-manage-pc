@@ -403,6 +403,9 @@ export const mixinsGoods = {
                                 })
                             }
                         }
+                        // 排序
+                        data.imgs = data.imgs.sort((a, b) => a.sort - b.sort)
+                        console.log('输出 ~ data.imgs', data.imgs)
                         // format 图片
                         data.imgs = data.imgs.map(item => {
                             return {
@@ -411,6 +414,7 @@ export const mixinsGoods = {
                                 type: item.type
                             }
                         })
+
                         this.timg.push(data.imgs[0])
                         data.imgs.splice(0, 1)
                         this.tfile = data.imgs
@@ -858,7 +862,7 @@ export const mixinsGoods = {
 
                     this.timg[0]['type'] = 1
                     let imgList = this.timg.concat(this.tfile)
-                    let length = imgList.length + 1
+                    let length = 0
                     let imgs = imgList.map(item => {
                         let url, type
                         if (item.response) {
@@ -874,11 +878,11 @@ export const mixinsGoods = {
                             }
                         }
                         // 倒序sort
-                        length--
+                        length++
                         return {
                             img_url: url,
                             type: type, //1 图片 2视频
-                            sort: length //排序 倒叙
+                            sort: length //排序 倒叙 20200318改为顺序
                         }
                     })
                     params['imgs'] = imgs
