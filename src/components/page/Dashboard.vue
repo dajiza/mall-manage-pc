@@ -36,7 +36,7 @@
                 <div class="title-box">
                     <div class="title-left-box">七日新用户统计</div>
                     <div class="box-channel">
-                        <el-select class="filter-channel" v-model="new_user_shop_id" placeholder="全部店铺" @change="newUserShopChange">
+                        <el-select class="filter-channel" v-model="new_user_shop_id" placeholder="所有店铺" @change="newUserShopChange">
                             <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                         </el-select>
                     </div>
@@ -56,7 +56,7 @@
                         <el-radio-button label="14天">14天</el-radio-button>
                     </el-radio-group>
                     <div class="box-channel">
-                        <el-select class="filter-channel" v-model="shop_id" placeholder="全部店铺" @change="shopChange">
+                        <el-select class="filter-channel" v-model="shop_id" placeholder="所有店铺" @change="shopChange">
                             <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                         </el-select>
                     </div>
@@ -140,8 +140,8 @@
             return {
                 name: localStorage.getItem('ms_username'),
                 shopOptions: [], // 店铺
-                new_user_shop_id: -1, // 新用户选中店铺
-                shop_id: -1, // 选中店铺
+                new_user_shop_id: '', // 新用户选中店铺
+                shop_id: '', // 选中店铺
                 userSourceChart: null, // 用户来源
                 saleTrendEChart: null, // 销售趋势
                 skuList:[],
@@ -282,6 +282,8 @@
                             id: -1,
                             shop_name: '所有店铺'
                         })
+                        this.new_user_shop_id = -1;
+                        this.shop_id = -1;
                         this.getNewUserData() // 七日新用户统计
                         this.getSalesStatistics()  // 销售统计 - 7日/14日
                     })
