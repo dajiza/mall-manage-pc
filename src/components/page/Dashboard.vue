@@ -41,7 +41,7 @@
                         </el-select>
                     </div>
                 </div>
-                <el-main class="h380" v-loading="newUserLoading">
+                <el-main class="h380 eChart-main" v-loading="newUserLoading">
                     <div ref="userSourceChart" class="single-chart"></div>
                 </el-main>
             </div>
@@ -64,7 +64,7 @@
                 </div>
                 <el-main v-loading="salesLoading">
                     <div class="sale-trend">
-                        <div class="trend-item">
+                        <div class="trend-item" :class="{'selected-box': selectedIndex == 1}" @click="changeType(1)">
                             <div class="trend-title">销售额</div>
                             <div class="trend-value">
                                 <div class="amount"><span style="margin-right: 2px">¥</span>{{salesInfo.all_money}}</div>
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="trend-item">
+                        <div class="trend-item" :class="{'selected-box': selectedIndex == 2}" @click="changeType(2)">
                             <div class="trend-title">销量</div>
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_num}}</div>
@@ -98,7 +98,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="trend-item">
+                        <div class="trend-item" :class="{'selected-box': selectedIndex == 3}" @click="changeType(3)">
                             <div class="trend-title">订单量</div>
                             <div class="trend-value">
                                 <div class="amount">{{salesInfo.all_order_count}}</div>
@@ -133,6 +133,7 @@
     import { queryShopList } from '@/api/goods'
     import { queryOrderStatusReport, querySKUReport, queryNewCustomer, queryOrderDaily, queryOrderHour } from '@/api/homePageReport'
     const baseUrl = process.env.VUE_APP_BASE_API
+    const color_list = ['#47A7FF', '#007BEC', '#0062BD', '#004A8E']
     export default {
         name: 'mall-backend-dashboard',
         data() {
@@ -162,20 +163,18 @@
                 salesInfo:{
                     all_money: 0,
                     money_change: 0,
-                    money_is_up: true,
                     all_num: 0,
                     num_change: 0,
-                    num_is_up: true,
                     all_order_count: 0,
-                    order_count_change: 0,
-                    order_count_is_up: true,
+                    order_count_change: 0
                 },
                 allNewUserData: [],
                 showNewUserData: [],
                 todayHourList: [], // 今日时间
                 yesterdayHourList: [], // 昨日时间
                 allHourList: [], // 昨天今日时间
-                show_home: false
+                show_home: false,
+                selectedIndex: 1
             };
         },
         components: {
@@ -194,24 +193,11 @@
             this.todayHourList = this.returnHourList(0)
             this.yesterdayHourList = this.returnHourList(1)
             this.allHourList = this.yesterdayHourList.concat(this.todayHourList)
-            const name_list = [
-                baseUrl +'_' + 'mall_sku_sales',
-                baseUrl +'_' + 'mall_seven_new_user',
-                baseUrl +'_' + 'mall_daily_sales_data'
-            ]
-            // 清空首页缓存
-            localStorage.removeItem(baseUrl +'_' + 'mall_sku_sales')
-            localStorage.removeItem(baseUrl +'_' + 'mall_seven_new_user')
-            localStorage.removeItem(baseUrl +'_' + 'mall_daily_sales_data')
-            this.clearLocalStorageData(name_list)
         },
         mounted() {
             let is_admin = localStorage.getItem('is_admin') > 0
-            if(!is_admin) {
-                // 普通用户
-                // console.log('普通用户')
+            if(!is_admin) { // console.log('普通用户')
                 const PermissionsList = this.returnPermissionsList()
-                // console.log('PermissionsList', PermissionsList)
                 if( PermissionsList.indexOf('mall-backend-order-report-index-status') > -1 &&
                     PermissionsList.indexOf('mall-backend-order-report-index-sku') > -1 &&
                     PermissionsList.indexOf('mall-backend-order-report-index-order-daily') > -1 &&
@@ -219,24 +205,24 @@
                     PermissionsList.indexOf('mall-backend-report-index-customer') > -1 &&
                     PermissionsList.indexOf('mall-backend-home-shop-all') > -1){
                     console.log('有首页权限')
-                    this.show_home = true
+                    this.show_home = true;
                 } else {
                     console.log('无首页权限')
-                    this.show_home = false
+                    this.show_home = false;
                     return
                 }
             } else {
-                this.show_home = true
+                this.show_home = true;
             }
             this.$nextTick(()=>{
                 this.userSourceChart = this.$echarts.init(this.$refs.userSourceChart);
                 this.saleTrendEChart = this.$echarts.init(this.$refs.saleTrendEChart);
 
-                this.queryShopList()  // 请求店铺列表
+                this.queryShopList();  // 请求店铺列表
 
-                this.getOrderReport() // 请求订单状态数量接口
+                this.getOrderReport(); // 请求订单状态数量接口
 
-                this.getSKUReport() // 请求sku销量排行数据
+                this.getSKUReport(); // 请求sku销量排行数据
 
                 if(this.userSourceChart && this.saleTrendEChart){
                     window.addEventListener('resize', this.resizeChart);
@@ -254,44 +240,37 @@
              * 跳转到sku排行
              */
             onGoSKUSalesRanking() {
-                this.$router.push('/mall-backend-statistics-sku')
+                this.$router.push('/mall-backend-statistics-sku');
             },
+
             /**
              * 跳转到销售报表
              */
             onGoSalesRanking() {
-                this.$router.push('/mall-backend-statistics-sales')
+                this.$router.push('/mall-backend-statistics-sales');
             },
+
             // 请求订单状态数量接口
             getOrderReport() {
                 this.statusCountLoading = true
                 queryOrderStatusReport()
                     .then(res => {
                         if(res.data) {
-                            this.statusCountObj = res.data
+                            this.statusCountObj = res.data;
                         }
-                        this.statusCountLoading = false
+                        this.statusCountLoading = false;
                     })
                     .catch(err => {})
             },
 
             // 请求sku排名接口
             getSKUReport() {
-                let mall_sku_sales = localStorage.getItem(baseUrl +'_' + 'mall_sku_sales')
-                if(mall_sku_sales){
-                    // console.log('mall_sku_sales', JSON.parse(JSON.parse(mall_sku_sales).value))
-                    this.skuList = JSON.parse(JSON.parse(mall_sku_sales).value)
-                    this.skuLoading = false
-                } else {
-                    querySKUReport()
-                        .then(res => {
-                            this.skuList = res.data || []
-                            this.skuLoading = false
-                            this.store(baseUrl +'_' + 'mall_sku_sales', JSON.stringify(this.skuList));
-                        })
-                        .catch(err => {})
-                }
-
+                querySKUReport()
+                    .then(res => {
+                        this.skuList = res.data || [];
+                        this.skuLoading = false;
+                    })
+                    .catch(err => {})
             },
 
             // 代理店铺列表
@@ -320,6 +299,7 @@
                 }
                 this.setNewUserOptions()
             },
+
             /**
              * 销售统计 选择店铺
              */
@@ -332,43 +312,34 @@
              */
             tabClick(){
                 if(this.tabPosition === '今日'){
-                    this.getSalesDataToday()
+                    this.getSalesDataToday();
                 } else {
                     if(this.shop_id > -1){
-                        this.showSaleData = this.allSalesData.filter((ev)=>{return ev.shop_id === this.shop_id})
+                        this.showSaleData = this.allSalesData.filter((ev)=>{return ev.shop_id === this.shop_id});
                     } else {
-                        this.showSaleData = this.allSalesData
+                        this.showSaleData = this.allSalesData;
                     }
                     if(this.tabPosition === '14天'){
                         // 默认 14天 全部店铺
-                        this.setSalesOptions(14)
+                        this.setSalesOptions(14);
                     }else if(this.tabPosition === '7天'){
-                        this.setSalesOptions(7)
+                        this.setSalesOptions(7);
                     }
                 }
             },
 
             // 请求七日新用户数据
             getNewUserData() {
-                let mall_seven_new_user = localStorage.getItem(baseUrl +'_' + 'mall_seven_new_user')
-                if(mall_seven_new_user){
-                    // console.log('mall_seven_new_user', JSON.parse(JSON.parse(mall_seven_new_user).value))
-                    this.allNewUserData = JSON.parse(JSON.parse(mall_seven_new_user).value)
-                    this.showNewUserData = this.allNewUserData
-                    this.setNewUserOptions()
-                    return
-                }
                 queryNewCustomer()
                     .then((res) => {
                         if (res.code === 200) {
                             if (res.data) {
                                 this.allNewUserData = res.data || []
-                                this.showNewUserData = this.allNewUserData
-                                this.setNewUserOptions()
-                                this.store(baseUrl +'_' + 'mall_seven_new_user', JSON.stringify(this.allNewUserData));
+                                this.showNewUserData = this.allNewUserData;
+                                this.setNewUserOptions();
                             }
                         } else {
-                            this.newUserLoading = false
+                            this.newUserLoading = false;
                             this.$notify({
                                 title: res.msg,
                                 message: '',
@@ -378,7 +349,7 @@
                         }
                     })
                     .catch(() => {
-                        this.newUserLoading = false
+                        this.newUserLoading = false;
                     });
             },
 
@@ -386,80 +357,79 @@
             setNewUserOptions(){
                 this.newUserLoading = true
                 this.userSourceChart = this.$echarts.init(this.$refs.userSourceChart);
-                let x_axis = this.returnXData(this.dateList)
-                let new_data = []
-                this.showNewUserData.forEach((event, index)=>{
-                    let new_data_children = {}
-                    new_data_children['shop_id'] = event.shop_id
-                    new_data_children['shop_name'] = '未知店铺'
-                    this.shopOptions.forEach((shop_item)=>{
-                        if(shop_item.id === event.shop_id) {
-                            new_data_children['shop_name'] = shop_item.shop_name
-                        }
-                    })
-                    new_data_children['report_index_customer_info'] = []
-                    this.dateList.forEach((item)=>{
-                        new_data_children['report_index_customer_info'].push({
-                            date: item,
-                            count_total: 0,
+                let x_axis = this.returnXData(this.dateList),
+                    source_list = [{name: '自然流量', data:[]}, {name: '用户邀请', data:[]}]
+                source_list.forEach((ev)=>{
+                    this.dateList.forEach((date_item)=>{
+                        let obj = {}
+                        obj['date'] = date_item;
+                        obj['value'] = 0;
+                        obj['list'] = []
+                        let list_child = {
                             count_natural: 0,
-                            count_invite: 0
+                            count_invite: 0,
+                            count_total: 0
+                        }
+                        this.showNewUserData.forEach((_item)=>{
+                            list_child['shop_id'] = _item.shop_id;
+                            this.shopOptions.forEach((shop_item)=>{
+                                if(shop_item.id === _item.shop_id) {
+                                    list_child['shop_name'] = shop_item.shop_name
+                                }
+                            })
+                            _item.report_index_customer_info.forEach((customer_info_item)=>{
+                                if(customer_info_item.date == date_item) {
+                                    // console.log('同一日期！！！！')
+                                    list_child['count_natural'] = customer_info_item.count_natural
+                                    list_child['count_invite'] = customer_info_item.count_invite
+                                    list_child['count_total'] = customer_info_item.count_total
+                                    if (ev.name === '自然流量') {
+                                        obj['value'] += customer_info_item.count_natural
+                                    } else {
+                                        obj['value'] += customer_info_item.count_invite
+                                    }
+                                }
+                            })
+                            obj['list'].push(list_child)
                         })
-                    })
-                    event.report_index_customer_info.forEach((ev)=>{
-                        new_data_children['report_index_customer_info'].forEach((item)=>{
-                            if(ev.date === item.date){
-                                item.count_total = ev.count_total
-                                item.count_natural = ev.count_natural
-                                item.count_invite = ev.count_invite
-                            }
-                        })
-                    })
-                    new_data.push(new_data_children)
-                })
-                let _list = []
-                new_data.forEach((event,index)=>{
-                    event.report_index_customer_info.forEach((ev,i)=>{
-                        let obj = ev
-                        obj['shop_id'] = event.shop_id
-                        obj['shop_name'] = event.shop_name
-                        _list.push(obj)
+                        ev['data'].push(obj)
                     })
                 })
-                let map = new Map();
-                let newArr = [];
-                _list.forEach(item => {
-                    map.has(item.date) ? map.get(item.date).push(item) : map.set(item.date, [item]);
-                })
-                newArr = [...map.values()];
-                let series_data = [],
-                    y_value_arr = []
-                newArr.forEach((event)=>{
-                    let _obj = {
-                        value: 0,
-                        count_natural: 0,
-                        count_invite: 0,
-                        date: '',
-                        list: []
-                    }
-                    event.forEach((ev)=>{
-                        _obj.list.push({
-                            name: ev.shop_name,
-                            count_total: ev.count_total,
-                            count_natural: ev.count_natural,
-                            count_invite: ev.count_invite,
-                        })
-                        _obj.value += ev.count_total
-                        _obj.count_natural += ev.count_natural
-                        _obj.count_invite += ev.count_invite
-                        _obj.date = ev.date
+
+                let need_list = [],all_value_list = [];// 总计数组
+                source_list.forEach((ev,i)=>{
+                    need_list.push({
+                        name: ev.name,
+                        stack: 'source',
+                        color: color_list[i],
+                        // itemStyle: { normal: {color: color_list[i]}},
+                        emphasis: {focus: 'series'},
+                        type: 'bar',
+                        barMaxWidth: 30,
+                        data: ev.data
                     })
-                    y_value_arr.push(_obj.value)
-                    series_data.push(_obj)
+                    ev.data.forEach((item)=>{
+                        all_value_list.push(item.value)
+                    })
+
                 })
-                let max_value = 0;
-                max_value = Math.max.apply(null,y_value_arr)
+
+                const half = Math.ceil(all_value_list.length / 2);
+                const all_value_before = all_value_list.splice(0, half)  //
+                const all_value_now = all_value_list.splice(-half)
+
+                let max_value = 0,max_list = [];
+                max_list = all_value_before.map((v,i)=>v + all_value_now[i])
+
+                max_value = Math.max.apply(null,max_list)
+
                 // console.log('max_value', max_value)
+                let y_Axis = [{ type: 'value' }]
+                if(max_value == 0){
+                    y_Axis[0]['splitNumber'] = 1
+                } else if (max_value < 5){
+                    y_Axis[0]['splitNumber'] = max_value
+                }
                 let option = {
                     title: {
                         text: '',
@@ -471,20 +441,21 @@
                             type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
                         },
                         formatter: function(params) {
-                            let point = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #1890FF;display: inline-block;margin: 0 5px 2px 0"></span>'
-                            let x_name = '',res = ''
-                            for (var i = 0; i < params.length; i++) {
-                                res += point + '<span style="color: #000">' + params[i].seriesName + '：' + params[i].value + '</span><br/>';
+                            let point = '<span style="width: 6px;height: 6px;border-radius: 100%;background: #000;display: inline-block;margin: 0 5px 2px 0"></span>'
+                            let all_value = 0, x_name = '',res = ''
+                            for (let i = 0; i < params.length; i++) {
+                                let _point = '<span style="width: 6px;height: 6px;border-radius: 100%;display: inline-block;margin: 0 5px 2px 0;background: '+ color_list[i]+'"></span>'
+                                all_value += params[i].value
+                                res += _point + '<span>' + params[i].seriesName + '：' + params[i].value + '</span><br/>';
                                 x_name = params[i].data.date
-                                res += point + '自然流量：' + params[i].data.count_natural + '<br/>';
-                                res += point + '用户邀请：' + params[i].data.count_invite + '<br/>';
                             }
+                            res = point + '<span style="color: #000;font-weight: 600;font-family: PingFangSC-Semibold, PingFang SC;">'  + '总数：' + all_value + '</span><br/>' + res;
                             res = x_name + '<br/>' + res
                             return res
                         }
                     },
                     legend: {
-                        show: false
+                        show: true
                     },
                     xAxis: [
                         {
@@ -492,35 +463,8 @@
                             data: x_axis
                         }
                     ],
-                    yAxis: [
-                        {
-                            max: max_value,
-                            splitNumber: max_value,
-                            type: 'value'
-                        }
-                    ],
-                    series: [
-                        {
-                            name: '总数',
-                            type: 'bar',
-                            barMaxWidth: 30,
-                            center: ['50%', '50%'],
-                            roseType: 'radius',
-                            label: {
-                                show: false
-                            },
-                            itemStyle: {
-                                color: '#1890FF'
-                            },
-                            emphasis: {
-                                label: {
-                                    show: true,
-                                    color: '#ffffff'
-                                }
-                            },
-                            data: series_data
-                        }
-                    ]
+                    yAxis: y_Axis,
+                    series: need_list
                 };
                 this.userSourceChart.setOption(option);
                 this.newUserLoading = false
@@ -530,23 +474,12 @@
              * 销售统计 - 7日/14日
              */
             getSalesStatistics() {
-                let mall_daily_sales_data = localStorage.getItem(baseUrl +'_' + 'mall_daily_sales_data')
-                if(mall_daily_sales_data){
-                    // console.log('mall_daily_sales_data', JSON.parse(JSON.parse(mall_daily_sales_data).value))
-                    this.allSalesData = JSON.parse(JSON.parse(mall_daily_sales_data).value)
-                    this.showSaleData = this.allSalesData
-                    // 默认 14天 全部店铺
-                    // console.log('showSaleData', this.showSaleData)
-                    this.setSalesOptions(14)
-                    return
-                }
                 queryOrderDaily()
                     .then(res => {
                         this.allSalesData = res.data || []
                         this.showSaleData = this.allSalesData
                         // 默认 14天 全部店铺
                         this.setSalesOptions(14)
-                        this.store(baseUrl +'_' + 'mall_daily_sales_data', JSON.stringify(this.allSalesData));
                     })
                     .catch(err => {})
             },
@@ -582,8 +515,20 @@
                         date_list.push(this.returnDate(i))
                     }
                 }
-                x_axis = this.returnXData(x_list)
+                // console.log('date_list=====585====', date_list)
                 let new_data = []
+                x_axis = this.returnXData(x_list)
+                if(this.showSaleData.length === 0){
+                    this.showSaleData = [
+                        {
+                            shop_id: -1,
+                            daily_report_info: [
+                                {date: "0000-00-00", money: 0, num: 0, order_count: 0},
+                            ]
+                        }
+                    ]
+                }
+                // 至少有一条数据
                 this.showSaleData.forEach((event, index)=>{
                     let new_data_children = {}
                     new_data_children['shop_id'] = event.shop_id
@@ -613,6 +558,7 @@
                     })
                     new_data.push(new_data_children)
                 })
+                // console.log('new_data', new_data)
                 let _list = []
                 new_data.forEach((event,index)=>{
                     event.daily_report_info.forEach((ev,i)=>{
@@ -635,6 +581,16 @@
                     x_axis.push(i+'点')
                 }
                 let new_data = []
+                if(this.showSaleData.length === 0){
+                    this.showSaleData = [
+                        {
+                            shop_id: -1,
+                            hourly_report_info: [
+                                {date: "00", money: 0, num: 0, order_count: 0},
+                            ]
+                        }
+                    ]
+                }
                 this.showSaleData.forEach((event, index)=>{
                     let new_data_children = {}
                     new_data_children['shop_id'] = event.shop_id
@@ -676,10 +632,14 @@
                 this.fillSalesOptions(x_axis,_list)
 
             },
+
             // 填充 option
             fillSalesOptions(x_axis, _list) {
+                // console.log('_list===681', _list)
                 let all_data = this.returnNewArr(_list)
+                // console.log('all_data-----698---', all_data)
                 let series_data = this.returnSeriesData(all_data)
+                // console.log('series_data=====699====', series_data)
                 const half = Math.ceil(series_data.length / 2);
                 const series_data_before = series_data.splice(0, half)  //
                 const series_data_now = series_data.splice(-half)
@@ -688,7 +648,7 @@
                 let all_money_now = 0, all_num_now = 0, all_order_count_now = 0
                 let all_money_before = 0, all_num_before = 0, all_order_count_before = 0
                 series_data_now.forEach((ev)=>{
-                    all_money_now = commUtil.numberAdd(ev.value, all_money_now)
+                    all_money_now = commUtil.numberAdd(ev.all_money, all_money_now)
                     all_num_now = commUtil.numberAdd(ev.all_num, all_num_now)
                     all_order_count_now = commUtil.numberAdd(ev.all_order_count, all_order_count_now)
                 })
@@ -697,7 +657,7 @@
                 this.$set(this.salesInfo,'all_num', all_num_now)
                 this.$set(this.salesInfo,'all_order_count', all_order_count_now)
                 series_data_before.forEach((ev)=>{
-                    all_money_before += ev.value
+                    all_money_before += ev.all_money
                     all_num_before += ev.all_num
                     all_order_count_before += ev.all_order_count
                 })
@@ -747,14 +707,14 @@
                                 if(i === 1){
                                     res += '<div style="height: 15px"></div>'
                                     res += params[i].data.date + '<br/>';
-                                    res += point2 + params[i].seriesName + '：' + unit + params[i].data.value.toFixed(2) + '<br/>';
+                                    res += point2 + params[i].seriesName + '：' + unit + params[i].data.all_money.toFixed(2) + '<br/>';
                                     res += point2 + '销量：' + params[i].data.all_num + '<br/>';
-                                    res += point2 + '订单数：' + params[i].data.all_order_count + '<br/>';
+                                    res += point2 + '订单量：' + params[i].data.all_order_count + '<br/>';
                                 } else {
                                     res += params[i].data.date + '<br/>';
-                                    res += point + params[i].seriesName + '：' + unit + params[i].data.value.toFixed(2) + '<br/>';
+                                    res += point + params[i].seriesName + '：' + unit + params[i].data.all_money.toFixed(2) + '<br/>';
                                     res += point + '销量：' + params[i].data.all_num + '<br/>';
-                                    res += point + '订单数：' + params[i].data.all_order_count + '<br/>';
+                                    res += point + '订单量：' + params[i].data.all_order_count + '<br/>';
                                 }
 
                                 if(i < params.length - 1){
@@ -806,13 +766,21 @@
                 this.saleTrendEChart.setOption(option);
                 this.salesLoading = false
             },
+
+            changeType(num) {
+                this.saleTrendEChart.dispose()
+                this.selectedIndex = num;
+                this.tabClick()
+            },
+
             resizeChart() {
                 this.userSourceChart.resize();
                 this.saleTrendEChart.resize();
             },
+
             returnDate(n){
                 let curDate = new Date();
-                let date = new Date(curDate.getTime() - n * 24*60*60*1000);
+                let date = new Date(curDate.getTime() - ((n-1) * 24*60*60*1000));
                 let year = date.getFullYear();
                 let month = date.getMonth() + 1;
                 let day = date.getDate();
@@ -884,6 +852,7 @@
                 newArr.forEach((event)=>{
                     let _obj = {
                         value: 0,
+                        all_money: 0,
                         all_num: 0,
                         all_order_count: 0,
                         date: '',
@@ -897,11 +866,19 @@
                             order_count: ev.order_count,
                         })
                         _obj.value += ev.money
+                        _obj.all_money += ev.money
                         _obj.all_num += ev.num
                         _obj.all_order_count += ev.order_count
                         _obj.date = ev.date
                     })
-                    _obj.value = commUtil.numberMul(_obj.value, 0.01)
+                    _obj.all_money = commUtil.numberMul(_obj.value, 0.01)
+                    if(this.selectedIndex === 1){
+                        _obj.value =  _obj.all_money
+                    }else if(this.selectedIndex === 2){
+                        _obj.value =  _obj.all_num
+                    }else {
+                        _obj.value =  _obj.all_order_count
+                    }
                     series_data.push(_obj)
                 })
                 return series_data
@@ -922,6 +899,7 @@
                 // 获取当前天中指定时分秒对应的毫秒数
                 return  Date.parse(nowDate);
             },
+
             // 超过时间，清除缓存数据
             clearLocalStorageData(local_name_list){
                 let len = localStorage.length
@@ -944,6 +922,7 @@
                     }
                 }
             },
+
             // 写入缓存
             store(key, value) {
                 const curDate = new Date();
@@ -971,7 +950,6 @@
                 })
                 return permissions
             }
-
         }
     };
 </script>
@@ -1136,6 +1114,9 @@
         .el-main{
             padding: 0;
         }
+        .eChart-main{
+            padding: 20px 0 0 0;
+        }
         .sales-statistics-wrap{
             background: #fff;
             width: 100%;
@@ -1154,6 +1135,7 @@
                     box-sizing: border-box;
                     -webkit-box-sizing: border-box;
                     padding: 0 6px 0 10px;
+                    cursor: pointer;
                     .trend-title{
                         height: 17px;
                         font-size: 12px;
@@ -1198,6 +1180,9 @@
                             }
                         }
                     }
+                }
+                .selected-box{
+                    background: rgba(24, 144, 255, 0.11)
                 }
             }
             .single-chart{
