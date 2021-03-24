@@ -25,9 +25,11 @@
                 <div class="sku-list">
                     <el-main v-loading="skuLoading">
                         <div class="sku-item" v-for="(item,index) in skuList" :key="index">
-                            <div class="ranking" :class="{'ranking-other': index > 2}">{{index+1}}</div>
-                            <div class="sku-name text-ellipsis">{{item.sku_title}}</div>
-                            <div class="sku-amount"><span style="margin-right: 4px">¥</span>{{formatMoney(item.money)}}</div>
+                            <template v-if="index < 7">
+                                <div class="ranking" :class="{'ranking-other': index > 2}">{{index+1}}</div>
+                                <div class="sku-name text-ellipsis">{{item.sku_title}}</div>
+                                <div class="sku-amount"><span style="margin-right: 4px">¥</span>{{formatMoney(item.money)}}</div>
+                            </template>
                         </div>
                     </el-main>
                 </div>
