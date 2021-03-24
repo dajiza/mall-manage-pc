@@ -42,7 +42,7 @@
             <div class="shop-icon shop-filter" v-if="filterShop.id">
                 <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
             </div>
-            <el-radio-group v-model="orderByField" class="tab-way" @change="onTabClick">
+            <el-radio-group v-model="orderByField" class="tab-way">
                 <el-radio-button :label="1">销量</el-radio-button>
                 <el-radio-button :label="2">订单量</el-radio-button>
                 <el-radio-button :label="3">销售额</el-radio-button>
@@ -57,50 +57,45 @@
                 <span slot="reference" class="icon iconfont icon-open1 "></span>
             </el-popover>
         </div>
-        <div class="wrap" style="height:calc(100vh - 183px);">
-            <vxe-table
-                ref="xTable"
-                :show-header-overflow="true"
-                align="left"
-                :data="list"
-                @sort-change="sortColumn"
-                :sort-config="{ trigger: 'cell' }"
-                :header-cell-style="$tableHeaderColor"
-                height="auto"
-                :scroll-y="{ enabled: false }"
-                :scroll-x="{ enabled: false }"
-                :loading="listLoading"
-            >
-                <vxe-table-column title="SKU图片" min-width="150" fixed="left" align="center">
-                    <template #default="{ row }">
-                        <img class="timg" :src="row.product_img" alt="" />
-                    </template>
-                </vxe-table-column>
+        <el-table
+            ref="table"
+            :height="$tableHeight"
+            class="table"
+            :data="list"
+            v-loading.body="listLoading"
+            :header-cell-style="$tableHeaderColor"
+            element-loading-text="Loading"
+            @sort-change="sortColumn"
+        >
+            <el-table-column label="SKU图片" min-width="128" fixed>
+                <template slot-scope="scope">
+                    <img class="timg" :src="scope.row.product_img" alt="" :key="scope.row.product_img" />
+                </template>
+            </el-table-column>
 
-                <vxe-table-column v-for="(item, index) in showColumn" :key="index" :title="item.label" :width="item.width">
-                    <template #default="{ row }">
-                        <span v-if="item.key == 'goods_attr'">{{ row.goods_attr.join(',') }}</span>
-                        <span v-else-if="item.key == 'price'">{{ formatMoney(row.price) }}</span>
-                        <span v-else style="word-break: break-word;">{{ row[item.key] }}</span>
-                    </template>
-                </vxe-table-column>
-                <vxe-table-column title="小计" min-width="120" field="xj" sortable>
-                    <template #default="{ row }">
-                        <div class="column-height" v-if="orderByField == 1">{{ row.num }}</div>
-                        <div v-if="orderByField == 2">{{ row.order_count }}</div>
-                        <div v-if="orderByField == 3">{{ formatMoney(row.money_total) }}</div>
-                    </template>
-                </vxe-table-column>
-                <vxe-table-column v-for="(item, index) in columnName" :key="item" :field="item" :title="$moment(item).format('MM-DD')" width="100" sortable>
-                    <template #default="{ row }">
-                        <span v-if="orderByField == 1">{{ row.date_info[index].num }}</span>
-                        <span v-if="orderByField == 2">{{ row.date_info[index].order_count }}</span>
-                        <span v-if="orderByField == 3">{{ formatMoney(row.date_info[index].money_total) }}</span>
-                    </template>
-                </vxe-table-column>
-            </vxe-table>
-        </div>
+            <el-table-column :label="item.label" v-for="(item, index) in showColumn" :key="index" :width="item.width">
+                <template slot-scope="scope">
+                    <span v-if="item.key == 'goods_attr'">{{ scope.row.goods_attr.join(',') }}</span>
+                    <span v-else-if="item.key == 'price'">{{ formatMoney(scope.row.price) }}</span>
+                    <span v-else style="word-break: break-word;">{{ scope.row[item.key] }}</span>
+                </template>
+            </el-table-column>
 
+            <el-table-column label="小计" width="120" prop="xj" sortable="custom">
+                <template slot-scope="scope">
+                    <span v-if="orderByField == 1">{{ scope.row.num }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.order_count }}</span>
+                    <span v-if="orderByField == 3">{{ formatMoney(scope.row.money_total) }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column :label="$moment(item).format('MM-DD')" :prop="item" v-for="(item, index) in columnName" :key="item" sortable="custom" width="100">
+                <template slot-scope="scope">
+                    <span v-if="orderByField == 1">{{ scope.row.date_info[index].num }}</span>
+                    <span v-if="orderByField == 2">{{ scope.row.date_info[index].order_count }}</span>
+                    <span v-if="orderByField == 3">{{ formatMoney(scope.row.date_info[index].money_total) }}</span>
+                </template>
+            </el-table-column>
+        </el-table>
         <div class="pagination-container">
             <el-pagination
                 background
@@ -230,12 +225,12 @@ export default {
             ]
         }
     },
-    // updated() {
-    //     console.log('输出 ~ updated')
-    //     this.$nextTick(() => {
-    //         this.$refs['table'].doLayout()
-    //     })
-    // },
+    updated() {
+        console.log('输出 ~ updated')
+        this.$nextTick(() => {
+            this.$refs['table'].doLayout()
+        })
+    },
     mounted() {
         this.setDefaultDate()
 
@@ -350,17 +345,16 @@ export default {
         },
         // 排序
         sortColumn(value) {
-            console.log('输出 ~ value', value)
-            if (value.property == 'xj') {
+            if (value.prop == 'xj') {
                 this.orderByDate = ''
             } else {
-                this.orderByDate = this.$moment(value.property).format('YYYY-MM-DD HH:mm:ss')
+                this.orderByDate = this.$moment(value.prop).format('YYYY-MM-DD HH:mm:ss')
             }
             switch (value.order) {
-                case 'asc':
+                case 'ascending':
                     this.orderAsc = 1
                     break
-                case 'desc':
+                case 'descending':
                     this.orderAsc = 2
                     break
                 case null:
@@ -376,9 +370,9 @@ export default {
             this.getList()
         },
         // tab
-        onTabClick() {
-            this.$refs.xTable.clearSort()
-        },
+        // handleTabClick(value) {
+        //     this.getList()
+        // },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
@@ -445,9 +439,6 @@ export default {
 .timg {
     width: 80px;
     height: 60px;
-}
-.column-height {
-    min-height: 60px;
 }
 .shop-icon {
     display: flex;

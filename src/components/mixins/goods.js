@@ -591,6 +591,15 @@ export const mixinsGoods = {
 
         // 图片上传前检测 首图
         beforeUpload(file) {
+            // console.log('输出 ~ file', file)
+            // let imgSrc = window.URL.createObjectURL(file)
+            // let img = new Image()
+            // img.onload = function() {
+            //     console.log('输出 ~ img', img.width)
+            //     console.log('输出 ~ img', img.height)
+            // }
+            // img.src = imgSrc
+
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
                 this.upload_loading = this.uploadLoading('上传中')
                 this.uploadVisible = false

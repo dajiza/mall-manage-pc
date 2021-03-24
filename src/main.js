@@ -25,6 +25,9 @@ import less from 'less'
 import moment from 'moment'
 // import echarts from 'echarts'
 import * as echarts from 'echarts'
+import 'xe-utils'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/style.css'
 // import NP from 'number-precision';
 // Vue.prototype.$NP = NP;
 require('video.js/dist/video-js.css')
@@ -45,6 +48,7 @@ Vue.use(Print)
     .use(TableHeaderColor)
     .use(TableHeight)
     .use(VideoPlayer)
+    .use(VXETable)
 // const i18n = new VueI18n({
 //     locale: 'zh',
 //     messages
@@ -80,7 +84,7 @@ Vue.directive('hasPermission', {
                     })
                 }
             })*/
-            role_auth_list.forEach((ev)=>{
+            role_auth_list.forEach(ev => {
                 permissions.push(ev.name)
             })
             // console.log('permissions', permissions);
