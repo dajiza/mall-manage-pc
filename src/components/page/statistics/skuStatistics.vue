@@ -86,7 +86,7 @@
                 </vxe-table-column>
                 <vxe-table-column title="小计" min-width="120" field="xj" sortable>
                     <template #default="{ row }">
-                        <div class="column-height" v-if="orderByField == 1">{{ row.num }}</div>
+                        <div v-if="orderByField == 1">{{ row.num }}</div>
                         <div v-if="orderByField == 2">{{ row.order_count }}</div>
                         <div v-if="orderByField == 3">{{ formatMoney(row.money_total) }}</div>
                     </template>
@@ -446,9 +446,7 @@ export default {
     width: 80px;
     height: 60px;
 }
-.column-height {
-    min-height: 60px;
-}
+
 .shop-icon {
     display: flex;
     margin-left: 23px;
