@@ -338,6 +338,14 @@ export default {
                 { id: 3, name: '渠道3' },
                 { id: 4, name: '渠道4' }
             ];*/
+        console.log('1111',this.$route.query.status)
+        if(this.$route.query.status){
+            console.log('22222');
+            this.$set(this.searchForm,'status',this.$route.query.status)
+            this.$set(this.searchParams,'status',this.$route.query.status)
+        }else {
+            console.log('3333');
+        }
     },
     mounted() {
         // 获取购买渠道列表数据

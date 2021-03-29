@@ -1,0 +1,756 @@
+<template>
+    <div class="app-container live-container" @click="searchShow = false">
+        <div class="table-title">
+            <div class="line"></div>
+            <div class="text">直播商品</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="SKU名称" prop="sku_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="直播商品名称" prop="goods_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.goods_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺" prop="shop_id">
+                            <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="状态" prop="status">
+                            <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                                <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <!--<div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span class="text">所有店铺</span></div>-->
+            <div class="shop-icon shop-filter" v-if="filterShop.id">
+                <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
+            </div>
+            <div class="tabs-wrap">
+                <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
+                    <el-radio-button label="not_put">未入库</el-radio-button>
+                    <el-radio-button label="is_put">已入库</el-radio-button>
+                </el-radio-group>
+            </div>
+            <el-button type="primary" @click="goodsCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">添加商品</el-button>
+        </div>
+        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table-column label="SKU图片" width="128">
+                <template slot-scope="scope">
+                    <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img,scope.$index)" />
+                </template>
+            </el-table-column>
+            <el-table-column label="SKU名称" prop="sku_name"></el-table-column>
+            <el-table-column label="直播商品名称" prop="goods_name"></el-table-column>
+            <el-table-column label="价格(元)" width="120">
+                <template slot-scope="scope">
+                    <span>{{ formatMoney(scope.row.price) }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="店铺" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.shop_name }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="状态" width="120">
+                <template slot-scope="scope">
+                    <span>{{return_live_goods_status(scope.row.status)}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" width="196">
+                <template slot-scope="scope">
+                    <el-button
+                            class="text-blue table-btn"
+                            type="text"
+                            size=""
+                            @click.native="handleSubmitAudit(scope.row)"
+                            v-show="false"
+                    >提交审核</el-button>
+                    <el-button
+                            class="text-blue table-btn"
+                            type="text"
+                            size=""
+                            @click.native="handleCancelAudit(scope.row)"
+                    >撤销审核</el-button>
+                    <el-button
+                            class="text-blue table-btn"
+                            type="text"
+                            size=""
+                            @click.native="handleOnEdit(scope.row)"
+                    >编辑</el-button>
+                    <el-button
+                            class="text-red table-btn delete-color"
+                            type="text"
+                            size=""
+                            @click.native="handleDelete(scope.row, scope.$index)"
+                    >删除</el-button>
+                </template>
+            </el-table-column>
+            <template slot="empty" >
+                <EmptyList></EmptyList>
+            </template>
+        </el-table>
+        <div class="pagination-container">
+            <el-pagination
+                background
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="listQuery.page"
+                :page-sizes="[10, 20, 30, 40, 50, 100]"
+                :page-size="listQuery.limit"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+            >
+            </el-pagination>
+        </div>
+        <!-- 编辑商品 -->
+        <el-dialog :visible.sync="dialogVisibleEdit" :before-close="handleCloseCreat" :title="dialogTitle" width="480px">
+            <el-form ref="formGoodsEdit" :rules="editRules" :model="formGoodsEdit" :inline="true" size="small" label-position="top">
+                <el-form-item label="直播商品名称：" prop="goods_name">
+                    <el-input class="dialog-item" placeholder="请输入" v-model="formGoodsEdit.goods_name"></el-input>
+                </el-form-item>
+                <el-form-item label="图片" prop="title">
+                    <div class="preview" v-if="filePic">
+                        <img class="fullimg" :src="filePic + '!upyun520/fw/300'" alt="" />
+                        <!-- <i class="el-icon-close"></i> -->
+                    </div>
+                    <el-upload
+                        class="upload-demo"
+                        :action="uploadImgUrl"
+                        :headers="header"
+                        :before-upload="beforeUpload"
+                        :on-success="uploadImgSuccess"
+                        :on-error="uploadImgError"
+                        :show-file-list="false"
+                    >
+                        <el-button type="primary" v-if="filePic">更换图片</el-button>
+                        <!--<div slot="tip" class="el-upload__tip">支持扩展名：jpg、png…</div>-->
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <!--<el-button @click="handleCloseCreat">取 消</el-button>-->
+                <el-checkbox v-model="isSureAudit"></el-checkbox>
+                <span style="margin: 0 12px 0 6px">同时提交商品审核</span>
+                <el-button type="primary" @click="submitEdit">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <!-- 新增直播商品 -->
+        <liveGoodsSelectList ref="goodsList" @check-sku="getSku" :checkedSku="goods.sku_list" :type="goods.type - 1"></liveGoodsSelectList>
+
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
+    </div>
+</template>
+<script>
+import { queryShopListPage, queryAgentListAll, creatShop, updateShop, queryUserList } from '@/api/agent'
+import { queryShopList } from '@/api/goods'
+import { formatMoney } from '@/plugin/tool'
+import { getToken } from '@/utils/auth'
+
+import ElImageViewer from '@/components/common/image-viewer'
+import EmptyList from '@/components/common/empty-list/EmptyList'
+import liveGoodsSelectList from '@/components/common/live-goods-select-list/liveGoodsSelectList'
+export default {
+    name: 'live-goods',
+    data() {
+        return {
+            header: {},
+            list: null,
+            total: 0,
+            listLoading: false,
+            loadingSelect: false,
+            shopList: [],
+            shopIdSelected: '', //选中的店铺id
+            listQuery: {
+                page: 1,
+                limit: 10
+            },
+            statusList: [
+                { id: 1, label: '未审核' },
+                { id: 2, label: '审核中' },
+                { id: 3, label: '审核未通过' },
+                { id: 4, label: '违规下架' },
+                { id: 5, label: '已入库' }
+            ],
+            formFilter: {
+                sku_name: '', // SKU名称
+                goods_name: '', // 商品名称
+                status: '', //状态 '1 使用中 2 停止使用' 不搜索为-1
+                shop_id: '' //店铺名称 不搜索为空
+            },
+            searchParams: {
+                sku_name: '', // SKU名称
+                goods_name: '', // 商品名称
+                status: '', // 状态 '1 使用中 2 停止使用' 不搜索为-1
+                shop_id: '' //店铺名称 不搜索为空
+            },
+            dialogVisibleEdit: false, // 编辑商品
+            editRules: {
+                goods_name: [
+                    { required: true, message: '请输入名称', trigger: 'change' },
+                    { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'change' }
+                ]
+            },
+            isCreat: true,
+            filePic: '',
+            formGoodsEdit: {
+                name: '', //max=50
+            },
+            formOrderSubmit: {},
+            dialogVisibleOrder: false,
+            formOrder: {},
+            uploadImgUrl: '',
+            dialogTitle: '新增店铺',
+            searchShow: false,
+            previewUrlList: [],
+            previewIndex:0,
+            dialogVisiblePic: false,
+            tabPosition:'not_put',
+            filterShop: {},
+            isSureAudit: true , // 是否同时提交商品审核
+            goods: {
+                type: 1,
+                sku_list: []
+            }
+        }
+    },
+    components: {
+        ElImageViewer,
+        EmptyList,
+        liveGoodsSelectList
+    },
+    computed:{
+        return_live_goods_status: function() {
+            return data => {
+                let status_cn = ''
+                if (data === 0) {
+                    status_cn = '未审核'
+                } else if (data === 1) {
+                    status_cn = '审核中'
+                } else if (data === 2) {
+                    status_cn = '审核通过'
+                } else if (data === 3) {
+                    status_cn = '审核失败'
+                }
+                return status_cn
+            }
+        }
+    },
+    created() {
+        // 图片上传地址
+        this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file';
+        this.header['token'] = getToken();
+    },
+    mounted() {
+        this.queryShopList()
+    },
+    inject: ['reload'],
+    methods: {
+        formatMoney: formatMoney,
+        getList() {
+            let params = _.cloneDeep(this.searchParams)
+            params['status'] = params['status'] == '' ? -1 : params['status']
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
+            if (params['shop_id']) {
+                this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
+            } else {
+                this.filterShop = {}
+            }
+            queryShopListPage(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    this.list = res.data.lists
+                    this.list = [
+                        {
+                            id:1,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1290
+                        },
+                        {
+                            id:2,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-12/files/hbubxngYSq7sZMVk.jpeg',
+                            sku_name: '日本进口粉色少女波',
+                            goods_name: '直播商品名称',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1890
+                        },
+                        {
+                            id:3,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2020-12-16/files/UdwNrtuPRKB0YeX7.jpeg',
+                            sku_name: 'sku名称',
+                            goods_name: '直播商品名称',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1290
+                        },
+                        {
+                            id:4,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: 'sku名称',
+                            goods_name: '直播商品名称',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1290
+                        },
+                        {
+                            id:5,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: 'sku名称',
+                            goods_name: '直播商品名称',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1290
+                        },
+                        {
+                            id:6,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1990
+                        },
+                        {
+                            id:7,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            shop_name: '川小布',
+                            status: 1,
+                            price: 1990
+                        },
+                        {
+                            id:8,
+                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
+                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
+                            shop_name: '川小布',
+                            status: 2,
+                            price: 1990
+                        },
+                    ]
+                    this.total = res.data.total
+                    this.previewUrlList = [];
+                    this.previewUrlList = this.list.map(item => item.sku_img)
+                })
+                .catch(err => {})
+        },
+
+        // 代理店铺列表
+        queryShopList() {
+            queryShopList()
+                .then(res => {
+                    this.shopList = res.data;
+                    if(this.shopList.length > 0){
+                        this.formFilter['shop_id'] = this.shopList[0].id;
+                        this.searchParams['shop_id'] = this.shopList[0].id;
+                        this.getList();
+                    }
+                })
+                .catch(err => {})
+        },
+
+
+        // 新增商品
+        goodsCreat() {
+            this.$refs.goodsList.show()
+        },
+        getSku(){
+
+        },
+
+        // 重置
+        resetForm(formName) {
+            console.log(this.$refs[formName].model)
+            this.$refs[formName].resetFields();
+            this.searchParams = _.cloneDeep(this.$refs['formFilter'].model);
+            this.handleFilter()
+        },
+
+        // 搜索
+        handleFilter() {
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.getList();
+        },
+
+        // 图片上传前检测
+        beforeUpload(file) {
+            if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
+            } else {
+                if (file.size > 1024 * 1024 * 5) {
+                    this.$notify({
+                        title: '照片大小应不超过5M',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                } else {
+                    this.$notify({
+                        title: '照片格式只支持JPG、PNG',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+                return false
+            }
+        },
+
+        // 单张图片上传成功回调
+        uploadImgSuccess(response, file, fileList) {
+            if (response.code === 200) {
+                this.$notify({
+                    title: '上传成功',
+                    message: '',
+                    type: 'success',
+                    duration: 500
+                })
+                this.upload_loading.close()
+                this.filePic = file.response.data.file_url
+                console.log('输出 ~ this.filePic', this.filePic)
+            } else {
+                this.upload_loading.close()
+                this.$notify({
+                    title: response.msg,
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                })
+            }
+        },
+
+        // 单张图片上传失败回调
+        uploadImgError(err, file, fileList) {
+            this.upload_loading.close()
+            this.$notify({
+                title: '上传失败',
+                message: '',
+                type: 'error',
+                duration: 5000
+            })
+        },
+
+        // 确定-编辑商品
+        submitEdit() {
+            // isSureAudit  是否同时提交审核
+            this.$refs['formGoodsEdit'].validate(valid => {
+                if (valid) {
+                    if (this.filePic == '') {
+                        this.$notify({
+                            title: '请上传图片',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        return
+                    }
+                    this.formGoodsEdit['shop_icon'] = this.filePic
+                    let params = {
+                        id: 0,
+                        name: this.formGoodsEdit
+                    }
+                    updateShop(params)
+                        .then(res => {
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '操作成功',
+                                    type: 'success',
+                                    duration: 5000
+                                })
+                                this.handleCloseCreat()
+                                this.getList()
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(err => {})
+                } else {
+                    this.$notify({
+                        title: '请填写完成数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+            })
+        },
+
+        //
+        async updateOrder(row) {
+            console.log('输出 ~ row', row)
+            row.shop_admin_id = row.shop_admin_id == 0 ? '' : row.shop_admin_id
+            this.shopIdSelected = row.id
+            await this.queryUserList(row.shop_admin_phone)
+            this.formOrder = _.cloneDeep(row)
+            this.formOrderSubmit = _.cloneDeep(row)
+            this.formOrder['order_timeout'] = row['order_timeout'] / 60
+            this.formOrder['order_apply_stop_time'] = row['order_apply_stop_time'] / 60
+            this.formOrder['order_sand_to_success_time'] = row['order_sand_to_success_time'] / 60
+            this.dialogVisibleOrder = true
+        },
+
+        // 按钮-切换 选中未选中
+        tabClick(){
+            console.log('tabPosition', this.tabPosition)
+            this.listQuery.page = 1
+            this.getList();
+        },
+
+        // 按钮- 编辑商品
+        handleOnEdit(row){
+            console.log('row', row)
+            this.dialogTitle = '编辑'
+            this.formGoodsEdit = _.cloneDeep(row)
+            this.filePic = this.formGoodsEdit.sku_img
+            this.dialogVisibleEdit = true
+        },
+        // 关闭编辑商品对话框
+        handleCloseCreat() {
+            this.filePic = '';
+            this.$refs['formGoodsEdit'].resetFields();
+            this.$refs['formGoodsEdit'].clearValidate();
+            this.dialogVisibleEdit = false;
+        },
+
+        // 提交审核
+        handleSubmitAudit(){
+
+        },
+        // 撤销审核
+        handleCancelAudit(row, index){
+            // 二次确认删除
+            this.$confirm('确定撤回审核吗？', '', {
+                customClass: 'message-delete',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                console.log('确定')
+                let params = {
+                    type: this.selectedType
+                };
+                params['id'] = row.id;
+                // this.getAttrDelete(params);
+            }).catch(() => {
+                console.log('取消')
+            });
+
+        },
+        // 按钮- 删除
+        handleDelete(row, index){
+            // 二次确认删除
+            this.$confirm('确定要删除商品吗？删除后不可恢复', '', {
+                customClass: 'message-delete',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                console.log('确定')
+                let params = {
+                    type: this.selectedType
+                };
+                params['id'] = row.id;
+                // this.getAttrDelete(params);
+            }).catch(() => {
+                console.log('取消')
+            });
+
+        },
+
+        // 切换每页显示条数
+        handleSizeChange(val) {
+            console.log(`每页 ${val} 条`)
+            this.$set(this.listQuery, 'limit', val)
+            this.$set(this.listQuery, 'page', 1)
+            this.getList()
+        },
+
+        // 切换分页
+        handleCurrentChange(val) {
+            this.listQuery.page = val
+            this.getList()
+        },
+
+        // 打开大图预览
+        openPreview(img, index) {
+            this.previewIndex = index;
+            this.dialogVisiblePic = true;
+        },
+
+        // 关闭大图
+        closePreview() {
+            this.dialogVisiblePic = false;
+        },
+    }
+}
+</script>
+<style scoped="scoped" lang="less">
+.timg {
+    width: 80px;
+    height: 60px;
+    display: inline-block;
+    vertical-align: bottom;
+    cursor: pointer;
+}
+.table-title {
+    position: relative;
+    .search {
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .grey-line {
+        margin: 0 20px;
+        width: 1px;
+        height: 26px;
+        background: #e6e6e6;
+    }
+    .head-container {
+        position: absolute;
+        top: 63px;
+        z-index: 9;
+        // border: 1px solid #000;
+        border-radius: 2px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
+        // transition: all 3s ease-in-out;
+    }
+}
+.shop-goods {
+    margin-right: 24px;
+    margin-left: 12px;
+}
+.dialog-item {
+    width: 400px;
+}
+.preview {
+    position: relative;
+    width: 200px;
+    height: 150px;
+    .fullimg {
+        width: 100%;
+        height: 100%;
+    }
+    .el-icon-close {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        background-color: rgba(165, 165, 165, 0.65);
+        color: #fff;
+        text-align: center;
+        line-height: 20px;
+    }
+}
+.upload-demo{
+    margin-top: 16px;
+}
+.status {
+    display: flex;
+    align-items: center;
+    .text-grey {
+        color: rgba(0, 0, 0, 0.25);
+    }
+    .dot {
+        display: block;
+        margin-right: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+    }
+}
+.tabs-wrap{
+    margin-left: auto;
+    .tabs-nav{
+        /deep/.el-radio-button--small .el-radio-button__inner{
+            width: 74px;
+        }
+        /deep/.el-radio-button__orig-radio:checked+.el-radio-button__inner{
+            background: #fff;
+            color: #1890FF;
+            border-color: #1890FF;
+            -webkit-box-shadow: -1px 0 0 0 #1890FF;
+            box-shadow: -1px 0 0 0 #1890FF;
+        }
+        /deep/.el-radio-button:first-child .el-radio-button__inner{
+            border-radius: 2px 0 0 2px;
+        }
+        /deep/.el-radio-button:last-child .el-radio-button__inner{
+            border-radius: 0 2px 2px 0;
+        }
+    }
+}
+.shop-icon {
+    display: flex;
+    margin-left: 23px;
+    padding: 0 10px;
+    height: 30px;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 30px;
+    &.shop-all {
+        color: #1890ff;
+        text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+        .icon-shop {
+            margin-right: 6px;
+        }
+    }
+    &.shop-filter {
+        color: rgba(0, 0, 0, 0.85);
+        text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+        .shop-img {
+            margin-top: 5px;
+            margin-right: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+        }
+    }
+}
+.el-form-item--mini.el-form-item, /deep/.el-form-item--small.el-form-item:last-child{
+    margin-bottom: 0 !important;
+}
+</style>
+<style>
+    .el-message-box--center{
+        padding-bottom: 24px;
+    }
+    .el-message-box__message{
+        font-size: 16px;
+        font-family: PingFangSC-Medium, PingFang SC;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+        line-height: 24px;
+    }
+    .el-message-box__status{
+        font-size: 32px !important;
+    }
+    .el-message-box__btns{
+        padding: 26px 15px 0;
+    }
+</style>
