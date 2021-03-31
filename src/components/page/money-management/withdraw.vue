@@ -1,43 +1,65 @@
 <template>
-    <div class="app-container">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <el-form-item label="店铺名称" prop="shop_id">
-                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="管理员昵称" prop="shop_admin_name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_name"></el-input>
-                </el-form-item>
-                <el-form-item label="管理员手机号" prop="shop_admin_phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_phone"></el-input>
-                </el-form-item>
-
-                <el-form-item class="long-time" label="申请时间" prop="applyTime">
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="formFilter.applyTime"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        type="datetimerange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">提现审核列表</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="店铺名称" prop="shop_id">
+                            <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="管理员昵称" prop="shop_admin_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="管理员手机号" prop="shop_admin_phone">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_phone"></el-input>
+                        </el-form-item>
+
+                        <el-form-item class="long-time" label="申请时间" prop="applyTime">
+                            <el-date-picker
+                                    class="filter-item"
+                                    v-model="formFilter.applyTime"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
             <el-button size="mini" class="title-btn" v-hasPermission="'mall-backend-withdraw-all'" @click="gotoWithdrawListAll">全部提现列表</el-button>
         </div>
-        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-agent-update-status'">
@@ -150,11 +172,40 @@ export default {
                 shop_admin_phone: '', //不搜索为空
                 applyTime: [], //暂存
                 apply_time_lte: '', //不搜索为空
-                apply_time_gte: '' //不搜索为空
-            }
+                apply_time_gte: '', //不搜索为空
+            },
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
-
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
+    },
     created() {},
     mounted() {
         this.queryShopList()
@@ -248,7 +299,9 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.setSearchValue();
             this.getList()
         },
         // 重置
@@ -257,6 +310,69 @@ export default {
             this.$refs[formName].resetFields()
             this.handleFilter()
         },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 店铺名称 shop_id
+            if(this.formFilter['shop_id']){
+                this.shopList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 管理员昵称 shop_admin_name
+            if(this.formFilter['shop_admin_name']){
+                let obj = {
+                    label: 'shop_admin_name',
+                    val: this.formFilter['shop_admin_name']
+                }
+                _search.push(obj)
+            }
+            // 管理员手机号 shop_admin_phone
+            if(this.formFilter['shop_admin_phone']){
+                let obj = {
+                    label: 'shop_admin_phone',
+                    val: this.formFilter['shop_admin_phone']
+                }
+                _search.push(obj)
+            }
+
+            // 申请时间 applyTime
+            if(this.formFilter['applyTime'] && this.formFilter['applyTime'].length === 2){
+                console.log('applyTime', this.formFilter.applyTime);
+                console.log('111', this.$moment(this.formFilter.applyTime[0]).format('YYYY-MM-DD '))
+                let _ge_arr = (this.$moment(this.formFilter.applyTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.applyTime[1]).format('YYYY-MM-DD ')).split('-');
+                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'applyTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+            console.log('this.searchList', this.searchList)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
+            if(item.label == 'applyTime'){
+                this.$set(this.formFilter, 'applyTime', [])
+                this.$set(this.formFilter, 'apply_time_lte', '')
+                this.$set(this.formFilter, 'apply_time_gte', '')
+            }
+            this.handleFilter()
+        },
+
         // 分页方法
         handleSizeChange(val) {
             this.listQuery.limit = val

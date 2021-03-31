@@ -1,38 +1,60 @@
 <template>
-    <div class="app-container">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <el-form-item label="店铺名称" prop="name">
-                    <el-select class="filter-item" v-model="formFilter.name" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.shop_name"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="绑定代理" prop="agent_name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_name"></el-input>
-                </el-form-item>
-                <el-form-item label="代理手机号" prop="agent_phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_phone"></el-input>
-                </el-form-item>
-                <el-form-item label="管理员微信昵称" prop="admin_name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.admin_name"></el-input>
-                </el-form-item>
-                <el-form-item label="店铺状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                        <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">店铺管理</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="店铺名称" prop="name">
+                            <el-select class="filter-item" v-model="formFilter.name" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.shop_name"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="绑定代理" prop="agent_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="代理手机号" prop="agent_phone">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.agent_phone"></el-input>
+                        </el-form-item>
+                        <el-form-item label="管理员微信昵称" prop="admin_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.admin_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺状态" prop="status">
+                            <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                                <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
             <el-button type="primary" @click="shopCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">新增店铺</el-button>
         </div>
-        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-shop-update'">
@@ -265,8 +287,8 @@ export default {
                 }
             ],
             formFilter: {
-                status: '', //状态 '1 使用中 2 停止使用' 不搜索为-1
-                name: '', //店铺名称 不搜索为空
+                status: '', // 状态 '1 使用中 2 停止使用' 不搜索为-1
+                name: '', // 店铺名称 不搜索为空
                 agent_name: '', //代理商名称 不搜索为空
                 agent_phone: '', //代理商手机号 不搜索为空
                 admin_name: '' //管理员名称 不搜索为空
@@ -320,10 +342,39 @@ export default {
                 additional_rate: [{ required: true, message: '请输入内容', trigger: 'change' }]
             },
             uploadImgUrl: '',
-            dialogTitle: '新增店铺'
+            dialogTitle: '新增店铺',
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
-
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
+    },
     created() {
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
@@ -451,8 +502,73 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.setSearchValue();
             this.getList()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 店铺名称 name
+            if(this.formFilter['name']){
+                this.shopList.forEach((ev)=>{
+                    if(ev.shop_name == this.formFilter['name']){
+                        let obj = {
+                            label: 'name',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 绑定代理 agent_name
+            if(this.formFilter['agent_name']){
+                let obj = {
+                    label: 'agent_name',
+                    val: this.formFilter['agent_name']
+                }
+                _search.push(obj)
+            }
+            // 代理手机号 agent_phone
+            if(this.formFilter['agent_phone']){
+                let obj = {
+                    label: 'agent_phone',
+                    val: this.formFilter['agent_phone']
+                }
+                _search.push(obj)
+            }
+
+            // 管理员微信昵称 shop_admin_phone
+            if(this.formFilter['admin_name']){
+                let obj = {
+                    label: 'admin_name',
+                    val: this.formFilter['admin_name']
+                }
+                _search.push(obj)
+            }
+
+            // 店铺状态
+            if(this.formFilter['status']){
+                this.statusList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
+            this.handleFilter()
         },
         // 图片上传前检测
         beforeUpload(file) {

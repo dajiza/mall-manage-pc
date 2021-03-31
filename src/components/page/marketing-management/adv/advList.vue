@@ -1,54 +1,75 @@
 <template>
-    <div class="order-list-container" id="containerWrap">
-        <div class="container clearfix head-container" ref="searchBox">
-            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
-                <el-form-item label="广告名称" prop="title" class="">
-                    <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="location" prop="location" class="">
-                    <el-select class="filter-item" v-model="searchForm.location" placeholder="请选择" clearable>
-                        <el-option v-for="state in locationOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="应用店铺" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
-                        <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="广告状态" prop="status" class="">
-                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
-                        <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="广告时间" prop="adv_time" class="long-time">
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="searchForm.adv_time"
-                        type="datetimerange"
-                        align="left"
-                        range-separator="至"
-                        start-placeholder="开始时间"
-                        end-placeholder="结束时间"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        :default-time="['00:00:00', '23:59:59']"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
-                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-        <div class="container container-table-has-search m-t-16 p-t-0 pos-relative">
-            <div class="global-table-title">
-                <div class="title">
-                    <i></i>
-                    <span>广告管理</span>
+    <div class="order-list-container" id="containerWrap"  @click.stop="searchShow = false">
+        <div class="container container-table-has-search p-t-0 pos-relative">
+
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">广告管理</div>
+                <div class="grey-line"></div>
+                <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+                <transition name="slide-fade">
+                    <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
+                        <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
+                            <el-form-item label="广告名称" prop="title" class="">
+                                <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="location" prop="location" class="">
+                                <el-select class="filter-item" v-model="searchForm.location" placeholder="请选择" clearable>
+                                    <el-option v-for="state in locationOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="应用店铺" prop="shop_id" class="">
+                                <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
+                                    <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="广告状态" prop="status" class="">
+                                <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
+                                    <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="广告时间" prop="adv_time" class="long-time">
+                                <el-date-picker
+                                        class="filter-item"
+                                        v-model="searchForm.adv_time"
+                                        type="datetimerange"
+                                        align="left"
+                                        range-separator="至"
+                                        start-placeholder="开始时间"
+                                        end-placeholder="结束时间"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                        :default-time="['00:00:00', '23:59:59']"
+                                >
+                                </el-date-picker>
+                            </el-form-item>
+                            <el-form-item class="form-item-btn" label="">
+                                <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
+                                <el-button class="filter-btn" type="primary" @click="handleSearch()">搜索</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </transition>
+                <div class="search-value" >
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" v-if="i <= showMaxIndex">
+                            {{item.val}}
+                            <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                    <div class="search-value-clone" ref="searchValueBox">
+                        <template v-for="(item,i) in searchList">
+                            <div class="search-item" :ref="'searchItem'+ i">
+                                {{item.val}}
+                                <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block">...</span>
+                    </div>
                 </div>
                 <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-adv-create'">新增广告</el-button>
             </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
+            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="110">
                     <template slot-scope="scope">
                         <el-button
@@ -161,10 +182,13 @@ export default {
                 { id: 1, name: '首页banner位' },
                 { id: 2, name: '首页分享位' }
             ], // location下拉列表
-            tableHeight: 'calc(100% - 114px)',
+            tableHeight: 'calc(100vh - 194px)',
             imgSrcList: [],
             previewIndex: 0,
-            dialogVisible: false
+            dialogVisible: false,
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     components: {
@@ -204,6 +228,32 @@ export default {
                     return data + '!/fw/' + 80
                 }
             }
+        }
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
         }
     },
     created() {},
@@ -279,18 +329,99 @@ export default {
         // 按钮 - 重置
         resetForm(formName) {
             this.$refs[formName].resetFields()
-            this.searchParams = _.cloneDeep(this.searchForm)
-            // this.$set(this.searchParams,'adv_time', '');
-            // console.log('this.searchParams',this.searchParams)
-            this.getListData()
+            this.handleSearch()
         },
 
         // 按钮-触发搜索按钮
-        handleSearch(formName) {
+        handleSearch() {
             this.$set(this.pageInfo, 'pageIndex', 1)
             // 存储搜索条件
-            this.searchParams = _.cloneDeep(this.searchForm)
-            this.getListData()
+            this.searchParams = _.cloneDeep(this.searchForm);
+            this.searchShow = false;
+            this.setSearchValue();
+            this.getListData();
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 广告名称 coupon_title
+            if(this.searchParams['title']){
+                let obj = {
+                    label: 'title',
+                    val: this.searchParams['title']
+                }
+                _search.push(obj)
+            }
+            // location
+            if(this.searchParams['location']){
+                this.locationOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['location']){
+                        let obj = {
+                            label: 'location',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 应用店铺 shop_id
+            if(this.searchParams['shop_id']){
+                this.shopOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 广告状态 status
+            if(this.searchParams['status']){
+                this.statusOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 广告时间 adv_time
+            if(this.searchParams['adv_time'] && this.searchParams['adv_time'].length === 2){
+                console.log('adv_time', this.searchParams.adv_time);
+                console.log('111', this.$moment(this.searchParams.adv_time[0]).format('YYYY-MM-DD '))
+                let _ge_arr = (this.$moment(this.searchParams.adv_time[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.searchParams.adv_time[1]).format('YYYY-MM-DD ')).split('-');
+                //  + ' '+ this.searchParams['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.searchParams['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'adv_time',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+            console.log('this.searchList', this.searchList)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.searchForm,item.label, '');
+            this.$set(this.searchParams,item.label, '');
+            if(item.label == 'adv_time'){
+                this.$set(this.searchParams, 'adv_time', [])
+                this.$set(this.searchForm, 'adv_time', [])
+            }
+
+            this.handleSearch()
         },
 
         // 按钮-分页导航
