@@ -1,39 +1,61 @@
 <template>
-    <div class="app-container goods-list">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
-                <el-form-item label="页面名称" prop="title" class="">
-                    <el-input class="filter-item" v-model="formFilter.title" placeholder="请输入"></el-input>
-                </el-form-item>
-
-                <el-form-item label="创建时间" prop="searchTime" class="long-time">
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="formFilter.searchTime"
-                        type="datetimerange"
-                        range-separator="至"
-                        align="left"
-                        start-placeholder="开始时间"
-                        end-placeholder="结束时间"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        :default-time="['00:00:00', '23:59:59']"
-                        :picker-options="pickerOptions"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container goods-list" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">页面管理</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="页面名称" prop="title" class="">
+                            <el-input class="filter-item" v-model="formFilter.title" placeholder="请输入"></el-input>
+                        </el-form-item>
+
+                        <el-form-item label="创建时间" prop="searchTime" class="long-time">
+                            <el-date-picker
+                                    class="filter-item"
+                                    v-model="formFilter.searchTime"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    align="left"
+                                    start-placeholder="开始时间"
+                                    end-placeholder="结束时间"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    :default-time="['00:00:00', '23:59:59']"
+                                    :picker-options="pickerOptions"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
             <el-button type="primary" @click="pageCreat" class="creat-page" v-hasPermission="'mall-backend-page-manage-goods-add'">新增页面</el-button>
         </div>
-        <el-table :height="$tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
+        <el-table :height="tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
             <el-table-column label="页面ID" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.id }}</span>
@@ -137,10 +159,40 @@ export default {
                         }
                     }
                 ]
-            }
+            },
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     inject: ['reload'],
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
+    },
     mounted() {
         // 默认搜索7天
         // this.setDefaultDate()
@@ -230,7 +282,9 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.setSearchValue();
             this.getList()
         },
         // 重置
@@ -238,6 +292,46 @@ export default {
             this.$refs[formName].resetFields()
             // this.setDefaultDate()
 
+            this.handleFilter()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // console.log('status', this.formFilter['status'])
+            // console.log('this.formFilter', this.formFilter);
+            // 页面名称 title
+            if(this.formFilter['title']){
+                let obj = {
+                    label: 'title',
+                    val: this.formFilter['title']
+                }
+                _search.push(obj)
+            }
+            // 创建时间 searchTime
+            if(this.formFilter['searchTime'] && this.formFilter['searchTime'].length == 2){
+                console.log('searchTime', this.formFilter.searchTime);
+                console.log('111', this.$moment(this.formFilter.searchTime[0]).format('YYYY-MM-DD '))
+                let _ge_arr = (this.$moment(this.formFilter.searchTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.searchTime[1]).format('YYYY-MM-DD ')).split('-');
+                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'searchTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
+            if(item.label == 'searchTime'){
+                this.$set(this.formFilter, 'searchTime', null)
+            }
             this.handleFilter()
         },
         // 分页方法
@@ -253,6 +347,11 @@ export default {
 }
 </script>
 <style scoped="scoped" lang="less">
+    .head-container{
+        width: 100%;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+    }
 .tab-way {
     margin-left: auto;
 }

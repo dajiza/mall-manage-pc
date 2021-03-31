@@ -4,9 +4,9 @@
             <div class="line"></div>
             <div class="text">商品列表</div>
             <div class="grey-line"></div>
-            <i class="el-icon-search search" @click="searchShow = !searchShow"></i>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
             <transition name="slide-fade">
-                <div class="head-container" v-show="searchShow">
+                <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
                         <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                         <el-form-item label="商品名称" prop="title" label-width="">
@@ -55,6 +55,24 @@
                     </el-form>
                 </div>
             </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
         </div>
         <div class="divider"></div>
         <div class="operate">
@@ -375,12 +393,40 @@ export default {
             previewUrlList: [],
             previewIndex: 0,
             timgList: [], //主图预览列表
-            skuImgList: [] //sku图预览列表
+            skuImgList: [], //sku图预览列表
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     components: {
         ElImageViewer,
         EmptyList
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
     },
     created() {},
     mounted() {
@@ -432,8 +478,8 @@ export default {
             queryGoodsList(params)
                 .then(async res => {
                     if (res.data.lists == null) {
-                        this.list = res.data.lists
-                        this.total = res.data.total
+                        this.list = res.data.lists || []
+                        this.total = res.data.total || 0
                         rLoading.close()
                         return
                     }
@@ -863,6 +909,7 @@ export default {
         },
         // 搜索
         handleFilter() {
+            this.setSearchValue();
             this.listQuery.page = 1
             this.getList()
             this.searchShow = false
@@ -873,6 +920,118 @@ export default {
             this.$refs[formName].resetFields()
             console.log(this.$refs[formName].model)
             this.handleFilter()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 商品名称
+            if(this.formFilter['title']){
+                let obj = {
+                    label: 'title',
+                    val: this.formFilter['title']
+                }
+                _search.push(obj)
+            }
+            // id
+            if(this.formFilter['id']){
+                let obj = {
+                    label: 'id',
+                    val: this.formFilter['id']
+                }
+                _search.push(obj)
+            }
+            // 商品类型 type
+            if(this.formFilter['type']){
+                this.typeList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['type']){
+                        let obj = {
+                            label: 'type',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 商品分类 category_id
+            if(this.formFilter['category_id']){
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach((ev)=>{
+                    if(ev.id == this.formFilter['category_id']){
+                        let obj = {
+                            label: 'category_id',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 商品状态 status
+            if(this.formFilter['status']){
+                this.statusList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 出售状态 is_sale
+            if(this.formFilter['is_sale']){
+                this.saleStatusList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['is_sale']){
+                        let obj = {
+                            label: 'is_sale',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+
+            // 库存预警
+            if(this.formFilter['is_store_shortage']){
+                this.shortageList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['is_store_shortage']){
+                        let obj = {
+                            label: 'is_store_shortage',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 是否指定店铺 allow_agent
+            if(this.formFilter['allow_agent']){
+                this.agentList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['allow_agent']){
+                        let obj = {
+                            label: 'allow_agent',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // SKU编码
+            if(this.formFilter['storehouse_code']){
+                let obj = {
+                    label: 'storehouse_code',
+                    val: this.formFilter['storehouse_code']
+                }
+                _search.push(obj)
+            }
+            // console.log('_search', _search)
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            console.log('item', item)
+            this.$set(this.formFilter,item.label, '');
+            this.handleFilter();
         },
         // 分页方法
         handleSizeChange(val) {

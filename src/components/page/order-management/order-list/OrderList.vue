@@ -1,89 +1,109 @@
 <template>
-    <div class="order-list-container" id="containerWrap">
+    <div class="order-list-container" id="containerWrap" @click="searchShow = false">
         <!--订单列表-->
-        <div class="container clearfix head-container" ref="searchBox">
-            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
-                <el-form-item label="订单号" prop="order_no" class="">
-                    <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="订单状态" prop="status" class="">
-                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
-                        <el-option v-for="state in orderStatusOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="订单类型" prop="order_type" class="" v-if="false">
-                    <el-select class="filter-item" v-model="searchForm.order_type" placeholder="请选择" clearable>
-                        <el-option v-for="state in orderTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="购买渠道" prop="channel_id" class="">
-                    <el-select class="filter-item" v-model="searchForm.channel_id" placeholder="请选择" clearable>
-                        <el-option v-for="state in channelOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="异常类型" prop="unusual_type" class="">
-                    <el-select class="filter-item" v-model="searchForm.unusual_type" placeholder="请选择" clearable>
-                        <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="用户昵称" prop="user_name" class="">
-                    <el-input class="filter-item" v-model="searchForm.user_name" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="用户手机号" prop="user_phone" class="">
-                    <el-input class="filter-item" v-model="searchForm.user_phone" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="收货人姓名" prop="logistics_name" class="">
-                    <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="收货人手机号" prop="logistics_phone" class="">
-                    <el-input class="filter-item" v-model="searchForm.logistics_phone" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="用户id" prop="user_id" class="">
-                    <el-input class="filter-item" v-model="searchForm.user_id" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="代理店铺" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
-                        <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="支付时间" prop="pay_time" class="long-time">
-                    <!--<el-date-picker
-                                v-model="searchForm.pay_start_time"
-                                type="datetime"
-                                placeholder="开始时间"
-                                default-time="00:00:00">
-                        </el-date-picker>-->
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="searchForm.pay_time"
-                        type="datetimerange"
-                        align="left"
-                        start-placeholder="开始时间"
-                        end-placeholder="结束时间"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        :picker-options="pickerOptions"
-                        :default-time="['00:00:00', '23:59:59']"
-                    >
-                        <!--:picker-options="pickerOptions"-->
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="SKU编码" prop="product_code" class="">
-                    <el-input class="filter-item" v-model="searchForm.product_code" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
-                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-        <div class="container container-table-has-search m-t-16 p-t-0 pos-relative">
-            <div class="global-table-title">
-                <div class="title">
-                    <i></i>
-                    <span>订单列表</span>
+        <div class="container container-table-has-search p-t-0 pos-relative">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">商品列表</div>
+                <div class="grey-line"></div>
+                <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+                <transition name="slide-fade">
+                    <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
+                        <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
+                            <el-form-item label="订单号" prop="order_no" class="">
+                                <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="订单状态" prop="status" class="">
+                                <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
+                                    <el-option v-for="state in orderStatusOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="订单类型" prop="order_type" class="" v-if="false">
+                                <el-select class="filter-item" v-model="searchForm.order_type" placeholder="请选择" clearable>
+                                    <el-option v-for="state in orderTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="购买渠道" prop="channel_id" class="">
+                                <el-select class="filter-item" v-model="searchForm.channel_id" placeholder="请选择" clearable>
+                                    <el-option v-for="state in channelOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="异常类型" prop="unusual_type" class="">
+                                <el-select class="filter-item" v-model="searchForm.unusual_type" placeholder="请选择" clearable>
+                                    <el-option v-for="state in unusualTypeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="用户昵称" prop="user_name" class="">
+                                <el-input class="filter-item" v-model="searchForm.user_name" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="用户手机号" prop="user_phone" class="">
+                                <el-input class="filter-item" v-model="searchForm.user_phone" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="收货人姓名" prop="logistics_name" class="">
+                                <el-input class="filter-item" v-model="searchForm.logistics_name" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="收货人手机号" prop="logistics_phone" class="">
+                                <el-input class="filter-item" v-model="searchForm.logistics_phone" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="用户id" prop="user_id" class="">
+                                <el-input class="filter-item" v-model="searchForm.user_id" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="代理店铺" prop="shop_id" class="">
+                                <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
+                                    <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="支付时间" prop="pay_time" class="long-time">
+                                <!--<el-date-picker
+                                            v-model="searchForm.pay_start_time"
+                                            type="datetime"
+                                            placeholder="开始时间"
+                                            default-time="00:00:00">
+                                    </el-date-picker>-->
+                                <el-date-picker
+                                        class="filter-item"
+                                        v-model="searchForm.pay_time"
+                                        type="datetimerange"
+                                        align="left"
+                                        start-placeholder="开始时间"
+                                        end-placeholder="结束时间"
+                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                        :picker-options="pickerOptions"
+                                        :default-time="['00:00:00', '23:59:59']"
+                                >
+                                    <!--:picker-options="pickerOptions"-->
+                                </el-date-picker>
+                            </el-form-item>
+                            <el-form-item label="SKU编码" prop="product_code" class="">
+                                <el-input class="filter-item" v-model="searchForm.product_code" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item class="form-item-btn" label="">
+                                <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
+                                <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </transition>
+                <div class="search-value" >
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" v-if="i <= showMaxIndex">
+                            {{item.val}}
+                            <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                    <div class="search-value-clone" ref="searchValueBox">
+                        <template v-for="(item,i) in searchList">
+                            <div class="search-item" :ref="'searchItem'+ i">
+                                {{item.val}}
+                                <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block">...</span>
+                    </div>
                 </div>
             </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
+            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column :fixed="tableData.length > 0" label="操作" width="120">
                     <template slot-scope="scope">
                         <el-button type="text" class="view-detail table-btn" v-hasPermission="'mall-backend-order-detail'" @click="handleViewDetail(scope.$index, scope.row)"
@@ -232,7 +252,7 @@ export default {
                 user_name: '',
                 user_phone: ''
             },
-            tableHeight: 'calc(100% - 134px)',
+            tableHeight: 'calc(100vh - 194px)',
             pickerOptions: {
                 shortcuts: [
                     {
@@ -263,11 +283,40 @@ export default {
                         }
                     }
                 ]
-            }
+            },
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     components: {
         EmptyList
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
     },
     computed: {
         orderStatus: function() {
@@ -415,8 +464,10 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields()
             this.$set(this.pageInfo, 'pageIndex', 1)
-            this.searchParams = _.cloneDeep(this.searchForm)
-            this.getListData()
+            this.searchParams = _.cloneDeep(this.searchForm);
+            this.searchShow = false;
+            this.setSearchValue();
+            this.getListData();
         },
 
         // 按钮-触发搜索按钮
@@ -426,7 +477,153 @@ export default {
             this.searchParams = _.cloneDeep(this.searchForm)
             this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0])
             this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1])
+            this.searchShow = false;
+            this.setSearchValue();
             this.getListData()
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            console.log('status', this.searchParams['status'])
+            console.log('this.searchParams', this.searchParams);
+            //订单号
+            if(this.searchParams['order_no']){
+                let obj = {
+                    label: 'order_no',
+                    val: this.searchParams['order_no']
+                }
+                _search.push(obj)
+            }
+            // 订单状态
+            if(this.searchParams['status']){
+                this.orderStatusOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 购买渠道 channel_id
+            if(this.searchParams['channel_id']){
+                this.channelOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['channel_id']){
+                        let obj = {
+                            label: 'channel_id',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 异常类型 unusual_type
+            if(this.searchParams['unusual_type']){
+                this.unusualTypeOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['unusual_type']){
+                        let obj = {
+                            label: 'unusual_type',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 用户昵称 user_name
+            if(this.searchParams['user_name']){
+                let obj = {
+                    label: 'user_name',
+                    val: this.searchParams['user_name']
+                }
+                _search.push(obj)
+            }
+            // 用户手机号 user_phone
+            if(this.searchParams['user_phone']){
+                let obj = {
+                    label: 'user_phone',
+                    val: this.searchParams['user_phone']
+                }
+                _search.push(obj)
+            }
+            // 收货人昵称 logistics_name
+            if(this.searchParams['logistics_name']){
+                let obj = {
+                    label: 'logistics_name',
+                    val: this.searchParams['logistics_name']
+                }
+                _search.push(obj)
+            }
+            // 收货人手机号 logistics_phone
+            if(this.searchParams['logistics_phone']){
+                let obj = {
+                    label: 'logistics_phone',
+                    val: this.searchParams['logistics_phone']
+                }
+                _search.push(obj)
+            }
+            // 用户id
+            if(this.searchParams['user_id']){
+                let obj = {
+                    label: 'user_id',
+                    val: this.searchParams['user_id']
+                }
+                _search.push(obj)
+            }
+            // 代理店铺 shop_id
+            if(this.searchParams['shop_id']){
+                this.shopOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 产品编码 product_code
+            if(this.searchParams['product_code']){
+                let obj = {
+                    label: 'product_code',
+                    val: this.searchParams['product_code']
+                }
+                _search.push(obj)
+            }
+            // 支付时间 pay_time
+            if(this.searchParams['paid_time_ge'] && this.searchParams['paid_time_le']){
+                let _ge_arr = (this.searchParams['paid_time_ge'].split(' ')[0]).split('-');
+                let _le_arr = (this.searchParams['paid_time_le'].split(' ')[0]).split('-');
+                //  + ' '+ this.searchParams['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.searchParams['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'pay_time',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            console.log('_search', _search)
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.searchForm,item.label, '');
+            this.$set(this.searchParams,item.label, '');
+            if(item.label == 'pay_time'){
+                this.$set(this.searchParams, 'paid_time_ge', '');
+                this.$set(this.searchParams, 'paid_time_le', '');
+            }else {
+                this.$set(this.searchParams,item.label, '');
+            }
+            this.$set(this.pageInfo, 'pageIndex', 1);
+            this.setSearchValue();
+            this.getListData();
         },
 
         // 按钮-查看订单详情

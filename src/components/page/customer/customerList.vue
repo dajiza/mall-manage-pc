@@ -1,36 +1,58 @@
 <template>
-    <div class="app-container">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                <el-form-item label="所属店铺" prop="shop_id">
-                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="客户微信昵称" prop="nick_name">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.nick_name"></el-input>
-                </el-form-item>
-                <el-form-item label="客户手机号" prop="phone">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
-                </el-form-item>
-                <el-form-item class="interval" label="累计消费">
-                    <el-input class="filter-item" placeholder="累计下限" v-model="formFilter.consumption_min"></el-input>
-                    <div class="separator">-</div>
-                    <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">客户管理</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
+                        <el-form-item label="所属店铺" prop="shop_id">
+                            <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="客户微信昵称" prop="nick_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.nick_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="客户手机号" prop="phone">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.phone"></el-input>
+                        </el-form-item>
+                        <el-form-item class="interval" label="累计消费">
+                            <el-input class="filter-item" placeholder="累计下限" v-model="formFilter.consumption_min"></el-input>
+                            <div class="separator">-</div>
+                            <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
         </div>
 
-        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="序号" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.user_id }}</span>
@@ -112,7 +134,11 @@ export default {
                 consumption_max: '', //不搜索 为-1
                 shop_id: '', //不搜索 为-1
                 phone: '' ////不搜索 为空
-            }
+            },
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
 
@@ -152,8 +178,10 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1
-            this.getList()
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.setSearchValue();
+            this.getList();
         },
         // 重置
         resetForm(formName) {
@@ -161,6 +189,64 @@ export default {
             this.$refs[formName].resetFields()
             this.formFilter.consumption_min = ''
             this.formFilter.consumption_max = ''
+            this.handleFilter()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            console.log('this.formFilter', this.formFilter);
+            // 所属店铺 shop_id
+            if(this.formFilter['shop_id']){
+                this.shopList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 客户微信昵称 nick_name
+            if(this.formFilter['nick_name']){
+                let obj = {
+                    label: 'nick_name',
+                    val: this.formFilter['nick_name']
+                }
+                _search.push(obj)
+            }
+            // 客户手机号 phone
+            if(this.formFilter['phone']){
+                let obj = {
+                    label: 'phone',
+                    val: this.formFilter['phone']
+                }
+                _search.push(obj)
+            }
+
+            // 累计消费 consumption_min
+            if(this.formFilter['consumption_min']){
+                let obj = {
+                    label: 'consumption_min',
+                    val: this.formFilter['consumption_min']
+                }
+                _search.push(obj)
+            }
+            // 累计消费 consumption_max
+            if(this.formFilter['consumption_max']){
+                let obj = {
+                    label: 'consumption_max',
+                    val: this.formFilter['consumption_max']
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
             this.handleFilter()
         },
         // 分页方法

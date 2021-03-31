@@ -109,7 +109,7 @@ export default {
                 status:'', // 优惠券状态
                 phone:'' // 用户手机号
             },
-            tableHeight: 'calc(100vh - 244px)',
+            tableHeight: 'calc(100vh - 194px)',
             activityId: -1,
         }
     },

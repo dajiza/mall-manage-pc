@@ -1,43 +1,63 @@
 <template>
-    <div class="order-list-container" id="containerWrap">
-        <div class="container clearfix head-container" ref="searchBox">
-            <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
-                <el-form-item label="优惠券名称" prop="title" class="">
-                    <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item label="优惠券类型" prop="type" class="">
-                    <el-select class="filter-item" v-model="searchForm.type" placeholder="请选择" clearable>
-                        <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="优惠券状态" prop="status" class="">
-                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
-                        <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="可用店铺" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
-                        <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="优惠券面额" prop="coupon_amount" class="">
-                    <el-input class="filter-item" v-model="searchForm.coupon_amount" placeholder="请输入"></el-input>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
-                    <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
-        <div class="container container-table-has-search m-t-16 p-t-0 pos-relative">
-            <div class="global-table-title">
-                <div class="title">
-                    <i></i>
-                    <span>优惠券列表</span>
+    <div class="order-list-container" id="containerWrap" @click="searchShow = false">
+        <div class="container container-table-has-search p-t-0 pos-relative">
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">优惠券列表</div>
+                <div class="grey-line"></div>
+                <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+                <transition name="slide-fade">
+                    <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
+                        <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
+                            <el-form-item label="优惠券名称" prop="title" class="">
+                                <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item label="优惠券类型" prop="type" class="">
+                                <el-select class="filter-item" v-model="searchForm.type" placeholder="请选择" clearable>
+                                    <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="优惠券状态" prop="status" class="">
+                                <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
+                                    <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="可用店铺" prop="shop_id" class="">
+                                <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
+                                    <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="优惠券面额" prop="coupon_amount" class="">
+                                <el-input class="filter-item" v-model="searchForm.coupon_amount" placeholder="请输入"></el-input>
+                            </el-form-item>
+                            <el-form-item class="form-item-btn" label="">
+                                <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
+                                <el-button class="filter-btn" type="primary" @click="handleSearch()">搜索</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </transition>
+                <div class="search-value" >
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" v-if="i <= showMaxIndex">
+                            {{item.val}}
+                            <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                    <div class="search-value-clone" ref="searchValueBox">
+                        <template v-for="(item,i) in searchList">
+                            <div class="search-item" :ref="'searchItem'+ i">
+                                {{item.val}}
+                                <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block">...</span>
+                    </div>
                 </div>
-                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增优惠券</el-button>
+                <el-button style="margin-right: 24px" type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增优惠券</el-button>
             </div>
-            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
+            <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="190">
                     <template slot-scope="scope">
                         <div v-if="scope.row.status === 1">
@@ -306,7 +326,7 @@ export default {
                 { id: 1, name: '满减' },
                 { id: 2, name: '折扣' },
             ], // 类型下拉列表
-            tableHeight: 'calc(100% - 114px)',
+            tableHeight: 'calc(100vh - 194px)',
             recordModalInfo: {
                 visible: false,
                 currentItem: {}
@@ -337,12 +357,41 @@ export default {
             uploadVisible:false,
             fileUrl:'',
             fileName:'',
-            uploadParams:{}
+            uploadParams:{},
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     components: {
         EmptyList,
         IssueRecord
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
     },
     computed: {
         statusClass: function() {
@@ -431,46 +480,93 @@ export default {
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields()
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.getListData()
+            this.$refs[formName].resetFields();
+            this.handleSearch();
         },
 
         // 按钮-触发搜索按钮
-        handleSearch(formName) {
+        handleSearch() {
             this.$set(this.pageInfo, 'pageIndex', 1)
             // 存储搜索条件
             this.searchParams = _.cloneDeep(this.searchForm);
-            /*this.$set(this.searchParams, 'title', this.searchForm.title);
-            this.$set(this.searchParams, 'status', this.searchForm.status || -1);
-            this.$set(this.searchParams, 'shop_id', this.searchForm.shop_id || -1);
-            this.$set(this.searchParams, 'type', this.searchForm.type || -1);
-            this.$set(this.searchParams, 'coupon_amount', this.searchForm.coupon_amount || -1);
-            this.searchParams = Object.assign(this.searchForm, this.searchParams);
-            this.searchParams = Object.assign({}, this.searchForm);
-            this.searchParams = _.cloneDeep(this.searchForm);*/
+            this.searchShow = false;
+            this.setSearchValue();
             this.getListData();
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            console.log('status', this.searchParams['status'])
+            console.log('this.searchParams', this.searchParams);
+            // 优惠券名称 title
+            if(this.searchParams['title']){
+                let obj = {
+                    label: 'title',
+                    val: this.searchParams['title']
+                }
+                _search.push(obj)
+            }
+            // 优惠券类型 type
+            if(this.searchParams['type']){
+                this.typeOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['type']){
+                        let obj = {
+                            label: 'type',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 优惠券状态 status
+            if(this.searchParams['status']){
+                this.statusOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 可用店铺 shop_id
+            if(this.searchParams['shop_id']){
+                this.shopOptions.forEach((ev)=>{
+                    if(ev.id == this.searchParams['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 优惠券面额 user_phone
+            if(this.searchParams['coupon_amount']){
+                let obj = {
+                    label: 'coupon_amount',
+                    val: this.searchParams['coupon_amount']
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.searchForm,item.label, '');
+            this.$set(this.searchParams,item.label, '');
+            this.handleSearch()
         },
 
         // 按钮-分页导航
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val);
-            /*this.searchParams = Object.assign({}, this.searchForm);
-            if (this.searchParams['status']) {
-                this.$set(this.searchForm, 'status', this.searchParams['status'])
-            }
-            if (this.searchParams['title']) {
-                this.$set(this.searchForm, 'name', this.searchParams['title'])
-            }
-            if (this.searchParams['shop_id']) {
-                this.$set(this.searchForm, 'shop_id', this.searchParams['shop_id'])
-            }
-            if (this.searchParams['type']) {
-                this.$set(this.searchForm, 'type', this.searchParams['type'])
-            }
-            if (this.searchParams['coupon_amount']) {
-                this.$set(this.searchForm, 'coupon_amount', this.searchParams['coupon_amount'])
-            }*/
             this.searchForm = _.cloneDeep(this.searchParams);
             this.getListData();
         },

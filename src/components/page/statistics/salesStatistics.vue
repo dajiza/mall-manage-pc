@@ -1,38 +1,59 @@
 <template>
-    <div class="app-container goods-list">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
-                <el-form-item label="店铺名称" prop="shop_id" class="">
-                    <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
-                    </el-select>
-                </el-form-item>
-
-                <el-form-item label="时间区间" prop="searchTime" class="long-time">
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="formFilter.searchTime"
-                        type="datetimerange"
-                        range-separator="至"
-                        align="left"
-                        start-placeholder="开始时间"
-                        end-placeholder="结束时间"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        :default-time="['00:00:00', '23:59:59']"
-                        :picker-options="pickerOptions"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container goods-list" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">销售统计</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="店铺名称" prop="shop_id" class="">
+                            <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
+                            </el-select>
+                        </el-form-item>
 
+                        <el-form-item label="时间区间" prop="searchTime" class="long-time">
+                            <el-date-picker
+                                    class="filter-item"
+                                    v-model="formFilter.searchTime"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    align="left"
+                                    start-placeholder="开始时间"
+                                    end-placeholder="结束时间"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    :default-time="['00:00:00', '23:59:59']"
+                                    :picker-options="pickerOptions"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
             <el-radio-group v-model="orderByField" class="tab-way" @change="onTabClick">
                 <el-radio-button :label="1">销量</el-radio-button>
                 <el-radio-button :label="2">订单量</el-radio-button>
@@ -41,7 +62,7 @@
         </div>
         <el-table
             ref="table"
-            :height="$tableHeight"
+            :height="tableHeight"
             class="table"
             :data="list"
             v-loading.body="listLoading"
@@ -161,7 +182,37 @@ export default {
                 ]
             },
             columnName: [], //按日期统计的表头
-            orderByField: 1 //1按num 2orderCount 3money
+            orderByField: 1, //1按num 2orderCount 3money
+            tableHeight: 'calc(100vh - 142px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
+        }
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
         }
     },
     updated() {
@@ -175,6 +226,7 @@ export default {
 
         // 默认显示全部列表
         this.queryShopList()
+        this.setSearchValue();
         this.getList()
     },
     methods: {
@@ -286,12 +338,57 @@ export default {
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
+            this.searchShow = false;
+            this.setSearchValue();
             this.getList()
         },
         // 重置
         resetForm(formName) {
             this.$refs[formName].resetFields()
             this.setDefaultDate()
+            this.handleFilter()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            // console.log('this.formFilter.searchTime', this.formFilter.searchTime)
+            let _search = [];
+            // 店铺名称 shop_id
+            if(this.formFilter['shop_id']){
+                this.shopList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 时间区间
+            if(this.formFilter['searchTime'] && this.formFilter['searchTime'].length === 2){
+                let _ge_arr = (this.$moment(this.formFilter.searchTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.searchTime[1]).format('YYYY-MM-DD ')).split('-');
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'searchTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            // console.log('_search', _search)
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            // created_time_le
+            this.$set(this.formFilter,item.label, '');
+            if(item.label == 'searchTime'){
+                this.$set(this.formFilter, 'searchTime', [])
+                this.$set(this.formFilter, 'created_time_le', '')
+                this.$set(this.formFilter, 'created_time_ge', '')
+            }
             this.handleFilter()
         },
         // 分页方法
