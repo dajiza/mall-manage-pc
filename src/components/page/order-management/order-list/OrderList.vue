@@ -4,7 +4,7 @@
         <div class="container container-table-has-search p-t-0 pos-relative">
             <div class="table-title">
                 <div class="line"></div>
-                <div class="text">商品列表</div>
+                <div class="text">订单列表</div>
                 <div class="grey-line"></div>
                 <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
                 <transition name="slide-fade">
