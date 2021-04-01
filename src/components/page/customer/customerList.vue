@@ -47,7 +47,8 @@
                             <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
-                    <span style="width: 20px;display: inline-block">...</span>
+                    <span>{{showMaxIndex}}</span>
+                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 </div>
             </div>
         </div>
@@ -141,7 +142,32 @@ export default {
             showMaxIndex: 0,
         }
     },
-
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
+    },
     created() {},
     mounted() {
         this.queryShopList()
@@ -226,18 +252,25 @@ export default {
             }
 
             // 累计消费 consumption_min
-            if(this.formFilter['consumption_min']){
-                let obj = {
-                    label: 'consumption_min',
-                    val: this.formFilter['consumption_min']
+            if(this.formFilter['consumption_min'] || this.formFilter['consumption_max']){
+                let obj = {}
+                if(this.formFilter['consumption_min'] && this.formFilter['consumption_max']){
+                    obj = {
+                        label: 'consumption_count',
+                        val: this.formFilter['consumption_min'] + ' - ' + this.formFilter['consumption_max']
+                    }
                 }
-                _search.push(obj)
-            }
-            // 累计消费 consumption_max
-            if(this.formFilter['consumption_max']){
-                let obj = {
-                    label: 'consumption_max',
-                    val: this.formFilter['consumption_max']
+                if(this.formFilter['consumption_min'] && !this.formFilter['consumption_max']){
+                    obj = {
+                        label: 'consumption_count',
+                        val: this.formFilter['consumption_min']
+                    }
+                }
+                if(!this.formFilter['consumption_min'] && this.formFilter['consumption_max']){
+                    obj = {
+                        label: 'consumption_count',
+                        val: this.formFilter['consumption_max']
+                    }
                 }
                 _search.push(obj)
             }
@@ -247,6 +280,10 @@ export default {
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             this.$set(this.formFilter,item.label, '');
+            if(item.label == 'consumption_count'){
+                this.$set(this.formFilter, 'consumption_min', '');
+                this.$set(this.formFilter, 'consumption_max', '');
+            }
             this.handleFilter()
         },
         // 分页方法

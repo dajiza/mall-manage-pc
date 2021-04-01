@@ -231,15 +231,11 @@ export default {
             }
             // 订单号
             if(this.formFilter['order_no']){
-                this.locationOptions.forEach((ev)=>{
-                    if(ev.id == this.formFilter['order_no']){
-                        let obj = {
-                            label: 'order_no',
-                            val: ev.name
-                        }
-                        _search.push(obj)
-                    }
-                })
+                let obj = {
+                    label: 'order_no',
+                    val: this.formFilter['order_no']
+                }
+                _search.push(obj)
             }
 
             // 获佣店铺 shop_id
