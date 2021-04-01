@@ -259,18 +259,26 @@ export default {
                 _search.push(obj)
             }
 
-            // 总销售额 sale_count_gte sale_count_lte
-            if(this.formFilter['sale_count_gte']){
-                let obj = {
-                    label: 'sale_count_gte',
-                    val: this.formFilter['sale_count_gte']
+            // 总销售额 sale_count_gte sale_count_lte sale_count
+            if(this.formFilter['sale_count_gte'] || this.formFilter['sale_count_lte']){
+                let obj = {}
+                if(this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']){
+                    obj = {
+                        label: 'sale_count',
+                        val: this.formFilter['sale_count_gte'] + ' - ' + this.formFilter['sale_count_lte']
+                    }
                 }
-                _search.push(obj)
-            }
-            if(this.formFilter['sale_count_lte']){
-                let obj = {
-                    label: 'sale_count_lte',
-                    val: this.formFilter['sale_count_lte']
+                if(this.formFilter['sale_count_gte'] && !this.formFilter['sale_count_lte']){
+                    obj = {
+                        label: 'sale_count',
+                        val: this.formFilter['sale_count_gte']
+                    }
+                }
+                if(!this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']){
+                    obj = {
+                        label: 'sale_count',
+                        val: this.formFilter['sale_count_lte']
+                    }
                 }
                 _search.push(obj)
             }
@@ -281,6 +289,10 @@ export default {
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             this.$set(this.formFilter,item.label, '');
+            if(item.label == 'sale_count'){
+                this.$set(this.formFilter, 'sale_count_gte', '');
+                this.$set(this.formFilter, 'sale_count_lte', '');
+            }
             this.handleFilter();
         },
         // 分页方法
