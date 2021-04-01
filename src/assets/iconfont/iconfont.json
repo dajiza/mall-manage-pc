@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "20729140",
+      "name": "live-goods",
+      "font_class": "live-goods",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
       "icon_id": "20256836",
       "name": "downArrow",
       "font_class": "downArrow",

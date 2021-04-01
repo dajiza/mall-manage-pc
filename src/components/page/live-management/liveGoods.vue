@@ -35,6 +35,24 @@
             <div class="shop-icon shop-filter" v-if="filterShop.id">
                 <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
             </div>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
             <div class="tabs-wrap">
                 <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
                     <el-radio-button label="not_put">未入库</el-radio-button>
@@ -222,7 +240,9 @@ export default {
             goods: {
                 type: 1,
                 sku_list: []
-            }
+            },
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
     components: {
@@ -380,7 +400,6 @@ export default {
         resetForm(formName) {
             console.log(this.$refs[formName].model)
             this.$refs[formName].resetFields();
-            this.searchParams = _.cloneDeep(this.$refs['formFilter'].model);
             this.handleFilter()
         },
 
@@ -388,7 +407,92 @@ export default {
         handleFilter() {
             this.listQuery.page = 1;
             this.searchShow = false;
+            this.searchParams = _.cloneDeep(this.formFilter);
+            this.setSearchValue();
             this.getList();
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 店铺名称 shop_id
+            if(this.formFilter['shop_id']){
+                this.shopList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['shop_id']){
+                        let obj = {
+                            label: 'shop_id',
+                            val: ev.shop_name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 管理员昵称 shop_admin_name
+            if(this.formFilter['shop_admin_name']){
+                let obj = {
+                    label: 'shop_admin_name',
+                    val: this.formFilter['shop_admin_name']
+                }
+                _search.push(obj)
+            }
+            // 管理员手机号 shop_admin_phone
+            if(this.formFilter['shop_admin_phone']){
+                let obj = {
+                    label: 'shop_admin_phone',
+                    val: this.formFilter['shop_admin_phone']
+                }
+                _search.push(obj)
+            }
+            // 状态
+            if(this.formFilter['status']){
+                this.statusList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['status']){
+                        let obj = {
+                            label: 'status',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 申请时间 applyTime
+            if(this.formFilter['applyTime'] && this.formFilter['applyTime'].length === 2){
+                let _ge_arr = (this.$moment(this.formFilter.applyTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.applyTime[1]).format('YYYY-MM-DD ')).split('-');
+                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'applyTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+
+            // 到账时间 successTime
+            if(this.formFilter['successTime'] && this.formFilter['successTime'].length === 2){
+                let _ge_arr = (this.$moment(this.formFilter.successTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.successTime[1]).format('YYYY-MM-DD ')).split('-');
+                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'successTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
+            this.$set(this.searchParams,item.label, '');
+            this.handleFilter()
         },
 
         // 图片上传前检测
@@ -590,7 +694,9 @@ export default {
         // 切换分页
         handleCurrentChange(val) {
             this.listQuery.page = val
-            this.getList()
+            this.formFilter = _.cloneDeep(this.searchParams);
+            this.setSearchValue();
+            this.getList();
         },
 
         // 打开大图预览
