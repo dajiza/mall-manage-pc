@@ -3,12 +3,12 @@
         <div class="wrap-box-item marginRight24" v-if="show_home">
             <div class="top-box">
                 <el-main class="box-el-main" v-loading="statusCountLoading">
-                    <div class="left-box" @click="goOrderLIst('0')">
-                        <div class="count-value">{{statusCountObj.count_status_new}}</div>
+                    <div class="left-box">
+                        <div class="count-value" @click="goOrderLIst('0')">{{statusCountObj.count_status_new}}</div>
                         <div class="count-text">待付款</div>
                     </div>
-                    <div class="center-box" @click="goOrderLIst('2')">
-                        <div class="count-value">{{statusCountObj.count_status_pending}}</div>
+                    <div class="center-box">
+                        <div class="count-value" @click="goOrderLIst('2')">{{statusCountObj.count_status_pending}}</div>
                         <div class="count-text">待发货</div>
                     </div>
                     <div class="right-box">
