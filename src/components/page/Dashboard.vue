@@ -4,11 +4,11 @@
             <div class="top-box">
                 <el-main class="box-el-main" v-loading="statusCountLoading">
                     <div class="left-box">
-                        <div class="count-value">{{ statusCountObj.count_status_new }}</div>
+                        <div class="count-value" @click="goOrderLIst('0')">{{ statusCountObj.count_status_new }}</div>
                         <div class="count-text">待付款</div>
                     </div>
                     <div class="center-box">
-                        <div class="count-value">{{ statusCountObj.count_status_pending }}</div>
+                        <div class="count-value" @click="goOrderLIst('2')">{{ statusCountObj.count_status_pending }}</div>
                         <div class="count-text">待发货</div>
                     </div>
                     <div class="right-box">
@@ -236,6 +236,17 @@ export default {
     },
     methods: {
         formatMoney: formatMoney,
+        /**
+         * 跳转到订单列表
+         */
+        goOrderLIst(num) {
+            this.$router.push({
+                path: '/mall-backend-order-list',
+                query: {
+                    status: num
+                }
+            });
+        },
         /**
          * 跳转到sku排行
          */
