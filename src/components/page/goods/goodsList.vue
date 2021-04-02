@@ -35,7 +35,7 @@
                                 <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="库存预警" prop="is_store_shortage">
+                        <el-form-item label="是否售罄" prop="is_store_shortage">
                             <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
                                 <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
@@ -144,10 +144,12 @@
                                 <span>{{ scope.row.stock_available }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="库存预警" width="90">
+                        <el-table-column label="是否售罄" width="90">
                             <template slot-scope="scope">
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
-                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>
+                                <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">{{scope.row.stock_available == 0?'售罄':'低库存'}}</div>
+                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">{{scope.row.stock_available == 0?'售罄':'否'}}</div>
+                                <div v-else>否</div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -366,8 +368,9 @@ export default {
             ],
             // 是否库存不足 1 足 2 不足(只有当所有sku 全部库存不足 为2
             shortageList: [
-                { value: '1', label: '正常' },
-                { value: '2', label: '低库存' }
+                { value: '2', label: '是' },
+                { value: '1', label: '否' }
+
             ],
             // 是否所有代理可以销售：1指定代理；2所有代理可以销售
             agentList: [
@@ -991,7 +994,7 @@ export default {
             }
 
 
-            // 库存预警
+            // 是否售罄
             if(this.formFilter['is_store_shortage']){
                 this.shortageList.forEach((ev)=>{
                     if(ev.value == this.formFilter['is_store_shortage']){
