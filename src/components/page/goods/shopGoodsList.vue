@@ -166,10 +166,12 @@
                                 <span>{{ scope.row.stock_available }}</span>
                             </template>
                         </el-table-column>
-                        <el-table-column label="库存预警" width="90">
+                        <el-table-column label="是否售罄" width="90">
                             <template slot-scope="scope">
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
-                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>
+                                <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
+                                <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
+                                <div v-else>否</div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -199,7 +201,7 @@
                             type="text"
                             size=""
                             v-show="formFilter.status == 1"
-                            v-hasPermission="'mall-backend-goods-dismounting'"
+                            v-hasPermission="'mall-backend-shop-goods-on'"
                             @click.native="updateOnShelf(scope.row)"
                         >
                             上架
@@ -209,7 +211,7 @@
                             type="text"
                             size=""
                             v-show="formFilter.status == 2"
-                            v-hasPermission="'mall-backend-goods-dismounting'"
+                            v-hasPermission="'mall-backend-shop-goods-down'"
                             @click.native="updateOffShelf(scope.row)"
                         >
                             下架

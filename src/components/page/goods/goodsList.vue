@@ -157,7 +157,7 @@
                             <template slot-scope="scope">
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">{{scope.row.stock_available == 0?'售罄':'低库存'}}</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">{{ scope.row.stock_available == 0 ? '售罄' : '否' }}</div>
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
                                 <div v-else>否</div>
                             </template>
                         </el-table-column>
@@ -215,7 +215,7 @@
                         >
                             下架
                         </el-button>
-                        <el-button class="text-blue btn-opt table-btn" type="text" size="" @click.native="openShopShelf(scope.row)" v-hasPermission="">
+                        <el-button class="text-blue btn-opt table-btn" type="text" size="" @click.native="openShopShelf(scope.row)" v-hasPermission="'mall-backend-shop-goods'">
                             店铺商品
                         </el-button>
                         <el-button

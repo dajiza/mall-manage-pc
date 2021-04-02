@@ -387,6 +387,13 @@ export default {
                 { id: 3, name: '渠道3' },
                 { id: 4, name: '渠道4' }
             ];*/
+        if(this.$route.query.status){
+            this.$set(this.searchForm,'status',this.$route.query.status)
+            this.$set(this.searchParams,'status',this.$route.query.status)
+            this.setSearchValue();
+        }else {
+
+        }
     },
     mounted() {
         // 获取购买渠道列表数据
