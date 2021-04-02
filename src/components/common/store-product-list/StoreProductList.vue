@@ -205,7 +205,7 @@
 </template>
 
 <script>
-import { getAllAttrList, queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll, queryGroupList, queryStoreCategoryList } from '@/api/goods'
+import { getAllAttrList, queryProduceList, getLabelAllList, queryStoreProductDetail, queryTagListAll, queryGroupList, queryStoreCategoryList } from '@/api/goods'
 
 export default {
     name: 'CheckList',
@@ -751,7 +751,7 @@ export default {
         queryDetail(skuId) {
             let params = { sku_id: skuId }
             return new Promise(function(resolve, reject) {
-                queryProduceDetail(params)
+                queryStoreProductDetail(params)
                     .then(res => {
                         resolve(res.data)
                     })

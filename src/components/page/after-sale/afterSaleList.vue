@@ -14,8 +14,8 @@
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="退款状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                <el-form-item label="退款状态" prop="statusCache">
+                    <el-select class="filter-item" v-model="formFilter.statusCache" placeholder="请选择">
                         <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -45,6 +45,10 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">售后申请列表</div>
+            <el-radio-group v-model="formFilter.statusCache" class="tab-way" @change="onTabClick">
+                <el-radio-button label="10">全部</el-radio-button>
+                <el-radio-button label="11">待处理({{ totalProcessed }})</el-radio-button>
+            </el-radio-group>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :height="$tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="">
@@ -167,6 +171,7 @@ export default {
                 // { value: '3', label: '后台关闭' }
             ],
             statusList: [
+                { value: '10', label: '全部' },
                 { value: '0', label: '待审核' },
                 { value: '1', label: '待打款' },
                 { value: '2', label: '已拒绝' },
@@ -176,25 +181,31 @@ export default {
                 { value: '6', label: '商家待发货' },
                 { value: '7', label: '已打款' },
                 { value: '8', label: '拒绝打款' },
-                { value: '9', label: '商家已重新发货' }
+                { value: '9', label: '商家已重新发货' },
+                { value: '11', label: '待处理' }
             ],
             reasonList: [],
 
             formFilter: {
                 type: '', //不检索传“”
                 status: '',
+                statusCache: '10',
                 order_no: '',
                 order_detail_no: '',
                 reason_id: '',
                 createdTime: '',
                 created_time_le: '',
                 created_time_ge: ''
-            }
+            },
+            orderType: '', //订单筛选
+            totalProcessed: 0 //待处理数量
         }
     },
 
     created() {},
     mounted() {
+        let status = this.$route.query.status ? this.$route.query.status : ''
+        this.$set(this.formFilter, 'statusCache', status)
         this.getList()
     },
     methods: {
@@ -208,6 +219,13 @@ export default {
                 params['created_time_ge'] = ''
                 params['created_time_le'] = ''
             }
+            if (params.statusCache == 10) {
+                params.status_in = []
+            } else if (params.statusCache == 11) {
+                params.status_in = [0, 1, 6]
+            } else {
+                params.status_in = [Number(params.statusCache)]
+            }
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
@@ -217,6 +235,21 @@ export default {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
                     this.total = res.data.total
+                })
+                .catch(err => {})
+            this.getProcessedNum()
+        },
+        // 获取待处理数量
+        getProcessedNum() {
+            let params = {
+                status_in: [0, 1, 6],
+                page: 1,
+                limit: 1
+            }
+            console.log(params)
+            queryAfterSaleList(params)
+                .then(res => {
+                    this.totalProcessed = res.data.total
                 })
                 .catch(err => {})
         },
@@ -264,6 +297,7 @@ export default {
         resetForm(formName) {
             console.log(this.$refs[formName].model)
             this.$refs[formName].resetFields()
+            console.log(this.$refs[formName].model)
             this.handleFilter()
         },
         // 分页方法
@@ -274,11 +308,19 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // tab
+        onTabClick() {
+            this.getList()
         }
     }
 }
 </script>
 <style scoped="scoped" lang="less">
+.tab-way {
+    margin-right: 32px;
+    margin-left: auto;
+}
 .type-tag {
     // display: block;
     padding: 0 11px;

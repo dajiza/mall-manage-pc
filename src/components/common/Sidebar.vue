@@ -125,6 +125,10 @@ export default {
                             display_name: '商品列表'
                         },
                         {
+                            name: 'mall-backend-shop-goods-list',
+                            display_name: '店铺商品管理'
+                        },
+                        {
                             name: 'mall-backend-other-category',
                             display_name: '商品分类'
                         },
@@ -460,8 +464,8 @@ export default {
     width: 208px;
 }
 .sidebar > ul {
-    height: calc(100% - 160px);
     overflow-y: scroll;
+    height: calc(100% - 160px);
     background: #ffffff !important;
 }
 

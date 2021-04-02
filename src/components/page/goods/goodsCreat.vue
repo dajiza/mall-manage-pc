@@ -151,7 +151,22 @@
                     </el-table-column>
                     <el-table-column label="SKU图片" width="130">
                         <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
+                            <div class="img-wrap">
+                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img)" />
+                                <div class="mask">
+                                    <el-upload
+                                        class="upload-sku"
+                                        :action="uploadImgUrl"
+                                        :headers="header"
+                                        :before-upload="beforeUploadSku"
+                                        :on-success="(response, file, fileList) => uploadImgSuccessSku(response, file, fileList, scope.row)"
+                                        :on-error="uploadImgError"
+                                    >
+                                        <span class="iconfont icon-edit"></span>
+                                    </el-upload>
+                                    <span class="iconfont icon-revoke" @click="syncImg(scope.row)"></span>
+                                </div>
+                            </div>
                         </template>
                     </el-table-column>
                     <!-- 自定义属性 -->
@@ -164,7 +179,8 @@
                     </el-table-column>
                     <el-table-column label="SKU名称" width="240">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.title }}</span>
+                            <span><el-input class="default-input" placeholder="" v-model="scope.row.title" style="width:180px"></el-input></span>
+                            <span class="iconfont icon-revoke" @click="syncName(scope.row)"></span>
                         </template>
                     </el-table-column>
                     <el-table-column label="最低售价(元)" width="120">

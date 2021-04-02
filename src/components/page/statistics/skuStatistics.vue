@@ -306,6 +306,7 @@ export default {
             if (params['shop_id']) {
                 this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
             } else {
+                params['shop_id'] = -1
                 this.filterShop = {}
             }
 

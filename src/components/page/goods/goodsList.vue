@@ -15,7 +15,16 @@
                         <el-form-item label="商品ID" prop="id">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
                         </el-form-item>
-                        <el-form-item label="商品类型" prop="type">
+                        <el-form-item label="商品分类" prop="typeCategory">
+                            <el-cascader
+                                class="filter-item"
+                                :props="{ checkStrictly: true }"
+                                v-model="formFilter.typeCategory"
+                                placeholder="请选择"
+                                :options="typeList"
+                            ></el-cascader>
+                        </el-form-item>
+                        <!-- <el-form-item label="商品类型" prop="type">
                             <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
                                 <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
@@ -24,7 +33,7 @@
                             <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
                                 <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                             </el-select>
-                        </el-form-item>
+                        </el-form-item> -->
                         <el-form-item label="商品状态" prop="status">
                             <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
                                 <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
@@ -55,18 +64,18 @@
                     </el-form>
                 </div>
             </transition>
-            <div class="search-value" >
-                <template v-for="(item,i) in searchList">
+            <div class="search-value">
+                <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
-                        {{item.val}}
-                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        {{ item.val }}
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                     </div>
                 </template>
                 <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 <div class="search-value-clone" ref="searchValueBox">
-                    <template v-for="(item,i) in searchList">
-                        <div class="search-item" :ref="'searchItem'+ i">
-                            {{item.val}}
+                    <template v-for="(item, i) in searchList">
+                        <div class="search-item" :ref="'searchItem' + i">
+                            {{ item.val }}
                             <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
@@ -148,7 +157,7 @@
                             <template slot-scope="scope">
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">{{scope.row.stock_available == 0?'售罄':'低库存'}}</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">{{scope.row.stock_available == 0?'售罄':'否'}}</div>
+                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">{{ scope.row.stock_available == 0 ? '售罄' : '否' }}</div>
                                 <div v-else>否</div>
                             </template>
                         </el-table-column>
@@ -164,13 +173,17 @@
             <el-table-column type="selection" width="40"> </el-table-column>
             <el-table-column label="商品ID" width="80">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.id }}</span>
+                    <span>
+                        <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                            {{ scope.row.id }}
+                        </router-link>
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
                     <div class="opt-wrap">
-                        <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-goods-update'" @click.native="goodsEdit(scope.row.id)">
+                        <!-- <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-goods-update'" @click.native="goodsEdit(scope.row.id)">
                             编辑
                         </el-button>
                         <el-button
@@ -181,8 +194,7 @@
                             @click.native="goodsPreview(scope.row.id)"
                         >
                             查看
-                        </el-button>
-
+                        </el-button> -->
                         <el-button
                             class="text-blue btn-opt table-btn"
                             type="text"
@@ -202,6 +214,9 @@
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                         >
                             下架
+                        </el-button>
+                        <el-button class="text-blue btn-opt table-btn" type="text" size="" @click.native="openShopShelf(scope.row)" v-hasPermission="">
+                            店铺商品
                         </el-button>
                         <el-button
                             class="text-blue btn-opt table-btn"
@@ -242,7 +257,9 @@
             </el-table-column>
             <el-table-column label="商品名称" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.title }}</span>
+                    <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                        {{ scope.row.title }}
+                    </router-link>
                 </template>
             </el-table-column>
 
@@ -300,7 +317,57 @@
             </el-pagination>
         </div>
 
-        <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商">
+        <!-- 店铺上下架 -->
+        <el-dialog :visible.sync="dialogVisibleShelf" title="店铺上下架" width="618px" :show-close="false">
+            <el-form ref="formShelf" :model="formShelf" class="form-shelf" :inline="true" :rules="rules" size="small" label-position="left">
+                <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
+                <el-form-item label="店铺名称" prop="shop_id" class="">
+                    <el-select class="filter-item" v-model="formShelf.shop_id" placeholder="请选择" filterable style="width:180px" @change="onChangeShelfShop">
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="状态" prop="status" class="" style="margin-left:85px">
+                    <el-radio v-model="formShelf.status" :label="2">上架</el-radio>
+                    <el-radio v-model="formShelf.status" :label="1">下架</el-radio>
+                </el-form-item>
+                <el-table ref="shelfTable" :data="shelfSku" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                    <el-table-column label="SKU图片" width="">
+                        <template slot-scope="scope">
+                            <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="SKU名称" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.title ? scope.row.title : scope.row.Title }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="SKU编码" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.storehouse_code }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="售价(元)" width="">
+                        <template slot-scope="scope">
+                            <!-- <el-form-item label="" label-width="0px" :prop="'sku.' + scope.$index + '.price'" :rules="formShelf.status == 2 ? rulesPrice : []"> -->
+                            <el-input
+                                v-model="scope.row.price"
+                                @change="value => onChangePrice(value, scope)"
+                                placeholder="请输入内容"
+                                style="width:100px"
+                                :disabled="formShelf.status == 1"
+                            ></el-input>
+                            <!-- </el-form-item> -->
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeShopShelf">取 消</el-button>
+                <el-button type="primary" @click="updateAgentGoodsStatusFn">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 指定代理 -->
+        <el-dialog :visible.sync="dialogVisibleAssign" title="指定代理商" width="350px">
             <el-select class="filter-item" v-model="shopIds" placeholder="请选择" style="width: 280px" multiple>
                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
             </el-select>
@@ -316,7 +383,7 @@
 <script>
 import {
     queryGoodsList,
-    queryStoreProduct,
+    queryStoreProductDetail,
     updateAllow,
     updateGoodsStatus,
     updateGoodsAssign,
@@ -324,11 +391,17 @@ import {
     queryCategoryListAll,
     queryGoodsDetail,
     updateGoods,
-    updateSkuStatus
+    updateSkuStatus,
+    updateAgentGoodsStatus,
+    updateAgentGoodsSingle,
+    queryAgentGoodsStatus,
+    queryAgentGoodsSkuList
 } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
+import commUtil from '@/utils/commUtil'
+
 export default {
     name: 'goods-list',
     data() {
@@ -370,7 +443,6 @@ export default {
             shortageList: [
                 { value: '2', label: '是' },
                 { value: '1', label: '否' }
-
             ],
             // 是否所有代理可以销售：1指定代理；2所有代理可以销售
             agentList: [
@@ -389,7 +461,8 @@ export default {
                 is_sale: '',
                 is_store_shortage: '',
                 allow_agent: '',
-                storehouse_code: ''
+                storehouse_code: '',
+                typeCategory: [] //cache数据
             },
             // 图片预览
             dialogVisiblePic: false,
@@ -397,38 +470,65 @@ export default {
             previewIndex: 0,
             timgList: [], //主图预览列表
             skuImgList: [], //sku图预览列表
-            searchList:[],
+            searchList: [],
             showMaxIndex: 0,
+
+            // 店铺上下架参数
+            // shelfTableIndex: 0,
+            // rulesPrice: [
+            //     { required: true, message: '请输入价格', trigger: 'blur' },
+            //     {
+            //         type: 'number',
+            //         message: '请输入正确价格',
+            //         transform(value) {
+            //             return Number(value)
+            //         },
+            //         min: 0.01
+            //     }
+            // ],
+            rules: {
+                shop_id: [{ required: true, message: '请选择店铺', trigger: 'blur' }]
+            },
+            dialogVisibleShelf: false,
+            formShelf: {
+                shop_id: '',
+                goods_id: '',
+                status: 2, //1下架；2上架；
+                is_top: 1 //'是否置顶 1:否 2:是'
+            },
+            shelfSku: []
         }
     },
     components: {
         ElImageViewer,
         EmptyList
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     created() {},
@@ -448,6 +548,7 @@ export default {
         //         return [0, 0]
         //     }
         // },
+
         goodsTable(row) {
             if (row.columnIndex == 2) {
                 return 'checkboxColumn'
@@ -474,10 +575,22 @@ export default {
             console.log('GOOGLE: params', params)
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-            params['category_id'] = params['category_id'].toString()
+            console.log('输出 ~ paramsh', params['typeCategory'].length)
+            if (params['typeCategory'].length == 1) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = ''
+            } else if (params['typeCategory'].length == 2) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = params['typeCategory'][1].toString()
+            } else {
+                params['type'] = ''
+                params['category_id'] = ''
+            }
+            // params['category_id'] = params['category_id'].toString()
             if (params['type'] == 1) {
                 params['category_id'] = 0
             }
+
             queryGoodsList(params)
                 .then(async res => {
                     if (res.data.lists == null) {
@@ -500,7 +613,7 @@ export default {
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
                             let parameters = { sku_id: sku.storehouse_pid }
-                            let data = await queryStoreProduct(parameters)
+                            let data = await queryStoreProductDetail(parameters)
                             this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
@@ -533,6 +646,27 @@ export default {
                 this.categoryList = this.categoryListClothGroup
             }
         },
+        // 生成类型 分类 级联列表
+        creatCategoryData() {
+            this.typeList = [
+                { value: '1', label: '布料', children: [] },
+                {
+                    value: '2',
+                    label: '其他',
+                    children: _.cloneDeep(this.categoryListOther).map(item => {
+                        return { label: item.name, value: item.id }
+                    })
+                },
+                {
+                    value: '3',
+                    label: '布组',
+                    children: _.cloneDeep(this.categoryListClothGroup).map(item => {
+                        return { label: item.name, value: item.id }
+                    })
+                }
+            ]
+            console.log('输出 ~ this.typeList', this.typeList)
+        },
 
         queryCategoryListAllInit() {
             Promise.all([
@@ -552,6 +686,7 @@ export default {
                             this.categoryListClothGroup = res[1].data
                         }
                     }
+                    this.creatCategoryData()
                 })
                 .catch(() => {})
         },
@@ -776,6 +911,7 @@ export default {
                 })
                 .catch(err => {})
         },
+
         // 暂时弃用sku上下架方法
         // 编辑获取详情
         // getDetail(id) {
@@ -912,7 +1048,7 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.setSearchValue();
+            this.setSearchValue()
             this.listQuery.page = 1
             this.getList()
             this.searchShow = false
@@ -926,9 +1062,9 @@ export default {
         },
         // 设置显示的搜索条件
         setSearchValue() {
-            let _search = [];
+            let _search = []
             // 商品名称
-            if(this.formFilter['title']){
+            if (this.formFilter['title']) {
                 let obj = {
                     label: 'title',
                     val: this.formFilter['title']
@@ -936,17 +1072,47 @@ export default {
                 _search.push(obj)
             }
             // id
-            if(this.formFilter['id']){
+            if (this.formFilter['id']) {
                 let obj = {
                     label: 'id',
                     val: this.formFilter['id']
                 }
                 _search.push(obj)
             }
+            // 级联选择 商品类型+分类
+            if (this.formFilter['typeCategory'].length == 1) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        let obj = {
+                            label: 'type',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            } else if (this.formFilter['typeCategory'].length == 2) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            }
             // 商品类型 type
-            if(this.formFilter['type']){
-                this.typeList.forEach((ev)=>{
-                    if(ev.value == this.formFilter['type']){
+            if (this.formFilter['type']) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['type']) {
                         let obj = {
                             label: 'type',
                             val: ev.label
@@ -956,10 +1122,10 @@ export default {
                 })
             }
             // 商品分类 category_id
-            if(this.formFilter['category_id']){
+            if (this.formFilter['category_id']) {
                 let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
-                _arr.forEach((ev)=>{
-                    if(ev.id == this.formFilter['category_id']){
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['category_id']) {
                         let obj = {
                             label: 'category_id',
                             val: ev.name
@@ -969,9 +1135,9 @@ export default {
                 })
             }
             // 商品状态 status
-            if(this.formFilter['status']){
-                this.statusList.forEach((ev)=>{
-                    if(ev.value == this.formFilter['status']){
+            if (this.formFilter['status']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.formFilter['status']) {
                         let obj = {
                             label: 'status',
                             val: ev.label
@@ -981,9 +1147,9 @@ export default {
                 })
             }
             // 出售状态 is_sale
-            if(this.formFilter['is_sale']){
-                this.saleStatusList.forEach((ev)=>{
-                    if(ev.value == this.formFilter['is_sale']){
+            if (this.formFilter['is_sale']) {
+                this.saleStatusList.forEach(ev => {
+                    if (ev.value == this.formFilter['is_sale']) {
                         let obj = {
                             label: 'is_sale',
                             val: ev.label
@@ -993,23 +1159,22 @@ export default {
                 })
             }
 
-
             // 是否售罄
-            if(this.formFilter['is_store_shortage']){
-                this.shortageList.forEach((ev)=>{
-                    if(ev.value == this.formFilter['is_store_shortage']){
+            if (this.formFilter['is_store_shortage']) {
+                this.shortageList.forEach(ev => {
+                    if (ev.value == this.formFilter['is_store_shortage']) {
                         let obj = {
                             label: 'is_store_shortage',
-                            val: ev.label
+                            val: '售罄:' + ev.label
                         }
                         _search.push(obj)
                     }
                 })
             }
             // 是否指定店铺 allow_agent
-            if(this.formFilter['allow_agent']){
-                this.agentList.forEach((ev)=>{
-                    if(ev.value == this.formFilter['allow_agent']){
+            if (this.formFilter['allow_agent']) {
+                this.agentList.forEach(ev => {
+                    if (ev.value == this.formFilter['allow_agent']) {
                         let obj = {
                             label: 'allow_agent',
                             val: ev.label
@@ -1019,7 +1184,7 @@ export default {
                 })
             }
             // SKU编码
-            if(this.formFilter['storehouse_code']){
+            if (this.formFilter['storehouse_code']) {
                 let obj = {
                     label: 'storehouse_code',
                     val: this.formFilter['storehouse_code']
@@ -1033,8 +1198,8 @@ export default {
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             console.log('item', item)
-            this.$set(this.formFilter,item.label, '');
-            this.handleFilter();
+            this.$set(this.formFilter, item.label, '')
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {
@@ -1044,6 +1209,157 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // 打开店铺上下架弹窗
+        openShopShelf(row) {
+            let sku = _.cloneDeep(row.goods_sku)
+            this.shelfSku = sku.map(item => {
+                item.price = item.min_price / 100
+                return item
+            })
+            this.formShelf.goods_id = row.id
+            this.dialogVisibleShelf = true
+
+            this.$nextTick(() => {
+                this.$refs['shelfTable'].doLayout()
+            })
+        },
+        closeShopShelf() {
+            this.$refs['formShelf'].resetFields()
+            this.dialogVisibleShelf = false
+        },
+        // 切换店铺查询上下架 //状态：1下架；2上架；0未添加
+        async onChangeShelfShop(e) {
+            let params = {
+                shop_id: e,
+                goods_id: this.formShelf.goods_id
+            }
+            let paramsSku = {
+                shop_id: e,
+                goods_id: this.formShelf.goods_id
+            }
+            let dataStatus = await queryAgentGoodsStatus(params)
+            let dataSku = await queryAgentGoodsSkuList(paramsSku)
+            if (dataStatus.data == 1) {
+                this.formShelf.status = 1
+            } else {
+                this.formShelf.status = 2
+            }
+
+            let sku = _.cloneDeep(dataSku.data.goods_sku_data)
+
+            this.shelfSku = sku.map((item, index) => {
+                item.price = item.goods_sku_price != 0 ? item.goods_sku_price : item.min_price
+                item.price = item.price / 100
+                console.log('输出 ~ item.price', item.price)
+                return item
+            })
+
+            this.$nextTick(() => {
+                this.$refs['shelfTable'].doLayout()
+            })
+        },
+
+        onChangePrice(value, scope) {
+            this.$set(this.shelfSku[scope.$index], 'price', value)
+        },
+        // 店铺上下架
+        updateAgentGoodsStatusFn() {
+            const rLoading = this.openLoading()
+            let formShelfData = _.cloneDeep(this.formShelf)
+            let shelfSku = _.cloneDeep(this.shelfSku)
+            this.$refs['formShelf'].validate(valid => {
+                // 验证表单内容
+                if (valid) {
+                    if (this.formShelf.status == 2) {
+                        // 验证价格
+                        for (let i = 0; i < shelfSku.length; i++) {
+                            const element = shelfSku[i]
+                            console.log('输出 ~ element.price', element.price)
+                            if (element.price > 0) {
+                            } else {
+                                this.$notify({
+                                    title: '请输入正确价格',
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                                rLoading.close()
+                                return
+                            }
+                        }
+                        // 上架
+                        let skus = shelfSku.map(item => {
+                            return {
+                                id: item.id,
+                                price: commUtil.numberMul(Number(item.price), 100)
+                            }
+                        })
+                        let params = {
+                            shop_id: formShelfData.shop_id,
+                            goods_id: formShelfData.goods_id,
+                            is_top: 1, //'是否置顶 1:否 2:是'
+                            skus: skus
+                        }
+                        updateAgentGoodsSingle(params)
+                            .then(res => {
+                                console.log('GOOGLE: res', res)
+                                if (res.code == 200) {
+                                    this.$notify({
+                                        title: '店铺商品上架成功',
+                                        type: 'success',
+                                        duration: 3000
+                                    })
+                                    // this.dialogVisibleAssign = false
+                                    this.closeShopShelf()
+                                } else {
+                                    this.$notify({
+                                        title: res.msg,
+                                        type: 'warning',
+                                        duration: 5000
+                                    })
+                                }
+                                rLoading.close()
+                            })
+                            .catch(err => {})
+                    } else {
+                        // 下架
+                        let params = {
+                            shop_id: formShelfData.shop_id,
+                            goods_id: formShelfData.goods_id,
+                            status: 1 //1下架；2上架；
+                        }
+                        updateAgentGoodsStatus(params)
+                            .then(res => {
+                                console.log('GOOGLE: res', res)
+                                if (res.code == 200) {
+                                    this.$notify({
+                                        title: '店铺商品下架成功',
+                                        type: 'success',
+                                        duration: 3000
+                                    })
+                                    this.closeShopShelf()
+                                    // this.dialogVisibleAssign = false
+                                } else {
+                                    this.$notify({
+                                        title: res.msg,
+                                        type: 'warning',
+                                        duration: 3000
+                                    })
+                                }
+                                rLoading.close()
+                            })
+                            .catch(err => {})
+                    }
+                } else {
+                    rLoading.close()
+                    this.$notify({
+                        title: '请选择店铺',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+            })
         }
     }
 }
@@ -1059,6 +1375,7 @@ export default {
     // display: flex;
     // flex-direction: column;
     // justify-content: center;
+    margin-top: 7px;
     .btn-opt {
         // margin-bottom: 16px;
         // margin-left: 0;
@@ -1177,6 +1494,13 @@ export default {
 .goods-list .table /deep/ .el-table__expanded-cell {
     padding: 0 !important;
 }
+// .goods-list {
+//     .el-form-item {
+//         margin-right: 0 !important;
+//         margin-bottom: 0;
+//         padding: 14px 0;
+//     }
+// }
 </style>
 <style lang="less">
 .goods-list {
@@ -1185,10 +1509,5 @@ export default {
             padding-left: 10px;
         }
     }
-    // .statusColumn {
-    //     .cell {
-    //         padding-left: 10px !important;
-    //     }
-    // }
 }
 </style>

@@ -29,6 +29,12 @@ export default new Router({
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
+                    path: '/mall-backend-shop-goods-list',
+                    name: 'shop-goods-list',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/shopGoodsList.vue'),
+                    meta: { title: '店铺商品管理', name: 'shopGoodsList' }
+                },
+                {
                     path: '/mall-backend-goods-create',
                     name: 'goods-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
