@@ -61,7 +61,7 @@
             </div>
             <el-button type="primary" @click="goodsCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">添加商品</el-button>
         </div>
-        <el-table :height="$tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="SKU图片" width="128">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img,scope.$index)" />
@@ -230,7 +230,6 @@ export default {
             formOrder: {},
             uploadImgUrl: '',
             dialogTitle: '新增店铺',
-            searchShow: false,
             previewUrlList: [],
             previewIndex:0,
             dialogVisiblePic: false,
@@ -241,6 +240,8 @@ export default {
                 type: 1,
                 sku_list: []
             },
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
             searchList:[],
             showMaxIndex: 0,
         }
@@ -249,6 +250,32 @@ export default {
         ElImageViewer,
         EmptyList,
         liveGoodsSelectList
+    },
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
     },
     computed:{
         return_live_goods_status: function() {
