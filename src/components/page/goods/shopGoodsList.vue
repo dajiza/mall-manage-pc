@@ -37,43 +37,7 @@
                                 <el-option v-for="item in soldoutList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <!-- <el-form-item label="商品ID" prop="id">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
-                        </el-form-item> -->
 
-                        <!-- <el-form-item label="商品类型" prop="type">
-                            <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
-                                <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="商品分类" prop="category_id">
-                            <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择" :disabled="formFilter.type == 1">
-                                <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                            </el-select>
-                        </el-form-item> -->
-                        <!-- <el-form-item label="商品状态" prop="status">
-                            <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="出售状态" prop="is_sale">
-                            <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
-                                <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="库存预警" prop="is_store_shortage">
-                            <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
-                                <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="是否指定店铺" prop="allow_agent">
-                            <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
-                                <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                            <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
-                        </el-form-item> -->
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -187,7 +151,7 @@
             <el-table-column label="商品ID" width="80">
                 <template slot-scope="scope">
                     <span>
-                        <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                        <router-link :to="{ name: 'goods-edit', query: { id: scope.row.goods_id } }">
                             {{ scope.row.goods_id }}
                         </router-link>
                     </span>
@@ -227,7 +191,7 @@
             </el-table-column>
             <el-table-column label="商品名称" width="">
                 <template slot-scope="scope">
-                    <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                    <router-link :to="{ name: 'goods-edit', query: { id: scope.row.goods_id } }">
                         {{ scope.row.title }}
                     </router-link>
                 </template>
@@ -244,35 +208,6 @@
                     </span>
                 </template>
             </el-table-column>
-            <!-- <el-table-column label="状态">
-                <template slot-scope="scope">
-                    <div class="status">
-                        <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
-                        <span class="dot dot-green" v-if="scope.row.status == 2"></span>
-
-                        <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
-                            {{ scope.row.status == 1 ? '已下架' : '已上架' }}
-                        </span>
-                    </div>
-                </template>
-            </el-table-column> -->
-            <!-- 
-            <el-table-column label="出售状态" width="110">
-                <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
-            </el-table-column> -->
-            <!-- sku 合并行 -->
-            <!-- <el-table-column label="SKU图片" width="128" class="sku-column">
-                <template slot-scope="scope"> </template>
-            </el-table-column> -->
-
-            <!-- 被合并列 占位 -->
-            <!-- <el-table-column label="SKU名称" width="200"> </el-table-column>
-            <el-table-column label="SKU编码" width="140"> </el-table-column>
-            <el-table-column label="售价(元)" width="100"> </el-table-column>
-            <el-table-column label="实际销量" width="100"> </el-table-column>
-            <el-table-column label="总库存" width="100"> </el-table-column>
-            <el-table-column label="可用库存" width="100"> </el-table-column>
-            <el-table-column label="库存预警" width="100"> </el-table-column> -->
         </el-table>
         <div class="pagination-container">
             <el-pagination
@@ -323,18 +258,11 @@
 </template>
 <script>
 import {
-    queryGoodsList,
     queryStoreProductDetail,
-    updateAllow,
-    updateGoodsStatus,
     queryShopList,
     queryCategoryListAll,
-    queryGoodsDetail,
-    updateGoods,
-    updateSkuStatus,
     updateAgentGoodsStatus,
     updateAgentGoodsSingle,
-    queryAgentGoodsStatus,
     queryAgentGoodsSkuList,
     queryAgentShopGoodsList,
     updateAgentSkuPrice
