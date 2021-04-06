@@ -401,6 +401,7 @@ import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 import commUtil from '@/utils/commUtil'
+import bus from '@/components/common/bus'
 
 export default {
     name: 'goods-list',
@@ -531,11 +532,25 @@ export default {
             )
         }
     },
-    created() {},
+    created() {
+        bus.$on('refreshGoodsList', target => {
+            // console.log(target);
+            if(target==='add'){
+                this.listQuery.page = 1
+                this.getList();
+            } else {
+                this.getList();
+            }
+
+        });
+    },
     mounted() {
         this.queryCategoryListAllInit()
         this.queryShopList()
         this.getList()
+    },
+    destroyed() {
+        bus.$off('refreshGoodsList')
     },
     methods: {
         formatMoney: formatMoney,

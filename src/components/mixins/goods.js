@@ -1073,6 +1073,7 @@ export const mixinsGoods = {
                                     })
                                     // this.initData();
                                     bus.$emit('close_current_tags')
+                                    bus.$emit('refreshGoodsList', 'edit');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1102,6 +1103,7 @@ export const mixinsGoods = {
                                         duration: 3000
                                     })
                                     bus.$emit('close_current_tags')
+                                    bus.$emit('refreshGoodsList', 'add');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1112,8 +1114,8 @@ export const mixinsGoods = {
                                         type: 'error',
                                         duration: 5000
                                     })
-                                    rLoading.close()
                                 }
+                                rLoading.close()
                             })
                             .catch(err => {
                                 rLoading.close()
