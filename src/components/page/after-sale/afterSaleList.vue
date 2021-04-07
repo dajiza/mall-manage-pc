@@ -275,7 +275,7 @@ export default {
             if (params.statusCache == 10) {
                 params.status_in = []
             } else if (params.statusCache == 11) {
-                params.status_in = [0, 1, 6]
+                params.status_in = [0, 1, 5, 6]
             } else {
                 params.status_in = [Number(params.statusCache)]
             }
@@ -295,7 +295,7 @@ export default {
         // 获取待处理数量
         getProcessedNum() {
             let params = {
-                status_in: [0, 1, 6],
+                status_in: [0, 1, 5, 6],
                 page: 1,
                 limit: 1
             }
@@ -448,6 +448,7 @@ export default {
         },
         // tab
         onTabClick() {
+            this.listQuery.page = 1
             this.setSearchValue();
             this.getList()
         }
