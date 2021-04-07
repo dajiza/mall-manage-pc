@@ -183,8 +183,8 @@
                     @size-change="handleSizeChange"
                     @current-change="handlePageChange"
                     :current-page="pageInfo.pageIndex"
-                    :page-sizes="[10, 20, 30, 40, 50, 100]"
-                    :page-size="10"
+                    :page-sizes="[20, 50, 100]"
+                    :page-size="20"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="pageTotal"
                 >
@@ -225,7 +225,7 @@ export default {
             pageInfo: {
                 name: '',
                 pageIndex: 1,
-                pageSize: 10
+                pageSize: 20
             },
             loading: false,
             tableData: [],
