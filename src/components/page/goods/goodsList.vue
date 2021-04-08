@@ -1331,7 +1331,7 @@ export default {
                                         duration: 3000
                                     })
                                     // this.dialogVisibleAssign = false
-                                    // this.closeShopShelf()
+                                    this.closeShopShelf()
                                 } else {
                                     this.$notify({
                                         title: res.msg,
@@ -1358,7 +1358,7 @@ export default {
                                         type: 'success',
                                         duration: 3000
                                     })
-                                    // this.closeShopShelf()
+                                    this.closeShopShelf()
                                     // this.dialogVisibleAssign = false
                                 } else {
                                     this.$notify({
