@@ -838,6 +838,7 @@ export default {
                                 type: 'success',
                                 duration: 3000
                             })
+
                             // this.dialogVisibleAssign = false
                             // this.closeShopShelf()
                         } else {
@@ -872,6 +873,9 @@ export default {
                                 type: 'success',
                                 duration: 3000
                             })
+                            rLoading.close()
+
+                            this.getList()
                             // this.dialogVisibleAssign = false
                             this.closeShopShelf()
                         } else {
@@ -880,8 +884,8 @@ export default {
                                 type: 'warning',
                                 duration: 5000
                             })
+                            rLoading.close()
                         }
-                        rLoading.close()
                     })
                     .catch(err => {})
             }
