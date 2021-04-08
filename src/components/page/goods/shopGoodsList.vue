@@ -112,7 +112,7 @@
                         </el-table-column>
                         <el-table-column label="售价(元)" width="90">
                             <template slot-scope="scope">
-                                <span>{{ formatMoney(scope.row.min_price) }}</span>
+                                <span>{{ formatMoney(scope.row.goods_sku_price) }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="实际销量" width="90">
