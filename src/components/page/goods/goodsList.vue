@@ -328,7 +328,7 @@
                 </el-form-item>
                 <el-form-item label="状态" prop="status" class="" style="margin-left:85px">
                     <el-radio v-model="formShelf.status" :label="2">上架</el-radio>
-                    <el-radio v-model="formShelf.status" :label="1">下架</el-radio>
+                    <el-radio v-model="formShelf.status" :label="1" :disabled="disableOffShelf">下架</el-radio>
                 </el-form-item>
                 <el-table ref="shelfTable" :data="shelfSku" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                     <el-table-column label="SKU图片" width="">
@@ -497,7 +497,8 @@ export default {
                 status: 2, //1下架；2上架；
                 is_top: 1 //'是否置顶 1:否 2:是'
             },
-            shelfSku: []
+            shelfSku: [],
+            disableOffShelf: false //下架是否可点击 未添加过商品status为0 不可下架
         }
     },
     components: {
@@ -535,14 +536,13 @@ export default {
     created() {
         bus.$on('refreshGoodsList', target => {
             // console.log(target);
-            if(target==='add'){
+            if (target === 'add') {
                 this.listQuery.page = 1
-                this.getList();
+                this.getList()
             } else {
-                this.getList();
+                this.getList()
             }
-
-        });
+        })
     },
     mounted() {
         this.queryCategoryListAllInit()
@@ -1241,6 +1241,7 @@ export default {
         },
         closeShopShelf() {
             this.$refs['formShelf'].resetFields()
+            this.disableOffShelf = false
             this.dialogVisibleShelf = false
         },
         // 切换店铺查询上下架 //状态：1下架；2上架；0未添加
@@ -1259,6 +1260,11 @@ export default {
                 this.formShelf.status = 1
             } else {
                 this.formShelf.status = 2
+            }
+            if (dataStatus.data == 0) {
+                this.disableOffShelf = true
+            } else {
+                this.disableOffShelf = false
             }
 
             let sku = _.cloneDeep(dataSku.data.goods_sku_data)
@@ -1325,7 +1331,7 @@ export default {
                                         duration: 3000
                                     })
                                     // this.dialogVisibleAssign = false
-                                    this.closeShopShelf()
+                                    // this.closeShopShelf()
                                 } else {
                                     this.$notify({
                                         title: res.msg,
@@ -1352,7 +1358,7 @@ export default {
                                         type: 'success',
                                         duration: 3000
                                     })
-                                    this.closeShopShelf()
+                                    // this.closeShopShelf()
                                     // this.dialogVisibleAssign = false
                                 } else {
                                     this.$notify({
