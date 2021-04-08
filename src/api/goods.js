@@ -7,7 +7,7 @@ export const queryGoodsList = params => post('/backend/goods-list', params)
 export const updateGoodsStatus = params => post('/backend/goods-update-status', params)
 
 // 仓库产品详情
-export const queryStoreProduct = params => post('/backend/store-house-product-detail', params)
+export const queryStoreProductDetail = params => post('/backend/store-house-product-detail', params)
 
 // 商品是否指定分销
 export const updateAllow = params => post('/backend/goods-update-allow', params)
@@ -23,9 +23,6 @@ export const queryProduceList = params => post('/backend/store-house-product-lis
 
 // 商城后台标签列表(不分页)
 export const getLabelAllList = params => post('/backend/tag-list-all', params)
-
-// 仓库产品详情
-export const queryProduceDetail = params => post('/backend/store-house-product-detail', params)
 
 // 自定义是属性的列表（所有，下拉使用）
 export const queryAttrList = params => post('/backend/consume-attr-list-all', params)
@@ -56,3 +53,21 @@ export const queryGroupList = params => post('/backend/store-house-group-list', 
 
 // sku单个上下架
 export const updateSkuStatus = params => post('/backend/goods-sku-status-update', params)
+
+// 后台单个商品上下架
+export const updateAgentGoodsStatus = params => post('/backend/agent-goods-down', params)
+
+// 后台单个goods编辑并上架
+export const updateAgentGoodsSingle = params => post('/backend/agent-goods-on', params)
+
+// 后台代理商上下架商品列表
+export const queryAgentShopGoodsList = params => post('/backend/agent-shop-goods-list', params)
+
+// 后台sku列表（上架用）
+export const queryAgentGoodsSkuList = params => post('/backend/agent-goods-sku-list', params)
+
+// 某商品上下架状态
+export const queryAgentGoodsStatus = params => post('/backend/agent-shop-goods-status', params)
+
+// 单个 shopGoodsSku修改价格
+export const updateAgentSkuPrice = params => post('/backend/agent-shop-sku-price-update', params)

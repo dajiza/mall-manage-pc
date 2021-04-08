@@ -1,52 +1,79 @@
 <template>
-    <div class="app-container">
-        <div class="head-container">
-            <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                <el-form-item label="订单号" prop="order_no">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
-                </el-form-item>
-                <el-form-item label="子订单号" prop="order_detail_no">
-                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_detail_no"></el-input>
-                </el-form-item>
-                <el-form-item label="退款类型" prop="type">
-                    <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
-                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="退款状态" prop="status">
-                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="售后原因" prop="reason_id">
-                    <el-select class="filter-item" v-model="formFilter.reason_id" placeholder="请选择">
-                        <el-option v-for="item in reasonList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item class="long-time" label="申请时间" prop="createdTime">
-                    <el-date-picker
-                        class="filter-item"
-                        v-model="formFilter.createdTime"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                        type="datetimerange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item class="form-item-btn" label="">
-                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                </el-form-item>
-            </el-form>
-        </div>
+    <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
             <div class="text">售后申请列表</div>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
+                        <el-form-item label="订单号" prop="order_no">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
+                        </el-form-item>
+                        <el-form-item label="子订单号" prop="order_detail_no">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_detail_no"></el-input>
+                        </el-form-item>
+                        <el-form-item label="退款类型" prop="type">
+                            <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
+                                <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="退款状态" prop="statusCache">
+                            <el-select class="filter-item" v-model="formFilter.statusCache" placeholder="请选择">
+                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="售后原因" prop="reason_id">
+                            <el-select class="filter-item" v-model="formFilter.reason_id" placeholder="请选择">
+                                <el-option v-for="item in reasonList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item class="long-time" label="申请时间" prop="createdTime">
+                            <el-date-picker
+                                    class="filter-item"
+                                    v-model="formFilter.createdTime"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期"
+                                    :default-time="['00:00:00', '23:59:59']"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="search-value" >
+                <template v-for="(item,i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{item.val}}
+                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item,i) in searchList">
+                        <div class="search-item" :ref="'searchItem'+ i">
+                            {{item.val}}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span style="width: 20px;display: inline-block">...</span>
+                </div>
+            </div>
+            <el-radio-group v-model="formFilter.statusCache" class="tab-way" @change="onTabClick">
+                <el-radio-button label="10">全部</el-radio-button>
+                <el-radio-button label="11">待处理({{ totalProcessed }})</el-radio-button>
+            </el-radio-group>
         </div>
-        <el-table :data="list" v-loading.body="listLoading" :height="$tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-after-sale-audit'">
@@ -167,6 +194,7 @@ export default {
                 // { value: '3', label: '后台关闭' }
             ],
             statusList: [
+                { value: '10', label: '全部' },
                 { value: '0', label: '待审核' },
                 { value: '1', label: '待打款' },
                 { value: '2', label: '已拒绝' },
@@ -176,25 +204,61 @@ export default {
                 { value: '6', label: '商家待发货' },
                 { value: '7', label: '已打款' },
                 { value: '8', label: '拒绝打款' },
-                { value: '9', label: '商家已重新发货' }
+                { value: '9', label: '商家已重新发货' },
+                { value: '11', label: '待处理' }
             ],
             reasonList: [],
 
             formFilter: {
                 type: '', //不检索传“”
                 status: '',
+                statusCache: '10',
                 order_no: '',
                 order_detail_no: '',
                 reason_id: '',
                 createdTime: '',
                 created_time_le: '',
                 created_time_ge: ''
-            }
+            },
+            orderType: '', //订单筛选
+            totalProcessed: 0, //待处理数量
+            tableHeight: 'calc(100vh - 194px)',
+            searchShow: false,
+            searchList:[],
+            showMaxIndex: 0,
         }
     },
-
+    watch:{
+        'searchList':function() {
+            this.$nextTick(function() {
+                if (!this.$refs.searchValueBox) {
+                    return;
+                }
+                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
+                let showWidth = 0;
+                for(let i=0; i<this.searchList.length; i++){
+                    let el = 'searchItem' + i;
+                    let _width = this.$refs[el][0].offsetWidth;
+                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
+                    if(showWidth > maxWidth){
+                        this.showMaxIndex = i-1;
+                        // console.log('this.showMaxIndex', this.showMaxIndex)
+                        return;
+                    }
+                    if(i == this.searchList.length - 1){
+                        if(showWidth <= maxWidth - 20){
+                            this.showMaxIndex = this.searchList.length - 1;
+                        }
+                    }
+                }
+            }.bind(this));
+        }
+    },
     created() {},
     mounted() {
+        let status = this.$route.query.status ? this.$route.query.status : '0'
+        this.$set(this.formFilter, 'statusCache', status)
+        this.setSearchValue();
         this.getList()
     },
     methods: {
@@ -208,15 +272,37 @@ export default {
                 params['created_time_ge'] = ''
                 params['created_time_le'] = ''
             }
+            if (params.statusCache == 10) {
+                params.status_in = []
+            } else if (params.statusCache == 11) {
+                params.status_in = [0, 1, 5, 6]
+            } else {
+                params.status_in = [Number(params.statusCache)]
+            }
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
-            console.log(params)
+            console.log('params', params)
             queryAfterSaleList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
                     this.total = res.data.total
+                })
+                .catch(err => {})
+            this.getProcessedNum()
+        },
+        // 获取待处理数量
+        getProcessedNum() {
+            let params = {
+                status_in: [0, 1, 5, 6],
+                page: 1,
+                limit: 1
+            }
+            console.log(params)
+            queryAfterSaleList(params)
+                .then(res => {
+                    this.totalProcessed = res.data.total
                 })
                 .catch(err => {})
         },
@@ -258,13 +344,98 @@ export default {
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
+            this.searchShow = false;
+            this.setSearchValue();
             this.getList()
         },
         // 重置
         resetForm(formName) {
-            console.log(this.$refs[formName].model)
             this.$refs[formName].resetFields()
             this.handleFilter()
+        },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = [];
+            // 订单号
+            if(this.formFilter['order_no']){
+                let obj = {
+                    label: 'order_no',
+                    val: this.formFilter['order_no']
+                }
+                _search.push(obj)
+            }
+            // 子订单号
+            if(this.formFilter['order_detail_no']){
+                let obj = {
+                    label: 'order_detail_no',
+                    val: this.formFilter['order_detail_no']
+                }
+                _search.push(obj)
+            }
+            // 退款类型
+            if(this.formFilter['type']){
+                this.typeList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['type']){
+                        let obj = {
+                            label: 'type',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 退款状态
+            console.log('退款状态', this.formFilter)
+            if(this.formFilter['statusCache']){
+                this.statusList.forEach((ev)=>{
+                    if(ev.value == this.formFilter['statusCache']){
+                        let obj = {
+                            label: 'statusCache',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 售后原因 reason_id
+            if(this.formFilter['reason_id']){
+                this.reasonList.forEach((ev)=>{
+                    if(ev.id == this.formFilter['reason_id']){
+                        let obj = {
+                            label: 'reason_id',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 申请时间 createdTime
+            if(this.formFilter['createdTime'] && this.formFilter['createdTime'].length === 2){
+                let _ge_arr = (this.$moment(this.formFilter.createdTime[0]).format('YYYY-MM-DD ')).split('-');
+                let _le_arr = (this.$moment(this.formFilter.createdTime[1]).format('YYYY-MM-DD ')).split('-');
+                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let obj = {
+                    label: 'createdTime',
+                    val: _ge + ' - ' + _le
+                }
+                _search.push(obj)
+            }
+            console.log('_search', _search)
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter,item.label, '');
+            if(item.label == 'createdTime'){
+                this.$set(this.formFilter, 'created_time_ge', '');
+                this.$set(this.formFilter, 'created_time_le', '');
+            }
+            this.handleFilter();
         },
         // 分页方法
         handleSizeChange(val) {
@@ -274,11 +445,21 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // tab
+        onTabClick() {
+            this.listQuery.page = 1
+            this.setSearchValue();
+            this.getList()
         }
     }
 }
 </script>
 <style scoped="scoped" lang="less">
+.tab-way {
+    margin-right: 32px;
+    margin-left: auto;
+}
 .type-tag {
     // display: block;
     padding: 0 11px;

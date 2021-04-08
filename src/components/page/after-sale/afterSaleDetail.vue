@@ -18,6 +18,14 @@
                         <span class="label">用户手机号：</span>
                         <span class="value">{{ order_info.user_phone }}</span>
                     </div>
+                    <div class="sheet w280">
+                        <span class="label">订单号：</span>
+                        <span class="value">
+                            <router-link :to="{ path: '/mall-backend-order-detail', query: { order_id: detail.order_id.toString() } }">
+                                {{ detail.order_no }}
+                            </router-link>
+                        </span>
+                    </div>
                 </div>
                 <div class="order-info">
                     <div class="sheet w280">
@@ -30,8 +38,9 @@
                     </div>
                     <div class="sheet">
                         <span class="label">收货地址：</span>
-                        <span class="value">{{order_info.logistics_province}}{{order_info.logistics_city}}{{order_info.logistics_area}}
-                            {{order_info.logistics_address}}</span>
+                        <span class="value"
+                            >{{ order_info.logistics_province }}{{ order_info.logistics_city }}{{ order_info.logistics_area }} {{ order_info.logistics_address }}</span
+                        >
                     </div>
                 </div>
             </div>
@@ -71,10 +80,10 @@
                         <span class="label">退款类型：</span>
                         <span class="value text-blue">{{ REFUND_TYPE[detail.type] }}</span>
                     </div>
-                    <div class="sheet">
+                    <!-- <div class="sheet">
                         <span class="label">订单号：</span>
                         <span class="value">{{ detail.order_no }}</span>
-                    </div>
+                    </div> -->
                     <div class="sheet">
                         <span class="label">退款总金额：</span>
                         <span class="value text-red">￥{{ formatMoney(detail.money) }}</span>
@@ -134,17 +143,17 @@
                     </el-table-column>
                     <el-table-column label="活动优惠总额(元)" v-if="false">
                         <template slot-scope="scope">
-                            <span>{{scope.row.off_2/100 | rounding}}</span>
+                            <span>{{ (scope.row.off_2 / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column prop="off_1" label="优惠券(元)" width="120">
                         <template slot-scope="scope">
-                            <span>{{scope.row.off_1/100 | rounding}}</span>
+                            <span>{{ (scope.row.off_1 / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="改价(元)">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.price_sum_change/100 | rounding}}</span>
+                            <span>{{ (scope.row.price_sum_change / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="实付(元)">
@@ -344,8 +353,18 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail, queryAfterSaleLog, putApplyApprove, putRefundVx, putRefund, putReturnReceipt,
-    querySDList, putResand, queryReasonList, queryOrderDetail } from '@/api/afterSale'
+import {
+    queryAfterSaleDetail,
+    queryAfterSaleLog,
+    putApplyApprove,
+    putRefundVx,
+    putRefund,
+    putReturnReceipt,
+    querySDList,
+    putResand,
+    queryReasonList,
+    queryOrderDetail
+} from '@/api/afterSale'
 import { getOrderDetail } from '@/api/orderList'
 import { REFUND_TYPE, REFUND_STATUS, REFUND_STEP } from '@/plugin/constant'
 import { getToken } from '@/utils/auth'
@@ -441,7 +460,7 @@ export default {
                         this.showChangeSeller = true
                         this.getSDList()
                     }
-                    if(res.data.order_detail_id){
+                    if (res.data.order_detail_id) {
                         this.getOrderDetailData(res.data.order_detail_id)
                     }
                 })
@@ -911,30 +930,31 @@ export default {
         .label {
             color: rgba(0, 0, 0, 0.85);
         }
-        .order-info{
+        .order-info {
             display: flex;
             flex-wrap: wrap;
             padding-top: 10px;
-            .sheet{
+
+            .sheet {
                 padding-top: 10px;
                 margin-right: 20px;
             }
-            .w280{
+            .w280 {
                 /*width: 300px;*/
                 min-width: 280px;
             }
-            &:first-child{
+            &:first-child {
                 padding-top: 0;
                 /*.sheet{*/
                 /*    padding-top: 0;*/
                 /*}*/
             }
-            .remark-box{
+            .remark-box {
                 display: flex;
-                .label{
+                .label {
                     width: 72px;
                 }
-                .value{
+                .value {
                     flex: 1;
                 }
             }

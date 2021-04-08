@@ -1,4 +1,4 @@
-import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll } from '@/api/goods'
+import { creatGoods, queryAttrList, queryShopList, queryGoodsDetail, updateGoods, queryCategoryListAll, queryStoreProductDetail } from '@/api/goods'
 import { queryConfigList } from '@/api/configManagement'
 import { queryFreightList } from '@/api/freight'
 import { getLabelAllList } from '@/api/goodsLabel'
@@ -589,6 +589,53 @@ export const mixinsGoods = {
             this.$set(this.goods.sku_list[index], 'status', status)
         },
 
+        // 图片上传前检测 sku
+        beforeUploadSku(file) {
+            if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
+                this.upload_loading = this.uploadLoading('上传中')
+                this.uploadVisible = false
+            } else {
+                if (file.size > 1024 * 1024 * 5) {
+                    this.$notify({
+                        title: '照片大小应不超过5M',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                } else {
+                    this.$notify({
+                        title: '照片格式只支持JPG、PNG',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+                return false
+            }
+        },
+        // 单张图片上传成功回调 sku
+        uploadImgSuccessSku(response, file, fileList, row) {
+            // this.$refs.upload.clearFiles() //去掉文件列表
+            console.log('输出 ~ row', row)
+            if (response.code === 200) {
+                this.$notify({
+                    title: '替换成功',
+                    message: '',
+                    type: 'success',
+                    duration: 500
+                })
+                this.upload_loading.close()
+                row.sku_img = file.response.data.file_url
+            } else {
+                this.upload_loading.close()
+                this.$notify({
+                    title: response.msg,
+                    message: '',
+                    type: 'warning',
+                    duration: 5000
+                })
+            }
+        },
         // 图片上传前检测 首图
         beforeUpload(file) {
             // console.log('输出 ~ file', file)
@@ -629,7 +676,7 @@ export const mixinsGoods = {
                     title: '上传成功',
                     message: '',
                     type: 'success',
-                    duration: 500
+                    duration: 2000
                 })
                 this.upload_loading.close()
                 this.timg = fileList
@@ -1026,6 +1073,7 @@ export const mixinsGoods = {
                                     })
                                     // this.initData();
                                     bus.$emit('close_current_tags')
+                                    bus.$emit('refreshGoodsList', 'edit');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1055,6 +1103,7 @@ export const mixinsGoods = {
                                         duration: 3000
                                     })
                                     bus.$emit('close_current_tags')
+                                    bus.$emit('refreshGoodsList', 'add');
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1065,8 +1114,8 @@ export const mixinsGoods = {
                                         type: 'error',
                                         duration: 5000
                                     })
-                                    rLoading.close()
                                 }
+                                rLoading.close()
                             })
                             .catch(err => {
                                 rLoading.close()
@@ -1151,6 +1200,30 @@ export const mixinsGoods = {
             this.previewUrlList.push(img)
             this.previewIndex = 0
             this.dialogVisiblePic = true
+        },
+        //同步sku 头图
+        async syncImg(row) {
+            let parameters = { sku_id: row.store_house_id || row.storehouse_pid }
+            let data = await queryStoreProductDetail(parameters)
+            row.sku_img = data.data.img
+            this.$notify({
+                title: '图片替换成功',
+                message: '',
+                type: 'success',
+                duration: 500
+            })
+        },
+        //同步sku name
+        async syncName(row) {
+            let parameters = { sku_id: row.store_house_id || row.storehouse_pid }
+            let data = await queryStoreProductDetail(parameters)
+            row.title = data.data.name
+            this.$notify({
+                title: '名称替换成功',
+                message: '',
+                type: 'success',
+                duration: 500
+            })
         }
     }
 }
