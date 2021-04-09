@@ -1,7 +1,7 @@
 <template>
     <!-- dialog 商品列表 -->
     <div>
-        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened">
+        <el-dialog :visible.sync="isShow" width="90%" @opened="opened">
             <template slot="title">
                 <div class="table-title">
                     <div class="text">直播商品</div>
@@ -16,15 +16,14 @@
                                 <el-form-item label="商品ID" prop="id">
                                     <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
                                 </el-form-item>
-                                <el-form-item label="商品类型" prop="type">
-                                    <el-select class="filter-item" v-model="searchForm.type" placeholder="请选择" @change="onChangeType">
-                                        <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="商品分类" prop="category_id">
-                                    <el-select class="filter-item" v-model="searchForm.category_id" placeholder="请选择" :disabled="searchForm.type == 1">
-                                        <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                                    </el-select>
+                                <el-form-item label="商品分类" prop="typeCategory">
+                                    <el-cascader
+                                            class="filter-item"
+                                            :props="{ checkStrictly: true }"
+                                            v-model="searchForm.typeCategory"
+                                            placeholder="请选择"
+                                            :options="typeList"
+                                    ></el-cascader>
                                 </el-form-item>
                                 <el-form-item label="商品状态" prop="status">
                                     <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
@@ -49,6 +48,24 @@
                             </el-form>
                         </div>
                     </transition>
+                    <div class="search-value">
+                        <template v-for="(item, i) in searchList">
+                            <div class="search-item" v-if="i <= showMaxIndex">
+                                {{ item.val }}
+                                <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                        <div class="search-value-clone" ref="searchValueBox">
+                            <template v-for="(item, i) in searchList">
+                                <div class="search-item" :ref="'searchItem' + i">
+                                    {{ item.val }}
+                                    <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                                </div>
+                            </template>
+                            <span style="width: 20px;display: inline-block">...</span>
+                        </div>
+                    </div>
                     <div class="selected-goods-btn">
                         <el-popover placement="bottom-end" width="300" trigger="click" popper-class="group-popper">
                             <div class="row-list">
@@ -56,6 +73,24 @@
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
                                     <div class="name">{{ item.name ? item.name : item.title }}</div>
                                     <i class="el-icon-error row-delete" @click="cancelSelection(item)"></i>
+                                </div>
+                            </div>
+                            <div class="row-list">
+                                <div class="nodata" v-if="checkedList.length == 0">无数据</div>
+                                <div class="row-item" v-for="item in checkedList" :key="item.batch_group_id">
+                                    <div class="item-content">
+                                        <span class="iconfont icon-plus" v-show="!item.open" @click="triggerImg(item)"></span>
+                                        <span class="iconfont icon-minus" v-show="item.open" @click="triggerImg(item)"></span>
+                                        <div class="name">{{ item.title }}</div>
+                                        <i class="el-icon-error row-delete" v-if="!item.fromEdit" @click="cancelSelection(item)"></i>
+                                    </div>
+                                    <div class="son" v-show="item.open">
+                                        <div class="son-item" v-for="img in item.imgCheckdList">
+                                            <img alt="" class="son-timg" v-image-place-holder="img.img_data.url + '!upyun520/fw/300'" />
+                                            <div class="name">{{ img.img_data.title }}</div>
+                                            <i class="el-icon-error row-delete" v-if="!item.fromEdit" @click="cancelSelectionImg(item, img)"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <el-button slot="reference" class="filter-btn" size="" type="success" style="margin-left:20px">已选商品</el-button>
@@ -73,7 +108,6 @@
                         v-loading.body="listLoading"
                         :header-cell-style="$tableHeaderColor"
                         element-loading-text="Loading"
-                        @selection-change="handleSelectionChange"
                         :default-expand-all="false"
                         row-key="id"
                         :cell-class-name="goodsTable"
@@ -89,7 +123,11 @@
                             >
                                 <el-table-column label="" width="50">
                                     <template slot-scope="scope">
-                                        <el-checkbox  @change="skuChecked(scope.row,scope.$index,props.row,props.$index)" v-model="scope.row.skuIsChecked"></el-checkbox>
+                                        <el-checkbox
+                                            v-model="scope.row.skuIsChecked"
+                                            :disabled="scope.row.isDisabled"
+                                            @change="value => skuChecked(value, scope.row, scope.$index,props.row,props.$index)"
+                                        ></el-checkbox>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="状态" width="90">
@@ -148,16 +186,26 @@
                             <span>({{ scope.row.checkNum }}/{{ scope.row.goods_sku.length }})</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="" width="50">
+                    <el-table-column label="" width="35">
                         <template slot-scope="scope">
                             <el-checkbox
-                                    @change="goodsChecked(scope.row,scope.$index)"
+                                    :disabled="scope.row.isDisabled"
                                     v-model="scope.row.goodsIsChecked"
                                     :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length"
+                                    @change="value => goodsChecked(value, scope.row, scope.$index)"
                             ></el-checkbox>
                         </template>
                     </el-table-column>
-                    <el-table-column type="selection" width="45"></el-table-column>
+                    <!--<el-table-column width="55">
+                        <template slot-scope="scope">
+                            <el-checkbox
+                                :disabled="scope.row.fromEdit"
+                                v-model="scope.row.checked"
+                                :key="scope.row.id"
+                                @change="value => groupChecked(value, scope.row)"
+                            >11</el-checkbox>
+                        </template>
+                    </el-table-column>-->
                     <el-table-column label="商品ID" width="80">
                         <template slot-scope="scope">
                             <span>{{ scope.row.id }}</span>
@@ -227,18 +275,11 @@
 </template>
 
 <script>
-import {  queryProduceList, getLabelAllList, queryProduceDetail, queryTagListAll, queryGroupList, queryStoreCategoryList } from '@/api/goods'
+import { queryProduceDetail } from '@/api/goods'
 import {
     queryGoodsList,
-    queryStoreProduct,
-    updateAllow,
-    updateGoodsStatus,
-    updateGoodsAssign,
-    queryShopList,
-    queryCategoryListAll,
-    queryGoodsDetail,
-    updateGoods,
-    updateSkuStatus
+    queryStoreProductDetail,
+    queryCategoryListAll
 } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
@@ -266,7 +307,6 @@ export default {
                 limit: 10
             },
             isShow: false,
-            checkedList: [],
             searchForm: {
                 id: '',
                 title: '',
@@ -275,10 +315,11 @@ export default {
                 status: '',
                 is_sale: '',
                 sku_name: '',
-                sku_code: ''
+                sku_code: '',
+                typeCategory: []
             },
             searchParams: {},
-            searchShow: false,
+            searchShow: false,  //搜索表单显示
             // 类型 1 布料  2其他 3成品布
             typeList: [
                 { value: '1', label: '布料' },
@@ -303,12 +344,45 @@ export default {
             previewIndex: 0,
             timgList: [], //主图预览列表
             skuImgList: [], //sku图预览列表
-            sku_select_list:[212,213,214,219,225,238,244,249,252,265,266,267]
+            checkImgList:[], // 选中图片列表
+            sku_select_list:[212,213,214,219,225,238,244,249,252,265,266,267],
+            // sku_select_list:[],
+            searchList: [],
+            showMaxIndex: 0,
+            checkedList: [], // 选中sku列表
         }
     },
     components: {
         ElImageViewer,
         EmptyList
+    },
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
+                    }
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
+                        }
+                    }
+                }.bind(this)
+            )
+        }
     },
     created() {},
     mounted() {
@@ -321,24 +395,11 @@ export default {
                 return 'checkboxColumn'
             }
         },
-        open() {
-            // this.getList();
-        },
+
         opened() {
             this.queryCategoryListAllInit()
             this.searchParams = _.cloneDeep(this.searchForm);
             this.getList();
-
-            // this.$refs.multipleTable.clearSelection()
-            // let list = this.checkedSku.map(item => {
-            //     return {
-            //         id: item.storehouse_pid,
-            //         title: item.title
-            //     }
-            // })
-            // list.forEach(row => {
-            //     this.$refs.multipleTable.toggleRowSelection(row)
-            // })
         },
         toggleSelection() {
             this.checkedList.forEach(row => {
@@ -365,19 +426,50 @@ export default {
                 // });
             }
         },
-
+        // 生成类型 分类 级联列表
+        creatCategoryData() {
+            this.typeList = [
+                { value: '1', label: '布料', children: [] },
+                {
+                    value: '2',
+                    label: '其他',
+                    children: _.cloneDeep(this.categoryListOther).map(item => {
+                        return { label: item.name, value: item.id }
+                    })
+                },
+                {
+                    value: '3',
+                    label: '布组',
+                    children: _.cloneDeep(this.categoryListClothGroup).map(item => {
+                        return { label: item.name, value: item.id }
+                    })
+                }
+            ]
+            console.log('输出 ~ this.typeList', this.typeList)
+        },
         getList() {
             const rLoading = this.openLoading()
             let params = _.cloneDeep(this.searchParams)
-            console.log('GOOGLE: params', params)
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
             params['category_id'] = params['category_id'].toString()
+
+            if (params['typeCategory'].length == 1) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = ''
+            } else if (params['typeCategory'].length == 2) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = params['typeCategory'][1].toString()
+            } else {
+                params['type'] = ''
+                params['category_id'] = ''
+            }
             if (params['type'] == 1) {
                 params['category_id'] = 0
             }
             queryGoodsList(params)
                 .then(async res => {
+                    console.log('res.data.lists', res.data.lists)
                     if (res.data.lists == null) {
                         this.list = res.data.lists
                         this.total = res.data.total
@@ -399,7 +491,7 @@ export default {
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
                             let parameters = { sku_id: sku.storehouse_pid }
-                            let data = await queryStoreProduct(parameters)
+                            let data = await queryStoreProductDetail(parameters)
                             this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
@@ -408,17 +500,19 @@ export default {
                             sku['skuIsChecked'] = false;
                             if(this.sku_select_list.indexOf(sku.id) > -1){
                                 sku['skuIsChecked'] = true;
+                                sku['isDisabled'] = true;
                             }
                             console.log('sku', sku);
                         }
                         product['checkNum'] = product.goods_sku.filter(item => item.skuIsChecked).length;
                         product['goodsIsChecked'] = false;
-                        if(product['checkNum'] > 0 && product['checkNum'] == product.goods_sku.length){
-                            product['goodsIsChecked'] = true;
+                        if(product['checkNum'] > 0){
+                            product['isDisabled'] = true
+                            if(product['checkNum'] == product.goods_sku.length){
+                                product['goodsIsChecked'] = true;
+                            }
                         }
                     }
-
-                    console.log('输出 ~ res.data.lists-397', res.data.lists)
                     this.list = res.data.lists
                     this.total = res.data.total
                     rLoading.close()
@@ -427,40 +521,13 @@ export default {
                     rLoading.close()
                 })
         },
-        /*getList() {
-            this.listLoading = true
-            let params = this.$refs['formFilter'].model
 
-            if (params.tag_id) {
-                params['tag_ids'] = params.tag_id.map(item => item[1])
-                // params['tag_ids'].push(params.tag_id);
-            } else {
-                params['tag_ids'] = []
-            }
-
-            params['type'] = this.type
-            params['limit'] = this.listQuery.limit
-            params['page'] = this.listQuery.page
-            queryProduceList(params)
-                .then(async res => {
-                    this.list = res.data.list ? res.data.list : []
-                    this.total = res.data.total
-                    this.refreshSelection()
-                    this.listLoading = false
-                })
-                .catch(err => {})
-        },*/
-        handleSelectionChange(val) {
-            this.checkedList = val
-        },
-        handleSKUSelectionChange(val) {
-            this.checkedList = val
-        },
         // 搜索
         handleFilter() {
             this.listQuery.page = 1;
             this.searchShow = false;
             this.searchParams = _.cloneDeep(this.searchForm);
+            this.setSearchValue();
             this.getList();
         },
         // 重置
@@ -468,6 +535,171 @@ export default {
             this.$refs[formName].resetFields();
             this.handleFilter()
         },
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = []
+            // 商品名称
+            if (this.searchParams['title']) {
+                let obj = {
+                    label: 'title',
+                    val: this.searchParams['title']
+                }
+                _search.push(obj)
+            }
+            // id
+            if (this.searchParams['id']) {
+                let obj = {
+                    label: 'id',
+                    val: this.searchParams['id']
+                }
+                _search.push(obj)
+            }
+            // 级联选择 商品类型+分类
+            if (this.searchParams['typeCategory'].length == 1) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                        let obj = {
+                            label: 'type',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            } else if (this.searchParams['typeCategory'].length == 2) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchParams['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            }
+            console.log('_search', _search)
+            // 商品状态 status
+            if (this.searchParams['status']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.searchParams['status']) {
+                        let obj = {
+                            label: 'status',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 出售状态 is_sale
+            if (this.searchParams['is_sale']) {
+                this.saleStatusList.forEach(ev => {
+                    if (ev.value == this.searchParams['is_sale']) {
+                        let obj = {
+                            label: 'is_sale',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+
+            // 是否售罄
+            if (this.searchParams['is_store_shortage']) {
+                this.shortageList.forEach(ev => {
+                    if (ev.value == this.searchParams['is_store_shortage']) {
+                        let obj = {
+                            label: 'is_store_shortage',
+                            val: '售罄:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 是否指定店铺 allow_agent
+            if (this.searchParams['allow_agent']) {
+                this.agentList.forEach(ev => {
+                    if (ev.value == this.searchParams['allow_agent']) {
+                        let obj = {
+                            label: 'allow_agent',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // SKU编码
+            if (this.searchParams['storehouse_code']) {
+                let obj = {
+                    label: 'storehouse_code',
+                    val: this.searchParams['storehouse_code']
+                }
+                _search.push(obj)
+            }
+            // console.log('_search', _search)
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            console.log('item', item)
+            this.$set(this.searchForm, item.label, '')
+            this.$set(this.searchParams, item.label, '')
+            if(item.label == 'typeCategory'){
+                this.$set(this.searchForm, 'typeCategory', [])
+                this.$set(this.searchParams, 'typeCategory', [])
+            }
+            this.handleFilter()
+        },
+
+        // 已选商品删除组
+        cancelSelection(group) {
+            // if (row) {
+            //     this.$refs.multipleTable.toggleRowSelection(row, false)
+            // }
+            for (let i = 0; i < this.checkedList.length; i++) {
+                const element = this.checkedList[i]
+                if (group.id == element.id) {
+                    this.checkedList.splice(i, 1)
+                }
+            }
+            this.refreshSelection()
+        },
+        // 已选商品删除图片
+        cancelSelectionImg(group, img) {
+            // if (row) {
+            //     this.$refs.multipleTable.toggleRowSelection(row, false)
+            // }
+            for (let i = 0; i < this.checkedList.length; i++) {
+                const element = this.checkedList[i]
+                if (group.id == element.id) {
+                    for (let j = 0; j < element.imgCheckdList.length; j++) {
+                        const imgElement = element.imgCheckdList[j]
+                        if (img.img_data.id == imgElement.img_data.id) {
+                            element.imgCheckdList.splice(j, 1)
+                        }
+                    }
+                    // 没有选中图片时 删除组
+                    if (element.imgCheckdList.length == 0) {
+                        this.checkedList.splice(i, 1)
+                    }
+                }
+            }
+            this.refreshSelection()
+        },
+
+        // 已选图片显示/关闭
+        triggerImg(group) {
+            group.open = !group.open;
+            this.$forceUpdate()
+        },
+
         // 分页方法
         handleSizeChange(val) {
             this.listQuery.limit = val
@@ -589,6 +821,7 @@ export default {
             this.queryCategoryListAll(type)
             this.$set(this.searchForm,'category_id','');
         },
+
         // 获取分类列表
         queryCategoryListAll(type) {
             if (type == 1) {
@@ -616,6 +849,7 @@ export default {
                             this.categoryListClothGroup = res[1].data
                         }
                     }
+                    this.creatCategoryData();
                 })
                 .catch(() => {})
         },
@@ -634,14 +868,12 @@ export default {
             this.dialogVisiblePic = true
         },
         // sku选中/取消
-        skuChecked(row,index,goods_detail,goods_index){
+        skuChecked(bol,row,index,goods_detail,goods_index){
             console.log('row', row);
             console.log('goods_detail', goods_detail);
             console.log('goods_index', goods_index);
-            if (row.skuIsChecked) {
-                if(this.sku_select_list.indexOf(row.id) > -1){
-
-                } else {
+            if (bol) {
+                if(this.sku_select_list.indexOf(row.id) == -1){
                     this.sku_select_list.push(row.id)
                 }
             } else {
@@ -657,15 +889,22 @@ export default {
             }
         },
         // 商品选中/取消
-        goodsChecked(row,index) {
+
+        goodsChecked(bol,row,index) {
             console.log('row.goodsIsChecked', row.goodsIsChecked);
-            if(row.goodsIsChecked){
+            if(bol){
                 row.goods_sku.forEach((ev,i)=>{
-                    ev['skuIsChecked'] = true
+                    ev['skuIsChecked'] = true;
+                    if(this.sku_select_list.indexOf(ev.id) == -1){
+                        this.sku_select_list.push(ev.id)
+                    }
                 })
             } else {
                 row.goods_sku.forEach((ev,i)=>{
-                    ev['skuIsChecked'] = false
+                    ev['skuIsChecked'] = false;
+                    if(this.sku_select_list.indexOf(ev.id) > -1){
+                        this.sku_select_list.splice(this.sku_select_list.indexOf(ev.id), 1)
+                    }
                 })
             }
             row['checkNum'] = row.goods_sku.filter(item => item.skuIsChecked).length;

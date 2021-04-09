@@ -11,8 +11,8 @@
                         <el-form-item label="SKU名称" prop="sku_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_name"></el-input>
                         </el-form-item>
-                        <el-form-item label="直播商品名称" prop="goods_name">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.goods_name"></el-input>
+                        <el-form-item label="直播商品名称" prop="live_name">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.live_name"></el-input>
                         </el-form-item>
                         <el-form-item label="店铺" prop="shop_id">
                             <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
@@ -68,10 +68,10 @@
                 </template>
             </el-table-column>
             <el-table-column label="SKU名称" prop="sku_name"></el-table-column>
-            <el-table-column label="直播商品名称" prop="goods_name"></el-table-column>
+            <el-table-column label="直播商品名称" prop="live_title"></el-table-column>
             <el-table-column label="价格(元)" width="120">
                 <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.price) }}</span>
+                    <span>{{ formatMoney(scope.row.live_price) }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="店铺" width="140">
@@ -123,7 +123,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
                 :current-page="listQuery.page"
-                :page-sizes="[10, 20, 30, 40, 50, 100]"
+                :page-sizes="[20, 50, 100]"
                 :page-size="listQuery.limit"
                 layout="total, sizes, prev, pager, next, jumper"
                 :total="total"
@@ -133,8 +133,8 @@
         <!-- 编辑商品 -->
         <el-dialog :visible.sync="dialogVisibleEdit" :before-close="handleCloseCreat" :title="dialogTitle" width="480px">
             <el-form ref="formGoodsEdit" :rules="editRules" :model="formGoodsEdit" :inline="true" size="small" label-position="top">
-                <el-form-item label="直播商品名称：" prop="goods_name">
-                    <el-input class="dialog-item" placeholder="请输入" v-model="formGoodsEdit.goods_name"></el-input>
+                <el-form-item label="直播商品名称：" prop="live_name">
+                    <el-input class="dialog-item" placeholder="请输入" v-model="formGoodsEdit.live_name"></el-input>
                 </el-form-item>
                 <el-form-item label="图片" prop="title">
                     <div class="preview" v-if="filePic">
@@ -171,7 +171,7 @@
     </div>
 </template>
 <script>
-import { queryShopListPage, queryAgentListAll, creatShop, updateShop, queryUserList } from '@/api/agent'
+import { queryLiveGoodsList, addLiveGoods } from '@/api/live'
 import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import { getToken } from '@/utils/auth'
@@ -192,30 +192,30 @@ export default {
             shopIdSelected: '', //选中的店铺id
             listQuery: {
                 page: 1,
-                limit: 10
+                limit: 20
             },
             statusList: [
-                { id: 1, label: '未审核' },
-                { id: 2, label: '审核中' },
-                { id: 3, label: '审核未通过' },
-                { id: 4, label: '违规下架' },
-                { id: 5, label: '已入库' }
+                { id: '0', label: '待审核' },
+                { id: '1', label: '审核中' },
+                { id: '2', label: '审核通过' },
+                { id: '3', label: '审核驳回' },
+                { id: '4', label: '异常' }
             ],
             formFilter: {
                 sku_name: '', // SKU名称
-                goods_name: '', // 商品名称
-                status: '', //状态 '1 使用中 2 停止使用' 不搜索为-1
-                shop_id: '' //店铺名称 不搜索为空
+                live_name: '', // 商品名称
+                shop_id: '', //店铺名称 不搜索为空
+                status: '',  //0待审核 1审核中 2审核通过 3审核驳回 4异常
             },
             searchParams: {
                 sku_name: '', // SKU名称
-                goods_name: '', // 商品名称
-                status: '', // 状态 '1 使用中 2 停止使用' 不搜索为-1
-                shop_id: '' //店铺名称 不搜索为空
+                live_name: '', // 商品名称
+                shop_id: '', //店铺名称 不搜索为空
+                status: '',  //0待审核 1审核中 2审核通过 3审核驳回 4异常
             },
             dialogVisibleEdit: false, // 编辑商品
             editRules: {
-                goods_name: [
+                live_name: [
                     { required: true, message: '请输入名称', trigger: 'change' },
                     { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'change' }
                 ]
@@ -300,14 +300,34 @@ export default {
         this.header['token'] = getToken();
     },
     mounted() {
-        this.queryShopList()
+        this.queryShopList();
+        this.list = [
+            {
+                id: 1,
+                shop_sku_id: 237,
+                sku_id: 244,
+                live_title: "图片检索测试",
+                live_price: 100, //直播价格
+                ssku_price: 100, //店铺商品价格
+                shop_id: 1,
+                status: 1,
+                vx_id: 23,
+                vx_audit_id: 464431319,
+                created_at: "",
+                updated_at: ""
+            },
+        ]
     },
     inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = _.cloneDeep(this.searchParams)
-            params['status'] = params['status'] == '' ? -1 : params['status']
+            let params = _.cloneDeep(this.searchParams);
+            params['status_in'] = [0,1,2,3,4];
+            if(params['status']){
+                params['status_in'] = [];
+                params['status_in'].push(Number(params['status']));
+            }
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
             if (params['shop_id']) {
@@ -315,82 +335,25 @@ export default {
             } else {
                 this.filterShop = {}
             }
-            queryShopListPage(params)
+            console.log('params', params);
+            queryLiveGoodsList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
                     this.list = [
                         {
-                            id:1,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            shop_name: '川小布',
+                            id: 1,
+                            shop_sku_id: 237,
+                            sku_id: 244,
+                            live_title: "图片检索测试",
+                            live_price: 100, //直播价格
+                            ssku_price: 100, //店铺商品价格
+                            shop_id: 1,
                             status: 1,
-                            price: 1290
-                        },
-                        {
-                            id:2,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-12/files/hbubxngYSq7sZMVk.jpeg',
-                            sku_name: '日本进口粉色少女波',
-                            goods_name: '直播商品名称',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1890
-                        },
-                        {
-                            id:3,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2020-12-16/files/UdwNrtuPRKB0YeX7.jpeg',
-                            sku_name: 'sku名称',
-                            goods_name: '直播商品名称',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1290
-                        },
-                        {
-                            id:4,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: 'sku名称',
-                            goods_name: '直播商品名称',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1290
-                        },
-                        {
-                            id:5,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: 'sku名称',
-                            goods_name: '直播商品名称',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1290
-                        },
-                        {
-                            id:6,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1990
-                        },
-                        {
-                            id:7,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            shop_name: '川小布',
-                            status: 1,
-                            price: 1990
-                        },
-                        {
-                            id:8,
-                            sku_img: 'https://storehouse-upyun.chuanshui.cn/2021-03-18/files/fV4sBbXcsHlMEbuD.png',
-                            sku_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            goods_name: '日本进口粉色少女波波奶茶布YIEJ时代峻峰巴列卡诺打',
-                            shop_name: '川小布',
-                            status: 2,
-                            price: 1990
+                            vx_id: 23,
+                            vx_audit_id: 464431319,
+                            created_at: "",
+                            updated_at: ""
                         },
                     ]
                     this.total = res.data.total
@@ -408,7 +371,7 @@ export default {
                     if(this.shopList.length > 0){
                         this.formFilter['shop_id'] = this.shopList[0].id;
                         this.searchParams['shop_id'] = this.shopList[0].id;
-                        this.getList();
+                        // this.getList();
                     }
                 })
                 .catch(err => {})
@@ -442,6 +405,22 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = [];
+            // SKU名称 sku_name
+            if(this.formFilter['sku_name']){
+                let obj = {
+                    label: 'sku_name',
+                    val: this.formFilter['sku_name']
+                }
+                _search.push(obj)
+            }
+            // 直播商品名称 live_name
+            if(this.formFilter['live_name']){
+                let obj = {
+                    label: 'live_name',
+                    val: this.formFilter['live_name']
+                }
+                _search.push(obj)
+            }
             // 店铺名称 shop_id
             if(this.formFilter['shop_id']){
                 this.shopList.forEach((ev)=>{
@@ -454,22 +433,6 @@ export default {
                     }
                 })
             }
-            // 管理员昵称 shop_admin_name
-            if(this.formFilter['shop_admin_name']){
-                let obj = {
-                    label: 'shop_admin_name',
-                    val: this.formFilter['shop_admin_name']
-                }
-                _search.push(obj)
-            }
-            // 管理员手机号 shop_admin_phone
-            if(this.formFilter['shop_admin_phone']){
-                let obj = {
-                    label: 'shop_admin_phone',
-                    val: this.formFilter['shop_admin_phone']
-                }
-                _search.push(obj)
-            }
             // 状态
             if(this.formFilter['status']){
                 this.statusList.forEach((ev)=>{
@@ -481,36 +444,6 @@ export default {
                         _search.push(obj)
                     }
                 })
-            }
-
-            // 申请时间 applyTime
-            if(this.formFilter['applyTime'] && this.formFilter['applyTime'].length === 2){
-                let _ge_arr = (this.$moment(this.formFilter.applyTime[0]).format('YYYY-MM-DD ')).split('-');
-                let _le_arr = (this.$moment(this.formFilter.applyTime[1]).format('YYYY-MM-DD ')).split('-');
-                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
-                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
-                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
-                let _le = _le_arr[1]+ '.' + _le_arr[2];
-                let obj = {
-                    label: 'applyTime',
-                    val: _ge + ' - ' + _le
-                }
-                _search.push(obj)
-            }
-
-            // 到账时间 successTime
-            if(this.formFilter['successTime'] && this.formFilter['successTime'].length === 2){
-                let _ge_arr = (this.$moment(this.formFilter.successTime[0]).format('YYYY-MM-DD ')).split('-');
-                let _le_arr = (this.$moment(this.formFilter.successTime[1]).format('YYYY-MM-DD ')).split('-');
-                //  + ' '+ this.formFilter['created_time_ge'].split(' ')[1]
-                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
-                //  + ' '+ this.formFilter['created_time_le'].split(' ')[1]
-                let _le = _le_arr[1]+ '.' + _le_arr[2];
-                let obj = {
-                    label: 'successTime',
-                    val: _ge + ' - ' + _le
-                }
-                _search.push(obj)
             }
             this.searchList = _.cloneDeep(_search)
         },
@@ -600,25 +533,25 @@ export default {
                         id: 0,
                         name: this.formGoodsEdit
                     }
-                    updateShop(params)
-                        .then(res => {
-                            if (res.code == 200) {
-                                this.$notify({
-                                    title: '操作成功',
-                                    type: 'success',
-                                    duration: 5000
-                                })
-                                this.handleCloseCreat()
-                                this.getList()
-                            } else {
-                                this.$notify({
-                                    title: res.msg,
-                                    type: 'warning',
-                                    duration: 5000
-                                })
-                            }
-                        })
-                        .catch(err => {})
+                    // updateShop(params)
+                    //     .then(res => {
+                    //         if (res.code == 200) {
+                    //             this.$notify({
+                    //                 title: '操作成功',
+                    //                 type: 'success',
+                    //                 duration: 5000
+                    //             })
+                    //             this.handleCloseCreat()
+                    //             this.getList()
+                    //         } else {
+                    //             this.$notify({
+                    //                 title: res.msg,
+                    //                 type: 'warning',
+                    //                 duration: 5000
+                    //             })
+                    //         }
+                    //     })
+                    //     .catch(err => {})
                 } else {
                     this.$notify({
                         title: '请填写完成数据后提交',
