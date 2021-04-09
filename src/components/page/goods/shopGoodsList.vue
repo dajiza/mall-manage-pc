@@ -825,7 +825,7 @@ export default {
             // 修改sku单个价格
             if (this.editSkuPrice) {
                 let sku = shelfSku[0]
-                let params = { id: sku.id, new_price: commUtil.numberMul(Number(sku.price), 100) }
+                let params = { id: sku.shop_goods_sku_id, new_price: commUtil.numberMul(Number(sku.price), 100) }
                 updateAgentSkuPrice(params)
                     .then(res => {
                         console.log('GOOGLE: res', res)
