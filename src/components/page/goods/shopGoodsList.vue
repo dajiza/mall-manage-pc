@@ -487,9 +487,9 @@ export default {
                         }
                     }
 
-                    console.log('输出 ~ res.data.lists', res.data.lists)
+                    // console.log('输出 ~ res.data.lists', res.data.lists)
                     this.list = res.data.lists
-                    console.log('输出 ~  this.list', this.list)
+                    // console.log('输出 ~  this.list', this.list)
                     this.total = res.data.total
                     rLoading.close()
                 })
