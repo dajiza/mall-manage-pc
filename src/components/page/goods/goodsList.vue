@@ -82,6 +82,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
+            <el-button size="mini" class="dicount-btn">不享折扣商品</el-button>
         </div>
         <div class="divider"></div>
         <div class="operate">
@@ -1515,13 +1516,9 @@ export default {
 .goods-list .table /deep/ .el-table__expanded-cell {
     padding: 0 !important;
 }
-// .goods-list {
-//     .el-form-item {
-//         margin-right: 0 !important;
-//         margin-bottom: 0;
-//         padding: 14px 0;
-//     }
-// }
+.dicount-btn {
+    margin: 0 30px 0 auto;
+}
 </style>
 <style lang="less">
 .goods-list {
