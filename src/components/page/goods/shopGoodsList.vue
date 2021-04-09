@@ -32,7 +32,7 @@
                                 :options="typeList"
                             ></el-cascader>
                         </el-form-item>
-                        <el-form-item label="是否售罄" prop="status">
+                        <el-form-item label="是否售罄" prop="sku_is_store_shortage">
                             <el-select class="filter-item" v-model="formFilter.sku_is_store_shortage" placeholder="请选择">
                                 <el-option v-for="item in soldoutList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
@@ -300,11 +300,11 @@ export default {
             soldoutList: [
                 {
                     value: 1,
-                    label: '是'
+                    label: '否'
                 },
                 {
                     value: 2,
-                    label: '否'
+                    label: '是'
                 }
             ],
             // 分类 先选择商品类型 在获取分类列表
@@ -645,14 +645,11 @@ export default {
             // 是否售罄
             if (this.formFilter['sku_is_store_shortage']) {
                 this.soldoutList.forEach(ev => {
-                    console.log('输出 ~ ev', ev)
-                    console.log('输出 ~ this.formFilter[]', this.formFilter['sku_is_store_shortage'])
                     if (ev.value == this.formFilter['sku_is_store_shortage']) {
                         let obj = {
                             label: 'sku_is_store_shortage',
                             val: '售罄:' + ev.label
                         }
-                        console.log('输出 ~ obj', obj)
                         _search.push(obj)
                     }
                 })
@@ -838,17 +835,20 @@ export default {
                                 type: 'success',
                                 duration: 3000
                             })
+                            rLoading.close()
+
+                            this.getList()
+                            this.closeShopShelf()
 
                             // this.dialogVisibleAssign = false
-                            // this.closeShopShelf()
                         } else {
                             this.$notify({
                                 title: res.msg,
                                 type: 'warning',
                                 duration: 5000
                             })
+                            rLoading.close()
                         }
-                        rLoading.close()
                     })
                     .catch(err => {})
             } else {
@@ -876,7 +876,6 @@ export default {
                             rLoading.close()
 
                             this.getList()
-                            // this.dialogVisibleAssign = false
                             this.closeShopShelf()
                         } else {
                             this.$notify({
