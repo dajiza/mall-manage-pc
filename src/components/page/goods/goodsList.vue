@@ -57,6 +57,11 @@
                         <el-form-item label="SKU编码" prop="storehouse_code" class="">
                             <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
                         </el-form-item>
+                        <el-form-item label="会员折扣" prop="allow_agent">
+                            <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
+                                <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -82,7 +87,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
-            <el-button size="mini" class="dicount-btn">不享折扣商品</el-button>
+            <el-button size="mini" class="dicount-btn" @click="gotoDiscountGoods">不享折扣商品</el-button>
         </div>
         <div class="divider"></div>
         <div class="operate">
@@ -159,7 +164,12 @@
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">{{scope.row.stock_available == 0?'售罄':'低库存'}}</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
                                 <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
-                                <div v-else>否</div>
+                                <div class="type-tag type-blue" v-else>否</div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="会员折扣" width="90">
+                            <template slot-scope="scope">
+                                <div>否</div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -427,6 +437,12 @@ export default {
                 { value: '1', label: '布料' },
                 { value: '2', label: '其他' },
                 { value: '3', label: '布组' }
+            ],
+            // 折扣列表
+            discountList: [
+                { value: '1', label: '是' },
+                { value: '2', label: '否' },
+                { value: '3', label: '其他' }
             ],
             // 分类 先选择商品类型 在获取分类列表
             categoryList: [], //筛选列表
@@ -1273,7 +1289,6 @@ export default {
             this.shelfSku = sku.map((item, index) => {
                 item.price = item.goods_sku_price != 0 ? item.goods_sku_price : item.min_price
                 item.price = item.price / 100
-                console.log('输出 ~ item.price', item.price)
                 return item
             })
 
@@ -1382,6 +1397,11 @@ export default {
                     })
                 }
             })
+        },
+        gotoDiscountGoods() {
+            this.$router.push({
+                path: '/mall-backend-no-discount-list'
+            })
         }
     }
 }
@@ -1448,6 +1468,7 @@ export default {
 .type-tag {
     // display: block;
     padding: 0 11px;
+    min-width: 50px;
     width: fit-content;
     height: 26px;
     border-radius: 15px;
@@ -1455,6 +1476,7 @@ export default {
     word-break: keep-all;
     font-weight: 400;
     line-height: 26px;
+    text-align: center;
     &.type-red {
         background-color: #ff4d4f;
     }

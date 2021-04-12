@@ -149,6 +149,19 @@
                             </span>
                         </template>
                     </el-table-column>
+
+                    <el-table-column label="会员折扣" width="80">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.stock_total }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="会员操作" width="100">
+                        <template slot-scope="scope">
+                            <el-button class="text-blue" type="text" size="small" @click.native="">设为不享</el-button>
+                            <el-button class="text-blue" type="text" size="small" @click.native="">设置折扣</el-button>
+                            <el-button class="text-red" type="text" size="small" @click.native="">移出</el-button>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="SKU图片" width="130">
                         <template slot-scope="scope">
                             <div class="img-wrap">

@@ -29,6 +29,12 @@ export default new Router({
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
+                    path: '/mall-backend-no-discount-list',
+                    name: 'no-discount-list',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/noDiscountList.vue'),
+                    meta: { title: '不享折扣商品', name: 'noDiscountList' }
+                },
+                {
                     path: '/mall-backend-shop-goods-list',
                     name: 'shop-goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/shopGoodsList.vue'),

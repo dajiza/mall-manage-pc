@@ -16,16 +16,16 @@
 
                         <el-form-item label="时间区间" prop="searchTime" class="long-time">
                             <el-date-picker
-                                    class="filter-item"
-                                    v-model="formFilter.searchTime"
-                                    type="datetimerange"
-                                    range-separator="至"
-                                    align="left"
-                                    start-placeholder="开始时间"
-                                    end-placeholder="结束时间"
-                                    value-format="yyyy-MM-dd HH:mm:ss"
-                                    :default-time="['00:00:00', '23:59:59']"
-                                    :picker-options="pickerOptions"
+                                class="filter-item"
+                                v-model="formFilter.searchTime"
+                                type="datetimerange"
+                                range-separator="至"
+                                align="left"
+                                start-placeholder="开始时间"
+                                end-placeholder="结束时间"
+                                value-format="yyyy-MM-dd HH:mm:ss"
+                                :default-time="['00:00:00', '23:59:59']"
+                                :picker-options="pickerOptions"
                             >
                             </el-date-picker>
                         </el-form-item>
@@ -36,18 +36,18 @@
                     </el-form>
                 </div>
             </transition>
-            <div class="search-value" >
-                <template v-for="(item,i) in searchList">
+            <div class="search-value">
+                <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
-                        {{item.val}}
-                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        {{ item.val }}
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                     </div>
                 </template>
                 <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 <div class="search-value-clone" ref="searchValueBox">
-                    <template v-for="(item,i) in searchList">
-                        <div class="search-item" :ref="'searchItem'+ i">
-                            {{item.val}}
+                    <template v-for="(item, i) in searchList">
+                        <div class="search-item" :ref="'searchItem' + i">
+                            {{ item.val }}
                             <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
@@ -148,7 +148,8 @@ export default {
                 searchTime: '',
                 created_time_le: '',
                 created_time_ge: '',
-                shop_id: ''
+                shop_id: '',
+                channel_id: -1
             },
             pickerOptions: {
                 shortcuts: [
@@ -185,34 +186,36 @@ export default {
             orderByField: 1, //1按num 2orderCount 3money
             tableHeight: 'calc(100vh - 142px)',
             searchShow: false,
-            searchList:[],
-            showMaxIndex: 0,
+            searchList: [],
+            showMaxIndex: 0
         }
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     updated() {
@@ -226,7 +229,7 @@ export default {
 
         // 默认显示全部列表
         this.queryShopList()
-        this.setSearchValue();
+        this.setSearchValue()
         this.getList()
     },
     methods: {
@@ -235,6 +238,9 @@ export default {
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
 
+            if (!params['shop_id']) {
+                params['shop_id'] = -1
+            }
             if (params['searchTime'] && params['searchTime'].length == 2) {
                 params['created_time_ge'] = params.searchTime[0]
                 params['created_time_le'] = params.searchTime[1]
@@ -338,8 +344,8 @@ export default {
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
-            this.searchShow = false;
-            this.setSearchValue();
+            this.searchShow = false
+            this.setSearchValue()
             this.getList()
         },
         // 重置
@@ -351,11 +357,11 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             // console.log('this.formFilter.searchTime', this.formFilter.searchTime)
-            let _search = [];
+            let _search = []
             // 店铺名称 shop_id
-            if(this.formFilter['shop_id']){
-                this.shopList.forEach((ev)=>{
-                    if(ev.id == this.formFilter['shop_id']){
+            if (this.formFilter['shop_id']) {
+                this.shopList.forEach(ev => {
+                    if (ev.id == this.formFilter['shop_id']) {
                         let obj = {
                             label: 'shop_id',
                             val: ev.shop_name
@@ -365,11 +371,15 @@ export default {
                 })
             }
             // 时间区间
-            if(this.formFilter['searchTime'] && this.formFilter['searchTime'].length === 2){
-                let _ge_arr = (this.$moment(this.formFilter.searchTime[0]).format('YYYY-MM-DD ')).split('-');
-                let _le_arr = (this.$moment(this.formFilter.searchTime[1]).format('YYYY-MM-DD ')).split('-');
-                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
-                let _le = _le_arr[1]+ '.' + _le_arr[2];
+            if (this.formFilter['searchTime'] && this.formFilter['searchTime'].length === 2) {
+                let _ge_arr = this.$moment(this.formFilter.searchTime[0])
+                    .format('YYYY-MM-DD ')
+                    .split('-')
+                let _le_arr = this.$moment(this.formFilter.searchTime[1])
+                    .format('YYYY-MM-DD ')
+                    .split('-')
+                let _ge = _ge_arr[1] + '.' + _ge_arr[2]
+                let _le = _le_arr[1] + '.' + _le_arr[2]
                 let obj = {
                     label: 'searchTime',
                     val: _ge + ' - ' + _le
@@ -383,8 +393,8 @@ export default {
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             // created_time_le
-            this.$set(this.formFilter,item.label, '');
-            if(item.label == 'searchTime'){
+            this.$set(this.formFilter, item.label, '')
+            if (item.label == 'searchTime') {
                 this.$set(this.formFilter, 'searchTime', [])
                 this.$set(this.formFilter, 'created_time_le', '')
                 this.$set(this.formFilter, 'created_time_ge', '')

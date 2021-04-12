@@ -135,7 +135,7 @@
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
                                 <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
-                                <div v-else>否</div>
+                                <div class="type-tag type-blue" v-else>否</div>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -942,8 +942,8 @@ export default {
     transform: translateY(-30px);
 }
 .type-tag {
-    // display: block;
     padding: 0 11px;
+    min-width: 50px;
     width: fit-content;
     height: 26px;
     border-radius: 15px;
@@ -951,6 +951,7 @@ export default {
     word-break: keep-all;
     font-weight: 400;
     line-height: 26px;
+    text-align: center;
     &.type-red {
         background-color: #ff4d4f;
     }
