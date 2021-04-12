@@ -92,7 +92,7 @@
                     <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
                         <el-table-column label="操作" width="90" v-if="formFilter.status == 2">
                             <template slot-scope="scope">
-                                <span class="text-blue cursor" @click="changePrice(props.row, scope.row)">修改价格</span>
+                                <span class="text-blue cursor" v-hasPermission="'mall-backend-shop-goods-update-price'" @click="changePrice(props.row, scope.row)">修改价格</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU图片" width="120">
@@ -487,9 +487,9 @@ export default {
                         }
                     }
 
-                    console.log('输出 ~ res.data.lists', res.data.lists)
+                    // console.log('输出 ~ res.data.lists', res.data.lists)
                     this.list = res.data.lists
-                    console.log('输出 ~  this.list', this.list)
+                    // console.log('输出 ~  this.list', this.list)
                     this.total = res.data.total
                     rLoading.close()
                 })
