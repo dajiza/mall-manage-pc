@@ -257,6 +257,17 @@ export default {
                     ]
                 },
                 {
+                    icon: 'iconfont icon-live-goods',
+                    name: 'mall-backend-live-management',
+                    display_name: '直播管理',
+                    subs: [
+                        {
+                            name: 'mall-backend-live-goods',
+                            display_name: '直播商品'
+                        }
+                    ]
+                },
+                {
                     icon: 'iconfont icon-setting',
                     name: 'mall-backend-system-setting',
                     display_name: '系统设置',

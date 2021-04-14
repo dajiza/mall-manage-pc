@@ -243,10 +243,10 @@ a {
 }
 .el-dialog__header {
     padding: 15px 24px !important;
-    /* border-bottom: 1px solid #F0F2F5; */
+     border-bottom: 1px solid #F0F2F5;
 }
 .el-dialog__footer {
-    padding: 10px 10px !important;
+    padding: 10px 16px !important;
     border-top: 1px solid #f0f2f5;
 }
 .el-dialog__body {

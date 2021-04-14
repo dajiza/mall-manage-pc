@@ -216,6 +216,11 @@ export default new Router({
                     meta: { title: '销售统计' }
                 },
                 {
+                    path: '/mall-backend-live-goods',
+                    component: () => import(/* webpackChunkName: "statistics-sku" */ '../components/page/live-management/liveGoods.vue'),
+                    meta: { title: '直播商品' }
+                },
+                {
                     path: '/mall-backend-parameter-setting',
                     component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
                     meta: { title: '参数配置', name: 'parameterSetting' }
