@@ -378,6 +378,16 @@ export default {
             queryLiveGoodsList(params)
                 .then(res => {
                     rLoading.close();
+                    if(res.code!=200){
+                        this.$notify({
+                            title: res.error,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        this.list = [];
+                        this.total = 0;
+                        return
+                    }
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists || [];
                     this.total = res.data.total;
@@ -986,7 +996,7 @@ export default {
     }
 }
 .el-form-item--mini.el-form-item, /deep/.el-form-item--small.el-form-item:last-child{
-    margin-bottom: 0 !important;
+    /*margin-bottom: 0 !important;*/
 }
 .popper-price{
     display: flex;

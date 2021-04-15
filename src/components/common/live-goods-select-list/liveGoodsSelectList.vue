@@ -792,12 +792,22 @@ export default {
         // 商品选中/取消
         goodsChecked(bol,row,index) {
             if(row.shop_skus && row.shop_skus.length > 1){
-                this.$notify({
-                    title: '请选择sku',
-                    type: 'warning',
-                    duration: 5000
-                })
-                row['goodsIsChecked'] = !bol;
+
+                row['goodsIsChecked'] = false;
+                if(bol) {
+                    this.$notify({
+                        title: '请选择sku',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                    // row['goodsIsChecked'] = !bol;
+                } else {
+                    row.shop_skus.forEach((ev,i)=>{
+                        if(!ev['isDisabled']){
+                            ev['skuIsChecked'] = false;
+                        }
+                    })
+                }
             } else if(row.shop_skus && row.shop_skus.length == 1){
                 if(!row.isDisabled){
                     row['goodsIsChecked'] = bol;
@@ -867,7 +877,7 @@ export default {
         border-radius: 2px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
         // transition: all 3s ease-in-out;
-        padding: 24px 24px 20px 24px;
+        padding: 24px 24px 4px 24px;
     }
     .selected-goods-btn{
         margin-right: 68px;
