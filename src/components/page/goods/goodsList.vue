@@ -57,6 +57,11 @@
                         <el-form-item label="SKU编码" prop="storehouse_code" class="">
                             <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
                         </el-form-item>
+                        <el-form-item label="会员折扣" prop="discount_condition">
+                            <el-select class="filter-item" v-model="formFilter.discount_condition" placeholder="请选择">
+                                <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -82,6 +87,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
+            <el-button size="mini" class="dicount-btn" @click="gotoDiscountGoods">不享折扣商品</el-button>
         </div>
         <div class="divider"></div>
         <div class="operate">
@@ -110,8 +116,12 @@
                         <el-table-column label="状态" width="90">
                             <template slot-scope="scope">
                                 <template v-hasPermission="'mall-backend-goods-sku-status-update'">
-                                    <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已下架</span>
-                                    <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">已上架</span>
+                                    <span class="text-red cursor" v-show="scope.row.status == 1" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)"
+                                        >已下架</span
+                                    >
+                                    <span class="text-blue cursor" v-show="scope.row.status == 2" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)"
+                                        >已上架</span
+                                    >
                                 </template>
                             </template>
                         </el-table-column>
@@ -160,7 +170,14 @@
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">{{scope.row.stock_available == 0?'售罄':'低库存'}}</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
                                 <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
-                                <div v-else>否</div>
+                                <div class="type-tag type-blue" v-else>否</div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="会员折扣" width="90">
+                            <template slot-scope="scope">
+                                <span v-if="scope.row.user_discount == 0">是</span>
+                                <span v-else-if="scope.row.user_discount == 1">否</span>
+                                <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -169,7 +186,7 @@
 
             <el-table-column label="" width="70">
                 <template slot-scope="scope">
-                    <span>({{ scope.row.onsaleNum }}/{{ scope.row.goods_sku.length }})</span>
+                    <span>({{ scope.row.onsaleNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
                 </template>
             </el-table-column>
             <el-table-column type="selection" width="40"> </el-table-column>
@@ -409,6 +426,7 @@ export default {
     name: 'goods-list',
     data() {
         return {
+            commUtil,
             searchShow: false, //搜索表单显示
             list: [],
             total: 0,
@@ -429,6 +447,7 @@ export default {
                 { value: '2', label: '其他' },
                 { value: '3', label: '布组' }
             ],
+
             // 分类 先选择商品类型 在获取分类列表
             categoryList: [], //筛选列表
             categoryListOther: [], //其他分类
@@ -452,7 +471,21 @@ export default {
                 { value: '1', label: '指定店铺' },
                 { value: '2', label: '所有店铺都可以' }
             ],
-
+            // 会员折扣搜索下拉列表 //是否折扣：1正常折扣，2不是折扣，3其他折扣
+            discountList: [
+                {
+                    label: '是',
+                    value: 1
+                },
+                {
+                    label: '否',
+                    value: 2
+                },
+                {
+                    label: '其他',
+                    value: 3
+                }
+            ],
             reasonList: [],
 
             formFilter: {
@@ -465,7 +498,8 @@ export default {
                 is_store_shortage: '',
                 allow_agent: '',
                 storehouse_code: '',
-                typeCategory: [] //cache数据
+                typeCategory: [], //cache数据
+                discount_condition: ''
             },
             // 图片预览
             dialogVisiblePic: false,
@@ -607,6 +641,9 @@ export default {
             if (params['type'] == 1) {
                 params['category_id'] = 0
             }
+            if (params['discount_condition'] == '') {
+                params['discount_condition'] = 0
+            }
 
             queryGoodsList(params)
                 .then(async res => {
@@ -624,6 +661,7 @@ export default {
                         const product = res.data.lists[i]
                         this.timgList.push(product.img)
                         if (!product.goods_sku) {
+                            product.goods_sku = []
                             continue
                         }
                         product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
@@ -841,6 +879,7 @@ export default {
                 })
                 .catch(err => {})
         },
+        // 指定代理
         goodsAssign(id, row) {
             console.log('GOOGLE: row', row)
             this.goodsId = id
@@ -1208,6 +1247,18 @@ export default {
                 }
                 _search.push(obj)
             }
+            // 会员折扣
+            if (this.formFilter['discount_condition']) {
+                this.discountList.forEach(ev => {
+                    if (ev.value == this.formFilter['discount_condition']) {
+                        let obj = {
+                            label: 'discount_condition',
+                            val: '折扣:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
             // console.log('_search', _search)
             this.searchList = _.cloneDeep(_search)
         },
@@ -1274,7 +1325,6 @@ export default {
             this.shelfSku = sku.map((item, index) => {
                 item.price = item.goods_sku_price != 0 ? item.goods_sku_price : item.min_price
                 item.price = item.price / 100
-                console.log('输出 ~ item.price', item.price)
                 return item
             })
 
@@ -1383,6 +1433,11 @@ export default {
                     })
                 }
             })
+        },
+        gotoDiscountGoods() {
+            this.$router.push({
+                path: '/mall-backend-no-discount-list'
+            })
         }
     }
 }
@@ -1449,10 +1504,12 @@ export default {
 .type-tag {
     // display: block;
     padding: 0 11px;
+    min-width: 50px;
     width: fit-content;
     height: 26px;
     border-radius: 15px;
     color: rgba(255, 255, 255, 0.85);
+    text-align: center;
     word-break: keep-all;
     font-weight: 400;
     line-height: 26px;
@@ -1517,13 +1574,9 @@ export default {
 .goods-list .table /deep/ .el-table__expanded-cell {
     padding: 0 !important;
 }
-// .goods-list {
-//     .el-form-item {
-//         margin-right: 0 !important;
-//         margin-bottom: 0;
-//         padding: 14px 0;
-//     }
-// }
+.dicount-btn {
+    margin: 0 30px 0 auto;
+}
 </style>
 <style lang="less">
 .goods-list {

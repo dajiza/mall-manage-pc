@@ -16,6 +16,7 @@
             </el-form-item>
             <el-form-item label="计价方式">
                 <el-radio v-model="info.type" :label="1">按数量</el-radio>
+                <el-radio v-model="info.type" :label="2">按重量</el-radio>
             </el-form-item>
             <!-- <el-form-item label="" label-width="0px" v-if="info.is_free == 1"> -->
             <template v-if="info.is_free == 1">
@@ -24,7 +25,7 @@
                     <el-form-item label="" label-width="0px" prop="detail.0.first_num" :rules="rulesInt">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_num"></el-input>
                     </el-form-item>
-                    <div class="quantifier">件内</div>
+                    <div class="quantifier">{{ info.type == 1 ? '件' : 'g' }}内</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.first_money" :rules="rulesRequired">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_money"></el-input>
                     </el-form-item>
@@ -33,24 +34,13 @@
                     <el-form-item label="" label-width="0px" prop="detail.0.continue_num" :rules="rulesInt">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].continue_num"></el-input>
                     </el-form-item>
-                    <div class="quantifier">件</div>
+                    <div class="quantifier">{{ info.type == 1 ? '件' : 'g' }}</div>
                     <div class="label">增加运费</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.continue_money" :rules="rulesRequired">
-                        <el-input
-                            class="default-input"
-                            placeholder=""
-                            :disabled="info.detail[0].is_free == 2"
-                            v-model="info.detail[0].continue_money"
-                        ></el-input>
+                        <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].continue_money"></el-input>
                     </el-form-item>
                     <div class="quantifier">元</div>
-                    <el-checkbox
-                        class="firstCheck"
-                        v-model="info.detail[0].is_free"
-                        :true-label="2"
-                        :false-label="1"
-                        @change="val => handleFirstCheckChange(val)"
-                    >
+                    <el-checkbox class="firstCheck" v-model="info.detail[0].is_free" :true-label="2" :false-label="1" @change="val => handleFirstCheckChange(val)">
                         包邮
                     </el-checkbox>
                 </div>
@@ -58,9 +48,9 @@
                     <div class="th">
                         <div class="row row-first">运送到</div>
                         <div class="row">包邮</div>
-                        <div class="row">首数量(件)</div>
+                        <div class="row">{{ info.type == 1 ? '首数量(件)' : '首重量(g)' }}</div>
                         <div class="row">首费(元)</div>
-                        <div class="row">续数量(件)</div>
+                        <div class="row">{{ info.type == 1 ? '续数量(件)' : '续重量(g)' }}</div>
                         <div class="row">续费(元)</div>
                         <div class="row">操作</div>
                     </div>
@@ -116,9 +106,7 @@
                     </div>
                     <div class="entry">
                         <div class="text" @click="addDefault">为指定地区城市设置运费</div>
-                        <el-button class="" type="text" @click="isMultipleOperate = !isMultipleOperate">{{
-                            isMultipleOperate ? '取消批量' : '批量操作'
-                        }}</el-button>
+                        <el-button class="" type="text" @click="isMultipleOperate = !isMultipleOperate">{{ isMultipleOperate ? '取消批量' : '批量操作' }}</el-button>
                     </div>
                 </div>
             </template>
@@ -137,7 +125,7 @@
                     <div class="th">
                         <div class="row row-first">选择地区</div>
                         <div class="row">包邮条件</div>
-                        <div class="row">金额/数量</div>
+                        <div class="row">金额/数量/重量</div>
                         <div class="row delete-row"><el-button class="" type="text" @click="addCondition">新增</el-button></div>
                     </div>
                     <div class="tr" v-for="(item, index) in info.strategy">
@@ -175,10 +163,10 @@
     </div>
 </template>
 <script>
-import { creatFreight, queryFreight, updateFreight } from '@/api/freight';
-import { formatMoney } from '@/plugin/tool';
-import areaList from '@/components/common/area-list/AreaList';
-import commUtil from '../../../utils/commUtil';
+import { creatFreight, queryFreight, updateFreight } from '@/api/freight'
+import { formatMoney } from '@/plugin/tool'
+import areaList from '@/components/common/area-list/AreaList'
+import commUtil from '../../../utils/commUtil'
 export default {
     data() {
         return {
@@ -250,6 +238,10 @@ export default {
                 {
                     label: '金额',
                     value: 2
+                },
+                {
+                    label: '重量',
+                    value: 3
                 }
             ],
             rules: {
@@ -268,51 +260,51 @@ export default {
                     type: 'integer',
                     message: '请输入非零整数',
                     transform(value) {
-                        return Number(value);
+                        return Number(value)
                     },
                     min: 1
                 }
             ]
-        };
+        }
     },
     components: {
         areaList
     },
     created() {
-        var id = Number(this.$route.query.id);
-        var mark = this.$route.query.mark;
-        console.log('GOOGLE: mark', mark);
+        var id = Number(this.$route.query.id)
+        var mark = this.$route.query.mark
+        console.log('GOOGLE: mark', mark)
         if (id) {
             let params = {
                 id: id
-            };
+            }
             queryFreight(params)
                 .then(res => {
-                    var detail = res.data;
-                    console.log('GOOGLE: detail', detail);
+                    var detail = res.data
+                    console.log('GOOGLE: detail', detail)
                     // format 金额
                     for (let i = 0; i < detail.detail.length; i++) {
-                        const element = detail.detail[i];
-                        element.first_money = Number(element.first_money) / 100;
-                        element.continue_money = Number(element.continue_money) / 100;
+                        const element = detail.detail[i]
+                        element.first_money = Number(element.first_money) / 100
+                        element.continue_money = Number(element.continue_money) / 100
                     }
                     if (detail.strategy) {
                         for (let i = 0; i < detail.strategy.length; i++) {
-                            const element = detail.strategy[i];
+                            const element = detail.strategy[i]
                             if (element.type == 2) {
-                                element.num = Number(element.num) / 100;
+                                element.num = Number(element.num) / 100
                             }
                         }
                     } else {
-                        detail.strategy = [];
+                        detail.strategy = []
                     }
                     if (mark == 'copy') {
-                        delete detail.id;
+                        delete detail.id
                     }
-                    this.info = detail;
-                    console.log('GOOGLE: this.info', this.info);
+                    this.info = detail
+                    console.log('GOOGLE: this.info', this.info)
                 })
-                .catch(err => {});
+                .catch(err => {})
         }
     },
     mounted() {},
@@ -324,67 +316,67 @@ export default {
          * @param   mark 1:按数量 2:按条件
          */
         openAreaList(index, mark) {
-            this.areaIndex = index;
+            this.areaIndex = index
             if (mark == 1) {
-                this.initArea = this.info.detail[index].place;
+                this.initArea = this.info.detail[index].place
             } else {
-                this.initArea = this.info.strategy[index].place;
+                this.initArea = this.info.strategy[index].place
             }
-            this.areaMark = mark;
-            this.$refs.areaList.show();
+            this.areaMark = mark
+            this.$refs.areaList.show()
         },
         // 单个删除
         deleteDefault(index) {
-            console.log('输出 ~ index');
-            console.log('输出 ~ index', index);
-            this.info.detail.splice(index, 1);
-            this.checkListNum.splice(index, 1);
+            console.log('输出 ~ index')
+            console.log('输出 ~ index', index)
+            this.info.detail.splice(index, 1)
+            this.checkListNum.splice(index, 1)
         },
         // 批量删除
         deleteMultiple(index) {
-            console.log('GOOGLE: this.checkListNum', this.checkListNum);
+            console.log('GOOGLE: this.checkListNum', this.checkListNum)
             for (let i = 0; i < this.checkListNum.length; i++) {
-                const element = this.checkListNum[i];
+                const element = this.checkListNum[i]
                 if (element) {
-                    this.info.detail.splice(i, 1);
-                    this.checkListNum.splice(i, 1);
-                    i--;
+                    this.info.detail.splice(i, 1)
+                    this.checkListNum.splice(i, 1)
+                    i--
                 }
             }
         },
         // 全选
         handleCheckAllChange(val) {
             // this.checkedCities = val ? cityOptions : [];
-            this.checkAll = val;
+            this.checkAll = val
             for (let i = 1; i < this.checkListNum.length; i++) {
-                this.$set(this.checkListNum, i, val);
+                this.$set(this.checkListNum, i, val)
             }
         },
         // check 单选
         handleCheckChange(val, indexSign) {
             if (!val) {
-                return;
+                return
             }
             this.info.detail.map((item, index) => {
                 if (indexSign == index) {
-                    item.first_num = 1;
-                    item.first_money = item.first_money || 1;
-                    item.continue_num = 1;
-                    item.continue_money = item.continue_money || 1;
-                    return item;
+                    item.first_num = 1
+                    item.first_money = item.first_money || 1
+                    item.continue_num = 1
+                    item.continue_money = item.continue_money || 1
+                    return item
                 }
-            });
+            })
         },
         // check 首条默认 单选
         handleFirstCheckChange(val) {
             if (!val) {
-                return;
+                return
             }
 
-            this.info.detail[0].first_num = 1;
-            this.info.detail[0].first_money = this.info.detail[0].first_money || 1;
-            this.info.detail[0].continue_num = 1;
-            this.info.detail[0].continue_money = this.info.detail[0].continue_money || 1;
+            this.info.detail[0].first_num = 1
+            this.info.detail[0].first_money = this.info.detail[0].first_money || 1
+            this.info.detail[0].continue_num = 1
+            this.info.detail[0].continue_money = this.info.detail[0].continue_money || 1
         },
         addDefault() {
             this.info.detail.push({
@@ -395,17 +387,17 @@ export default {
                 continue_num: 1,
                 continue_money: 0,
                 place: []
-            });
-            this.checkListNum.push(false);
+            })
+            this.checkListNum.push(false)
         },
         getArea(data) {
             if (this.areaMark == 1) {
-                this.info.detail[this.areaIndex].place = data;
+                this.info.detail[this.areaIndex].place = data
             } else {
-                this.info.strategy[this.areaIndex].place = data;
+                this.info.strategy[this.areaIndex].place = data
             }
             // this.$set(this.checkListNum, i, val);
-            console.log('GOOGLE: data', data);
+            console.log('GOOGLE: data', data)
         },
 
         // 新增条件包邮
@@ -414,11 +406,11 @@ export default {
                 type: 1, //1按件  2按金额
                 num: 1,
                 place: []
-            });
+            })
         },
         // 单个删除条件包邮
         deleteCondition(index) {
-            this.info.strategy.splice(index, 1);
+            this.info.strategy.splice(index, 1)
         },
         // 创建模板
         creat() {
@@ -426,35 +418,36 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     // 深拷贝
-                    var params = _.cloneDeep(this.info);
+                    var params = _.cloneDeep(this.info)
 
-                    params.is_default = Number(params.is_default);
-                    params.is_free = Number(params.is_free);
-                    params.type = Number(params.type);
-                    params.is_strategy = Number(params.is_strategy);
+                    params.is_default = Number(params.is_default)
+                    params.is_free = Number(params.is_free)
+                    params.type = Number(params.type)
+                    params.is_strategy = Number(params.is_strategy)
+                    params.is_discount = Number(this.$route.query.is_discount)
                     // 包邮
                     if (this.info.is_free == 2) {
-                        delete params.detail;
-                        delete params.strategy;
+                        delete params.detail
+                        delete params.strategy
                     } else {
                         // 验证按数量计价的地区
                         for (let i = 0; i < params.detail.length; i++) {
-                            const element = params.detail[i];
-                            element.is_default = Number(element.is_default);
-                            element.first_num = Number(element.first_num);
-                            element.first_money = commUtil.numberMul(Number(element.first_money), 100);
-                            element.continue_num = Number(element.continue_num);
-                            element.continue_money = commUtil.numberMul(Number(element.continue_money), 100);
+                            const element = params.detail[i]
+                            element.is_default = Number(element.is_default)
+                            element.first_num = Number(element.first_num)
+                            element.first_money = commUtil.numberMul(Number(element.first_money), 100)
+                            element.continue_num = Number(element.continue_num)
+                            element.continue_money = commUtil.numberMul(Number(element.continue_money), 100)
                             if (i == 0) {
-                                continue;
+                                continue
                             }
                             if (element.place.length == 0) {
                                 this.$notify({
                                     title: '请编辑按数量计价第' + i + '条策略的地区',
                                     type: 'warning',
                                     duration: 3000
-                                });
-                                return;
+                                })
+                                return
                             }
                         }
                         // 验证指定条件的地区 及处理件数/金额 数据
@@ -464,88 +457,88 @@ export default {
                                     title: '请添加指定条件包邮的策略',
                                     type: 'warning',
                                     duration: 3000
-                                });
-                                return;
+                                })
+                                return
                             } else {
                                 for (let i = 0; i < params.strategy.length; i++) {
-                                    const element = params.strategy[i];
+                                    const element = params.strategy[i]
 
                                     if (element.place.length == 0) {
-                                        let index = i + 1;
+                                        let index = i + 1
                                         this.$notify({
                                             title: '请编辑指定条件包邮第' + index + '条策略的地区',
                                             type: 'warning',
                                             duration: 3000
-                                        });
-                                        return;
+                                        })
+                                        return
                                     }
-                                    element.type = Number(element.type);
+                                    element.type = Number(element.type)
                                     if (element.type == 2) {
-                                        element.num = commUtil.numberMul(Number(element.num), 100);
+                                        element.num = commUtil.numberMul(Number(element.num), 100)
                                     } else {
                                         element.num = Number(element.num)
                                     }
                                 }
                             }
                         } else {
-                            delete params.strategy;
+                            delete params.strategy
                         }
                     }
                     if (this.info.id) {
                         // 修改
                         updateFreight(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res);
+                                console.log('GOOGLE: res', res)
                                 if (res.code == 200) {
                                     this.$notify({
                                         title: '运费模板修改成功',
                                         type: 'success',
                                         duration: 3000
-                                    });
+                                    })
                                     this.$router.push({
                                         path: 'mall-backend-freight'
-                                    });
+                                    })
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         type: 'warning',
                                         duration: 3000
-                                    });
+                                    })
                                 }
                             })
-                            .catch(err => {});
+                            .catch(err => {})
                     } else {
                         // 新建
                         creatFreight(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res);
+                                console.log('GOOGLE: res', res)
                                 if (res.code == 200) {
                                     this.$notify({
                                         title: '运费模板创建成功',
                                         type: 'success',
                                         duration: 3000
-                                    });
+                                    })
                                     this.$router.push({
                                         path: 'mall-backend-freight'
-                                    });
+                                    })
                                 } else {
                                     this.$notify({
                                         title: res.msg,
                                         type: 'warning',
                                         duration: 3000
-                                    });
+                                    })
                                 }
                             })
-                            .catch(err => {});
+                            .catch(err => {})
                     }
                 } else {
                     this.$notify({
                         title: '请填写完整后再提交',
                         type: 'warning',
                         duration: 3000
-                    });
+                    })
                 }
-            });
+            })
 
             // 格式化数据
             // params.detail.map((item, index) => {
@@ -560,7 +553,7 @@ export default {
             // console.log('GOOGLE: params', params);
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .freight-form {

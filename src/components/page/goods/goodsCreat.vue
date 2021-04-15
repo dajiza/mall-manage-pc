@@ -7,7 +7,7 @@
                 <div class="text">{{ goods.goods_id ? '编辑' : '新增' }}商品</div>
             </div>
             <div class="divider"></div>
-            <div class="content">
+            <div class="content-goods">
                 <div class="upload">
                     <el-form-item label="首图 可上传图片">
                         <el-upload
@@ -99,7 +99,7 @@
                 <div class="text">展示属性</div>
             </div>
             <div class="divider"></div>
-            <div class="content">
+            <div class="content-goods">
                 <el-form-item label="">
                     <el-checkbox-group v-model="basicChecked">
                         <el-checkbox v-for="item in basicAttr" @change="handleCheckedBasic" :key="item.id" :label="item.id">
@@ -124,7 +124,7 @@
                 <el-button class="add-sku" type="success" @click="addSku" :loading="btnLoading">添加</el-button>
             </div>
             <div class="divider"></div>
-            <div class="content content-table">
+            <div class="content-goods content-table">
                 <el-table
                     :data="goods.sku_list"
                     v-loading.body="listLoading"
@@ -147,6 +147,27 @@
                             <span :class="[scope.row.status == 1 ? 'text-red' : 'text-blue', 'cursor']" @click="setSkuStatus(scope.row, scope.row.status, scope.$index)">
                                 {{ scope.row.status == 1 ? '已下架' : '已上架' }}
                             </span>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="会员折扣" width="80">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.user_discount == 1">否</span>
+                            <span v-else-if="scope.row.user_discount == 0">是</span>
+                            <span v-else>{{ scope.row.user_discount }}折</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="会员操作" width="100">
+                        <template slot-scope="scope">
+                            <div v-if="scope.row.user_discount == 0">
+                                <el-button class="text-blue" type="text" size="small" @click="setUserDiscount(scope.row, 1)">设为不享</el-button>
+                            </div>
+                            <div v-if="scope.row.user_discount > 0">
+                                <el-button class="text-blue" type="text" size="small" @click="openDialog(scope.row)">设置折扣</el-button>
+                            </div>
+                            <div v-if="scope.row.user_discount > 0">
+                                <el-button class="text-red" type="text" size="small" @click="setUserDiscount(scope.row, 0)">移出</el-button>
+                            </div>
                         </template>
                     </el-table-column>
                     <el-table-column label="SKU图片" width="130">
@@ -217,6 +238,11 @@
                     <el-table-column label="可用库存" width="">
                         <template slot-scope="scope">
                             <span>{{ scope.row.stock_available }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="单位" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_unit }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="库存预警" width="120">
@@ -295,7 +321,7 @@
                 <div class="text">销售设置</div>
             </div>
             <div class="divider"></div>
-            <div class="content">
+            <div class="content-goods">
                 <el-form-item label="是否指定店铺" style="width:200px">
                     <el-radio v-model="goods.is_allow_agent" :label="1">是</el-radio>
                     <el-radio v-model="goods.is_allow_agent" :label="2">否</el-radio>
@@ -392,6 +418,19 @@
             <span slot="footer" class="dialog-footer">
                 <el-button @click="gotoCreat">返 回</el-button>
                 <el-button type="primary" @click="confirmType">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 设置会员 -->
+        <el-dialog :visible.sync="dialogVisibleCreat" title="设置折扣" width="380px" @closed="closeDialog">
+            <el-form class="form-creat" :inline="true" size="small" label-position="left">
+                <el-form-item label="会员折扣" class="">
+                    <el-input class="" placeholder="请输入" v-model="discountValue" style="width:250px"></el-input>
+                </el-form-item>
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeDialog">取 消</el-button>
+                <el-button type="primary" @click="saveDiscount">确 定</el-button>
             </span>
         </el-dialog>
     </div>

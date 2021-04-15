@@ -71,3 +71,6 @@ export const queryAgentGoodsStatus = params => post('/backend/agent-shop-goods-s
 
 // 单个 shopGoodsSku修改价格
 export const updateAgentSkuPrice = params => post('/backend/agent-shop-sku-price-update', params)
+
+// 不享折扣商品
+export const goodsDiscountlist = params => post('/backend/goods-sku-discount-list', params)

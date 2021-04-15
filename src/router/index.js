@@ -29,6 +29,12 @@ export default new Router({
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
+                    path: '/mall-backend-no-discount-list',
+                    name: 'no-discount-list',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/noDiscountList.vue'),
+                    meta: { title: '不享折扣商品', name: 'noDiscountList' }
+                },
+                {
                     path: '/mall-backend-shop-goods-list',
                     name: 'shop-goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/shopGoodsList.vue'),
@@ -80,9 +86,14 @@ export default new Router({
                     meta: { title: '客户管理' }
                 },
                 {
+                    path: '/mall-backend-discount-setup',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/customer/discountSetup.vue'),
+                    meta: { title: '客户管理' }
+                },
+                {
                     path: '/mall-backend-agent-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/agent/agentList.vue'),
-                    meta: { title: '代理管理' }
+                    meta: { title: '会员折扣配置' }
                 },
                 {
                     path: '/mall-backend-shop-list',

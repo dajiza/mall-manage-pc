@@ -673,6 +673,7 @@ export default {
         },
         async save() {
             let listClone = _.cloneDeep(this.checkedList)
+            console.log('输出 ~ listClone', listClone)
 
             let skuList = await Promise.all(
                 listClone.map(async m => {
@@ -703,6 +704,8 @@ export default {
                         attr_size: item.attr_size_name,
                         attr_width: item.attr_width_name,
                         attr_piece: item.attr_piece.toString(),
+                        attr_weight: item.attr_weight,//重量
+                        user_discount:0,//用户折扣
                         status: item.stock_available > 0 ? 2 : 1,
                         // tag_names: item.tag_names,
                         // category_name: item.category_name,

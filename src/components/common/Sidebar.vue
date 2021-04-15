@@ -238,6 +238,10 @@ export default {
                         {
                             name: 'mall-backend-customer-list',
                             display_name: '客户列表'
+                        },
+                        {
+                            name: 'mall-backend-discount-setup',
+                            display_name: '会员折扣配置'
                         }
                     ]
                 },
