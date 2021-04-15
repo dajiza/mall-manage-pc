@@ -24,3 +24,6 @@ export const queryCancelAudit = params => post('/backend/vx-goods-back', params)
 // 商品列表（添加商品）
 export const queryShopGoodsList = params => post('/backend/shop-goods-list', params);
 
+// 查询已选商品
+export const queryCheckedGoods = params => post('/backend/vx-goods-easy-list', params);
+
