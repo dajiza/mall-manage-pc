@@ -2,9 +2,13 @@
     <div class="app-container">
         <div class="page-title">
             运费模板
-            <router-link class="" to="./mall-backend-freightCreat">
-                <el-button size="small" type="primary" icon="el-icon-plus" v-hasPermission="'mall-backend-freight-creat'">新增模板</el-button>
-            </router-link>
+            <el-radio-group v-model="type" class="tab-way" size="mini" @change="onTabClick">
+                <el-radio-button :label="1">普通用户</el-radio-button>
+                <el-radio-button :label="2">会员用户</el-radio-button>
+            </el-radio-group>
+            <el-button size="mini" type="primary" :disabled="type == 2 && list != null" @click="gotoCreat" icon="el-icon-plus" v-hasPermission="'mall-backend-freight-creat'">
+                新增模板
+            </el-button>
         </div>
         <div class="list">
             <div class="item" v-for="(item, index) in list" :key="item.id">
@@ -62,48 +66,49 @@
     </div>
 </template>
 <script>
-import { queryFreightList, deleteFreight, updateDefaultFreight } from '@/api/freight';
-import { formatMoney } from '@/plugin/tool';
+import { queryFreightList, deleteFreight, updateDefaultFreight } from '@/api/freight'
+import { formatMoney } from '@/plugin/tool'
 
 export default {
     data() {
         return {
             list: null,
-            total: 0
-        };
+            total: 0,
+            type: 1
+        }
     },
 
     created() {},
     mounted() {
-        this.getList();
+        this.getList()
     },
     computed: {
         backArea: function() {
             return data => {
                 let includeArea = '',
-                    includeAreaArr = [];
+                    includeAreaArr = []
 
                 if (data) {
                     data.forEach(ev => {
-                        includeAreaArr.push(ev.area_name);
-                    });
-                    includeArea = includeAreaArr.join(',');
+                        includeAreaArr.push(ev.area_name)
+                    })
+                    includeArea = includeAreaArr.join(',')
                 }
-                return includeArea;
-            };
+                return includeArea
+            }
         }
     },
     methods: {
         formatMoney: formatMoney,
         getList() {
-            const rLoading = this.openLoading();
-            queryFreightList()
+            const rLoading = this.openLoading()
+            queryFreightList({ type: this.type })
                 .then(res => {
-                    rLoading.close();
-                    console.log('GOOGLE: res', res);
-                    this.list = res.data;
+                    rLoading.close()
+                    console.log('GOOGLE: res', res)
+                    this.list = res.data
                 })
-                .catch(err => {});
+                .catch(err => {})
         },
         edit(id) {
             this.$router.push({
@@ -111,7 +116,7 @@ export default {
                 query: {
                     id: id
                 }
-            });
+            })
         },
         copy(id) {
             this.$router.push({
@@ -120,7 +125,7 @@ export default {
                     id: id,
                     mark: 'copy'
                 }
-            });
+            })
         },
 
         /**
@@ -134,32 +139,32 @@ export default {
                 center: true
             })
                 .then(() => {
-                    let params = {};
-                    params['id'] = row.id;
-                    const rLoading = this.openLoading();
+                    let params = {}
+                    params['id'] = row.id
+                    const rLoading = this.openLoading()
                     deleteFreight(params)
                         .then(res => {
-                            rLoading.close();
+                            rLoading.close()
                             if (res.code === 200) {
                                 this.$notify({
                                     title: '删除成功',
                                     message: '',
                                     type: 'success',
                                     duration: 3000
-                                });
-                                this.getList();
+                                })
+                                this.getList()
                             } else {
                                 this.$notify({
                                     title: res.msg,
                                     message: '',
                                     type: 'error',
                                     duration: 5000
-                                });
+                                })
                             }
                         })
-                        .catch(err => {});
+                        .catch(err => {})
                 })
-                .catch(() => {});
+                .catch(() => {})
         },
 
         /**
@@ -168,8 +173,8 @@ export default {
         handleSetDefault(index, item) {
             let params = {
                 is_default: 2
-            };
-            params['id'] = item.id;
+            }
+            params['id'] = item.id
             updateDefaultFreight(params)
                 .then(res => {
                     if (res.code === 200) {
@@ -178,27 +183,39 @@ export default {
                             message: '',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.getList();
+                        })
+                        this.getList()
                     } else {
                         this.$notify({
                             title: res.msg,
                             message: '',
                             type: 'error',
                             duration: 5000
-                        });
+                        })
                     }
                 })
-                .catch(err => {});
+                .catch(err => {})
+        },
+        gotoCreat() {
+            this.$router.push({
+                path: '/mall-backend-freightCreat',
+                query: {
+                    is_discount: this.type
+                }
+            })
+        },
+        // tab
+        onTabClick() {
+            this.getList()
         }
     }
-};
+}
 </script>
 <style scoped="scoped" lang="less">
 .page-title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    // justify-content: space-between;
     box-sizing: border-box;
     padding: 16px 24px;
     width: 100%;
@@ -207,6 +224,9 @@ export default {
     color: rgba(0, 0, 0, 0.85);
     font-weight: 500;
     font-size: 20px;
+}
+.tab-way {
+    margin: 0 30px 0 auto;
 }
 .list {
     .area {

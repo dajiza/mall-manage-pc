@@ -195,7 +195,11 @@ export const mixinsGoods = {
                     remainingTimeDisplay: false,
                     fullscreenToggle: true //全屏按钮
                 }
-            }
+            },
+            // 设置会员弹框
+            dialogVisibleCreat: false,
+            discountValue: '',
+            discountRow: ''
         }
     },
     watch: {
@@ -260,13 +264,14 @@ export const mixinsGoods = {
                     type: this.goods.type == 2 ? 2 : 1,
                     display_platform: 2
                 }),
-                queryFreightList(),
+                queryFreightList({ type: 1 }),
                 queryAttrList(),
                 queryShopList(),
                 queryCategoryListAll({ type: this.goods.type == 2 ? 1 : 2 }),
                 queryConfigList({})
             ])
                 .then(res => {
+                    console.log('输出 ~ res', res)
                     let options = {}
                     if (res[0].code === 200) {
                         if (res[0].data) {
@@ -283,7 +288,8 @@ export const mixinsGoods = {
                         this.freightList = res[2].data
                         // 新建默认选中默认的运费模板
                         if (!this.goods.goods_id) {
-                            this.goods.freight_id = this.freightList.find(item => item.is_default == 2).id
+                            let defaultFreight = this.freightList.find(item => item.is_default == 2)
+                            this.goods.freight_id = defaultFreight ? defaultFreight.id : ''
                         }
                     }
                     if (res[3].code === 200) {
@@ -357,7 +363,6 @@ export const mixinsGoods = {
         getDetail() {
             return new Promise((resolve, reject) => {
                 let id = this.$route.query.id
-                console.log('GOOGLE: id', id)
                 if (!id) {
                     return
                 }
@@ -428,6 +433,7 @@ export const mixinsGoods = {
                             skuItem['storehouse_code'] = skuItem['store_house_code']
                             skuItem['title'] = skuItem['sku_title']
                             skuItem['status'] = skuItem['sku_status']
+                            skuItem['user_discount'] = commUtil.numberMul(Number(skuItem['user_discount']), 10) || 0
                             const attrList = skuItem['sku_attr_list']
                             let diyAttrIndex = 0
                             for (let j = 0; j < attrList.length; j++) {
@@ -992,6 +998,7 @@ export const mixinsGoods = {
                         const skuItem = params.sku_list[i]
                         skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100)
                         skuItem.display_price = commUtil.numberMul(Number(skuItem.display_price), 100)
+                        skuItem.user_discount = Number(skuItem.user_discount)
                         if (skuItem.min_price > skuItem.display_price) {
                             let num = i + 1
                             this.$notify({
@@ -1073,7 +1080,7 @@ export const mixinsGoods = {
                                     })
                                     // this.initData();
                                     bus.$emit('close_current_tags')
-                                    bus.$emit('refreshGoodsList', 'edit');
+                                    bus.$emit('refreshGoodsList', 'edit')
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1103,7 +1110,7 @@ export const mixinsGoods = {
                                         duration: 3000
                                     })
                                     bus.$emit('close_current_tags')
-                                    bus.$emit('refreshGoodsList', 'add');
+                                    bus.$emit('refreshGoodsList', 'add')
                                     this.$router.push({
                                         path: 'mall-backend-goods-list'
                                     })
@@ -1200,6 +1207,36 @@ export const mixinsGoods = {
             this.previewUrlList.push(img)
             this.previewIndex = 0
             this.dialogVisiblePic = true
+        },
+        // 设置用户折扣 0 1
+        setUserDiscount(row, value) {
+            row.user_discount = value
+        },
+        // 打开弹框
+        openDialog(row) {
+            this.dialogVisibleCreat = true
+            this.discountRow = row
+        },
+        // 打开弹框
+        closeDialog() {
+            this.discountValue = ''
+            this.dialogVisibleCreat = false
+        },
+        // 创建/编辑折扣
+        saveDiscount() {
+            // 正则 0-10 最多两位小数
+            var pattern = /^(?!0(\.0{1,2})?$)(\d(\.\d{1,2})?)$/
+            let verify = pattern.test(this.discountValue)
+            if (!verify) {
+                this.$notify({
+                    title: '请输入正确折扣',
+                    type: 'warning',
+                    duration: 5000
+                })
+                return
+            }
+            this.discountRow.user_discount = this.discountValue
+            this.closeDialog()
         },
         //同步sku 头图
         async syncImg(row) {
