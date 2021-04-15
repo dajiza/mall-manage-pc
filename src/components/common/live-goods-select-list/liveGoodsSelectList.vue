@@ -797,6 +797,7 @@ export default {
                     type: 'warning',
                     duration: 5000
                 })
+                row['goodsIsChecked'] = !bol;
             } else if(row.shop_skus && row.shop_skus.length == 1){
                 if(!row.isDisabled){
                     row['goodsIsChecked'] = bol;
