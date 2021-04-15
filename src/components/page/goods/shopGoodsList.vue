@@ -14,8 +14,8 @@
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"></el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="商品名称" prop="name" label-width="">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
+                        <el-form-item label="商品名称" prop="goods_name" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.goods_name"></el-input>
                         </el-form-item>
                         <el-form-item label="SKU名称" prop="sku_name" label-width="">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_name"></el-input>
@@ -32,8 +32,8 @@
                                 :options="typeList"
                             ></el-cascader>
                         </el-form-item>
-                        <el-form-item label="是否售罄" prop="sku_is_store_shortage">
-                            <el-select class="filter-item" v-model="formFilter.sku_is_store_shortage" placeholder="请选择">
+                        <el-form-item label="是否售罄" prop="goods_is_store_shortage">
+                            <el-select class="filter-item" v-model="formFilter.goods_is_store_shortage" placeholder="请选择">
                                 <el-option v-for="item in soldoutList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
@@ -66,7 +66,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
-            <el-radio-group v-model="formFilter.status" class="tab-way" @change="onTabClick">
+            <el-radio-group v-model="formFilter.shop_goods_status" class="tab-way" @change="onTabClick">
                 <el-radio-button :label="2">已上架</el-radio-button>
                 <el-radio-button :label="1">已下架</el-radio-button>
             </el-radio-group>
@@ -89,30 +89,30 @@
         >
             <el-table-column label="-" type="expand" width="60">
                 <template slot-scope="props">
-                    <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
-                        <el-table-column label="操作" width="90" v-if="formFilter.status == 2">
+                    <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
+                        <el-table-column label="操作" width="90" v-if="formFilter.shop_goods_status == 2">
                             <template slot-scope="scope">
                                 <span class="text-blue cursor" v-hasPermission="'mall-backend-shop-goods-update-price'" @click="changePrice(props.row, scope.row)">修改价格</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU图片" width="120">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
+                                <img class="timg" :src="scope.row.sku_sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.Title }}</span>
+                                <span>{{ scope.row.sku_title }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU编码">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.storehouse_code }}</span>
+                                <span>{{ scope.row.sku_storehouse_code }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="售价(元)" width="90">
                             <template slot-scope="scope">
-                                <span>{{ formatMoney(scope.row.goods_sku_price) }}</span>
+                                <span>{{ formatMoney(scope.row.price) }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="实际销量" width="90">
@@ -122,19 +122,19 @@
                         </el-table-column>
                         <el-table-column label="总库存" width="90">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.stock_total }}</span>
+                                <span>{{ scope.row.product_storage_data.stock_total }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="可用库存" width="90">
                             <template slot-scope="scope">
-                                <span>{{ scope.row.stock_available }}</span>
+                                <span>{{ scope.row.product_storage_data.stock_available }}</span>
                             </template>
                         </el-table-column>
                         <el-table-column label="是否售罄" width="90">
                             <template slot-scope="scope">
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
-                                <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
+                                <div class="type-tag type-yellow" v-if="scope.row.product_storage_data.stock_available == 0">售罄</div>
                                 <div class="type-tag type-blue" v-else>否</div>
                             </template>
                         </el-table-column>
@@ -144,7 +144,7 @@
 
             <el-table-column label="" width="70">
                 <template slot-scope="scope">
-                    <span>({{ scope.row.onsaleNum }}/{{ scope.row.goods_sku.length }})</span>
+                    <span>({{ scope.row.onsaleNum }}/{{ scope.row.shop_skus.length }})</span>
                 </template>
             </el-table-column>
             <el-table-column type="selection" width="40"> </el-table-column>
@@ -164,7 +164,7 @@
                             class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="formFilter.status == 1"
+                            v-show="formFilter.shop_goods_status == 1"
                             v-hasPermission="'mall-backend-shop-goods-on'"
                             @click.native="updateOnShelf(scope.row)"
                         >
@@ -174,7 +174,7 @@
                             class="text-red btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="formFilter.status == 2"
+                            v-show="formFilter.shop_goods_status == 2"
                             v-hasPermission="'mall-backend-shop-goods-down'"
                             @click.native="updateOffShelf(scope.row)"
                         >
@@ -186,25 +186,25 @@
 
             <el-table-column label="主图" width="120">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                    <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="">
                 <template slot-scope="scope">
                     <router-link :to="{ name: 'goods-edit', query: { id: scope.row.goods_id } }">
-                        {{ scope.row.title }}
+                        {{ scope.row.goods_title }}
                     </router-link>
                 </template>
             </el-table-column>
 
             <el-table-column label="商品分类" width="">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.type == 1">布料</span>
-                    <span v-if="scope.row.type == 2">
-                        其他{{ scope.row.category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.category_id).name : '' }}
+                    <span v-if="scope.row.goods_type == 1">布料</span>
+                    <span v-if="scope.row.goods_type == 2">
+                        其他{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.goods_category_id).name : '' }}
                     </span>
-                    <span v-if="scope.row.type == 3">
-                        布组{{ scope.row.category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.category_id).name : '' }}
+                    <span v-if="scope.row.goods_type == 3">
+                        布组{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.goods_category_id).name : '' }}
                     </span>
                 </template>
             </el-table-column>
@@ -227,17 +227,17 @@
             <el-table ref="shelfTable" :data="shelfSku" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                 <el-table-column label="SKU图片" width="">
                     <template slot-scope="scope">
-                        <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" />
+                        <img class="timg" :src="scope.row.sku_sku_img + '!upyun520/fw/300'" alt="" />
                     </template>
                 </el-table-column>
                 <el-table-column label="SKU名称" width="">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.title ? scope.row.title : scope.row.Title }}</span>
+                        <span>{{ scope.row.sku_title }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="SKU编码" width="">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.storehouse_code }}</span>
+                        <span>{{ scope.row.sku_storehouse_code }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="售价(元)" width="">
@@ -257,21 +257,12 @@
     </div>
 </template>
 <script>
-import {
-    queryStoreProductDetail,
-    queryShopList,
-    queryCategoryListAll,
-    updateAgentGoodsStatus,
-    updateAgentGoodsSingle,
-    queryAgentGoodsSkuList,
-    queryAgentShopGoodsList,
-    updateAgentSkuPrice
-} from '@/api/goods'
+import { queryShopList, queryCategoryListAll, updateAgentGoodsStatus, updateAgentGoodsSingle, queryAgentShopGoodsList, updateAgentSkuPrice } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 import commUtil from '@/utils/commUtil'
-
+import { queryShopGoodsList } from '@/api/live'
 export default {
     name: 'goods-list',
     data() {
@@ -335,11 +326,11 @@ export default {
 
             formFilter: {
                 shop_id: 1,
-                name: '',
+                goods_name: '',
                 sku_name: '',
                 sku_code: '',
-                sku_is_store_shortage: '',
-                status: 2, //1下架；2上架；
+                goods_is_store_shortage: '',
+                shop_goods_status: 2, //1下架；2上架；
 
                 other_id: '',
                 goods_type: '',
@@ -435,20 +426,21 @@ export default {
             this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
             if (params['typeCategory'].length == 1) {
                 params['goods_type'] = params['typeCategory'][0]
-                params['other_id'] = ''
+                params['other_id'] = -1
             } else if (params['typeCategory'].length == 2) {
                 params['goods_type'] = params['typeCategory'][0]
                 params['other_id'] = params['typeCategory'][1]
             } else {
                 params['goods_type'] = ''
-                params['other_id'] = ''
+                params['other_id'] = -1
             }
             if (params['goods_type'] == 1) {
-                params['other_id'] = 0
+                params['other_id'] = -1
             }
 
-            queryAgentShopGoodsList(params)
+            queryShopGoodsList(params)
                 .then(async res => {
+                    console.log('输出 ~ res', res)
                     if (res.data.lists == null) {
                         this.list = res.data.lists || []
                         this.total = res.data.total || 0
@@ -463,33 +455,17 @@ export default {
                         const product = res.data.lists[i]
                         this.timgList.push(product.img)
 
-                        // 获取sku
-                        let paramsSku = {
-                            shop_id: this.formFilter.shop_id,
-                            goods_id: product.goods_id
-                        }
-                        let dataSku = await queryAgentGoodsSkuList(paramsSku)
-                        product.goods_sku = _.cloneDeep(dataSku.data.goods_sku_data)
-                        if (!product.goods_sku) {
-                            continue
-                        }
-                        product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
+                        product.onsaleNum = product.shop_skus.filter(item => item.status == 2).length
 
-                        for (let j = 0; j < product.goods_sku.length; j++) {
-                            const sku = product.goods_sku[j]
-                            let parameters = { sku_id: sku.storehouse_pid }
-                            let data = await queryStoreProductDetail(parameters)
+                        for (let j = 0; j < product.shop_skus.length; j++) {
+                            const sku = product.shop_skus[j]
                             this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
-                            sku.stock_total = data.data.stock_total
-                            sku.stock_available = data.data.stock_available
                         }
                     }
 
-                    // console.log('输出 ~ res.data.lists', res.data.lists)
                     this.list = res.data.lists
-                    // console.log('输出 ~  this.list', this.list)
                     this.total = res.data.total
                     rLoading.close()
                 })
@@ -619,10 +595,10 @@ export default {
         setSearchValue() {
             let _search = []
             // 商品名称
-            if (this.formFilter['name']) {
+            if (this.formFilter['goods_name']) {
                 let obj = {
-                    label: 'name',
-                    val: this.formFilter['name']
+                    label: 'goods_name',
+                    val: this.formFilter['goods_name']
                 }
                 _search.push(obj)
             }
@@ -643,11 +619,11 @@ export default {
                 _search.push(obj)
             }
             // 是否售罄
-            if (this.formFilter['sku_is_store_shortage']) {
+            if (this.formFilter['goods_is_store_shortage']) {
                 this.soldoutList.forEach(ev => {
-                    if (ev.value == this.formFilter['sku_is_store_shortage']) {
+                    if (ev.value == this.formFilter['goods_is_store_shortage']) {
                         let obj = {
-                            label: 'sku_is_store_shortage',
+                            label: 'goods_is_store_shortage',
                             val: '售罄:' + ev.label
                         }
                         _search.push(obj)
@@ -659,7 +635,7 @@ export default {
                 this.typeList.forEach(ev => {
                     if (ev.value == this.formFilter['typeCategory'][0]) {
                         let obj = {
-                            label: 'type',
+                            label: 'typeCategory',
                             val: ev.label
                         }
                         _search.push(obj)
@@ -707,39 +683,16 @@ export default {
             this.listQuery.page = 1
             this.getList()
         },
-        // 打开店铺上下架弹窗
-        // openShopShelf(row) {
-        //     let sku = _.cloneDeep(row.goods_sku)
-        //     this.shelfSku = sku.map(item => {
-        //         item.price = item.min_price / 100
-        //         return item
-        //     })
-        //     this.formShelf.goods_id = row.id
-        //     this.dialogVisibleShelf = true
 
-        //     this.$nextTick(() => {
-        //         this.$refs['shelfTable'].doLayout()
-        //     })
-        // },
         closeShopShelf() {
-            // this.$refs['formShelf'].resetFields()
             this.dialogVisibleShelf = false
         },
 
         // sku修改价格 打开弹窗
         async changePrice(goods, sku) {
-            console.log('输出 ~ sku', sku)
-            console.log('输出 ~ goods', goods)
-            let paramsSku = {
-                shop_id: this.formFilter.shop_id,
-                goods_id: goods.goods_id
-            }
-            let dataSku = await queryAgentGoodsSkuList(paramsSku)
-            console.log('输出 ~ dataSku', dataSku)
-            let skuList = dataSku.data.goods_sku_data.filter(item => item.id == sku.id)
-            console.log('输出 ~ skuList', skuList)
+            let skuList = _.cloneDeep(goods.shop_skus)
             skuList = skuList.map((item, index) => {
-                item.price = item.goods_sku_price != 0 ? item.goods_sku_price : item.min_price
+                item.price = item.price != 0 ? item.price : item.sku_min_price
                 item.price = item.price / 100
                 return item
             })
@@ -753,13 +706,9 @@ export default {
         },
         // 商品修改价格并上架 打开弹窗
         async updateOnShelf(goods) {
-            let paramsSku = {
-                shop_id: this.formFilter.shop_id,
-                goods_id: goods.goods_id
-            }
-            let skuList = await queryAgentGoodsSkuList(paramsSku)
-            skuList = skuList.data.goods_sku_data.map(item => {
-                item.price = item.goods_sku_price != 0 ? item.goods_sku_price : item.min_price
+            let skuList = _.cloneDeep(goods.shop_skus)
+            skuList = skuList.map(item => {
+                item.price = item.price != 0 ? item.price : item.sku_min_price
                 item.price = item.price / 100
                 return item
             })
@@ -825,7 +774,7 @@ export default {
             // 修改sku单个价格
             if (this.editSkuPrice) {
                 let sku = shelfSku[0]
-                let params = { id: sku.shop_goods_sku_id, new_price: commUtil.numberMul(Number(sku.price), 100) }
+                let params = { id: sku.sku_id, new_price: commUtil.numberMul(Number(sku.price), 100) }
                 updateAgentSkuPrice(params)
                     .then(res => {
                         console.log('GOOGLE: res', res)
@@ -948,10 +897,10 @@ export default {
     height: 26px;
     border-radius: 15px;
     color: rgba(255, 255, 255, 0.85);
+    text-align: center;
     word-break: keep-all;
     font-weight: 400;
     line-height: 26px;
-    text-align: center;
     &.type-red {
         background-color: #ff4d4f;
     }
