@@ -97,7 +97,23 @@
             </el-table-column>
             <el-table-column label="状态" width="120">
                 <template slot-scope="scope">
-                    <span>{{return_live_goods_status(scope.row.status)}}</span>
+                    <div class="replace-img-wrap">
+                        <span>{{return_live_goods_status(scope.row.status)}}</span>
+                        <el-popover
+                                :key="scope.row.id"
+                                popper-class="popper-price"
+                                placement="top"
+                                width="220"
+                                trigger="hover"
+                                :content="scope.row.status"
+                        >
+                            <div slot="reference" class="replace-tip-box" v-if="scope.row.status == 3 && false">
+                                <img class="replace-img"
+                                     src="../../../assets/img/remark-tip.svg"
+                                     alt="" />
+                            </div>
+                        </el-popover>
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="196">
