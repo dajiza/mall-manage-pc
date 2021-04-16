@@ -477,6 +477,9 @@ export default {
                             goods['isDisabled'] = false;
                             if(goods['skuDisabledNum'] > 0){
                                 goods['isDisabled'] = true;
+                                goods.shop_skus.forEach((sku,sku_i)=>{
+                                    sku['isDisabled'] = true;
+                                })
                             }
 
                             goods_list.push(goods);
