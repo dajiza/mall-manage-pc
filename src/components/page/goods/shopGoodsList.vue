@@ -134,7 +134,7 @@
                             <template slot-scope="scope">
                                 <!--<div class="type-tag type-yellow" v-if="scope.row.stock_available <= scope.row.stock_warning">低库存</div>
                                 <div class="type-tag type-blue" v-if="scope.row.stock_available > scope.row.stock_warning">正常</div>-->
-                                <div class="type-tag type-yellow" v-if="scope.row.product_storage_data.stock_available == 0">售罄</div>
+                                <div class="type-tag type-yellow" v-if="scope.row.sku_is_store_shortage == 2">售罄</div>
                                 <div class="type-tag type-blue" v-else>否</div>
                             </template>
                         </el-table-column>
