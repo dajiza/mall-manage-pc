@@ -8,15 +8,20 @@
             <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                        <el-form-item label="SKU名称" prop="sku_name">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_name"></el-input>
-                        </el-form-item>
                         <el-form-item label="商品名称" prop="live_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.live_name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="SKU编码" prop="sku_code">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_code"></el-input>
                         </el-form-item>
                         <el-form-item label="店铺" prop="shop_id">
                             <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="上架状态" prop="status">
+                            <el-select class="filter-item" v-model="formFilter.shop_goods_status" placeholder="请选择">
+                                <el-option v-for="item in shelfStatusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="审核状态" prop="status">
@@ -96,7 +101,7 @@
                 <template slot-scope="scope">{{scope.row.product_storage_data.stock_available}}</template>
             </el-table-column>
             <el-table-column label="上架状态" width="90">
-                <template slot-scope="scope">{{scope.row.sgoods_status == 1 ?'未上架':'已上架'}}</template>
+                <template slot-scope="scope">{{scope.row.shop_goods_status == 1 ?'未上架':'已上架'}}</template>
             </el-table-column>
             <el-table-column label="店铺" width="120">
                 <template slot-scope="scope">
@@ -260,14 +265,19 @@ export default {
                 { id: '3', label: '审核驳回' },
                 { id: '4', label: '异常' }
             ],
+            shelfStatusList: [
+                { id: '2', label: '已上架' },
+                { id: '1', label: '未上架' },
+            ],
             formFilter: {
-                sku_name: '', // SKU名称
+                sku_code: '', // SKU名称
                 live_name: '', // 商品名称
                 shop_id: '', //店铺名称 不搜索为空
                 status: '',  //0待审核 1审核中 2审核通过 3审核驳回 4异常
+                shop_goods_status: '', // 上架状态 1下架 2上架
             },
             searchParams: {
-                sku_name: '', // SKU名称
+                sku_code: '', // SKU名称
                 live_name: '', // 商品名称
                 shop_id: '', //店铺名称 不搜索为空
                 status: '',  //0待审核 1审核中 2审核通过 3审核驳回 4异常
@@ -457,7 +467,7 @@ export default {
                 page: 1,
                 limit: 9999,
                 status_in: [0,1,2,3,4],
-                sku_name: '',
+                sku_code: '',
                 live_name: '',
             }
             queryLiveGoodsList(params)
@@ -492,29 +502,29 @@ export default {
         },
         // 确定添加 商品
         getAddSku(sku_arr){
-            console.log('sku_arr', sku_arr);
             // 查询是否名称 超过14个字符
             let longNameCount = 0;
             sku_arr.forEach((ev,i)=>{
                 ev['longNameLen'] = 0;
                 ev['is_update'] = false;
-                console.log('ev', ev);
                 const nameLength = this.getByteLen(ev.goods_name);
                 ev['nameLength'] = this.getByteLen(ev.goods_name);
                 if(nameLength > 28){
                     longNameCount += 1;
                 }
             })
-            console.log('longNameCount', longNameCount)
             if(longNameCount > 0){
                 // 打开修改名称弹出框
-                this.$refs.goodsList.closeAddGoods()
+                // this.$refs.goodsList.close()
                 this.updateList = sku_arr;
                 this.$refs.updateLiveGoods.show();
-                return
             }else {
                 let skuInfo = _.cloneDeep(sku_arr).map(item => {
-                    return { shop_sku_id: item.id, url: 'pages/goodsDetail/goodsDetail?goodsId='+ item.goods_id +'&skuId='+ item.sku_id}
+                    return {
+                        shop_sku_id: item.id,
+                        new_title: ''
+                    }
+                    // url: 'pages/goodsDetail/goodsDetail?goodsId='+ item.goods_id +'&skuId='+ item.sku_id
                 });
                 const params = {
                     shop_id: this.searchParams.shop_id,
@@ -592,11 +602,11 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = [];
-            // SKU名称 sku_name
-            if(this.formFilter['sku_name']){
+            // SKU名称 sku_code
+            if(this.formFilter['sku_code']){
                 let obj = {
-                    label: 'sku_name',
-                    val: this.formFilter['sku_name']
+                    label: 'sku_code',
+                    val: this.formFilter['sku_code']
                 }
                 _search.push(obj)
             }
