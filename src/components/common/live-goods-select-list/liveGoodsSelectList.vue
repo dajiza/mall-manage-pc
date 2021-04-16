@@ -659,6 +659,8 @@ export default {
             this.checkedList.forEach((goods_item)=>{
                 goods_item.shop_skus.forEach((sku_item)=>{
                     if(sku_item.skuIsChecked && !sku_item.isDisabled){
+                        sku_item['goods_name'] = goods_item.goods_title;
+                        sku_item['new_title'] = '';
                         sku_arr.push(sku_item);
                     }
                 })
@@ -672,7 +674,7 @@ export default {
                 return
             }
             this.$emit('check-sku', _.cloneDeep(sku_arr))
-            this.closeAddGoods();
+            // this.closeAddGoods();
         },
 
         closeAddGoods(){

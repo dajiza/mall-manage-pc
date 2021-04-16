@@ -11,7 +11,7 @@
                         <el-form-item label="SKU名称" prop="sku_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku_name"></el-input>
                         </el-form-item>
-                        <el-form-item label="直播商品名称" prop="live_name">
+                        <el-form-item label="商品名称" prop="live_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.live_name"></el-input>
                         </el-form-item>
                         <el-form-item label="店铺" prop="shop_id">
@@ -19,7 +19,7 @@
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="状态" prop="status">
+                        <el-form-item label="审核状态" prop="status">
                             <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
                                 <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                             </el-select>
@@ -62,14 +62,16 @@
             <el-button type="primary" @click="goodsCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">添加商品</el-button>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="直播商品图片" width="128">
+            <el-table-column label="图片" width="128">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.live_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.live_img,scope.$index)" />
                 </template>
             </el-table-column>
-            <el-table-column label="直播商品名称" prop="live_title" width="120"></el-table-column>
-            <el-table-column label="SKU名称" prop="sku_title"></el-table-column>
-            <el-table-column label="价格(元)" width="120">
+            <el-table-column label="商品名称" prop="live_title"></el-table-column>
+            <el-table-column label="SKU编码" width="130">
+                <template slot-scope="scope">{{scope.row.product_storage_data.product_code}}</template>
+            </el-table-column>
+            <el-table-column label="价格(元)" width="100">
                 <template slot-scope="scope">
                     <div class="replace-img-wrap">
                         <span>{{ formatMoney(scope.row.live_price) }}</span>
@@ -90,29 +92,35 @@
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="店铺" width="140">
+            <el-table-column label="库存" width="80">
+                <template slot-scope="scope">{{scope.row.product_storage_data.stock_available}}</template>
+            </el-table-column>
+            <el-table-column label="上架状态" width="90">
+                <template slot-scope="scope">{{scope.row.sgoods_status == 1 ?'未上架':'已上架'}}</template>
+            </el-table-column>
+            <el-table-column label="店铺" width="120">
                 <template slot-scope="scope">
                     <span>{{return_shop(scope.row.shop_id)}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="120">
+            <el-table-column label="状态" width="90">
                 <template slot-scope="scope">
                     <div class="replace-img-wrap">
                         <span>{{return_live_goods_status(scope.row.status)}}</span>
-                        <el-popover
+                        <!--<el-popover
                                 :key="scope.row.id"
                                 popper-class="popper-price"
                                 placement="top"
                                 width="220"
                                 trigger="hover"
-                                :content="scope.row.status"
+                                content="原因"
                         >
                             <div slot="reference" class="replace-tip-box" v-if="scope.row.status == 3 && false">
                                 <img class="replace-img"
                                      src="../../../assets/img/remark-tip.svg"
                                      alt="" />
                             </div>
-                        </el-popover>
+                        </el-popover>-->
                     </div>
                 </template>
             </el-table-column>
@@ -130,14 +138,14 @@
                             type="text"
                             size=""
                             @click.native="handleCancelAudit(scope.row)"
-                            v-show="scope.row.status == 1"
+                            v-if="scope.row.status == 1"
                     >撤销审核</el-button>
                     <el-button
                             class="text-blue table-btn"
                             type="text"
                             size=""
                             @click.native="handleOnEdit(scope.row)"
-                            v-show="scope.row.status == 0 || scope.row.status == 3"
+                            v-if="scope.row.status == 0"
                     >编辑</el-button>
                     <el-button
                             class="text-blue table-btn"
@@ -151,7 +159,7 @@
                             type="text"
                             size=""
                             @click.native="handleDelete(scope.row, scope.$index)"
-                            v-show="scope.row.status !== 1"
+                            v-if="scope.row.status !== 1"
                     >删除</el-button>
                 </template>
             </el-table-column>
@@ -209,6 +217,13 @@
         <!-- 新增直播商品 -->
         <liveGoodsSelectList ref="goodsList" @check-sku="getAddSku" :checked="checked_sku_list" :shopId="shopId"></liveGoodsSelectList>
 
+        <!-- 修改商品名称 -->
+        <UpdateLiveGoodsName
+                ref="updateLiveGoods"
+                :list="updateList"
+                @handleSureUpdateModal="handleSureUpdateModal"
+        />
+
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
     </div>
@@ -221,6 +236,7 @@ import { getToken } from '@/utils/auth'
 
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
+import UpdateLiveGoodsName from '@/components/common/update-live-goods-name/Index.vue'
 import liveGoodsSelectList from '@/components/common/live-goods-select-list/liveGoodsSelectList'
 export default {
     name: 'live-goods',
@@ -293,11 +309,13 @@ export default {
             checked_sku_list: [],
             Not_in_storage: [0,1,3,4], // 未入库
             in_storage: [2], // 已入库
+            updateList: []
         }
     },
     components: {
         ElImageViewer,
         EmptyList,
+        UpdateLiveGoodsName,
         liveGoodsSelectList
     },
     watch:{
@@ -460,27 +478,70 @@ export default {
                 .catch(err => {})
 
         },
-
+        getByteLen(val) {
+            let len = 0;
+            for (let i = 0; i < val.length; i++) {
+                let a = val.charAt(i);
+                if (a.match(/[^\x00-\xff]/ig) != null) {
+                    len += 2;
+                } else {
+                    len += 1;
+                }
+            }
+            return len;
+        },
         // 确定添加 商品
         getAddSku(sku_arr){
             console.log('sku_arr', sku_arr);
-            let skuInfo = _.cloneDeep(sku_arr).map(item => {
-                return { shop_sku_id: item.id, url: 'pages/goodsDetail/goodsDetail?goodsId='+ item.goods_id +'&skuId='+ item.sku_id}
-            });
-            const params = {
-                shop_id: this.searchParams.shop_id,
-                sku_info: skuInfo
-            };
+            // 查询是否名称 超过14个字符
+            let longNameCount = 0;
+            sku_arr.forEach((ev,i)=>{
+                ev['longNameLen'] = 0;
+                ev['is_update'] = false;
+                console.log('ev', ev);
+                const nameLength = this.getByteLen(ev.goods_name);
+                ev['nameLength'] = this.getByteLen(ev.goods_name);
+                if(nameLength > 28){
+                    longNameCount += 1;
+                }
+            })
+            console.log('longNameCount', longNameCount)
+            if(longNameCount > 0){
+                // 打开修改名称弹出框
+                this.$refs.goodsList.closeAddGoods()
+                this.updateList = sku_arr;
+                this.$refs.updateLiveGoods.show();
+                return
+            }else {
+                let skuInfo = _.cloneDeep(sku_arr).map(item => {
+                    return { shop_sku_id: item.id, url: 'pages/goodsDetail/goodsDetail?goodsId='+ item.goods_id +'&skuId='+ item.sku_id}
+                });
+                const params = {
+                    shop_id: this.searchParams.shop_id,
+                    sku_info: skuInfo
+                };
+                this.postAdd(params,1);
+            }
+        },
+
+        // 请求-添加直播商品 type 1 无名字超出限制 2名字超出限制修改后
+        postAdd(params,type){
             const rLoading = this.openLoading();
             addLiveGoods(params)
                 .then(res => {
                     rLoading.close();
+                    if(type == 2){
+                        this.$refs.updateLiveGoods.close();
+                    }
                     if (res.code == 200) {
                         this.$notify({
                             title: '操作成功',
                             type: 'success',
                             duration: 3000
                         })
+                        if(type == 1){
+                            this.$refs.goodsList.closeAddGoods()
+                        }
                         this.getList()
                     } else {
                         this.$notify({
@@ -491,6 +552,22 @@ export default {
                     }
                 })
                 .catch(err => {})
+        },
+
+        // 修改名称确定回调
+        handleSureUpdateModal(data) {
+            console.log('data', data);
+            let skuInfo = _.cloneDeep(data).map(item => {
+                return {
+                    shop_sku_id: item.id,
+                    new_title: item.new_title
+                }
+            });
+            const params = {
+                shop_id: this.searchParams.shop_id,
+                sku_info: skuInfo
+            };
+            this.postAdd(params,2);
         },
 
         // 重置

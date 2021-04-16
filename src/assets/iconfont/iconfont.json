@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "21039609",
+      "name": "icon-update",
+      "font_class": "update",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    },
+    {
+      "icon_id": "20806310",
+      "name": "货物icon选中",
+      "font_class": "group",
+      "unicode": "e622",
+      "unicode_decimal": 58914
+    },
+    {
+      "icon_id": "20788167",
+      "name": "渠道",
+      "font_class": "qudao",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
       "icon_id": "20729140",
       "name": "live-goods",
       "font_class": "live-goods",
