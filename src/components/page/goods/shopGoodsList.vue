@@ -774,6 +774,7 @@ export default {
             // 修改sku单个价格
             if (this.editSkuPrice) {
                 let sku = shelfSku[0]
+                // id为mall_shop_goods_sku表id
                 let params = { id: sku.sku_id, new_price: commUtil.numberMul(Number(sku.price), 100) }
                 updateAgentSkuPrice(params)
                     .then(res => {
