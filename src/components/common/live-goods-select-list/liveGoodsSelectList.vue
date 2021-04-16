@@ -1,6 +1,14 @@
 <template>
     <div>
-        <el-dialog :visible.sync="isShow" width="90%" @opened="opened" :before-close="closeAddGoods">
+        <el-dialog
+                :visible.sync="isShow"
+                width="90%"
+                @opened="opened"
+                :before-close="closeAddGoods"
+                :close-on-click-modal="false"
+                :close-on-press-escape="false"
+                :destroy-on-close="true"
+        >
             <template slot="title">
                 <div class="table-title">
                     <div class="text">直播商品</div>
@@ -368,6 +376,11 @@ export default {
 
         opened() {
             this.checkedList = [];
+            this.listQuery.page = 1;
+            this.searchShow = false;
+            this.$refs['searchForm'].resetFields();
+            this.searchParams = _.cloneDeep(this.searchForm);
+            this.setSearchValue();
             this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
             this.queryDataAllInit();
         },
@@ -674,7 +687,8 @@ export default {
                 return
             }
             this.$emit('check-sku', _.cloneDeep(sku_arr))
-            // this.closeAddGoods();
+            this.checkedList = [];
+            this.isShow = false;
         },
 
         closeAddGoods(){
