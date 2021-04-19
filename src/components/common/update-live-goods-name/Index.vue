@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog
-                title="请修改以下商品名称，不得少于6字符;不得超过28个字符（ps：1个汉字占两个字符）"
+                title="请修改以下商品名称，要求6~28个字符（ps：1个汉字占两个字符）"
                 custom-class="update-dialog"
                 :visible.sync="isShow"
                 width="828px"
