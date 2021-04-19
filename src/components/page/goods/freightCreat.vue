@@ -25,7 +25,7 @@
                     <el-form-item label="" label-width="0px" prop="detail.0.first_num" :rules="rulesInt">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_num"></el-input>
                     </el-form-item>
-                    <div class="quantifier">{{ info.type == 1 ? '件' : 'g' }}内</div>
+                    <div class="quantifier" style="margin-right:20px">{{ info.type == 1 ? '件' : 'g' }}内</div>
                     <el-form-item label="" label-width="0px" prop="detail.0.first_money" :rules="rulesRequired">
                         <el-input class="default-input" placeholder="" :disabled="info.detail[0].is_free == 2" v-model="info.detail[0].first_money"></el-input>
                     </el-form-item>
@@ -583,7 +583,7 @@ export default {
             margin-left: 10px;
         }
         .default-input {
-            margin: 0 10px;
+            margin: 0 2px;
             width: 80px;
         }
         .caption {
