@@ -64,7 +64,7 @@
                     <el-radio-button label="is_put">已入库</el-radio-button>
                 </el-radio-group>
             </div>
-            <el-button type="primary" @click="goodsCreat" class="shop-goods" v-hasPermission="'mall-backend-shop-create'">添加商品</el-button>
+            <el-button type="primary" @click="goodsCreat" class="shop-goods" v-hasPermission="'mall-backend-vx-goods-create'">添加商品</el-button>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="图片" width="128">
@@ -137,6 +137,7 @@
                             size=""
                             @click.native="handleSubmitAudit(scope.row)"
                             v-if="scope.row.status == 0"
+                            v-hasPermission="'mall-backend-vx-goods-again'"
                     >提交审核</el-button>
                     <el-button
                             class="text-blue table-btn"
@@ -144,6 +145,7 @@
                             size=""
                             @click.native="handleCancelAudit(scope.row)"
                             v-if="scope.row.status == 1"
+                            v-hasPermission="'mall-backend-vx-goods-back'"
                     >撤销审核</el-button>
                     <el-button
                             class="text-blue table-btn"
@@ -151,6 +153,7 @@
                             size=""
                             @click.native="handleOnEdit(scope.row)"
                             v-if="scope.row.status == 0"
+                            v-hasPermission="'mall-backend-vx-goods-update'"
                     >编辑</el-button>
                     <el-button
                             class="text-blue table-btn"
@@ -158,6 +161,7 @@
                             size=""
                             @click.native="handleSyncPrice(scope.row)"
                             v-if="(scope.row.status == 0 || scope.row.status == 2) && (scope.row.live_price != scope.row.ssku_price)"
+                            v-hasPermission="'mall-backend-vx-goods-price-update'"
                     >同步价格</el-button>
                     <el-button
                             class="text-red table-btn delete-color"
@@ -165,6 +169,7 @@
                             size=""
                             @click.native="handleDelete(scope.row, scope.$index)"
                             v-if="scope.row.status !== 1"
+                            v-hasPermission="'mall-backend-vx-goods-del'"
                     >删除</el-button>
                 </template>
             </el-table-column>
