@@ -251,6 +251,21 @@ import liveGoodsSelectList from '@/components/common/live-goods-select-list/live
 export default {
     name: 'live-goods',
     data() {
+        const validateNum = (rule, value, callback) => {
+            if (value === '') {
+                callback(new Error('请输入商品名称'));
+                return
+            }
+            if (this.getByteLen(value) < 6) {
+                callback(new Error('名称最少6个字符'));
+                return
+            }
+            if (this.getByteLen(value) > 28) {
+                callback(new Error('名称最多28个字符'));
+                return
+            }
+            callback();
+        }
         return {
             header: {},
             list: null,
@@ -290,8 +305,7 @@ export default {
             dialogVisibleEdit: false, // 编辑商品
             editRules: {
                 live_title: [
-                    { required: true, message: '请输入名称', trigger: 'change' },
-                    { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'change' }
+                    { required: true, validator: validateNum, trigger: 'change', message: '' }
                 ]
             },
             isCreat: true,
@@ -764,7 +778,7 @@ export default {
                         .catch(err => {})
                 } else {
                     this.$notify({
-                        title: '请填写完成数据后提交',
+                        title: '请按要求填写商品名称',
                         message: '',
                         type: 'warning',
                         duration: 5000
