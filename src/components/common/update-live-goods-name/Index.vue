@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-dialog
-                title="请修改以下商品名称，不得超过28个字符（ps：1个汉字占两个字符）"
+                title="请修改以下商品名称，不得少于6字符;不得超过28个字符（ps：1个汉字占两个字符）"
                 custom-class="update-dialog"
                 :visible.sync="isShow"
                 width="828px"
@@ -18,7 +18,7 @@
                         ref="multipleTable" tooltip-effect="dark"
                 >
                     <el-table-column prop="coupon_title" label="商品名称" width="280">
-                        <template slot-scope="scope" v-if="scope.row.nameLength > 28">
+                        <template slot-scope="scope" v-if="scope.row.nameLength > 28 || scope.row.nameLength < 6">
                             <div class="goods-name-wrap" v-if="!scope.row.is_update">
                                 <span class="goods-name text-ellipsis">{{scope.row.goods_name}}</span>
                                 <span class="iconfont icon-update" @click="handleUpdate(scope.row)"></span>
@@ -73,8 +73,12 @@ export default {
                 callback(new Error('请输入商品名称'));
                 return
             }
+            if (this.getByteLen(value) < 6) {
+                callback(new Error('名称最少6个字符'));
+                return
+            }
             if (this.getByteLen(value) > 28) {
-                callback(new Error('名称应少于28个字符'));
+                callback(new Error('名称最多28个字符'));
                 return
             }
             callback();
@@ -115,7 +119,7 @@ export default {
         },
         opened(){
             this.previewUrlList = [];
-            const list = _.cloneDeep(this.list.filter(item => item.nameLength > 28));
+            const list = _.cloneDeep(this.list.filter(item => (item.nameLength > 28 || item.nameLength < 6)));
             list.forEach((ev)=>{
                 this.previewUrlList.push(ev.sku_sku_img);
             })
