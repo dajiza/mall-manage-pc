@@ -152,7 +152,7 @@
 
                     <el-table-column label="会员折扣" width="80">
                         <template slot-scope="scope">
-                            <span v-if="scope.row.user_discount == 1">否</span>
+                            <span v-if="scope.row.user_discount == 10">否</span>
                             <span v-else-if="scope.row.user_discount == 0">是</span>
                             <span v-else>{{ scope.row.user_discount }}折</span>
                         </template>
@@ -160,7 +160,7 @@
                     <el-table-column label="会员操作" width="100">
                         <template slot-scope="scope">
                             <div v-if="scope.row.user_discount == 0">
-                                <el-button class="text-blue" type="text" size="small" @click="setUserDiscount(scope.row, 1)">设为不享</el-button>
+                                <el-button class="text-blue" type="text" size="small" @click="setUserDiscount(scope.row, 10)">设为不享</el-button>
                             </div>
                             <div v-if="scope.row.user_discount > 0">
                                 <el-button class="text-blue" type="text" size="small" @click="openDialog(scope.row)">设置折扣</el-button>
