@@ -1,15 +1,7 @@
 <template>
-    <div>
-        <el-dialog
-                :visible.sync="isShow"
-                width="90%"
-                @opened="opened"
-                :before-close="closeAddGoods"
-                :close-on-click-modal="false"
-                :close-on-press-escape="false"
-                :destroy-on-close="true"
-        >
-            <template slot="title">
+    <div class="dialog-container" @click="searchShow = false">
+        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened" @close="closed">
+            <div slot="title">
                 <div class="table-title">
                     <div class="text">直播商品</div>
                     <div class="grey-line"></div>
@@ -25,6 +17,7 @@
                                 </el-form-item>
                                 <el-form-item label="商品分类" prop="typeCategory">
                                     <el-cascader
+                                            :key="'add-live-cate' + labelKey"
                                             class="filter-item"
                                             :props="{ checkStrictly: true }"
                                             v-model="searchForm.typeCategory"
@@ -33,15 +26,10 @@
                                     ></el-cascader>
                                 </el-form-item>
                                 <el-form-item label="商品状态" prop="shop_goods_status">
-                                    <el-select class="filter-item" v-model="searchForm.shop_goods_status" placeholder="请选择">
-                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    <el-select :key="'add-live-status' + labelKey" class="filter-item" v-model="searchForm.shop_goods_status" placeholder="请选择">
+                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"></el-option>
                                     </el-select>
                                 </el-form-item>
-                                <!--<el-form-item label="出售状态" prop="goods_sale_status">
-                                    <el-select class="filter-item" v-model="searchForm.goods_sale_status" placeholder="请选择">
-                                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>-->
                                 <el-form-item label="SKU名称" prop="sku_name" class="">
                                     <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
                                 </el-form-item>
@@ -63,9 +51,9 @@
                             </div>
                         </template>
                         <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
-                        <div class="search-value-clone" ref="searchValueBox">
+                        <div class="search-value-clone" ref="searchConditionBox">
                             <template v-for="(item, i) in searchList">
-                                <div class="search-item" :ref="'searchItem' + i">
+                                <div class="search-item" :ref="'searchConditionItem' + i">
                                     {{ item.val }}
                                     <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                                 </div>
@@ -100,9 +88,8 @@
                             <el-button slot="reference" class="filter-btn" size="" type="success" style="margin-left:20px">已选商品</el-button>
                         </el-popover>
                     </div>
-
                 </div>
-            </template>
+            </div>
             <div class="app-container" @click="searchShow = false">
                 <el-table
                         ref="multipleTable"
@@ -127,9 +114,9 @@
                                 <el-table-column label="" width="50">
                                     <template slot-scope="scope">
                                         <el-checkbox
-                                            v-model="scope.row.skuIsChecked"
-                                            :disabled="scope.row.isDisabled"
-                                            @change="value => skuChecked(value, scope.row, scope.$index,props.row,props.$index)"
+                                                v-model="scope.row.skuIsChecked"
+                                                :disabled="scope.row.isDisabled"
+                                                @change="value => skuChecked(value, scope.row, scope.$index,props.row,props.$index)"
                                         ></el-checkbox>
                                     </template>
                                 </el-table-column>
@@ -263,783 +250,785 @@
 </template>
 
 <script>
-import { queryShopGoodsList, queryCheckedGoods } from '@/api/live'
-import { queryCategoryListAll } from '@/api/goods'
-import { formatMoney } from '@/plugin/tool'
-import ElImageViewer from '@/components/common/image-viewer'
-import EmptyList from '@/components/common/empty-list/EmptyList'
-export default {
-    name: 'CheckList',
-    props: {
-        checked: {
-            type: Array,
-            default: []
-        },
-        shopId: {
-            type: Number,
-            default: -1
-        },
-    },
-    data() {
-        return {
-            list: [],
-            total: 0,
-            listLoading: false,
-            listQuery: {
-                page: 1,
-                limit: 10
+    import { queryShopGoodsList, queryCheckedGoods } from '@/api/live'
+    import { queryCategoryListAll } from '@/api/goods'
+    import { formatMoney } from '@/plugin/tool'
+    import ElImageViewer from '@/components/common/image-viewer'
+    import EmptyList from '@/components/common/empty-list/EmptyList'
+    export default {
+        name: 'CheckList',
+        props: {
+            checked: {
+                type: Array,
+                default: []
             },
-            isShow: false,
-            searchForm: {
-                goods_id: '',
-                goods_name: '', // 商品名称
-                other_id: '',
-                goods_type: '',
-                shop_goods_status: '',
-                sku_name: '',
-                sku_code: '',
-                typeCategory: []
+            shopId: {
+                type: Number,
+                default: -1
             },
-            searchParams: {},
-            searchShow: false,  //搜索表单显示
-            // 类型 1 布料  2其他 3成品布
-            typeList: [
-                { value: '1', label: '布料' },
-                { value: '2', label: '其他' },
-                { value: '3', label: '布组' }
-            ],
-            categoryList:[],
-            categoryListOther: [], //其他分类
-            categoryListClothGroup: [], //布组分类
-            // 是否上架：1下架；2上架
-            statusList: [
-                { value: 1, label: '下架' },
-                { value: 2, label: '上架' }
-            ],
-            saleStatusList: [
-                { value: 1, label: '可出售' },
-                { value: 2, label: '不可售' }
-            ],
-            // 图片预览
-            dialogVisiblePic: false,
-            previewUrlList: [],
-            previewIndex: 0,
-            timgList: [], //主图预览列表
-            skuImgList: [], //sku图预览列表
-            checkImgList:[], // 选中图片列表
-            checkedSkuIds: [], // 初始选中的sku id集合
-            searchList: [],
-            showMaxIndex: 0,
-            checkedList: [], // 选中商品列表
-        }
-    },
-    components: {
-        ElImageViewer,
-        EmptyList
-    },
-    watch: {
-        searchList: function() {
-            this.$nextTick(
-                function() {
-                    if (!this.$refs.searchValueBox) {
-                        return
-                    }
-                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
-                    let showWidth = 0
-                    for (let i = 0; i < this.searchList.length; i++) {
-                        let el = 'searchItem' + i
-                        let _width = this.$refs[el][0].offsetWidth
-                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
-                        if (showWidth > maxWidth) {
-                            this.showMaxIndex = i - 1;
+        },
+        data() {
+            return {
+                list: [],
+                total: 0,
+                listLoading: false,
+                listQuery: {
+                    page: 1,
+                    limit: 10
+                },
+                isShow: false,
+                searchForm: {
+                    goods_id: '',
+                    goods_name: '', // 商品名称
+                    other_id: '',
+                    goods_type: '',
+                    shop_goods_status: '',
+                    sku_name: '',
+                    sku_code: '',
+                    typeCategory: []
+                },
+                searchParams: {},
+                searchShow: false,  //搜索表单显示
+                // 类型 1 布料  2其他 3成品布
+                typeList: [
+                    { value: '1', label: '布料' },
+                    { value: '2', label: '其他' },
+                    { value: '3', label: '布组' }
+                ],
+                categoryList:[],
+                categoryListOther: [], //其他分类
+                categoryListClothGroup: [], //布组分类
+                // 是否上架：1下架；2上架
+                statusList: [
+                    { value: 1, label: '下架' },
+                    { value: 2, label: '上架' }
+                ],
+                saleStatusList: [
+                    { value: 1, label: '可出售' },
+                    { value: 2, label: '不可售' }
+                ],
+                // 图片预览
+                dialogVisiblePic: false,
+                previewUrlList: [],
+                previewIndex: 0,
+                timgList: [], //主图预览列表
+                skuImgList: [], //sku图预览列表
+                checkImgList:[], // 选中图片列表
+                checkedSkuIds: [], // 初始选中的sku id集合
+                searchList: [],
+                showMaxIndex: 0,
+                checkedList: [], // 选中商品列表
+                labelKey: 1,
+            }
+        },
+        components: {
+            ElImageViewer,
+            EmptyList
+        },
+        watch: {
+            searchList: function() {
+                this.$nextTick(
+                    function() {
+                        if (!this.$refs.searchConditionBox) {
                             return
                         }
-                        if (i == this.searchList.length - 1) {
-                            if (showWidth <= maxWidth - 20) {
-                                this.showMaxIndex = this.searchList.length - 1
+                        let maxWidth = window.getComputedStyle(this.$refs.searchConditionBox).width.replace('px', '') - 20
+                        let showWidth = 0
+                        for (let i = 0; i < this.searchList.length; i++) {
+                            let el = 'searchConditionItem' + i
+                            if (!this.$refs[el][0]) {
+                                return
+                            }
+                            let _width = this.$refs[el][0].offsetWidth
+                            showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                            if (showWidth > maxWidth) {
+                                this.showMaxIndex = i - 1;
+                                return
+                            }
+                            if (i == this.searchList.length - 1) {
+                                if (showWidth <= maxWidth - 20) {
+                                    this.showMaxIndex = this.searchList.length - 1
+                                }
                             }
                         }
-                    }
-                }.bind(this)
-            )
-        }
-    },
-    created() {},
-    mounted() {},
-    methods: {
-        formatMoney: formatMoney,
-        goodsTable(row) {
-            if (row.columnIndex == 2) {
-                return 'checkboxColumn'
+                    }.bind(this)
+                )
             }
         },
-
-        opened() {
-            this.checkedList = [];
-            this.listQuery.page = 1;
-            this.searchShow = false;
-            this.$refs['searchForm'].resetFields();
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.setSearchValue();
-            this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
-            this.queryDataAllInit();
-        },
-
-        //  刷新显示列表的checkbox显示状态
-        refreshSelection(ids) {
-            this.list.forEach((goods_item)=>{
-                goods_item.shop_skus.forEach((sku_item,i)=>{
-                    if(ids.indexOf(sku_item.sku_id) > -1){
-                        sku_item.skuIsChecked = false;
+        created() {},
+        mounted() {},
+        methods: {
+            formatMoney: formatMoney,
+            goodsTable(row) {
+                if (row.columnIndex == 2) {
+                    return 'checkboxColumn'
+                }
+            },
+            open() {},
+            opened() {
+                ++this.labelKey;
+                this.checkedList = [];
+                this.listQuery.page = 1;
+                this.searchShow = false;
+                this.$refs['searchForm'].resetFields();
+                this.searchParams = _.cloneDeep(this.searchForm);
+                this.setSearchValue();
+                this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
+                this.queryDataAllInit();
+            },
+            closed() {
+                this.searchShow = false;
+            },
+            //  刷新显示列表的checkbox显示状态
+            refreshSelection(ids) {
+                this.list.forEach((goods_item)=>{
+                    goods_item.shop_skus.forEach((sku_item,i)=>{
+                        if(ids.indexOf(sku_item.sku_id) > -1){
+                            sku_item.skuIsChecked = false;
+                        }
+                    })
+                    goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length;
+                    if(goods_item['checkNum'] < 1){
+                        goods_item['goodsIsChecked'] = false;
                     }
                 })
-                goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length;
-                if(goods_item['checkNum'] < 1){
-                    goods_item['goodsIsChecked'] = false;
-                }
-            })
-            this.$nextTick(() => {
+                this.$nextTick(() => {
 
-            })
+                })
 
-        },
+            },
 
-        // 生成类型 分类 级联列表
-        creatCategoryData() {
-            this.typeList = [
-                { value: '1', label: '布料', children: [] },
-                {
-                    value: '2',
-                    label: '其他',
-                    children: _.cloneDeep(this.categoryListOther).map(item => {
-                        return { label: item.name, value: item.id }
-                    })
-                },
-                {
-                    value: '3',
-                    label: '布组',
-                    children: _.cloneDeep(this.categoryListClothGroup).map(item => {
-                        return { label: item.name, value: item.id }
-                    })
-                }
-            ]
-        },
-
-        getList() {
-            const rLoading = this.openLoading()
-            let params = _.cloneDeep(this.searchParams)
-            // params['sku_is_store_shortage'] = 1;
-            params['limit'] = this.listQuery.limit;
-            params['page'] = this.listQuery.page;
-            params['goods_id'] = Number(this.searchParams.goods_id)
-            if (params['typeCategory'].length == 1) {
-                params['goods_type'] = params['typeCategory'][0];
-                params['other_id'] = '';
-            } else if (params['typeCategory'].length == 2) {
-                params['goods_type'] = params['typeCategory'][0];
-                params['other_id'] = params['typeCategory'][1];
-            } else {
-                params['goods_type'] = '';
-                params['other_id'] = '';
-            }
-            if (params['goods_type'] == 1) {
-                params['other_id'] = 0;
-            }
-            params['shop_id'] = this.shopId;
-            queryShopGoodsList(params)
-                .then(res => {
-                    if (res.data.lists == null || res.data.lists.length == 0) {
-                        this.list = res.data.lists || []
-                        this.total = res.data.total || 0
-                        rLoading.close()
-                        return
-                    }
-                    // 生成主图 sku图预览列表
-                    this.timgList = [];
-                    this.skuImgList = [];
-                    let goods_list = [];
-                    let new_sku_ids = []; // 新加sku id集合
-                    this.checkedList.forEach((goods_item)=>{
-                        goods_item.shop_skus.forEach((sku_item)=>{
-                            if(sku_item.skuIsChecked){
-                                new_sku_ids.push(sku_item.sku_id)
-                            }
+            // 生成类型 分类 级联列表
+            creatCategoryData() {
+                this.typeList = [
+                    { value: '1', label: '布料', children: [] },
+                    {
+                        value: '2',
+                        label: '其他',
+                        children: _.cloneDeep(this.categoryListOther).map(item => {
+                            return { label: item.name, value: item.id }
                         })
-                    });
-                    if(res.data.lists && res.data.lists.length > 0){
-                        _.cloneDeep(res.data.lists).forEach((ev)=>{
-                            let goods = _.cloneDeep(ev);
-                            this.timgList.push(goods.goods_img);
-                            goods.shop_skus.forEach((sku,sku_i)=>{
-                                this.skuImgList.push(sku.sku_sku_img);
-                                sku['skuIsChecked'] = false;
-                                if(this.checkedSkuIds.indexOf(sku.sku_id) > -1){
-                                    sku['skuIsChecked'] = true;
-                                    sku['isDisabled'] = true;
-                                }
-                                if(new_sku_ids.indexOf(sku.sku_id) > -1){
-                                    sku['skuIsChecked'] = true;
+                    },
+                    {
+                        value: '3',
+                        label: '布组',
+                        children: _.cloneDeep(this.categoryListClothGroup).map(item => {
+                            return { label: item.name, value: item.id }
+                        })
+                    }
+                ]
+            },
+
+            getList() {
+                const rLoading = this.openLoading()
+                let params = _.cloneDeep(this.searchParams)
+                // params['sku_is_store_shortage'] = 1;
+                params['limit'] = this.listQuery.limit;
+                params['page'] = this.listQuery.page;
+                params['goods_id'] = Number(this.searchParams.goods_id)
+                if (params['typeCategory'].length == 1) {
+                    params['goods_type'] = params['typeCategory'][0];
+                    params['other_id'] = '';
+                } else if (params['typeCategory'].length == 2) {
+                    params['goods_type'] = params['typeCategory'][0];
+                    params['other_id'] = params['typeCategory'][1];
+                } else {
+                    params['goods_type'] = '';
+                    params['other_id'] = '';
+                }
+                if (params['goods_type'] == 1) {
+                    params['other_id'] = 0;
+                }
+                params['shop_id'] = this.shopId;
+                queryShopGoodsList(params)
+                    .then(res => {
+                        if (res.data.lists == null || res.data.lists.length == 0) {
+                            this.list = res.data.lists || []
+                            this.total = res.data.total || 0
+                            rLoading.close()
+                            return
+                        }
+                        // 生成主图 sku图预览列表
+                        this.timgList = [];
+                        this.skuImgList = [];
+                        let goods_list = [];
+                        let new_sku_ids = []; // 新加sku id集合
+                        this.checkedList.forEach((goods_item)=>{
+                            goods_item.shop_skus.forEach((sku_item)=>{
+                                if(sku_item.skuIsChecked){
+                                    new_sku_ids.push(sku_item.sku_id)
                                 }
                             })
-                            goods['goodsIsChecked'] = false;
-                            goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length;
-                            goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length;
-                            if(goods['checkNum'] > 0){
-                                goods['goodsIsChecked'] = true;
-                            }
-                            goods['isDisabled'] = false;
-                            if(goods['skuDisabledNum'] > 0){
-                                goods['isDisabled'] = true;
+                        });
+                        if(res.data.lists && res.data.lists.length > 0){
+                            _.cloneDeep(res.data.lists).forEach((ev)=>{
+                                let goods = _.cloneDeep(ev);
+                                this.timgList.push(goods.goods_img);
                                 goods.shop_skus.forEach((sku,sku_i)=>{
-                                    sku['isDisabled'] = true;
+                                    this.skuImgList.push(sku.sku_sku_img);
+                                    sku['skuIsChecked'] = false;
+                                    if(this.checkedSkuIds.indexOf(sku.sku_id) > -1){
+                                        sku['skuIsChecked'] = true;
+                                        sku['isDisabled'] = true;
+                                    }
+                                    if(new_sku_ids.indexOf(sku.sku_id) > -1){
+                                        sku['skuIsChecked'] = true;
+                                    }
                                 })
-                            }
-
-                            goods_list.push(goods);
-                        })
-                    }
-                    this.list = goods_list;
-                    this.total = res.data.total;
-                    rLoading.close();
-                })
-                .catch(err => {
-                    rLoading.close()
-                })
-        },
-
-        // 搜索
-        handleFilter() {
-            this.listQuery.page = 1;
-            this.searchShow = false;
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.setSearchValue();
-            this.getList();
-        },
-
-        // 重置
-        resetForm(formName) {
-            this.$refs[formName].resetFields();
-            this.handleFilter()
-        },
-
-        // 设置显示的搜索条件
-        setSearchValue() {
-            let _search = []
-            // 商品名称
-            if (this.searchParams['goods_name']) {
-                let obj = {
-                    label: 'goods_name',
-                    val: this.searchParams['goods_name']
-                }
-                _search.push(obj)
-            }
-            // 商品id
-            if (this.searchParams['goods_id']) {
-                let obj = {
-                    label: 'goods_id',
-                    val: this.searchParams['goods_id']
-                }
-                _search.push(obj)
-            }
-            // 级联选择 商品类型+分类
-            if (this.searchParams['typeCategory'].length == 1) {
-                this.typeList.forEach(ev => {
-                    if (ev.value == this.searchParams['typeCategory'][0]) {
-                        let obj = {
-                            label: 'goods_type',
-                            val: ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            } else if (this.searchParams['typeCategory'].length == 2) {
-                let showValue = ''
-                this.typeList.forEach(ev => {
-                    if (ev.value == this.searchParams['typeCategory'][0]) {
-                        showValue = ev.label
-                    }
-                })
-
-                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
-                _arr.forEach(ev => {
-                    if (ev.id == this.searchParams['typeCategory'][1]) {
-                        showValue = showValue + '/' + ev.name
-                    }
-                })
-                _search.push({
-                    label: 'typeCategory',
-                    val: showValue
-                })
-            }
-            // 商品状态 shop_goods_status
-            if (this.searchParams['shop_goods_status']) {
-                this.statusList.forEach(ev => {
-                    if (ev.value == this.searchParams['shop_goods_status']) {
-                        let obj = {
-                            label: 'shop_goods_status',
-                            val: ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            }
-            // sku_name
-            if (this.searchParams['sku_name']) {
-                let obj = {
-                    label: 'sku_name',
-                    val: this.searchParams['sku_name']
-                }
-                _search.push(obj)
-            }
-            // SKU编码
-            if (this.searchParams['sku_code']) {
-                let obj = {
-                    label: 'sku_code',
-                    val: this.searchParams['sku_code']
-                }
-                _search.push(obj)
-            }
-            this.searchList = _.cloneDeep(_search)
-        },
-
-        // 清除单个搜索条件
-        closeSearchItem(item, i) {
-            this.$set(this.searchForm, item.label, '')
-            this.$set(this.searchParams, item.label, '')
-            if(item.label == 'typeCategory'){
-                this.$set(this.searchForm, 'typeCategory', [])
-                this.$set(this.searchParams, 'typeCategory', [])
-            }
-            this.handleFilter()
-        },
-
-        // 已选商品删除商品
-        cancelSelection(group) {
-            for (let i = 0; i < this.checkedList.length; i++) {
-                const element = this.checkedList[i]
-                if (group.goods_id == element.goods_id) {
-                    this.checkedList.splice(i, 1);
-                    const ids = element.shop_skus.map(item => {return item.sku_id});
-                    this.refreshSelection(ids)
-                }
-            }
-        },
-        // 已选商品删除sku
-        cancelSelectionImg(goods, sku) {
-            for (let i = 0; i < this.checkedList.length; i++) {
-                const element = this.checkedList[i]
-                if (goods.goods_id == element.goods_id) {
-                    for (let j = 0; j < element.shop_skus.length; j++) {
-                        const skuElement = element.shop_skus[j];
-                        if (sku.sku_id == skuElement.sku_id) {
-                            element.shop_skus.splice(j, 1);
-                            const ids = [sku.sku_id];
-                            this.refreshSelection(ids)
-                        }
-                    }
-                    // 没有选中图片时 删除组
-                    if (element.shop_skus.length == 0) {
-                        this.checkedList.splice(i, 1)
-                    }
-                }
-            }
-        },
-
-        // 已选图片显示/关闭
-        triggerImg(goods) {
-            goods.open = !goods.open;
-            this.$forceUpdate()
-        },
-
-        // 分页方法
-        handleSizeChange(val) {
-            this.listQuery.limit = val
-            this.getList()
-        },
-        handleCurrentChange(val) {
-            this.listQuery.page = val
-            this.getList()
-        },
-
-        show() {
-            this.isShow = true
-        },
-        close() {
-            this.isShow = false
-        },
-        async save() {
-            let sku_arr = [];
-            this.checkedList.forEach((goods_item)=>{
-                goods_item.shop_skus.forEach((sku_item)=>{
-                    if(sku_item.skuIsChecked && !sku_item.isDisabled){
-                        sku_item['goods_name'] = goods_item.goods_title;
-                        sku_item['new_title'] = '';
-                        sku_arr.push(sku_item);
-                    }
-                })
-            })
-            if(sku_arr.length < 1){
-                this.$notify({
-                    title: '请挑选商品',
-                    type: 'warning',
-                    duration: 5000
-                })
-                return
-            }
-            this.$emit('check-sku', _.cloneDeep(sku_arr))
-            this.checkedList = [];
-            this.isShow = false;
-        },
-
-        closeAddGoods(){
-            this.checkedList = [];
-            this.isShow = false;
-            this.listQuery.page = 1;
-            this.searchShow = false;
-            this.$refs['searchForm'].resetFields();
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.setSearchValue();
-        },
-
-        gotoDetail(id) {
-            this.close()
-            this.$router.push({
-                name: 'goods-preview',
-                query: {
-                    id: id
-                }
-            })
-        },
-
-        // 获取分类列表
-        queryDataAllInit() {
-            Promise.all([
-                // type 1其他 2布组
-                queryCategoryListAll({ type: 1 }),
-                queryCategoryListAll({ type: 2 }),
-                queryCheckedGoods({sku_ids_in: this.checkedSkuIds})
-            ])
-                .then(res => {
-                    let options = {}
-                    if (res[0].code === 200) {
-                        if (res[0].data) {
-                            this.categoryListOther = res[0].data
-                        }
-                    }
-                    if (res[1].code === 200) {
-                        if (res[1].data) {
-                            this.categoryListClothGroup = res[1].data
-                        }
-                    }
-                    this.creatCategoryData();
-                    if (res[2].code === 200) {
-                        if (res[2].data) {
-                            const sku_list = res[2].data.datas || [];
-                            let goodsIds = []
-                            sku_list.forEach((sku)=>{
-                                if(goodsIds.indexOf(sku.goods_id) == -1){
-                                    goodsIds.push(sku.goods_id)
+                                goods['goodsIsChecked'] = false;
+                                goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length;
+                                goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length;
+                                if(goods['checkNum'] > 0){
+                                    goods['goodsIsChecked'] = true;
                                 }
+                                goods['isDisabled'] = false;
+                                if(goods['skuDisabledNum'] > 0){
+                                    goods['isDisabled'] = true;
+                                    goods.shop_skus.forEach((sku,sku_i)=>{
+                                        sku['isDisabled'] = true;
+                                    })
+                                }
+
+                                goods_list.push(goods);
                             })
                         }
+                        this.list = goods_list;
+                        this.total = res.data.total;
+                        rLoading.close();
+                    })
+                    .catch(err => {
+                        rLoading.close()
+                    })
+            },
+
+            // 搜索
+            handleFilter() {
+                this.listQuery.page = 1;
+                this.searchShow = false;
+                this.searchParams = _.cloneDeep(this.searchForm);
+                this.setSearchValue();
+                this.getList();
+            },
+
+            // 重置
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+                this.handleFilter()
+            },
+
+            // 设置显示的搜索条件
+            setSearchValue() {
+                let _search = []
+                // 商品名称
+                if (this.searchParams['goods_name']) {
+                    let obj = {
+                        label: 'goods_name',
+                        val: this.searchParams['goods_name']
                     }
-
-                    this.resetForm('searchForm');
-                })
-                .catch(() => {})
-        },
-
-        // 关闭大图预览
-        closePreview() {
-            this.dialogVisiblePic = false
-        },
-        // type 1主图 2sku图 3
-        openPreview(img, type, index) {
-            if (type == 1) {
-                this.previewUrlList = this.timgList
-            } else  if(type == 2) {
-                this.previewUrlList = this.skuImgList
-            } else  if(type == 3) {
-                let _list = [];
-                img.forEach((item)=>{
-                    _list.push(item.sku_sku_img)
-                })
-                this.previewUrlList = _list
-                // return
-            }
-            this.previewIndex = index
-            this.dialogVisiblePic = true
-        },
-
-        filterGoods() {
-            this.checkedList.forEach((goods, i)=>{
-                if(goods['checkNum'] < 1) {
-                    this.checkedList.splice(i, 1);
+                    _search.push(obj)
                 }
-            })
-        },
-        // sku选中/取消
-        skuChecked(bol,row,index,goods_detail,goods_index){
-            goods_detail.shop_skus.forEach((ev,i)=>{
-                if(!ev.isDisabled){
-                    ev['skuIsChecked'] = false;
+                // 商品id
+                if (this.searchParams['goods_id']) {
+                    let obj = {
+                        label: 'goods_id',
+                        val: this.searchParams['goods_id']
+                    }
+                    _search.push(obj)
                 }
-            })
-            row['skuIsChecked'] = bol;
-            goods_detail['checkNum'] = goods_detail.shop_skus.filter(item => item.skuIsChecked).length;
-            if(goods_detail['checkNum'] < 1) {
-                goods_detail['goodsIsChecked'] = false;
-            }else {
-                goods_detail['goodsIsChecked'] = true;
-            }
+                // 级联选择 商品类型+分类
+                if (this.searchParams['typeCategory'].length == 1) {
+                    this.typeList.forEach(ev => {
+                        if (ev.value == this.searchParams['typeCategory'][0]) {
+                            let obj = {
+                                label: 'goods_type',
+                                val: ev.label
+                            }
+                            _search.push(obj)
+                        }
+                    })
+                } else if (this.searchParams['typeCategory'].length == 2) {
+                    let showValue = ''
+                    this.typeList.forEach(ev => {
+                        if (ev.value == this.searchParams['typeCategory'][0]) {
+                            showValue = ev.label
+                        }
+                    })
 
-            let checkedGoodsIds = []; // 选中商品id集合
-            if(this.checkedList.length > 0){
-                checkedGoodsIds = this.checkedList.map(item => {return item.goods_id});
-            }
-            let goodsSku = _.cloneDeep(goods_detail);
-            // 判断 当前操作的sku 所属商品 是否在 已选商品列表中
-            if(checkedGoodsIds.indexOf(goodsSku.goods_id) == -1){
-                this.checkedList.push(goodsSku)
-            }else if(checkedGoodsIds.indexOf(goodsSku.goods_id) > -1){
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                this.$set(this.checkedList, index, goodsSku)
-            }
-            this.filterGoods();
-        },
+                    let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                    _arr.forEach(ev => {
+                        if (ev.id == this.searchParams['typeCategory'][1]) {
+                            showValue = showValue + '/' + ev.name
+                        }
+                    })
+                    _search.push({
+                        label: 'typeCategory',
+                        val: showValue
+                    })
+                }
+                // 商品状态 shop_goods_status
+                if (this.searchParams['shop_goods_status']) {
+                    this.statusList.forEach(ev => {
+                        if (ev.value == this.searchParams['shop_goods_status']) {
+                            let obj = {
+                                label: 'shop_goods_status',
+                                val: ev.label
+                            }
+                            _search.push(obj)
+                        }
+                    })
+                }
+                // sku_name
+                if (this.searchParams['sku_name']) {
+                    let obj = {
+                        label: 'sku_name',
+                        val: this.searchParams['sku_name']
+                    }
+                    _search.push(obj)
+                }
+                // SKU编码
+                if (this.searchParams['sku_code']) {
+                    let obj = {
+                        label: 'sku_code',
+                        val: this.searchParams['sku_code']
+                    }
+                    _search.push(obj)
+                }
+                this.searchList = _.cloneDeep(_search)
+            },
 
-        // 商品选中/取消
-        goodsChecked(bol,row,index) {
-            if(row.shop_skus && row.shop_skus.length > 1){
+            // 清除单个搜索条件
+            closeSearchItem(item, i) {
+                this.$set(this.searchForm, item.label, '')
+                this.$set(this.searchParams, item.label, '')
+                if(item.label == 'typeCategory'){
+                    this.$set(this.searchForm, 'typeCategory', [])
+                    this.$set(this.searchParams, 'typeCategory', [])
+                }
+                this.handleFilter()
+            },
 
-                row['goodsIsChecked'] = false;
-                if(bol) {
+            // 已选商品删除商品
+            cancelSelection(group) {
+                for (let i = 0; i < this.checkedList.length; i++) {
+                    const element = this.checkedList[i]
+                    if (group.goods_id == element.goods_id) {
+                        this.checkedList.splice(i, 1);
+                        const ids = element.shop_skus.map(item => {return item.sku_id});
+                        this.refreshSelection(ids)
+                    }
+                }
+            },
+            // 已选商品删除sku
+            cancelSelectionImg(goods, sku) {
+                for (let i = 0; i < this.checkedList.length; i++) {
+                    const element = this.checkedList[i]
+                    if (goods.goods_id == element.goods_id) {
+                        for (let j = 0; j < element.shop_skus.length; j++) {
+                            const skuElement = element.shop_skus[j];
+                            if (sku.sku_id == skuElement.sku_id) {
+                                element.shop_skus.splice(j, 1);
+                                const ids = [sku.sku_id];
+                                this.refreshSelection(ids)
+                            }
+                        }
+                        // 没有选中图片时 删除组
+                        if (element.shop_skus.length == 0) {
+                            this.checkedList.splice(i, 1)
+                        }
+                    }
+                }
+            },
+
+            // 已选图片显示/关闭
+            triggerImg(goods) {
+                goods.open = !goods.open;
+                this.$forceUpdate()
+            },
+
+            // 分页方法
+            handleSizeChange(val) {
+                this.listQuery.limit = val
+                this.getList()
+            },
+            handleCurrentChange(val) {
+                this.listQuery.page = val
+                this.getList()
+            },
+
+            show() {
+                this.isShow = true
+            },
+            close() {
+                this.isShow = false
+            },
+            async save() {
+                let sku_arr = [];
+                this.checkedList.forEach((goods_item)=>{
+                    goods_item.shop_skus.forEach((sku_item)=>{
+                        if(sku_item.skuIsChecked && !sku_item.isDisabled){
+                            sku_item['goods_name'] = goods_item.goods_title;
+                            sku_item['new_title'] = '';
+                            sku_arr.push(sku_item);
+                        }
+                    })
+                })
+                if(sku_arr.length < 1){
                     this.$notify({
-                        title: '请选择sku',
+                        title: '请挑选商品',
                         type: 'warning',
                         duration: 5000
                     })
-                    // row['goodsIsChecked'] = !bol;
-                } else {
-                    row.shop_skus.forEach((ev,i)=>{
-                        if(!ev['isDisabled']){
-                            ev['skuIsChecked'] = false;
-                        }
-                    })
+                    return
                 }
-            } else if(row.shop_skus && row.shop_skus.length == 1){
-                if(!row.isDisabled){
-                    row['goodsIsChecked'] = bol;
-                    row.shop_skus.forEach((ev,i)=>{
-                        if(!ev['isDisabled']){
-                            ev['skuIsChecked'] = bol;
+                this.$emit('check-sku', _.cloneDeep(sku_arr))
+                this.checkedList = [];
+                this.isShow = false;
+            },
+
+            closeAddGoods(){
+                this.searchShow = false;
+            },
+
+            gotoDetail(id) {
+                this.close()
+                this.$router.push({
+                    name: 'goods-preview',
+                    query: {
+                        id: id
+                    }
+                })
+            },
+
+            // 获取分类列表
+            queryDataAllInit() {
+                Promise.all([
+                    // type 1其他 2布组
+                    queryCategoryListAll({ type: 1 }),
+                    queryCategoryListAll({ type: 2 }),
+                    queryCheckedGoods({sku_ids_in: this.checkedSkuIds})
+                ])
+                    .then(res => {
+                        let options = {}
+                        if (res[0].code === 200) {
+                            if (res[0].data) {
+                                this.categoryListOther = res[0].data
+                            }
                         }
+                        if (res[1].code === 200) {
+                            if (res[1].data) {
+                                this.categoryListClothGroup = res[1].data
+                            }
+                        }
+                        this.creatCategoryData();
+                        if (res[2].code === 200) {
+                            if (res[2].data) {
+                                const sku_list = res[2].data.datas || [];
+                                let goodsIds = []
+                                sku_list.forEach((sku)=>{
+                                    if(goodsIds.indexOf(sku.goods_id) == -1){
+                                        goodsIds.push(sku.goods_id)
+                                    }
+                                })
+                            }
+                        }
+
+                        this.resetForm('searchForm');
                     })
+                    .catch(() => {})
+            },
+
+            // 关闭大图预览
+            closePreview() {
+                this.dialogVisiblePic = false
+            },
+            // type 1主图 2sku图 3
+            openPreview(img, type, index) {
+                if (type == 1) {
+                    this.previewUrlList = this.timgList
+                } else  if(type == 2) {
+                    this.previewUrlList = this.skuImgList
+                } else  if(type == 3) {
+                    let _list = [];
+                    img.forEach((item)=>{
+                        _list.push(item.sku_sku_img)
+                    })
+                    this.previewUrlList = _list
+                    // return
                 }
+                this.previewIndex = index
+                this.dialogVisiblePic = true
+            },
+
+            filterGoods() {
+                this.checkedList.forEach((goods, i)=>{
+                    if(goods['checkNum'] < 1) {
+                        this.checkedList.splice(i, 1);
+                    }
+                })
+            },
+            // sku选中/取消
+            skuChecked(bol,row,index,goods_detail,goods_index){
+                goods_detail.shop_skus.forEach((ev,i)=>{
+                    if(!ev.isDisabled){
+                        ev['skuIsChecked'] = false;
+                    }
+                })
+                row['skuIsChecked'] = bol;
+                goods_detail['checkNum'] = goods_detail.shop_skus.filter(item => item.skuIsChecked).length;
+                if(goods_detail['checkNum'] < 1) {
+                    goods_detail['goodsIsChecked'] = false;
+                }else {
+                    goods_detail['goodsIsChecked'] = true;
+                }
+
+                let checkedGoodsIds = []; // 选中商品id集合
+                if(this.checkedList.length > 0){
+                    checkedGoodsIds = this.checkedList.map(item => {return item.goods_id});
+                }
+                let goodsSku = _.cloneDeep(goods_detail);
+                // 判断 当前操作的sku 所属商品 是否在 已选商品列表中
+                if(checkedGoodsIds.indexOf(goodsSku.goods_id) == -1){
+                    this.checkedList.push(goodsSku)
+                }else if(checkedGoodsIds.indexOf(goodsSku.goods_id) > -1){
+                    let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
+                    this.$set(this.checkedList, index, goodsSku)
+                }
+                this.filterGoods();
+            },
+
+            // 商品选中/取消
+            goodsChecked(bol,row,index) {
+                if(row.shop_skus && row.shop_skus.length > 1){
+
+                    row['goodsIsChecked'] = false;
+                    if(bol) {
+                        this.$notify({
+                            title: '请选择sku',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        // row['goodsIsChecked'] = !bol;
+                    } else {
+                        row.shop_skus.forEach((ev,i)=>{
+                            if(!ev['isDisabled']){
+                                ev['skuIsChecked'] = false;
+                            }
+                        })
+                    }
+                } else if(row.shop_skus && row.shop_skus.length == 1){
+                    if(!row.isDisabled){
+                        row['goodsIsChecked'] = bol;
+                        row.shop_skus.forEach((ev,i)=>{
+                            if(!ev['isDisabled']){
+                                ev['skuIsChecked'] = bol;
+                            }
+                        })
+                    }
+                }
+                let sku_checked_num = row.shop_skus.filter(item => item.skuIsChecked).length;
+                row['checkNum'] = sku_checked_num;
+                let checkedGoodsIds = []; // 选中商品id集合
+                if(this.checkedList.length > 0){
+                    checkedGoodsIds = this.checkedList.map(item => {return item.goods_id});
+                }
+                let goodsSku = _.cloneDeep(row);
+                // 判断 当前操作的商品 是否在 已选商品列表中
+                if(checkedGoodsIds.indexOf(goodsSku.goods_id) == -1){
+                    this.checkedList.push(goodsSku)
+                }else if(checkedGoodsIds.indexOf(goodsSku.goods_id) > -1){
+                    let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
+                    this.$set(this.checkedList, index, goodsSku)
+                }
+                this.filterGoods();
             }
-            let sku_checked_num = row.shop_skus.filter(item => item.skuIsChecked).length;
-            row['checkNum'] = sku_checked_num;
-            let checkedGoodsIds = []; // 选中商品id集合
-            if(this.checkedList.length > 0){
-                checkedGoodsIds = this.checkedList.map(item => {return item.goods_id});
-            }
-            let goodsSku = _.cloneDeep(row);
-            // 判断 当前操作的商品 是否在 已选商品列表中
-            if(checkedGoodsIds.indexOf(goodsSku.goods_id) == -1){
-                this.checkedList.push(goodsSku)
-            }else if(checkedGoodsIds.indexOf(goodsSku.goods_id) > -1){
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                this.$set(this.checkedList, index, goodsSku)
-            }
-            this.filterGoods();
         }
     }
-}
 </script>
+
 <style scoped="scoped" lang="less">
-/deep/.el-dialog{
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%,-50%);
-    margin: 0!important;
-}
-/deep/.el-dialog__body{
-    padding: 0 !important;
-}
-/deep/.el-dialog__header{
-    padding: 10px 0 !important;
-}
-/deep/.el-dialog__headerbtn{
-    top: 21px;
-}
-.table-title {
-    height: 36px;
-    position: relative;
-    .text{
-        margin-left: 24px;
+    /deep/.el-dialog{
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        margin: 0!important;
     }
-    .search {
-        font-size: 18px;
-        cursor: pointer;
+    /deep/.el-dialog__body{
+        padding: 0 !important;
     }
-    .grey-line {
-        margin: 0 20px;
-        width: 1px;
-        height: 26px;
-        background: #e6e6e6;
+    /deep/.el-dialog__header{
+        padding: 10px 0 !important;
     }
-    .head-container {
-        position: absolute;
-        top: 48px;
-        z-index: 9;
-        // border: 1px solid #000;
-        border-radius: 2px;
-        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
-        // transition: all 3s ease-in-out;
-        padding: 24px 24px 4px 24px;
+    /deep/.el-dialog__headerbtn{
+        top: 21px;
     }
-    .selected-goods-btn{
-        margin-right: 68px;
-        margin-left: auto;
-    }
-}
-.timg {
-    width: 80px;
-    height: 60px;
-}
-
-.row-list {
-    width: 300px;
-    max-height: 400px;
-    .nodata {
-        padding: 12px;
-    }
-    .row-item {
-        // border-bottom: 1px solid #e8e8e8;
-
-        .item-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 12px;
-            height: 50px;
-            border-bottom: 1px solid #e8e8e8;
-            .iconfont {
-                margin-right: 16px;
-                font-size: 14px;
-                cursor: pointer;
-            }
+    .table-title {
+        height: 36px;
+        position: relative;
+        .text{
+            margin-left: 24px;
         }
-        &:last-child {
-            border-bottom: none;
-        }
-        .row-delete {
+        .search {
+            font-size: 18px;
             cursor: pointer;
         }
-        .name {
-            overflow: hidden;
-            padding-right: 10px;
-            width: 250px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .grey-line {
+            margin: 0 20px;
+            width: 1px;
+            height: 26px;
+            background: #e6e6e6;
         }
-        .son-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 0 12px 0 46px;
-            height: 50px;
-            border-bottom: 1px solid #e8e8e8;
-            .son-timg {
-                margin-right: 10px;
-                width: 40px;
-                height: 40px;
+        .head-container {
+            position: absolute;
+            top: 48px;
+            z-index: 9;
+            // border: 1px solid #000;
+            border-radius: 2px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
+            // transition: all 3s ease-in-out;
+            padding: 24px 24px 4px 24px;
+        }
+        .selected-goods-btn{
+            margin-right: 68px;
+            margin-left: auto;
+        }
+    }
+    .timg {
+        width: 80px;
+        height: 60px;
+    }
+
+    .row-list {
+        width: 300px;
+        max-height: 400px;
+        .nodata {
+            padding: 12px;
+        }
+        .row-item {
+            // border-bottom: 1px solid #e8e8e8;
+
+            .item-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 12px;
+                height: 50px;
+                border-bottom: 1px solid #e8e8e8;
+                .iconfont {
+                    margin-right: 16px;
+                    font-size: 14px;
+                    cursor: pointer;
+                }
+            }
+            &:last-child {
+                border-bottom: none;
+            }
+            .row-delete {
+                cursor: pointer;
+            }
+            .name {
+                overflow: hidden;
+                padding-right: 10px;
+                width: 250px;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .son-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin: 0 12px 0 46px;
+                height: 50px;
+                border-bottom: 1px solid #e8e8e8;
+                .son-timg {
+                    margin-right: 10px;
+                    width: 40px;
+                    height: 40px;
+                }
             }
         }
     }
-}
-.item {
-    display: flex;
-    margin-bottom: 10px;
-    min-height: 50px;
-    .check {
-        color: rgba(0, 0, 0, 0.65);
-        font-weight: 400;
-        font-size: 14px;
+    .item {
+        display: flex;
+        margin-bottom: 10px;
+        min-height: 50px;
+        .check {
+            color: rgba(0, 0, 0, 0.65);
+            font-weight: 400;
+            font-size: 14px;
+        }
+        .check-all {
+            margin-right: 120px;
+        }
+        .check-city {
+            margin-bottom: 20px;
+        }
     }
-    .check-all {
-        margin-right: 120px;
+    .gotoDetail {
+        color: #1890ff;
+        cursor: pointer;
     }
-    .check-city {
-        margin-bottom: 20px;
+    .sku-table {
+        box-sizing: border-box;
+        margin-left: 120px;
+        max-width: calc(100% - 120px);
     }
-}
-.gotoDetail {
-    color: #1890ff;
-    cursor: pointer;
-}
-.sku-table {
-    box-sizing: border-box;
-    margin-left: 120px;
-    max-width: calc(100% - 120px);
-}
-.table /deep/ .el-table__expand-icon > .el-icon {
-    margin-top: -10px;
-}
-.table /deep/ .el-table__expand-icon--expanded {
-    transform: rotate(0deg);
-}
-.table /deep/ .el-icon-arrow-right:before {
-    color: #1890ff;
-    content: '\e61a';
-    font-size: 19px;
-    font-family: 'iconfont';
-}
-.table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
-    color: #6d7278;
-    content: '\e617';
-}
+    .table /deep/ .el-table__expand-icon > .el-icon {
+        margin-top: -10px;
+    }
+    .table /deep/ .el-table__expand-icon--expanded {
+        transform: rotate(0deg);
+    }
+    .table /deep/ .el-icon-arrow-right:before {
+        color: #1890ff;
+        content: '\e61a';
+        font-size: 19px;
+        font-family: 'iconfont';
+    }
+    .table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+        color: #6d7278;
+        content: '\e617';
+    }
 
-.cursor {
-    cursor: pointer;
-}
-.table /deep/ .el-table__body tr:hover > td {
-    background-color: #fff !important;
-}
-.table .sku-table /deep/ .el-table__body tr:hover > td {
-    background-color: #f6faff !important;
-}
-.table /deep/ .el-table__expanded-cell {
-    padding: 0 !important;
-}
-/deep/ .el-table-column--selection .cell{
-    padding-left: 12px;
-    padding-right: 12px;
-}
-/deep/.el-image-viewer__wrapper{
-    z-index: 99999!important;
-}
-.type-tag {
-    // display: block;
-    padding: 0 11px;
-    width: fit-content;
-    height: 26px;
-    border-radius: 15px;
-    color: rgba(255, 255, 255, 0.85);
-    word-break: keep-all;
-    font-weight: 400;
-    line-height: 26px;
-    &.type-red {
-        background-color: #ff4d4f;
+    .cursor {
+        cursor: pointer;
     }
-    &.type-purple {
-        background-color: #a151ff;
+    .table /deep/ .el-table__body tr:hover > td {
+        background-color: #fff !important;
     }
-    &.type-yellow {
-        background-color: #faad14;
+    .table .sku-table /deep/ .el-table__body tr:hover > td {
+        background-color: #f6faff !important;
     }
-    &.type-blue {
-        background-color: #1890ff;
+    .table /deep/ .el-table__expanded-cell {
+        padding: 0 !important;
     }
-}
+    /deep/ .el-table-column--selection .cell{
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    /deep/.el-image-viewer__wrapper{
+        z-index: 99999!important;
+    }
+    .type-tag {
+        // display: block;
+        padding: 0 11px;
+        width: fit-content;
+        height: 26px;
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.85);
+        word-break: keep-all;
+        font-weight: 400;
+        line-height: 26px;
+        &.type-red {
+            background-color: #ff4d4f;
+        }
+        &.type-purple {
+            background-color: #a151ff;
+        }
+        &.type-yellow {
+            background-color: #faad14;
+        }
+        &.type-blue {
+            background-color: #1890ff;
+        }
+    }
 </style>

@@ -514,7 +514,7 @@ export default {
                 ev['is_update'] = false;
                 const nameLength = this.getByteLen(ev.goods_name);
                 ev['nameLength'] = this.getByteLen(ev.goods_name);
-                if(nameLength > 28){
+                if(nameLength > 28 || nameLength < 6){
                     longNameCount += 1;
                 }
             })
@@ -557,6 +557,11 @@ export default {
                         if(type == 1){
                             this.$refs.goodsList.closeAddGoods()
                         }
+                        this.listQuery.page = 1;
+                        this.tabPosition = 'not_put';
+                        this.$set(this.formFilter,'status', '');
+                        this.$set(this.searchParams,'status', '');
+                        this.setSearchValue();
                         this.getList()
                     } else {
                         this.$notify({
@@ -885,10 +890,6 @@ export default {
                                 type: 'success',
                                 duration: 3000
                             })
-                            // 如果当前页大于1 且 当前页只有1条时  删除后 页码-1
-                            // if(this.listQuery.page > 1 && this.list.length < 2){
-                            //     this.$set(this.listQuery, 'page', this.listQuery.page - 1);
-                            // }
                             this.getList()
                         } else {
                             this.$notify({
