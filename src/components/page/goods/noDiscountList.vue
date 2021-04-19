@@ -103,12 +103,12 @@
             </el-table-column>
             <el-table-column label="总库存" width="80">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.stock_total }}</span>
+                    <span>{{ scope.row.stock_total }}{{ scope.row.attr_unit }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="可用库存" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.stock_apply }}</span>
+                    <span>{{ scope.row.stock_available }}{{ scope.row.attr_unit }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="是否售罄" width="90">
