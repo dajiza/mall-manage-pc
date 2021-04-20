@@ -238,11 +238,11 @@ export default {
                 {
                     label: '金额',
                     value: 2
-                },
-                {
-                    label: '重量',
-                    value: 3
                 }
+                // {
+                //     label: '重量',
+                //     value: 3
+                // }
             ],
             rules: {
                 name: [
