@@ -126,7 +126,7 @@
             </el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
-                    <el-button class="btn-blud opt-btn" type="text" size="small" @click="setMember(scope.row)">{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button>
+                    <el-button class="btn-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)">{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button>
                 </template>
             </el-table-column>
         </el-table>

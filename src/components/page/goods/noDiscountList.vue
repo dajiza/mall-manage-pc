@@ -36,7 +36,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
-            <el-button class="add-btn" size="" type="primary" @click="addSku">添加商品</el-button>
+            <el-button class="add-btn" size="" type="primary" v-hasPermission="'mall-backend-goods-sku-discount-batch-remove'" @click="addSku">添加商品</el-button>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="SKU图片" width="120">
@@ -96,8 +96,8 @@
             </el-table-column>
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="small" @click.native="setDiscount(scope.row)">设置折扣</el-button>
-                    <el-button class="text-red" type="text" size="small" @click.native="moveoutDiscount(scope.row)">移出</el-button>
+                    <el-button class="text-blue" type="text" size="small" v-hasPermission="'mall-backend-goods-set-discount'" @click.native="setDiscount(scope.row)">设置折扣</el-button>
+                    <el-button class="text-red" type="text" size="small" v-hasPermission="'mall-backend-goods-move-out'" @click.native="moveoutDiscount(scope.row)">移出</el-button>
                 </template>
             </el-table-column>
         </el-table>
