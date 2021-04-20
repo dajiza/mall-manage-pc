@@ -9,7 +9,7 @@
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                         <el-form-item label="SKU" prop="sku">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku"></el-input>
+                            <el-input class="filter-item" placeholder="请输入SKU名称或编码" v-model="formFilter.sku"></el-input>
                         </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>

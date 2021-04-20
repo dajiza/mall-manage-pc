@@ -266,7 +266,7 @@
             </el-table-column>
             <el-table-column label="指定代理" width="120">
                 <template slot-scope="scope" v-if="scope.row.allow_agent == 1">
-                    <div v-for="item in scope.row.agent_list">{{ item.ShopName }}</div>
+                    <div v-for="item in scope.row.agent_list">{{ item.shop_name }}</div>
                 </template>
             </el-table-column>
             <el-table-column label="主图" width="120">
@@ -401,7 +401,7 @@
 </template>
 <script>
 import {
-    queryGoodsList,
+    queryGoodsListNew,
     queryStoreProductDetail,
     updateAllow,
     updateGoodsStatus,
@@ -626,7 +626,6 @@ export default {
             console.log('GOOGLE: params', params)
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-            console.log('输出 ~ paramsh', params['typeCategory'].length)
             if (params['typeCategory'].length == 1) {
                 params['type'] = params['typeCategory'][0]
                 params['category_id'] = ''
@@ -645,20 +644,34 @@ export default {
                 params['discount_condition'] = 0
             }
 
-            queryGoodsList(params)
+            queryGoodsListNew(params)
                 .then(async res => {
-                    if (res.data.lists == null) {
-                        this.list = res.data.lists || []
-                        this.total = res.data.total || 0
+                    console.log('输出 ~ res', res)
+                    if (res.data.goods_list == null) {
+                        this.list = []
+                        this.total = 0
                         rLoading.close()
                         return
+                    }
+                    // 拼合goods和sku
+                    let goods = res.data.goods_list
+                    let sku = res.data.goods_sku_list
+                    for (let i = 0; i < goods.length; i++) {
+                        const goodsItem = goods[i]
+                        goodsItem.goods_sku = []
+                        for (let j = 0; j < sku.length; j++) {
+                            const skuItem = sku[j]
+                            if (goodsItem.id == skuItem.goods_id) {
+                                goodsItem.goods_sku.push(skuItem)
+                            }
+                        }
                     }
                     // 逐个获取库存信息 同时生成主图 sku图预览列表
                     let skuImgIndex = 0
                     this.timgList = []
                     this.skuImgList = []
-                    for (let i = 0; i < res.data.lists.length; i++) {
-                        const product = res.data.lists[i]
+                    for (let i = 0; i < goods.length; i++) {
+                        const product = goods[i]
                         this.timgList.push(product.img)
                         if (!product.goods_sku) {
                             product.goods_sku = []
@@ -667,18 +680,12 @@ export default {
                         product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
-                            let parameters = { sku_id: sku.storehouse_pid }
-                            let data = await queryStoreProductDetail(parameters)
-                            this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
-                            sku.stock_total = data.data.stock_total
-                            sku.stock_available = data.data.stock_available
                         }
                     }
 
-                    console.log('输出 ~ res.data.lists', res.data.lists)
-                    this.list = res.data.lists
+                    this.list = goods
                     this.total = res.data.total
                     rLoading.close()
                 })
@@ -720,7 +727,6 @@ export default {
                     })
                 }
             ]
-            console.log('输出 ~ this.typeList', this.typeList)
         },
 
         queryCategoryListAllInit() {
@@ -883,7 +889,7 @@ export default {
         goodsAssign(id, row) {
             console.log('GOOGLE: row', row)
             this.goodsId = id
-            this.shopIds = row.agent_list == null ? [] : row.agent_list.map(item => item.ShopId)
+            this.shopIds = row.agent_list == null ? [] : row.agent_list.map(item => item.shop_id)
             this.dialogVisibleAssign = true
         },
         // 更新代理

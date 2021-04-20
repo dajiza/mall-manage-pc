@@ -2,6 +2,8 @@ import { get, post, put } from './util'
 
 // 商品列表页面
 export const queryGoodsList = params => post('/backend/goods-list', params)
+// 商品列表页面
+export const queryGoodsListNew = params => post('/backend/goods-list-new', params)
 
 // 商品上下架
 export const updateGoodsStatus = params => post('/backend/goods-update-status', params)

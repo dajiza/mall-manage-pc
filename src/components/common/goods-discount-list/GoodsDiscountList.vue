@@ -225,7 +225,7 @@
 </template>
 
 <script>
-import { queryGoodsList, queryStoreProductDetail, queryShopList, queryCategoryListAll } from '@/api/goods'
+import { queryGoodsListNew, queryStoreProductDetail, queryShopList, queryCategoryListAll } from '@/api/goods'
 import { updateSkuDiscountBatch } from '@/api/discount'
 import { formatMoney } from '@/plugin/tool'
 
@@ -324,22 +324,34 @@ export default {
                 params['discount_condition'] = 0
             }
 
-            queryGoodsList(params)
+            queryGoodsListNew(params)
                 .then(async res => {
-                    if (res.data.lists == null) {
-                        this.list = res.data.lists || []
-                        this.total = res.data.total || 0
+                    console.log('输出 ~ res', res)
+                    if (res.data.goods_list == null) {
+                        this.list = []
+                        this.total = 0
                         rLoading.close()
                         return
+                    }
+                    // 拼合goods和sku
+                    let goods = res.data.goods_list
+                    let sku = res.data.goods_sku_list
+                    for (let i = 0; i < goods.length; i++) {
+                        const goodsItem = goods[i]
+                        goodsItem.goods_sku = []
+                        for (let j = 0; j < sku.length; j++) {
+                            const skuItem = sku[j]
+                            if (goodsItem.id == skuItem.goods_id) {
+                                goodsItem.goods_sku.push(skuItem)
+                            }
+                        }
                     }
                     // 逐个获取库存信息 同时生成主图 sku图预览列表
                     let skuImgIndex = 0
                     this.timgList = []
                     this.skuImgList = []
-                    for (let i = 0; i < res.data.lists.length; i++) {
-                        const product = res.data.lists[i]
-                        product.checked = false
-
+                    for (let i = 0; i < goods.length; i++) {
+                        const product = goods[i]
                         this.timgList.push(product.img)
                         if (!product.goods_sku) {
                             product.goods_sku = []
@@ -348,22 +360,13 @@ export default {
                         product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
-                            sku.checked = false
-
-                            let parameters = { sku_id: sku.storehouse_pid }
-                            let data = await queryStoreProductDetail(parameters)
-                            this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
-                            sku.stock_total = data.data.stock_total
-                            sku.stock_available = data.data.stock_available
                         }
                     }
 
-                    console.log('输出 ~ res.data.lists', res.data.lists)
-                    this.list = res.data.lists
+                    this.list = goods
                     this.total = res.data.total
-                    this.refreshSelection()
                     rLoading.close()
                 })
                 .catch(err => {
