@@ -352,6 +352,7 @@ export default {
                     this.skuImgList = []
                     for (let i = 0; i < goods.length; i++) {
                         const product = goods[i]
+                        product.checked = false
                         this.timgList.push(product.img)
                         if (!product.goods_sku) {
                             product.goods_sku = []
@@ -360,6 +361,7 @@ export default {
                         product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
+                            sku.checked = false
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
                         }
@@ -367,6 +369,7 @@ export default {
 
                     this.list = goods
                     this.total = res.data.total
+                    this.refreshSelection()
                     rLoading.close()
                 })
                 .catch(err => {
@@ -486,6 +489,7 @@ export default {
         },
         // 监听sku选中
         imgChecked(val, imgData, groupData) {
+            console.log('输出 ~ imgData', imgData)
             let group = _.cloneDeep(groupData)
             let img = _.cloneDeep(imgData)
             if (val) {
