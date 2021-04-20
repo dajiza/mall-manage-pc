@@ -3,44 +3,13 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">不享折扣商品</div>
-            <!-- <div class="grey-line"></div> -->
-            <!-- <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i> -->
-            <!-- <transition name="slide-fade">
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                        <el-form-item label="订单号" prop="order_no">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
-                        </el-form-item>
-                        <el-form-item label="子订单号" prop="order_detail_no">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_detail_no"></el-input>
-                        </el-form-item>
-                        <el-form-item label="退款类型" prop="type">
-                            <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
-                                <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="退款状态" prop="statusCache">
-                            <el-select class="filter-item" v-model="formFilter.statusCache" placeholder="请选择">
-                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item label="售后原因" prop="reason_id">
-                            <el-select class="filter-item" v-model="formFilter.reason_id" placeholder="请选择">
-                                <el-option v-for="item in reasonList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                            </el-select>
-                        </el-form-item>
-                        <el-form-item class="long-time" label="申请时间" prop="createdTime">
-                            <el-date-picker
-                                class="filter-item"
-                                v-model="formFilter.createdTime"
-                                value-format="yyyy-MM-dd HH:mm:ss"
-                                type="datetimerange"
-                                range-separator="至"
-                                start-placeholder="开始日期"
-                                end-placeholder="结束日期"
-                                :default-time="['00:00:00', '23:59:59']"
-                            >
-                            </el-date-picker>
+                        <el-form-item label="SKU" prop="sku">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.sku"></el-input>
                         </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -48,8 +17,8 @@
                         </el-form-item>
                     </el-form>
                 </div>
-            </transition> -->
-            <!-- <div class="search-value">
+            </transition>
+            <div class="search-value">
                 <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
                         {{ item.val }}
@@ -66,7 +35,7 @@
                     </template>
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
-            </div> -->
+            </div>
             <el-button class="add-btn" size="" type="primary" @click="addSku">添加商品</el-button>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
@@ -211,17 +180,9 @@ export default {
             ],
             reasonList: [],
 
-            // formFilter: {
-            //     type: '', //不检索传“”
-            //     status: '',
-            //     statusCache: '10',
-            //     order_no: '',
-            //     order_detail_no: '',
-            //     reason_id: '',
-            //     createdTime: '',
-            //     created_time_le: '',
-            //     created_time_ge: ''
-            // },
+            formFilter: {
+                sku: ''
+            },
             orderType: '', //订单筛选
             totalProcessed: 0, //待处理数量
             tableHeight: 'calc(100vh - 194px)',
@@ -273,7 +234,7 @@ export default {
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = {}
+            let params = _.cloneDeep(this.$refs['formFilter'].model)
 
             params['page_size'] = this.listQuery.limit
             params['page_index'] = this.listQuery.page
@@ -400,83 +361,19 @@ export default {
             this.handleFilter()
         },
         // 设置显示的搜索条件
-        // setSearchValue() {
-        //     let _search = []
-        //     // 订单号
-        //     if (this.formFilter['order_no']) {
-        //         let obj = {
-        //             label: 'order_no',
-        //             val: this.formFilter['order_no']
-        //         }
-        //         _search.push(obj)
-        //     }
-        //     // 子订单号
-        //     if (this.formFilter['order_detail_no']) {
-        //         let obj = {
-        //             label: 'order_detail_no',
-        //             val: this.formFilter['order_detail_no']
-        //         }
-        //         _search.push(obj)
-        //     }
-        //     // 退款类型
-        //     if (this.formFilter['type']) {
-        //         this.typeList.forEach(ev => {
-        //             if (ev.value == this.formFilter['type']) {
-        //                 let obj = {
-        //                     label: 'type',
-        //                     val: ev.label
-        //                 }
-        //                 _search.push(obj)
-        //             }
-        //         })
-        //     }
+        setSearchValue() {
+            let _search = []
+            // sku编码
+            if (this.formFilter['sku']) {
+                let obj = {
+                    label: 'sku',
+                    val: this.formFilter['sku']
+                }
+                _search.push(obj)
+            }
 
-        //     // 退款状态
-        //     console.log('退款状态', this.formFilter)
-        //     if (this.formFilter['statusCache']) {
-        //         this.statusList.forEach(ev => {
-        //             if (ev.value == this.formFilter['statusCache']) {
-        //                 let obj = {
-        //                     label: 'statusCache',
-        //                     val: ev.label
-        //                 }
-        //                 _search.push(obj)
-        //             }
-        //         })
-        //     }
-
-        //     // 售后原因 reason_id
-        //     if (this.formFilter['reason_id']) {
-        //         this.reasonList.forEach(ev => {
-        //             if (ev.id == this.formFilter['reason_id']) {
-        //                 let obj = {
-        //                     label: 'reason_id',
-        //                     val: ev.name
-        //                 }
-        //                 _search.push(obj)
-        //             }
-        //         })
-        //     }
-
-        //     // 申请时间 createdTime
-        //     if (this.formFilter['createdTime'] && this.formFilter['createdTime'].length === 2) {
-        //         let _ge_arr = this.$moment(this.formFilter.createdTime[0])
-        //             .format('YYYY-MM-DD ')
-        //             .split('-')
-        //         let _le_arr = this.$moment(this.formFilter.createdTime[1])
-        //             .format('YYYY-MM-DD ')
-        //             .split('-')
-        //         let _ge = _ge_arr[1] + '.' + _ge_arr[2]
-        //         let _le = _le_arr[1] + '.' + _le_arr[2]
-        //         let obj = {
-        //             label: 'createdTime',
-        //             val: _ge + ' - ' + _le
-        //         }
-        //         _search.push(obj)
-        //     }
-        //     console.log('_search', _search)
-        //     this.searchList = _.cloneDeep(_search)
-        // },
+            this.searchList = _.cloneDeep(_search)
+        },
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
