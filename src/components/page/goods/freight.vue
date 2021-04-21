@@ -50,7 +50,7 @@
                             <span>{{ scope.row.is_free === 2 ? '0' : scope.row.first_money / 100 }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="item.type == 1 ? '首件数(件)' : '首重量(g)'" width="120">
+                    <el-table-column :label="item.type == 1 ? '续件数(件)' : '续重量(g)'" width="120">
                         <template slot-scope="scope">
                             <span>{{ scope.row.is_free === 2 ? '0' : scope.row.continue_num }}</span>
                         </template>

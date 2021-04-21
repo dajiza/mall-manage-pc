@@ -1,6 +1,6 @@
 <template>
     <!-- dialog 城市列表 -->
-    <el-dialog title="挑选商品" :visible.sync="isShow" width="90%" @open="open" @opened="opened">
+    <el-dialog title="挑选商品" :visible.sync="isShow" width="90%" @open="open" @opened="opened" @closed="close">
         <div class="app-container goods-list">
             <div class="head-container">
                 <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
@@ -41,7 +41,7 @@
                     <el-form-item class="form-item-btn" label="">
                         <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                         <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                        <el-popover placement="bottom" width="300" trigger="click" popper-class="group-popper">
+                        <el-popover placement="bottom" width="300" v-model="popperShow" trigger="click" popper-class="group-popper">
                             <div class="row-list">
                                 <div class="nodata" v-if="checkedList.length == 0">无数据</div>
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
@@ -285,7 +285,8 @@ export default {
                 storehouse_code: '',
                 typeCategory: [], //cache数据
                 discount_condition: 1
-            }
+            },
+            popperShow: false //已选列表 popover显示
         }
     },
     created() {},
@@ -602,6 +603,7 @@ export default {
         },
         close() {
             this.isShow = false
+            this.popperShow = false
         },
         async save() {
             let listClone = _.cloneDeep(this.checkedList)
