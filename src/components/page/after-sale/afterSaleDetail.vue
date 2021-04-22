@@ -156,6 +156,11 @@
                             <span>{{ (scope.row.price_sum_change / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column label="会员折扣元)">
+                        <template slot-scope="scope">
+                            <span>{{ formatMoney(scope.row.off_2) }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="实付(元)">
                         <template slot-scope="scope">
                             <span>{{ formatMoney(scope.row.price_sum_end) }}</span>

@@ -151,6 +151,9 @@
                 <el-table-column prop="off_1" label="改价(元)" width="120">
                     <template slot-scope="scope"> {{ (scope.row.price_total_changed / 100) | rounding }}</template>
                 </el-table-column>
+                <el-table-column prop="off_1" label="会员折扣(元)" width="120">
+                    <template slot-scope="scope"> {{ (scope.row.off_2 / 100) | rounding }}</template>
+                </el-table-column>
                 <el-table-column prop="price_total_real" label="实付金额(元)" width="120">
                     <template slot-scope="scope">
                         <span v-if="scope.row.status === 9">0.00</span>

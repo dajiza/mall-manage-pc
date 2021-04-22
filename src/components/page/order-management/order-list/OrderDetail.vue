@@ -252,6 +252,11 @@
                         </div>
                     </template>
                 </el-table-column>
+                <el-table-column prop="off_1" label="会员折扣(元)" width="120" :resizable="true" v-if="back_field_show('会员折扣(元)')">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.off_2/100 | rounding}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="price_real" label="实付(元)" :resizable="true" v-if="back_field_show('实付(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.price_sum_end/100 | rounding}}</span>
@@ -759,7 +764,8 @@
                 detailReturnMoneyList: [], // 子订单退款金记录列表
                 refund_money_all: 0, // 退款总额
                 num_total_all: 0, // 商品总数
-                allList:[
+                allList:[],
+                default_List:[
                     {name:'操作', is_show: true},
                     {name:'图片', is_show: true},
                     {name:'产品名称', is_show: true},
@@ -770,14 +776,12 @@
                     {name:'单价(元)', is_show: true},
                     {name:'数量', is_show: true},
                     {name:'总价(元)', is_show: true},
-                    // {name:'活动优惠总额(元)', is_show: true},
                     {name:'优惠券(元)', is_show: true},
                     {name:'改价(元)', is_show: true},
+                    {name:'会员折扣(元)', is_show: true, is_new: true},
                     {name:'实付(元)', is_show: true},
                     {name:'退款金额(元)', is_show: true}
                 ],
-                all_List:['操作','图片','产品名称', 'SKU编码','商品名称','规格','订单状态','单价(元)','数量',
-                    '总价(元)','活动优惠总额(元)','优惠券(元)', '改价(元)', '实付(元)', '退款金额(元)'],
                 local_show:[],
                 is_all_select: true,
             }
@@ -877,7 +881,7 @@
             back_field_show:function() {
                 let blo = true
                 return (data) =>{
-                    console.log('allList', this.allList)
+                    // console.log('allList', this.allList)
                     this.allList.forEach((ev,i)=>{
                         if(ev.name === data){
                             blo = ev.is_show
@@ -896,9 +900,22 @@
             this.getReason2(6);
 
             // 本地记录 字段显示列表 local_show
-            console.log('orderDetailField', localStorage.getItem('orderDetailField'))
+            console.log('orderDetailField', JSON.parse(localStorage.getItem('orderDetailField')))
             if(localStorage.getItem('orderDetailField')){
-                this.allList = JSON.parse(localStorage.getItem('orderDetailField'))
+                let all_list  = JSON.parse(localStorage.getItem('orderDetailField'));
+                let defaultList = _.cloneDeep(this.default_List)
+                defaultList.forEach((default_ev)=>{
+                    let len = all_list.filter(item => {return item.name == default_ev.name}).length
+                    if(len == 0){
+                        console.log('default_ev', default_ev)
+                    }
+                    all_list.forEach((ev)=>{
+                        if(ev.name == default_ev.name){
+                            default_ev['is_show'] = ev.is_show;
+                        }
+                    })
+                })
+                this.allList = defaultList
                 this.itemChange();
             }
         },
