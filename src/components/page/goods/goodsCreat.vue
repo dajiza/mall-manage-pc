@@ -245,6 +245,11 @@
                             <span>{{ scope.row.attr_unit }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column label="重量" width="">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_weight }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="库存预警" width="120">
                         <template slot-scope="scope">
                             <el-form-item label="" label-width="0px" :prop="'sku_list.' + scope.$index + '.stock_warning'" :rules="rulesInt">
