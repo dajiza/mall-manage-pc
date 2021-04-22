@@ -245,7 +245,7 @@
                             <span>{{ scope.row.attr_unit }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="重量" width="">
+                    <el-table-column label="重量(g)" width="">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_weight }}</span>
                         </template>
