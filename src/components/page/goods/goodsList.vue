@@ -1548,7 +1548,7 @@ export default {
 }
 .sku-table {
     box-sizing: border-box;
-    margin: 0px 138px;
+    margin: 0px 0 0 138px;
     max-width: calc(100% - 138px);
 }
 .goods-list .table /deep/ .el-table__expand-icon > .el-icon {

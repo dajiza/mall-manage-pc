@@ -24,6 +24,7 @@
         "moment": "^2.29.1",
         "qrcodejs2": "0.0.2",
         "qs": "^6.9.4",
+        "sortablejs": "^1.13.0",
         "uglifyjs-webpack-plugin": "^2.2.0",
         "vue": "^2.6.12",
         "vue-cropperjs": "^3.0.0",
