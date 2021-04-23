@@ -126,7 +126,9 @@
             </el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
-                    <el-button class="btn-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)">{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button>
+                    <el-button class="btn-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)"
+                        >{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button
+                    >
                 </template>
             </el-table-column>
         </el-table>
@@ -262,7 +264,7 @@ export default {
                 },
                 shortcuts: [
                     {
-                        text: '一个月',
+                        text: '一个月后',
                         onClick(picker) {
                             const date = new Date()
                             date.setTime(date.getTime() + 3600 * 1000 * 24 * 30)
@@ -270,7 +272,7 @@ export default {
                         }
                     },
                     {
-                        text: '半年',
+                        text: '半年后',
                         onClick(picker) {
                             const date = new Date()
                             date.setTime(date.getTime() + 3600 * 1000 * 24 * 30 * 6)
@@ -278,7 +280,7 @@ export default {
                         }
                     },
                     {
-                        text: '一年',
+                        text: '一年后',
                         onClick(picker) {
                             const date = new Date()
                             date.setTime(date.getTime() + 3600 * 1000 * 24 * 365)
@@ -421,7 +423,7 @@ export default {
                         discount_id: this.formMember.discount_id, // 折扣id
                         discount_end_at: this.$moment(this.formMember.discount_end_at)
                             .set({ hour: 23, minute: 59, second: 59 })
-                            .format('YYYY-MM-DD HH:mm:ss') // 到期时间
+                            .format('YYYY-MM-DD') // 到期时间
                     }
                     updateUserDiscount(params)
                         .then(res => {
