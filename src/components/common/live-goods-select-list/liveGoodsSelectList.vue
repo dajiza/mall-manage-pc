@@ -205,10 +205,10 @@
                         <template slot-scope="scope">
                             <span v-if="scope.row.goods_type == 1">布料</span>
                             <span v-if="scope.row.goods_type == 2">
-                        其他{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.goods_category_id).name : '' }}
+                        其他{{backGoodsOtherName(scope.row.goods_category_id)}}
                     </span>
                             <span v-if="scope.row.goods_type == 3">
-                        布组{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.goods_category_id).name : '' }}
+                        布组{{backGoodsCategoryName(scope.row.goods_category_id)}}
                     </span>
                         </template>
                     </el-table-column>
@@ -354,6 +354,36 @@
                     }.bind(this)
                 )
             }
+        },
+        computed: {
+            backGoodsOtherName: function() {
+                return data => {
+                    console.log('data', data)
+                    let _name = '';
+                    this.categoryListOther.forEach((ev)=>{
+                        console.log('ev', ev.id)
+                        if(ev.id == data){
+                            console.log('ev', ev);
+                            _name = " > " + ev.name
+                        }
+                    })
+                    return _name
+                }
+            },
+            backGoodsCategoryName: function() {
+                return data => {
+                    console.log('data', data)
+                    let _name = '';
+                    this.categoryListClothGroup.forEach((ev)=>{
+                        console.log('ev', ev.id)
+                        if(ev.id == data){
+                            console.log('ev', ev);
+                            _name = " > " + ev.name
+                        }
+                    })
+                    return _name
+                }
+            },
         },
         created() {},
         mounted() {},
