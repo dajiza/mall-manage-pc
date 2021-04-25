@@ -34,16 +34,16 @@
                 <el-table-column prop="id" label="ID" width="90"></el-table-column>
                 <el-table-column prop="name" label="活动名称"></el-table-column>
                 <el-table-column prop="phone" label="活动优惠类型" width="150">
-                    <template slot-scope="scope">{{typeBack(scope.row.type)}}</template>
+                    <template slot-scope="scope">{{ typeBack(scope.row.type) }}</template>
                 </el-table-column>
                 <el-table-column prop="shop_name" label="应用店铺" width="160"></el-table-column>
                 <el-table-column prop="type_id" label="活动优惠类型_id" width="140"></el-table-column>
                 <el-table-column prop="get_time" label="时间" width="184">
-                    <template slot-scope="scope">{{scope.row.start_time}} - {{scope.row.end_time || '无限制'}}</template>
+                    <template slot-scope="scope">{{ scope.row.start_time }} - {{ scope.row.end_time || '无限制' }}</template>
                 </el-table-column>
                 <el-table-column prop="status" label="状态" width="100">
                     <template slot-scope="scope">
-                        <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已启用':'已停用' }}</span>
+                        <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已启用' : '已停用' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="110">
@@ -51,11 +51,11 @@
                         <el-button
                             type="text"
                             class="marginLeft0 marginRight15"
-                            :class="{'delete-color':scope.row.status > 1}"
+                            :class="{ 'delete-color': scope.row.status > 1 }"
                             v-hasPermission="'mall-backend-activity-change-status'"
                             @click="handleChangeStatus(scope.$index, scope.row)"
-                        >{{scope.row.status > 1 ? '停用':'启用'}}</el-button>
-
+                            >{{ scope.row.status > 1 ? '停用' : '启用' }}</el-button
+                        >
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -86,10 +86,10 @@ export default {
     data() {
         return {
             searchForm: {
-                coupon_title:'', // 优惠券名称
-                nick_name:'', // 铜壶微信名
-                status:'', // 优惠券状态
-                phone:'' // 用户手机号
+                coupon_title: '', // 优惠券名称
+                nick_name: '', // 铜壶微信名
+                status: '', // 优惠券状态
+                phone: '' // 用户手机号
             },
             pageInfo: {
                 name: '',
@@ -104,13 +104,13 @@ export default {
             statusOptions: [], // 状态下拉
             shopOptions: [], // 代理店铺下拉列表
             searchParams: {
-                coupon_title:'', // 优惠券名称
-                nick_name:'', // 微信名
-                status:'', // 优惠券状态
-                phone:'' // 用户手机号
+                coupon_title: '', // 优惠券名称
+                nick_name: '', // 微信名
+                status: '', // 优惠券状态
+                phone: '' // 用户手机号
             },
             tableHeight: 'calc(100vh - 194px)',
-            activityId: -1,
+            activityId: -1
         }
     },
     components: {
@@ -129,25 +129,25 @@ export default {
             }
         },
         typeBack: function() {
-            let _type = '';
+            let _type = ''
             return data => {
                 if (data === 1) {
-                    _type = '优惠券';
+                    _type = '优惠券'
                 }
                 return _type
             }
-        },
+        }
     },
     created() {
         // 状态 下拉列表
         this.statusOptions = [
             { id: 1, name: '已启用' },
-            { id: 2, name: '已停用' },
+            { id: 2, name: '已停用' }
         ]
     },
     mounted() {
         // 获取列表数据
-        this.getListData();
+        this.getListData()
     },
     methods: {
         // 请求-获取订单列表数据
@@ -168,11 +168,11 @@ export default {
                     rLoading.close()
                     if (res.code === 200) {
                         if (res.data.lists) {
-                            this.tableData = res.data.lists;
-                            this.pageTotal = res.data.total;
+                            this.tableData = res.data.lists
+                            this.pageTotal = res.data.total
                         } else {
-                            this.tableData = [];
-                            this.pageTotal = 0;
+                            this.tableData = []
+                            this.pageTotal = 0
                         }
                     } else {
                         this.$notify({
@@ -188,9 +188,9 @@ export default {
 
         // 按钮 - 重置
         resetForm(formName) {
-            this.$refs[formName].resetFields();
+            this.$refs[formName].resetFields()
             // this.searchParams = _.cloneDeep(this.searchForm);
-            this.getListData();
+            this.getListData()
         },
 
         // 按钮-触发搜索按钮
@@ -205,47 +205,47 @@ export default {
         handlePageChange(val) {
             this.$set(this.pageInfo, 'pageIndex', val)
             // this.searchForm = _.cloneDeep(this.searchParams);
-            this.getListData();
+            this.getListData()
         },
         // 启用/停用
-        handleChangeStatus(index,row){
-            let _start = this.getTime(row.start_time).toString();
-            _start = new Date(_start);
-            let _end ;
-            let has_end = false;
-            if(row.end_time){
-                has_end = true;
-                _end = this.getTime(row.end_time).toString() || 0;
-                _end = new Date(_end);
-            }else {
-
+        handleChangeStatus(index, row) {
+            let _start = this.getTime(row.start_time).toString()
+            _start = new Date(_start)
+            let _end
+            let has_end = false
+            if (row.end_time) {
+                has_end = true
+                _end = this.getTime(row.end_time).toString() || 0
+                _end = new Date(_end)
+            } else {
             }
-            this.activityId = row.id;
+            this.activityId = row.id
             let params = {
                 id: row.id,
-                start_time: _start.getTime()/1000,
-                end_time: has_end ? _end.getTime()/1000 : 0
-            };
-            if(row.status < 2){
+                start_time: _start.getTime() / 1000,
+                end_time: has_end ? _end.getTime() / 1000 : 0
+            }
+            if (row.status < 2) {
                 // 启用
-                params['status'] = 2;
-                this.changeStatus(params);
-            }else {
+                params['status'] = 2
+                this.changeStatus(params)
+            } else {
                 // 停用
                 // 二次确认
                 this.$confirm('确定要停用该活动吗？', '', {
                     customClass: 'message-delete',
-                    type: 'warning',
-                    center: true
-                }).then(() => {
-                    params['status'] = 1;
-                    this.changeStatus(params);
-                }).catch(() => {});
+                    type: 'warning'
+                })
+                    .then(() => {
+                        params['status'] = 1
+                        this.changeStatus(params)
+                    })
+                    .catch(() => {})
             }
         },
         // 改变状态
-        changeStatus(params){
-            const rLoading = this.openLoading();
+        changeStatus(params) {
+            const rLoading = this.openLoading()
             updateActivityStatus(params)
                 .then(res => {
                     rLoading.close()
@@ -255,8 +255,8 @@ export default {
                             message: '',
                             type: 'success',
                             duration: 3000
-                        });
-                        this.getListData();
+                        })
+                        this.getListData()
                     } else {
                         this.$notify({
                             title: res.msg,
@@ -269,27 +269,27 @@ export default {
                 .catch(() => {})
         },
         //时间格式化
-        getTime(val){
-            if(val){
-                const dt = new Date(val);
-                let year = dt.getFullYear(); //年
-                let month = dt.getMonth() +1; //月
-                let date = dt.getDate(); //日
-                let hh = dt.getHours(); //时
-                let mm = dt.getMinutes(); //分
-                let ss = dt.getSeconds(); //秒
-                month = month < 10 ? "0" + month : month;
-                date  = date <10 ? "0" + date : date;
-                hh  = hh <10 ? "0" + hh : hh;
-                mm  = mm <10 ? "0" + mm : mm;
-                ss  = ss <10 ? "0" + ss : ss;
+        getTime(val) {
+            if (val) {
+                const dt = new Date(val)
+                let year = dt.getFullYear() //年
+                let month = dt.getMonth() + 1 //月
+                let date = dt.getDate() //日
+                let hh = dt.getHours() //时
+                let mm = dt.getMinutes() //分
+                let ss = dt.getSeconds() //秒
+                month = month < 10 ? '0' + month : month
+                date = date < 10 ? '0' + date : date
+                hh = hh < 10 ? '0' + hh : hh
+                mm = mm < 10 ? '0' + mm : mm
+                ss = ss < 10 ? '0' + ss : ss
                 let new_time = ''
-                new_time = year + "-" + month + "-" + date + ' ' + hh + ':' + mm + ':' + ss;
-                return new_time;
-            }else {
+                new_time = year + '-' + month + '-' + date + ' ' + hh + ':' + mm + ':' + ss
+                return new_time
+            } else {
                 return '-1'
             }
-        },
+        }
     }
 }
 </script>

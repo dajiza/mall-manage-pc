@@ -1,7 +1,6 @@
 <template>
-    <div class="order-list-container" id="containerWrap"  @click.stop="searchShow = false">
+    <div class="order-list-container" id="containerWrap" @click.stop="searchShow = false">
         <div class="container container-table-has-search p-t-0 pos-relative">
-
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">广告管理</div>
@@ -30,15 +29,15 @@
                             </el-form-item>
                             <el-form-item label="广告时间" prop="adv_time" class="long-time">
                                 <el-date-picker
-                                        class="filter-item"
-                                        v-model="searchForm.adv_time"
-                                        type="datetimerange"
-                                        align="left"
-                                        range-separator="至"
-                                        start-placeholder="开始时间"
-                                        end-placeholder="结束时间"
-                                        value-format="yyyy-MM-dd HH:mm:ss"
-                                        :default-time="['00:00:00', '23:59:59']"
+                                    class="filter-item"
+                                    v-model="searchForm.adv_time"
+                                    type="datetimerange"
+                                    align="left"
+                                    range-separator="至"
+                                    start-placeholder="开始时间"
+                                    end-placeholder="结束时间"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    :default-time="['00:00:00', '23:59:59']"
                                 >
                                 </el-date-picker>
                             </el-form-item>
@@ -49,18 +48,18 @@
                         </el-form>
                     </div>
                 </transition>
-                <div class="search-value" >
-                    <template v-for="(item,i) in searchList">
+                <div class="search-value">
+                    <template v-for="(item, i) in searchList">
                         <div class="search-item" v-if="i <= showMaxIndex">
-                            {{item.val}}
-                            <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                            {{ item.val }}
+                            <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
                     <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                     <div class="search-value-clone" ref="searchValueBox">
-                        <template v-for="(item,i) in searchList">
-                            <div class="search-item" :ref="'searchItem'+ i">
-                                {{item.val}}
+                        <template v-for="(item, i) in searchList">
+                            <div class="search-item" :ref="'searchItem' + i">
+                                {{ item.val }}
                                 <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                             </div>
                         </template>
@@ -187,8 +186,8 @@ export default {
             previewIndex: 0,
             dialogVisible: false,
             searchShow: false,
-            searchList:[],
-            showMaxIndex: 0,
+            searchList: [],
+            showMaxIndex: 0
         }
     },
     components: {
@@ -230,30 +229,32 @@ export default {
             }
         }
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     created() {},
@@ -336,17 +337,17 @@ export default {
         handleSearch() {
             this.$set(this.pageInfo, 'pageIndex', 1)
             // 存储搜索条件
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.searchShow = false;
-            this.setSearchValue();
-            this.getListData();
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.searchShow = false
+            this.setSearchValue()
+            this.getListData()
         },
 
         // 设置显示的搜索条件
         setSearchValue() {
-            let _search = [];
+            let _search = []
             // 广告名称 coupon_title
-            if(this.searchParams['title']){
+            if (this.searchParams['title']) {
                 let obj = {
                     label: 'title',
                     val: this.searchParams['title']
@@ -354,9 +355,9 @@ export default {
                 _search.push(obj)
             }
             // location
-            if(this.searchParams['location']){
-                this.locationOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['location']){
+            if (this.searchParams['location']) {
+                this.locationOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['location']) {
                         let obj = {
                             label: 'location',
                             val: ev.name
@@ -367,9 +368,9 @@ export default {
             }
 
             // 应用店铺 shop_id
-            if(this.searchParams['shop_id']){
-                this.shopOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['shop_id']){
+            if (this.searchParams['shop_id']) {
+                this.shopOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['shop_id']) {
                         let obj = {
                             label: 'shop_id',
                             val: ev.shop_name
@@ -380,9 +381,9 @@ export default {
             }
 
             // 广告状态 status
-            if(this.searchParams['status']){
-                this.statusOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['status']){
+            if (this.searchParams['status']) {
+                this.statusOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['status']) {
                         let obj = {
                             label: 'status',
                             val: ev.name
@@ -393,15 +394,19 @@ export default {
             }
 
             // 广告时间 adv_time
-            if(this.searchParams['adv_time'] && this.searchParams['adv_time'].length === 2){
-                console.log('adv_time', this.searchParams.adv_time);
+            if (this.searchParams['adv_time'] && this.searchParams['adv_time'].length === 2) {
+                console.log('adv_time', this.searchParams.adv_time)
                 console.log('111', this.$moment(this.searchParams.adv_time[0]).format('YYYY-MM-DD '))
-                let _ge_arr = (this.$moment(this.searchParams.adv_time[0]).format('YYYY-MM-DD ')).split('-');
-                let _le_arr = (this.$moment(this.searchParams.adv_time[1]).format('YYYY-MM-DD ')).split('-');
+                let _ge_arr = this.$moment(this.searchParams.adv_time[0])
+                    .format('YYYY-MM-DD ')
+                    .split('-')
+                let _le_arr = this.$moment(this.searchParams.adv_time[1])
+                    .format('YYYY-MM-DD ')
+                    .split('-')
                 //  + ' '+ this.searchParams['created_time_ge'].split(' ')[1]
-                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                let _ge = _ge_arr[1] + '.' + _ge_arr[2]
                 //  + ' '+ this.searchParams['created_time_le'].split(' ')[1]
-                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let _le = _le_arr[1] + '.' + _le_arr[2]
                 let obj = {
                     label: 'adv_time',
                     val: _ge + ' - ' + _le
@@ -414,9 +419,9 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
-            this.$set(this.searchForm,item.label, '');
-            this.$set(this.searchParams,item.label, '');
-            if(item.label == 'adv_time'){
+            this.$set(this.searchForm, item.label, '')
+            this.$set(this.searchParams, item.label, '')
+            if (item.label == 'adv_time') {
                 this.$set(this.searchParams, 'adv_time', [])
                 this.$set(this.searchForm, 'adv_time', [])
             }
@@ -444,8 +449,7 @@ export default {
                 // 二次确认
                 this.$confirm('确定要下架该广告吗？', '', {
                     customClass: 'message-delete',
-                    type: 'warning',
-                    center: true
+                    type: 'warning'
                 })
                     .then(() => {
                         params['status'] = 1

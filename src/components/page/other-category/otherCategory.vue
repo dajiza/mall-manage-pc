@@ -9,7 +9,7 @@
             </div>
             <div class="content">
                 <div class="global-table-title">
-                    <el-button class="add-btn" type="primary" v-hasPermission="'mall-backend-other-category-create'" @click="handleCreateAuthority">
+                    <el-button class="add-btn" type="primary" v-hasPermission="'mall-backend-other-category-create'" @click="handleCreateFather">
                         新增分类
                     </el-button>
                 </div>
@@ -29,12 +29,12 @@
                             <el-table class="sku-table" :data="props.row.son" row-key="id" :id="'innerTable' + props.row.id" :header-cell-style="$tableHeaderColor">
                                 <el-table-column label="图片" width="140">
                                     <template slot-scope="scope">
-                                        <img class="product-img" :src="getImg(scope.row.img)" alt="" @click="viewBigImg(scope.row.category_img)" />
+                                        <img class="product-img" :src="getImg(scope.row.category_img)" alt="" @click="viewBigImg(scope.row.category_img)" />
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="分类名称">
                                     <template slot-scope="scope">
-                                        <span>{{ scope.row.name }}</span>
+                                        <span>{{ scope.row.id }}{{ scope.row.name }}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="操作" width="160" align="left">
@@ -66,10 +66,15 @@
                     </el-table-column>
                     <el-table-column label="操作" width="240" align="left">
                         <template slot-scope="scope">
-                            <el-button type="text" class="marginRight32 m-l-0" v-hasPermission="'mall-backend-other-category-update'" @click="handleEdit(scope.$index, scope.row)">
+                            <el-button type="text" class="marginRight32 m-l-0" v-hasPermission="'mall-backend-other-category-update'" @click="handleCreat(scope.$index, scope.row)">
                                 新增下级
                             </el-button>
-                            <el-button type="text" class="marginRight32 m-l-0" v-hasPermission="'mall-backend-other-category-update'" @click="handleEdit(scope.$index, scope.row)">
+                            <el-button
+                                type="text"
+                                class="marginRight32 m-l-0"
+                                v-hasPermission="'mall-backend-other-category-update'"
+                                @click="handleEditFather(scope.$index, scope.row)"
+                            >
                                 编辑
                             </el-button>
                             <el-button type="text" class="delete-color m-l-0" v-hasPermission="'mall-backend-other-category-delete'" @click="handleDelete(scope.$index, scope.row)">
@@ -81,7 +86,7 @@
                         <EmptyList></EmptyList>
                     </template>
                 </el-table>
-                <div class="pagination-container">
+                <!-- <div class="pagination-container">
                     <el-pagination
                         background
                         layout="total, prev, pager, next"
@@ -90,7 +95,7 @@
                         :total="pageTotal"
                         @current-change="handlePageChange"
                     ></el-pagination>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -111,7 +116,7 @@
                         :show-file-list="false"
                         :headers="header"
                     >
-                        <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+                        <img v-if="form.category_img" :src="form.category_img" class="avatar" />
                         <div v-else class="avatar-uploader-icon">
                             <div class="avatar-wrap">
                                 <img src="../../../assets/img/Icon-Plus.svg" alt="" />
@@ -120,9 +125,9 @@
                         </div>
                     </el-upload>
                 </el-form-item>
-                <el-form-item label="父级" prop="cate">
-                    <el-select v-model="form.cate" placeholder="请选择">
-                        <el-option v-for="item in cateList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                <el-form-item label="父级" prop="parent_id">
+                    <el-select v-model="form.parent_id" placeholder="请选择" :disabled="cateData != null">
+                        <el-option v-for="item in tableData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -133,10 +138,10 @@
         </el-dialog>
         <!-- 新增父类 弹出框 -->
         <el-dialog
-            :title="formFatherTitle"
-            :visible.sync="editFatherVisible"
+            :title="formTitleFather"
+            :visible.sync="editVisibleFather"
             width="380px"
-            :before-close="dialogFatherClose"
+            :before-close="dialogCloseFather"
             :destroy-on-close="true"
             :close-on-click-modal="false"
         >
@@ -146,8 +151,8 @@
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogFatherClose">取 消</el-button>
-                <el-button type="primary" @click="saveEdit">确 定</el-button>
+                <el-button @click="dialogCloseFather">取 消</el-button>
+                <el-button type="primary" @click="saveEditFather">确 定</el-button>
             </span>
         </el-dialog>
         <!--大图预览-->
@@ -158,12 +163,14 @@
 </template>
 
 <script>
-import { queryCategoryList, addCategory, editCategory, deleteCategory } from '../../../api/otherCategory'
+import { addCategory, editCategory, deleteCategory } from '../../../api/otherCategory'
+import { queryCategoryListAll } from '../../../api/goods'
 import EmptyList from '../../common/empty-list/EmptyList'
 import './otherCategory.less'
 import ElImageViewer from '@/components/common/image-viewer'
 import { getToken } from '../../../utils/auth'
 import Sortable from 'sortablejs'
+import { construct } from '@/utils/json-tree'
 export default {
     name: 'otherCategory',
     data() {
@@ -176,8 +183,9 @@ export default {
             tableData: [],
             editVisible: false,
             form: {
-                name: '',
-                cate: ''
+                name: '', //max length =100
+                category_img: '',
+                parent_id: '' //0为最大分类
             },
             rules: {
                 name: [
@@ -192,7 +200,7 @@ export default {
                 { value: '3', label: '布组' }
             ],
             formTitle: '',
-            current_id: -1,
+            // current_id: -1,
             tableHeight: 'calc(100% - 98px)',
             uploadImgUrl: '', //   图片上传地址
             back_img_url: '', //   上传后台返回图片地址（不完整）
@@ -203,19 +211,21 @@ export default {
             dialogVisible: false,
             imgSrcList: [],
             expands: [],
+            cateData: null, //编辑的分类数据
             // 添加父类
-            editFatherVisible: false,
+            editVisibleFather: false,
             formFather: {
                 name: '',
                 cate: ''
             },
-            formFatherTitle: '',
+            formTitleFather: '',
             rulesFather: {
                 name: [
                     { required: true, message: '请输入类别名称', trigger: 'blur' },
                     { max: 100, message: '最多输入100个字符', trigger: 'blur' }
                 ]
-            }
+            },
+            parentId: 0 //添加分类父类id 0为最大分类
         }
     },
     components: {
@@ -247,34 +257,22 @@ export default {
         // 获取 分类列表数据
         getData() {
             let params = {
-                page: this.pageIndex,
-                limit: this.pageLimit,
                 type: Number(this.type) //1 其他 2 成品布
             }
             const rLoading = this.openLoading()
-            queryCategoryList(params).then(res => {
+            queryCategoryListAll(params).then(res => {
                 rLoading.close()
                 if (res.code === 200) {
                     if (res.data) {
                         console.log('tableData', res.data)
-                        this.tableData = res.data.lists
-                        this.pageTotal = res.data.total
+                        // this.tableData = res.data
 
-                        this.tableData = this.tableData.map((item, index) => {
-                            item.son = [
-                                {
-                                    id: Math.floor(Math.random() * 1000 + 1),
-                                    name: index + 'a',
-                                    img: 'https://storehouse-upyun.chuanshui.cn/2021-04-21/files/PiwIaGPR8sNTNFA2.jpeg'
-                                },
-                                {
-                                    id: Math.floor(Math.random() * 1000 + 1),
-                                    name: index + 'b',
-                                    img: 'https://storehouse-upyun.chuanshui.cn/2021-04-21/files/PiwIaGPR8sNTNFA2.jpeg'
-                                }
-                            ]
-                            return item
+                        this.tableData = construct(res.data, {
+                            id: 'id',
+                            pid: 'parent_id',
+                            children: 'son'
                         })
+                        console.log('输出 ~ this.tableData', this.tableData)
                     } else {
                         this.tableData = []
                     }
@@ -293,32 +291,48 @@ export default {
             console.log(tab, event)
             this.getData()
         },
-        // 按钮-新增分类
-        handleCreateAuthority() {
-            this.formTitle = this.type == 1 ? '新增分类-其他' : '新增分类-布组'
-            this.imageUrl = ''
-            this.completeImageUrl = ''
+        // 按钮-编辑分类/编辑下级 内表格
+        handleCreat(index, row) {
+            console.log('输出 ~ row', row)
+            this.formTitle = this.type == 1 ? '新增二级分类-其他' : '新增二级分类-布组'
             this.editVisible = true
-            this.$nextTick(() => {
-                let new_obj = {}
-                new_obj['name'] = ''
-                // 触发更新
-                this.form = Object.assign({}, this.form, new_obj)
-            })
+            this.form = {
+                name: '', //max length =100
+                category_img: '',
+                parent_id: row.id //0为最大分类
+            }
+            this.cateData = null
+        },
+        // 按钮-新增分类 外表格
+        handleCreateFather() {
+            this.formTitleFather = this.type == 1 ? '新增分类-其他' : '新增分类-布组'
+            this.editVisibleFather = true
+            this.parentId = 0
+            this.formFather.name = ''
+            this.cateData = null
         },
 
-        // 按钮-编辑分类/编辑下级
+        // 按钮-编辑分类/编辑下级 内表格
         handleEdit(index, row) {
-            this.current_id = row.id
-            this.completeImageUrl = row.category_img
-            this.imageUrl = this.completeImageUrl + '!/fw/200'
+            // this.current_id = row.id
+            // this.completeImageUrl = row.category_img
+            // this.imageUrl = this.completeImageUrl + '!/fw/200'
             this.formTitle = '编辑分类'
             this.editVisible = true
-            this.$nextTick(() => {
-                const new_obj = JSON.parse(JSON.stringify(row))
-                // 触发更新
-                this.form = Object.assign({}, this.form, new_obj)
-            })
+            this.form.name = row.name
+            this.form.parent_id = row.parent_id
+            this.form.category_img = row.category_img
+            this.cateData = _.cloneDeep(row)
+        },
+        // 按钮-编辑分类/编辑下级 外表格
+        handleEditFather(index, row) {
+            // this.current_id = row.id
+            // this.completeImageUrl = row.category_img
+            // this.imageUrl = this.completeImageUrl + '!/fw/200'
+            this.formTitleFather = '编辑分类'
+            this.editVisibleFather = true
+            this.formFather.name = row.name
+            this.cateData = _.cloneDeep(row)
         },
 
         // 按钮-删除操作
@@ -326,8 +340,7 @@ export default {
             // 二次确认删除
             this.$confirm('确定要删除该分类吗？', '', {
                 customClass: 'message-delete',
-                type: 'warning',
-                center: true
+                type: 'warning'
             })
                 .then(() => {
                     let params = {}
@@ -343,7 +356,7 @@ export default {
             this.$refs['formBox'].validate(valid => {
                 if (valid) {
                     // 新增分类
-                    if (this.completeImageUrl === '') {
+                    if (this.form.category_img === '') {
                         this.$notify({
                             title: '请上传图片',
                             message: '',
@@ -352,18 +365,64 @@ export default {
                         })
                         return false
                     } else {
-                        request['name'] = this.form.name
-                        request['category_img'] = this.completeImageUrl
-                        request['type'] = Number(this.type)
+                        let asc = 0
+                        for (let i = 0; i < this.tableData.length; i++) {
+                            const item = this.tableData[i]
+                            if (item.id == this.form.parent_id) {
+                                asc = item.son ? item.son[item.son.length - 1].asc + 1 : 0
+                                break
+                            }
+                        }
+
+                        let params = {
+                            name: this.form.name, //max length =100
+                            category_img: this.form.category_img,
+                            type: Number(this.type),
+                            parent_id: this.form.parent_id,
+                            asc: this.cateData ? this.cateData.asc : asc
+                        }
                         if (this.formTitle !== '编辑分类') {
-                            this.categoryAdd(request)
+                            this.categoryAdd(params)
                         } else {
-                            request['id'] = this.current_id
-                            this.categoryEdit(request)
+                            params['id'] = this.cateData.id
+                            this.categoryEdit(params)
                         }
                     }
                 } else {
-                    return false
+                    this.$notify({
+                        title: '请完整填写数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 3000
+                    })
+                }
+            })
+        },
+        // 按钮-保存编辑 外表格
+        saveEditFather() {
+            this.$refs['formFatherBox'].validate(valid => {
+                if (valid) {
+                    // 新增分类
+                    let asc = this.tableData[this.tableData.length - 1].asc + 1
+                    let params = {
+                        name: this.formFather.name,
+                        type: Number(this.type), //1 其他 2 成品布
+                        parent_id: this.parentId, //0为最大分类
+                        asc: this.cateData ? this.cateData.asc : asc //排序 正序。前端实现排序  仅记录
+                    }
+                    if (this.formTitleFather !== '编辑分类') {
+                        this.categoryAdd(params)
+                    } else {
+                        params['id'] = this.cateData.id
+                        this.categoryEdit(params)
+                    }
+                } else {
+                    this.$notify({
+                        title: '请完整填写数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 3000
+                    })
                 }
             })
         },
@@ -374,6 +433,7 @@ export default {
             addCategory(params).then(res => {
                 rLoading.close()
                 if (res.code === 200) {
+                    this.editVisibleFather = false
                     this.editVisible = false
                     this.$notify({
                         title: '添加成功',
@@ -400,6 +460,7 @@ export default {
                 rLoading.close()
                 if (res.code === 200) {
                     this.editVisible = false
+                    this.editVisibleFather = false
                     this.$notify({
                         title: '编辑成功',
                         message: '',
@@ -453,10 +514,10 @@ export default {
             this.editVisible = false
         },
         // 弹框关闭前操作 父类
-        dialogFatherClose() {
+        dialogCloseFather() {
             this.$refs['formFatherBox'].clearValidate()
             this.$refs['formFatherBox'].resetFields()
-            this.editFatherVisible = false
+            this.editVisibleFather = false
         },
 
         // 图片上传成功
@@ -464,10 +525,11 @@ export default {
             // this.imageUrl = URL.createObjectURL(file.raw);
             this.uploadingTip.close()
             if (response.code === 200) {
-                this.back_img_url = response.data.file_url
-                this.completeImageUrl = response.data.file_url
-                this.imageUrl = response.data.file_url + '!/fw/200'
-                this.bigImgUrl = response.data.file_url + '!/fw/640'
+                // this.back_img_url = response.data.file_url
+                // this.completeImageUrl = response.data.file_url
+                // this.imageUrl = response.data.file_url + '!/fw/200'
+                // this.bigImgUrl = response.data.file_url + '!/fw/640'
+                this.form.category_img = response.data.file_url
             } else {
                 this.$notify({ title: response.msg, message: '', type: 'error', duration: 3000 })
             }
@@ -526,10 +588,12 @@ export default {
                 onEnd({ newIndex, oldIndex }) {
                     const currRow = that.tableData.splice(oldIndex, 1)[0]
                     that.tableData.splice(newIndex, 0, currRow)
-                    console.log(
-                        '输出 ~ tale',
-                        that.tableData.map(e => e.id)
-                    )
+
+                    // 上传排序
+                    let sort = that.tableData.map((e, index) => {
+                        return { id: e.id, index: index + 1 }
+                    })
+                    console.log('输出 ~ tale', sort)
                 }
             })
         },
@@ -547,7 +611,12 @@ export default {
                         if (group.id == id) {
                             const currRow = group.son.splice(oldIndex, 1)[0]
                             group.son.splice(newIndex, 0, currRow)
-                            console.log('输出 ~ tale', that.tableData)
+
+                            // 上传排序
+                            let sort = group.son.map((e, index) => {
+                                return { id: e.id, index: index + 1 }
+                            })
+                            console.log('输出 ~ tale', sort)
                         }
                     }
                 }

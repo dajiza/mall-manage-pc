@@ -593,8 +593,7 @@ export default {
             // 二次确认删除
             this.$confirm('确定要删除该分类吗？', '', {
                 customClass: 'message-delete',
-                type: 'warning',
-                center: true
+                type: 'warning'
             })
                 .then(() => {
                     let params = {}
@@ -624,8 +623,7 @@ export default {
             // 二次确认删除
             this.$confirm('确定要删除该标签吗？', '', {
                 customClass: 'message-delete',
-                type: 'warning',
-                center: true
+                type: 'warning'
             })
                 .then(() => {
                     let params = {}

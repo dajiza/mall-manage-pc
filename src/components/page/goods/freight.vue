@@ -135,8 +135,7 @@ export default {
             // 二次确认删除
             this.$confirm('确定要删除该模版吗？', '', {
                 customClass: 'message-delete',
-                type: 'warning',
-                center: true
+                type: 'warning'
             })
                 .then(() => {
                     let params = {}
