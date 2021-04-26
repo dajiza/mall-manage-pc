@@ -680,6 +680,7 @@ export default {
                         product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
                         for (let j = 0; j < product.goods_sku.length; j++) {
                             const sku = product.goods_sku[j]
+                            this.skuImgList.push(sku.sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
                         }
