@@ -352,6 +352,36 @@ export default {
             )
         }
     },
+    computed: {
+        backGoodsOtherName: function() {
+            return data => {
+                console.log('data', data)
+                let _name = ''
+                this.categoryListOther.forEach(ev => {
+                    console.log('ev', ev.id)
+                    if (ev.id == data) {
+                        console.log('ev', ev)
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        },
+        backGoodsCategoryName: function() {
+            return data => {
+                console.log('data', data)
+                let _name = ''
+                this.categoryListClothGroup.forEach(ev => {
+                    console.log('ev', ev.id)
+                    if (ev.id == data) {
+                        console.log('ev', ev)
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        }
+    },
     created() {},
     mounted() {},
     methods: {
@@ -361,71 +391,34 @@ export default {
                 return 'checkboxColumn'
             }
         },
-        computed: {
-            backGoodsOtherName: function() {
-                return data => {
-                    console.log('data', data)
-                    let _name = '';
-                    this.categoryListOther.forEach((ev)=>{
-                        console.log('ev', ev.id)
-                        if(ev.id == data){
-                            console.log('ev', ev);
-                            _name = " > " + ev.name
-                        }
-                    })
-                    return _name
-                }
-            },
-            backGoodsCategoryName: function() {
-                return data => {
-                    console.log('data', data)
-                    let _name = '';
-                    this.categoryListClothGroup.forEach((ev)=>{
-                        console.log('ev', ev.id)
-                        if(ev.id == data){
-                            console.log('ev', ev);
-                            _name = " > " + ev.name
-                        }
-                    })
-                    return _name
-                }
-            },
+
+        formatMoney: formatMoney,
+        goodsTable(row) {
+            if (row.columnIndex == 2) {
+                return 'checkboxColumn'
+            }
         },
-        created() {},
-        mounted() {},
-        methods: {
-            formatMoney: formatMoney,
-            goodsTable(row) {
-                if (row.columnIndex == 2) {
-                    return 'checkboxColumn'
-                }
-            },
-            open() {},
-            opened() {
-                ++this.labelKey;
-                this.checkedList = [];
-                this.listQuery.page = 1;
-                this.searchShow = false;
-                this.$refs['searchForm'].resetFields();
-                this.searchParams = _.cloneDeep(this.searchForm);
-                this.setSearchValue();
-                this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
-                this.queryDataAllInit();
-            },
-            closed() {
-                this.searchShow = false;
-            },
-            //  刷新显示列表的checkbox显示状态
-            refreshSelection(ids) {
-                this.list.forEach((goods_item)=>{
-                    goods_item.shop_skus.forEach((sku_item,i)=>{
-                        if(ids.indexOf(sku_item.sku_id) > -1){
-                            sku_item.skuIsChecked = false;
-                        }
-                    })
-                    goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length;
-                    if(goods_item['checkNum'] < 1){
-                        goods_item['goodsIsChecked'] = false;
+        open() {},
+        opened() {
+            ++this.labelKey
+            this.checkedList = []
+            this.listQuery.page = 1
+            this.searchShow = false
+            this.$refs['searchForm'].resetFields()
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.setSearchValue()
+            this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
+            this.queryDataAllInit()
+        },
+        closed() {
+            this.searchShow = false
+        },
+        //  刷新显示列表的checkbox显示状态
+        refreshSelection(ids) {
+            this.list.forEach(goods_item => {
+                goods_item.shop_skus.forEach((sku_item, i) => {
+                    if (ids.indexOf(sku_item.sku_id) > -1) {
+                        sku_item.skuIsChecked = false
                     }
                 })
                 goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length
