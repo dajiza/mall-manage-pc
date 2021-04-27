@@ -887,7 +887,6 @@ export default {
             this.$confirm('确定撤回审核吗？', '', {
                 customClass: 'message-delete',
                 type: 'warning',
-                center: true
             }).then(() => {
                 console.log('确定')
                 const params = {
@@ -926,7 +925,6 @@ export default {
             this.$confirm('确定要删除商品吗？删除后不可恢复', '', {
                 customClass: 'message-delete',
                 type: 'warning',
-                center: true
             }).then(() => {
                 console.log('确定')
                 const params = {
@@ -994,9 +992,9 @@ export default {
 </script>
 <style scoped="scoped" lang="less">
 .timg {
+    display: inline-block;
     width: 80px;
     height: 60px;
-    display: inline-block;
     vertical-align: bottom;
     cursor: pointer;
 }
@@ -1074,11 +1072,11 @@ export default {
             width: 74px;
         }
         /deep/.el-radio-button__orig-radio:checked+.el-radio-button__inner{
-            background: #fff;
-            color: #1890FF;
             border-color: #1890FF;
+            background: #fff;
             -webkit-box-shadow: -1px 0 0 0 #1890FF;
             box-shadow: -1px 0 0 0 #1890FF;
+            color: #1890FF;
         }
         /deep/.el-radio-button:first-child .el-radio-button__inner{
             border-radius: 2px 0 0 2px;
@@ -1145,19 +1143,19 @@ export default {
 </style>
 <style>
     .el-message-box--center{
-        padding-bottom: 24px;
-    }
-    .el-message-box__message{
-        font-size: 16px;
-        font-family: PingFangSC-Medium, PingFang SC;
-        font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
-        line-height: 24px;
-    }
-    .el-message-box__status{
-        font-size: 32px !important;
-    }
-    .el-message-box__btns{
-        padding: 26px 15px 0;
-    }
+            padding-bottom: 24px;
+        }
+        .el-message-box__message{
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+            font-size: 16px;
+            font-family: PingFangSC-Medium, PingFang SC;
+            line-height: 24px;
+        }
+        .el-message-box__status{
+            font-size: 32px !important;
+        }
+        .el-message-box__btns{
+            padding: 26px 15px 0;
+        }
 </style>

@@ -225,9 +225,10 @@
 </template>
 
 <script>
-import { queryGoodsListNew, queryStoreProductDetail, queryShopList, queryCategoryListAll } from '@/api/goods'
+import { queryGoodsListNew, queryShopList, queryCategoryListAll } from '@/api/goods'
 import { updateSkuDiscountBatch } from '@/api/discount'
 import { formatMoney } from '@/plugin/tool'
+import { construct } from '@/utils/json-tree'
 
 export default {
     name: 'CheckList',
@@ -313,6 +314,9 @@ export default {
             } else if (params['typeCategory'].length == 2) {
                 params['type'] = params['typeCategory'][0]
                 params['category_id'] = params['typeCategory'][1].toString()
+            } else if (params['typeCategory'].length == 3) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = params['typeCategory'][2].toString()
             } else {
                 params['type'] = ''
                 params['category_id'] = ''
@@ -379,29 +383,61 @@ export default {
         },
 
         // 获取分类列表
-        queryCategoryListAll(type) {
-            if (type == 1) {
-                this.categoryList = this.categoryListOther
-            } else {
-                this.categoryList = this.categoryListClothGroup
-            }
-        },
+        // queryCategoryListAll(type) {
+        //     if (type == 1) {
+        //         this.categoryList = construct(this.categoryListOther, {
+        //             id: 'id',
+        //             pid: 'parent_id',
+        //             children: 'children'
+        //         })
+        //     } else {
+        //         this.categoryList = construct(this.categoryListClothGroup, {
+        //             id: 'id',
+        //             pid: 'parent_id',
+        //             children: 'children'
+        //         })
+        //     }
+        // },
         // 生成类型 分类 级联列表
         creatCategoryData() {
             this.typeList = [
-                { value: '1', label: '布料', children: [] },
+                { value: '1', label: '布料', children: null },
                 {
                     value: '2',
                     label: '其他',
-                    children: _.cloneDeep(this.categoryListOther).map(item => {
-                        return { label: item.name, value: item.id }
+                    children: construct(this.categoryListOther, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
                     })
                 },
                 {
                     value: '3',
                     label: '布组',
-                    children: _.cloneDeep(this.categoryListClothGroup).map(item => {
-                        return { label: item.name, value: item.id }
+                    children: construct(this.categoryListClothGroup, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
                     })
                 }
             ]

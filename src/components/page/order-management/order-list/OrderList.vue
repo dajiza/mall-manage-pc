@@ -61,15 +61,15 @@
                                             default-time="00:00:00">
                                     </el-date-picker>-->
                                 <el-date-picker
-                                        class="filter-item"
-                                        v-model="searchForm.pay_time"
-                                        type="datetimerange"
-                                        align="left"
-                                        start-placeholder="开始时间"
-                                        end-placeholder="结束时间"
-                                        value-format="yyyy-MM-dd HH:mm:ss"
-                                        :picker-options="pickerOptions"
-                                        :default-time="['00:00:00', '23:59:59']"
+                                    class="filter-item"
+                                    v-model="searchForm.pay_time"
+                                    type="datetimerange"
+                                    align="left"
+                                    start-placeholder="开始时间"
+                                    end-placeholder="结束时间"
+                                    value-format="yyyy-MM-dd HH:mm:ss"
+                                    :picker-options="pickerOptions"
+                                    :default-time="['00:00:00', '23:59:59']"
                                 >
                                     <!--:picker-options="pickerOptions"-->
                                 </el-date-picker>
@@ -84,18 +84,18 @@
                         </el-form>
                     </div>
                 </transition>
-                <div class="search-value" >
-                    <template v-for="(item,i) in searchList">
+                <div class="search-value">
+                    <template v-for="(item, i) in searchList">
                         <div class="search-item" v-if="i <= showMaxIndex">
-                            {{item.val}}
-                            <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                            {{ item.val }}
+                            <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
                     <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                     <div class="search-value-clone" ref="searchValueBox">
-                        <template v-for="(item,i) in searchList">
-                            <div class="search-item" :ref="'searchItem'+ i">
-                                {{item.val}}
+                        <template v-for="(item, i) in searchList">
+                            <div class="search-item" :ref="'searchItem' + i">
+                                {{ item.val }}
                                 <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                             </div>
                         </template>
@@ -288,37 +288,39 @@ export default {
                 ]
             },
             searchShow: false,
-            searchList:[],
-            showMaxIndex: 0,
+            searchList: [],
+            showMaxIndex: 0
         }
     },
     components: {
         EmptyList
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     computed: {
@@ -390,12 +392,11 @@ export default {
                 { id: 3, name: '渠道3' },
                 { id: 4, name: '渠道4' }
             ];*/
-        if(this.$route.query.status){
-            this.$set(this.searchForm,'status',this.$route.query.status)
-            this.$set(this.searchParams,'status',this.$route.query.status)
-            this.setSearchValue();
-        }else {
-
+        if (this.$route.query.status) {
+            this.$set(this.searchForm, 'status', this.$route.query.status)
+            this.$set(this.searchParams, 'status', this.$route.query.status)
+            this.setSearchValue()
+        } else {
         }
     },
     mounted() {
@@ -466,10 +467,10 @@ export default {
         resetForm(formName) {
             this.$refs[formName].resetFields()
             this.$set(this.pageInfo, 'pageIndex', 1)
-            this.searchParams = _.cloneDeep(this.searchForm);
-            this.searchShow = false;
-            this.setSearchValue();
-            this.getListData();
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.searchShow = false
+            this.setSearchValue()
+            this.getListData()
         },
 
         // 按钮-触发搜索按钮
@@ -479,18 +480,18 @@ export default {
             this.searchParams = _.cloneDeep(this.searchForm)
             this.$set(this.searchParams, 'paid_time_ge', this.searchForm.pay_time[0])
             this.$set(this.searchParams, 'paid_time_le', this.searchForm.pay_time[1])
-            this.searchShow = false;
-            this.setSearchValue();
+            this.searchShow = false
+            this.setSearchValue()
             this.getListData()
         },
 
         // 设置显示的搜索条件
         setSearchValue() {
-            let _search = [];
+            let _search = []
             console.log('status', this.searchParams['status'])
-            console.log('this.searchParams', this.searchParams);
+            console.log('this.searchParams', this.searchParams)
             //订单号
-            if(this.searchParams['order_no']){
+            if (this.searchParams['order_no']) {
                 let obj = {
                     label: 'order_no',
                     val: this.searchParams['order_no']
@@ -498,9 +499,9 @@ export default {
                 _search.push(obj)
             }
             // 订单状态
-            if(this.searchParams['status']){
-                this.orderStatusOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['status']){
+            if (this.searchParams['status']) {
+                this.orderStatusOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['status']) {
                         let obj = {
                             label: 'status',
                             val: ev.name
@@ -511,9 +512,9 @@ export default {
             }
 
             // 购买渠道 channel_id
-            if(this.searchParams['channel_id']){
-                this.channelOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['channel_id']){
+            if (this.searchParams['channel_id']) {
+                this.channelOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['channel_id']) {
                         let obj = {
                             label: 'channel_id',
                             val: ev.name
@@ -524,9 +525,9 @@ export default {
             }
 
             // 异常类型 unusual_type
-            if(this.searchParams['unusual_type']){
-                this.unusualTypeOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['unusual_type']){
+            if (this.searchParams['unusual_type']) {
+                this.unusualTypeOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['unusual_type']) {
                         let obj = {
                             label: 'unusual_type',
                             val: ev.name
@@ -536,7 +537,7 @@ export default {
                 })
             }
             // 用户昵称 user_name
-            if(this.searchParams['user_name']){
+            if (this.searchParams['user_name']) {
                 let obj = {
                     label: 'user_name',
                     val: this.searchParams['user_name']
@@ -544,7 +545,7 @@ export default {
                 _search.push(obj)
             }
             // 用户手机号 user_phone
-            if(this.searchParams['user_phone']){
+            if (this.searchParams['user_phone']) {
                 let obj = {
                     label: 'user_phone',
                     val: this.searchParams['user_phone']
@@ -552,7 +553,7 @@ export default {
                 _search.push(obj)
             }
             // 收货人昵称 logistics_name
-            if(this.searchParams['logistics_name']){
+            if (this.searchParams['logistics_name']) {
                 let obj = {
                     label: 'logistics_name',
                     val: this.searchParams['logistics_name']
@@ -560,7 +561,7 @@ export default {
                 _search.push(obj)
             }
             // 收货人手机号 logistics_phone
-            if(this.searchParams['logistics_phone']){
+            if (this.searchParams['logistics_phone']) {
                 let obj = {
                     label: 'logistics_phone',
                     val: this.searchParams['logistics_phone']
@@ -568,7 +569,7 @@ export default {
                 _search.push(obj)
             }
             // 用户id
-            if(this.searchParams['user_id']){
+            if (this.searchParams['user_id']) {
                 let obj = {
                     label: 'user_id',
                     val: this.searchParams['user_id']
@@ -576,9 +577,9 @@ export default {
                 _search.push(obj)
             }
             // 代理店铺 shop_id
-            if(this.searchParams['shop_id']){
-                this.shopOptions.forEach((ev)=>{
-                    if(ev.id == this.searchParams['shop_id']){
+            if (this.searchParams['shop_id']) {
+                this.shopOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['shop_id']) {
                         let obj = {
                             label: 'shop_id',
                             val: ev.shop_name
@@ -588,7 +589,7 @@ export default {
                 })
             }
             // 产品编码 product_code
-            if(this.searchParams['product_code']){
+            if (this.searchParams['product_code']) {
                 let obj = {
                     label: 'product_code',
                     val: this.searchParams['product_code']
@@ -596,13 +597,13 @@ export default {
                 _search.push(obj)
             }
             // 支付时间 pay_time
-            if(this.searchParams['paid_time_ge'] && this.searchParams['paid_time_le']){
-                let _ge_arr = (this.searchParams['paid_time_ge'].split(' ')[0]).split('-');
-                let _le_arr = (this.searchParams['paid_time_le'].split(' ')[0]).split('-');
+            if (this.searchParams['paid_time_ge'] && this.searchParams['paid_time_le']) {
+                let _ge_arr = this.searchParams['paid_time_ge'].split(' ')[0].split('-')
+                let _le_arr = this.searchParams['paid_time_le'].split(' ')[0].split('-')
                 //  + ' '+ this.searchParams['created_time_ge'].split(' ')[1]
-                let _ge = _ge_arr[1]+ '.' + _ge_arr[2];
+                let _ge = _ge_arr[1] + '.' + _ge_arr[2]
                 //  + ' '+ this.searchParams['created_time_le'].split(' ')[1]
-                let _le = _le_arr[1]+ '.' + _le_arr[2];
+                let _le = _le_arr[1] + '.' + _le_arr[2]
                 let obj = {
                     label: 'pay_time',
                     val: _ge + ' - ' + _le
@@ -615,17 +616,17 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
-            this.$set(this.searchForm,item.label, '');
-            this.$set(this.searchParams,item.label, '');
-            if(item.label == 'pay_time'){
-                this.$set(this.searchParams, 'paid_time_ge', '');
-                this.$set(this.searchParams, 'paid_time_le', '');
-            }else {
-                this.$set(this.searchParams,item.label, '');
+            this.$set(this.searchForm, item.label, '')
+            this.$set(this.searchParams, item.label, '')
+            if (item.label == 'pay_time') {
+                this.$set(this.searchParams, 'paid_time_ge', '')
+                this.$set(this.searchParams, 'paid_time_le', '')
+            } else {
+                this.$set(this.searchParams, item.label, '')
             }
-            this.$set(this.pageInfo, 'pageIndex', 1);
-            this.setSearchValue();
-            this.getListData();
+            this.$set(this.pageInfo, 'pageIndex', 1)
+            this.setSearchValue()
+            this.getListData()
         },
 
         // 按钮-查看订单详情
@@ -638,8 +639,7 @@ export default {
             // 二次确认
             this.$confirm('确定要取消该订单吗？', '', {
                 customClass: 'message-delete',
-                type: 'warning',
-                center: true
+                type: 'warning'
             })
                 .then(() => {
                     let params = {

@@ -1,13 +1,16 @@
-import {get,post,put} from './util';
+import { get, post, put } from './util'
 
 // 其它商品分类列表（分页）
-export const queryCategoryList = params =>post('/backend/category-list',params)
+export const queryCategoryList = params => post('/backend/category-list', params)
 
 // 其它商品分类添加
-export const addCategory = params =>post('/backend/category-create',params)
+export const addCategory = params => post('/backend/category-create', params)
 
 // 其它商品分类编辑
-export const editCategory = params =>post('/backend/category-update',params)
+export const editCategory = params => post('/backend/category-update', params)
 
 // 其它商品分类删除
-export const deleteCategory = params =>post('/backend/category-delete',params)
+export const deleteCategory = params => post('/backend/category-delete', params)
+
+// 分类批量修改排序
+export const updateCategoryAsc = params => post('/backend/category-update-asc', params)

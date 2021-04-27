@@ -24,6 +24,7 @@
                                 :options="typeList"
                             ></el-cascader>
                         </el-form-item>
+
                         <!-- <el-form-item label="商品类型" prop="type">
                             <el-select class="filter-item" v-model="formFilter.type" placeholder="请选择" @change="onChangeType">
                                 <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
@@ -421,7 +422,7 @@ import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 import commUtil from '@/utils/commUtil'
 import bus from '@/components/common/bus'
-
+import { construct } from '@/utils/json-tree'
 export default {
     name: 'goods-list',
     data() {
@@ -632,6 +633,9 @@ export default {
             } else if (params['typeCategory'].length == 2) {
                 params['type'] = params['typeCategory'][0]
                 params['category_id'] = params['typeCategory'][1].toString()
+            } else if (params['typeCategory'].length == 3) {
+                params['type'] = params['typeCategory'][0]
+                params['category_id'] = params['typeCategory'][2].toString()
             } else {
                 params['type'] = ''
                 params['category_id'] = ''
@@ -696,35 +700,59 @@ export default {
         },
         // 选择类型
         //1 其他 2 成品布
-        onChangeType(event) {
-            let type = event == 2 ? 1 : 2
-            this.queryCategoryListAll(type)
-            this.formFilter.category_id = ''
-        },
+        // onChangeType(event) {
+        //     let type = event == 2 ? 1 : 2
+        //     this.queryCategoryListAll(type)
+        //     this.formFilter.category_id = ''
+        // },
         // 获取分类列表
-        queryCategoryListAll(type) {
-            if (type == 1) {
-                this.categoryList = this.categoryListOther
-            } else {
-                this.categoryList = this.categoryListClothGroup
-            }
-        },
+        // queryCategoryListAll(type) {
+        //     if (type == 1) {
+        //         this.categoryList = this.categoryListOther
+        //     } else {
+        //         this.categoryList = this.categoryListClothGroup
+        //     }
+        // },
         // 生成类型 分类 级联列表
         creatCategoryData() {
             this.typeList = [
-                { value: '1', label: '布料', children: [] },
+                { value: '1', label: '布料', children: null },
                 {
                     value: '2',
                     label: '其他',
-                    children: _.cloneDeep(this.categoryListOther).map(item => {
-                        return { label: item.name, value: item.id }
+                    children: construct(this.categoryListOther, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
                     })
                 },
                 {
                     value: '3',
                     label: '布组',
-                    children: _.cloneDeep(this.categoryListClothGroup).map(item => {
-                        return { label: item.name, value: item.id }
+                    children: construct(this.categoryListClothGroup, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
                     })
                 }
             ]
@@ -1171,32 +1199,55 @@ export default {
                     label: 'typeCategory',
                     val: showValue
                 })
-            }
-            // 商品类型 type
-            if (this.formFilter['type']) {
+            } else if (this.formFilter['typeCategory'].length == 3) {
+                let showValue = ''
                 this.typeList.forEach(ev => {
-                    if (ev.value == this.formFilter['type']) {
-                        let obj = {
-                            label: 'type',
-                            val: ev.label
-                        }
-                        _search.push(obj)
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        showValue = ev.label
                     }
                 })
-            }
-            // 商品分类 category_id
-            if (this.formFilter['category_id']) {
+
                 let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
                 _arr.forEach(ev => {
-                    if (ev.id == this.formFilter['category_id']) {
-                        let obj = {
-                            label: 'category_id',
-                            val: ev.name
-                        }
-                        _search.push(obj)
+                    if (ev.id == this.formFilter['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
                     }
                 })
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['typeCategory'][2]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
             }
+            // 商品类型 type
+            // if (this.formFilter['type']) {
+            //     this.typeList.forEach(ev => {
+            //         if (ev.value == this.formFilter['type']) {
+            //             let obj = {
+            //                 label: 'type',
+            //                 val: ev.label
+            //             }
+            //             _search.push(obj)
+            //         }
+            //     })
+            // }
+            // 商品分类 category_id
+            // if (this.formFilter['category_id']) {
+            //     let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+            //     _arr.forEach(ev => {
+            //         if (ev.id == this.formFilter['category_id']) {
+            //             let obj = {
+            //                 label: 'category_id',
+            //                 val: ev.name
+            //             }
+            //             _search.push(obj)
+            //         }
+            //     })
+            // }
             // 商品状态 status
             if (this.formFilter['status']) {
                 this.statusList.forEach(ev => {
@@ -1549,7 +1600,7 @@ export default {
 }
 .sku-table {
     box-sizing: border-box;
-    margin: 0px 138px;
+    margin: 0px 0 0 138px;
     max-width: calc(100% - 138px);
 }
 .goods-list .table /deep/ .el-table__expand-icon > .el-icon {
