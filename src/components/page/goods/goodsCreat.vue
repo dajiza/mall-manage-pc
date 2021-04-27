@@ -71,10 +71,19 @@
                         <el-option v-for="item in typeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                     </el-select>
                 </el-form-item>
+
                 <el-form-item label="分类" prop="category_id" v-if="goods.type == 2 || goods.type == 3">
-                    <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择" style="width:280px">
+                    <!-- <el-select class="filter-item" v-model="goods.category_id" placeholder="请选择" >
                         <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                    </el-select>
+                    </el-select> -->
+                    <el-cascader
+                        class="filter-item"
+                        v-model="goods.categoryCache"
+                        :show-all-levels="false"
+                        placeholder="请选择"
+                        :options="categoryData"
+                        style="width:280px"
+                    ></el-cascader>
                 </el-form-item>
                 <el-form-item label="标签">
                     <v-tag-picker

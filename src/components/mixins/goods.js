@@ -10,6 +10,7 @@ import vTagPicker from '@/components/common/TagPicker.vue'
 import ElImageViewer from '@/components/common/image-viewer'
 import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
+import { construct } from '@/utils/json-tree'
 
 export const mixinsGoods = {
     data() {
@@ -117,7 +118,8 @@ export const mixinsGoods = {
                 type: 1, //'类型：1布；2其他; 3成品布',
                 tag_ids: '', //标签id，多个id ","逗号隔开
                 tag_idsArray: [], //标签id数组 暂存
-                category_id: '', //'分类
+                category_id: '', //分类
+                categoryCache: [], //分类 暂存
                 consume_attr_ids: [], //属性ids 数量最多为3 最少为1
                 is_allow_agent: 2, //是否所有代理可以销售：1指定代理；2所有代理可以销售；是否分销
                 allow_shop_ids: [], //允许的店铺id
@@ -314,7 +316,21 @@ export const mixinsGoods = {
                         this.shopList = res[4].data
                     }
                     if (res[5].code === 200) {
-                        this.categoryData = res[5].data
+                        this.categoryData = construct(res[5].data, {
+                            id: 'id',
+                            pid: 'parent_id',
+                            children: 'children'
+                        }).map(item => {
+                            return {
+                                label: item.name,
+                                value: item.id,
+                                children: item.children
+                                    ? item.children.map(son => {
+                                          return { label: son.name, value: son.id }
+                                      })
+                                    : []
+                            }
+                        })
                         // 其他分类
                     }
                     if (res[6].code === 200) {
@@ -387,7 +403,7 @@ export const mixinsGoods = {
                             type: data.type,
                             display_platform: 2
                         })
-                        data['category_id'] = data['category_id'] == 0 ? '' : data['category_id']
+                        data['categoryCache'] = data['category_id'] == 0 ? '' : data['category_id']
                         data['tag_detail_list'] = data['tag_detail_list'] == null ? [] : data['tag_detail_list']
                         data['allow_shop_ids'] = data['allow_shop_ids'] == null ? [] : data['allow_shop_ids']
                         for (let i = 0; i < data['tag_detail_list'].length; i++) {
@@ -949,7 +965,11 @@ export const mixinsGoods = {
                     })
                     params['imgs'] = imgs
                     // format category_id
-                    params['category_id'] = params['category_id'] == '' ? 0 : params['category_id']
+                    if (typeof params['categoryCache'] == 'object') {
+                        params['category_id'] = params['categoryCache'].length == 2 ? params['categoryCache'][1] : ''
+                    } else {
+                        params['category_id'] = params['categoryCache']
+                    }
                     //生成attr_list数据 format 价格
                     let attrLength = this.consumeChecked.length + this.basicChecked.length
                     params['consume_attr_ids'] = [...this.consumeChecked, ...this.basicChecked].sort((a, b) => a - b)

@@ -34,7 +34,7 @@
                                 </el-table-column>
                                 <el-table-column label="分类名称">
                                     <template slot-scope="scope">
-                                        <span>{{ scope.row.id }}{{ scope.row.name }}</span>
+                                        <span>{{ scope.row.name }}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="操作" width="160" align="left">
@@ -61,7 +61,7 @@
 
                     <el-table-column label="分类名称" prop="display_name">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.id }}{{ scope.row.name }}</span>
+                            <span>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="240" align="left">
@@ -163,7 +163,7 @@
 </template>
 
 <script>
-import { addCategory, editCategory, deleteCategory } from '../../../api/otherCategory'
+import { addCategory, editCategory, deleteCategory, updateCategoryAsc } from '../../../api/otherCategory'
 import { queryCategoryListAll } from '../../../api/goods'
 import EmptyList from '../../common/empty-list/EmptyList'
 import './otherCategory.less'
@@ -265,14 +265,21 @@ export default {
                 if (res.code === 200) {
                     if (res.data) {
                         console.log('tableData', res.data)
-                        // this.tableData = res.data
-
-                        this.tableData = construct(res.data, {
+                        // 结构化
+                        let tableData = construct(res.data, {
                             id: 'id',
                             pid: 'parent_id',
                             children: 'son'
                         })
-                        console.log('输出 ~ this.tableData', this.tableData)
+                        // 排序
+                        for (let i = 0; i < tableData.length; i++) {
+                            const item = tableData[i]
+                            if (item.son) {
+                                item.son.sort((a, b) => a.asc - b.asc)
+                            }
+                        }
+                        tableData.sort((a, b) => a.asc - b.asc)
+                        this.tableData = tableData
                     } else {
                         this.tableData = []
                     }
@@ -591,9 +598,28 @@ export default {
 
                     // 上传排序
                     let sort = that.tableData.map((e, index) => {
-                        return { id: e.id, index: index + 1 }
+                        return { id: e.id, asc: index + 1 }
                     })
-                    console.log('输出 ~ tale', sort)
+                    let params = {
+                        data: sort
+                    }
+                    updateCategoryAsc(params).then(res => {
+                        if (res.code === 200) {
+                            that.$notify({
+                                title: '排序成功',
+                                message: '',
+                                type: 'success',
+                                duration: 1000
+                            })
+                        } else {
+                            that.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 1000
+                            })
+                        }
+                    })
                 }
             })
         },
@@ -614,9 +640,28 @@ export default {
 
                             // 上传排序
                             let sort = group.son.map((e, index) => {
-                                return { id: e.id, index: index + 1 }
+                                return { id: e.id, asc: index + 1 }
                             })
-                            console.log('输出 ~ tale', sort)
+                            let params = {
+                                data: sort
+                            }
+                            updateCategoryAsc(params).then(res => {
+                                if (res.code === 200) {
+                                    that.$notify({
+                                        title: '排序成功',
+                                        message: '',
+                                        type: 'success',
+                                        duration: 1000
+                                    })
+                                } else {
+                                    that.$notify({
+                                        title: res.msg,
+                                        message: '',
+                                        type: 'error',
+                                        duration: 1000
+                                    })
+                                }
+                            })
                         }
                     }
                 }

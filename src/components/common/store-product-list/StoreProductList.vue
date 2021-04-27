@@ -7,10 +7,17 @@
                     <el-form-item label="名称" prop="name">
                         <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="分类" prop="category_id">
-                        <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择">
+                    <el-form-item label="分类" prop="categoryCache">
+                        <!-- <el-select class="filter-item" v-model="formFilter.category_id" placeholder="请选择">
                             <el-option v-for="item in categoryData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
-                        </el-select>
+                        </el-select> -->
+                        <el-cascader
+                            class="filter-item"
+                            :props="{ label: 'name', value: 'id' }"
+                            v-model="formFilter.categoryCache"
+                            placeholder="请选择"
+                            :options="categoryData"
+                        ></el-cascader>
                     </el-form-item>
 
                     <el-form-item label="标签" prop="tag_id">
@@ -206,6 +213,7 @@
 
 <script>
 import { getAllAttrList, queryProduceList, getLabelAllList, queryStoreProductDetail, queryTagListAll, queryGroupList, queryStoreCategoryList } from '@/api/goods'
+import { construct } from '@/utils/json-tree'
 
 export default {
     name: 'CheckList',
@@ -235,6 +243,7 @@ export default {
             formFilter: {
                 name: '', //产品名称
                 category_id: '', //产品分类
+                categoryCache: '', //产品分类 中间数据暂存
                 tag_ids: '', //标签
                 tag_id: '', //标签
                 type: 0, //仓库 '0布 1其他 2成品布',
@@ -338,12 +347,19 @@ export default {
         getList() {
             this.listLoading = true
             let params = this.$refs['formFilter'].model
+            console.log('输出 ~ params', params)
 
             if (params.tag_id) {
                 params['tag_ids'] = params.tag_id.map(item => item[1])
                 // params['tag_ids'].push(params.tag_id);
             } else {
                 params['tag_ids'] = []
+            }
+
+            if (params['categoryCache'].length == 2) {
+                params['category_id'] = params['categoryCache'][1]
+            } else {
+                params['category_id'] = ''
             }
 
             params['type'] = this.type
@@ -531,22 +547,37 @@ export default {
                             // that.$notify({ title: res8.msg, message: '', type: 'error', duration: 5000 });
                         }
                         if (resCate.code === 200) {
-                            //0: {id: 1, name: "可裁布", level: 0, parent_id: 0}
+                            console.log('输出 ~ resCate', resCate)
+                            // 0: {id: 1, name: "可裁布", level: 0, parent_id: 0}
                             // 2: {id: 2, name: "成品布", level: 0, parent_id: 0}
                             // 1: {id: 3, name: "其他", level: 0, parent_id: 0}
-                            let type
-                            switch (that.type) {
-                                case 0:
-                                    type = 1
-                                    break
-                                case 1:
-                                    type = 3
-                                    break
-                                case 2:
-                                    type = 2
-                                    break
-                            }
-                            that.categoryData = resCate.data.filter(item => item.level == 1 && item.parent_id == type)
+                            // let type
+                            // switch (that.type) {
+                            //     case 0:
+                            //         type = 1
+                            //         break
+                            //     case 1:
+                            //         type = 3
+                            //         break
+                            //     case 2:
+                            //         type = 2
+                            //         break
+                            // }
+                            // let cateData = resCate.data.filter(item => item.parent_id == type || item.id == type)
+                            // console.log('输出 ~ cateData', cateData)
+                            let cateData = construct(resCate.data, {
+                                id: 'id',
+                                pid: 'parent_id',
+                                children: 'children'
+                            }).map(item => {
+                                return {
+                                    name: item.name,
+                                    id: item.id,
+                                    type: item.type,
+                                    children: item.children ? item.children : []
+                                }
+                            })
+                            that.categoryData = cateData.filter(item => item.type == that.type)
                         } else {
                             if (resCate.code === -1 && resCate.msg.indexOf('无权限') > -1) {
                                 err_arr.push(resCate.code)
@@ -704,8 +735,8 @@ export default {
                         attr_size: item.attr_size_name,
                         attr_width: item.attr_width_name,
                         attr_piece: item.attr_piece.toString(),
-                        attr_weight: item.attr_weight,//重量
-                        user_discount:0,//用户折扣
+                        attr_weight: item.attr_weight, //重量
+                        user_discount: 0, //用户折扣
                         status: item.stock_available > 0 ? 2 : 1,
                         // tag_names: item.tag_names,
                         // category_name: item.category_name,

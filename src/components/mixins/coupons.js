@@ -7,6 +7,7 @@ import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
 import EmptyList from '../common/empty-list/EmptyList'
 import ElImageViewer from '@/components/common/image-viewer'
+import { construct } from '@/utils/json-tree'
 
 export const mixinsCoupons = {
     data() {
@@ -269,7 +270,21 @@ export const mixinsCoupons = {
                                 cateAllArr.push({
                                     id: 1,
                                     name: '其它',
-                                    children: this.cate_other_list
+                                    children: construct(this.cate_other_list, {
+                                        id: 'id',
+                                        pid: 'parent_id',
+                                        children: 'children'
+                                    }).map(item => {
+                                        return {
+                                            name: item.name,
+                                            id: item.id,
+                                            children: item.children
+                                                ? item.children.map(son => {
+                                                      return { name: son.name, id: son.id }
+                                                  })
+                                                : null
+                                        }
+                                    })
                                 })
                             }
                         }
@@ -282,13 +297,28 @@ export const mixinsCoupons = {
                                 cateAllArr.push({
                                     id: 2,
                                     name: '布组',
-                                    children: this.cate_group_list
+                                    children: construct(this.cate_group_list, {
+                                        id: 'id',
+                                        pid: 'parent_id',
+                                        children: 'children'
+                                    }).map(item => {
+                                        return {
+                                            name: item.name,
+                                            id: item.id,
+                                            children: item.children
+                                                ? item.children.map(son => {
+                                                      return { name: son.name, id: son.id }
+                                                  })
+                                                : null
+                                        }
+                                    })
                                 })
                             }
                         }
                     }
                     this.labelOptions = labelAllArr
                     this.categoryData = cateAllArr
+                    console.log('输出 ~ cateAllArr', cateAllArr)
                     rLoading.close()
                     if (this.operationTitle !== '新增优惠券') {
                         // 请求优惠券详情
@@ -630,13 +660,13 @@ export const mixinsCoupons = {
         },
 
         // 选中分类
-        handleSelectCate(e, data) {
-            let parentPreviousElement = e.target.parentElement.previousElementSibling
-            let inputRadio = parentPreviousElement.children[0].children[1]
-            if (!data.children) {
-                inputRadio.click()
-            }
-        },
+        // handleSelectCate(e, data) {
+        //     let parentPreviousElement = e.target.parentElement.previousElementSibling
+        //     let inputRadio = parentPreviousElement.children[0].children[1]
+        //     if (!data.children) {
+        //         inputRadio.click()
+        //     }
+        // },
 
         // 可用商品类型类型
         useGoodsTypeChange() {
@@ -712,12 +742,15 @@ export const mixinsCoupons = {
             let cateId = -1
             if (this.searchParams.cateArr.length > 0) {
                 const selected_cate = this.searchParams.cateArr
-                if (selected_cate.length > 1) {
+                if (selected_cate.length == 2) {
                     cateId = selected_cate[1]
+                } else if (selected_cate.length == 3) {
+                    cateId = selected_cate[2]
                 } else {
                     cateId = 0
                 }
             }
+            console.log('输出 ~ cateId', cateId)
             return cateId
         },
 
