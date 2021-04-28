@@ -489,10 +489,7 @@ export default {
                 params['other_id'] = params['typeCategory'][1]
             } else if (params['typeCategory'].length == 3) {
                 params['goods_type'] = params['typeCategory'][0]
-                params['other_id'] = params['typeCategory'][2].toString()
-            } else {
-                params['goods_type'] = ''
-                params['other_id'] = ''
+                params['other_id'] = params['typeCategory'][2]
             }
             if (params['goods_type'] == 1) {
                 params['other_id'] = 0
