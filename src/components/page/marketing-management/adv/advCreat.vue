@@ -183,7 +183,7 @@
 
 <style lang="less">
     .el-cascader-node > .el-radio {
-        display: none;
+        /*display: none;*/
     }
     .select-item {
         display: inline-block;
