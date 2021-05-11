@@ -286,12 +286,8 @@
             <el-table-column label="商品分类" width="80">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
-                    <span v-if="scope.row.type == 2">
-                        其他{{ scope.row.category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.category_id).name : '' }}
-                    </span>
-                    <span v-if="scope.row.type == 3">
-                        布组{{ scope.row.category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.category_id).name : '' }}
-                    </span>
+                    <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
+                    <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
                 </template>
             </el-table-column>
             <el-table-column label="状态">
@@ -600,7 +596,20 @@ export default {
         //         return [0, 0]
         //     }
         // },
+        // 生成类目显示
+        categoryGenerate: function(id, type) {
+            if (id == 0) {
+                return ''
+            }
+            if (type == 2) {
+                let cate = this.categoryListOther.find(item => item.id == id)
 
+                return cate ? '> ' + cate.name : ''
+            } else {
+                let cate = this.categoryListClothGroup.find(item => item.id == id)
+                return cate ? '> ' + cate.name : ''
+            }
+        },
         goodsTable(row) {
             if (row.columnIndex == 2) {
                 return 'checkboxColumn'

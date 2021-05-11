@@ -200,12 +200,8 @@
             <el-table-column label="商品分类" width="">
                 <template slot-scope="scope">
                     <span v-if="scope.row.goods_type == 1">布料</span>
-                    <span v-if="scope.row.goods_type == 2">
-                        其他{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListOther.find(item => item.id == scope.row.goods_category_id).name : '' }}
-                    </span>
-                    <span v-if="scope.row.goods_type == 3">
-                        布组{{ scope.row.goods_category_id > 0 ? ' > ' + categoryListClothGroup.find(item => item.id == scope.row.goods_category_id).name : '' }}
-                    </span>
+                    <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
+                    <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
                 </template>
             </el-table-column>
         </el-table>
@@ -394,9 +390,23 @@ export default {
         await this.queryShopList()
         this.getList()
     },
+
     methods: {
         formatMoney: formatMoney,
+        // 生成类目显示
+        categoryGenerate: function(id, type) {
+            if (id == 0) {
+                return ''
+            }
+            if (type == 2) {
+                let cate = this.categoryListOther.find(item => item.id == id)
 
+                return cate ? '> ' + cate.name : ''
+            } else {
+                let cate = this.categoryListClothGroup.find(item => item.id == id)
+                return cate ? '> ' + cate.name : ''
+            }
+        },
         goodsTable(row) {
             if (row.columnIndex == 2) {
                 return 'checkboxColumn'
@@ -826,7 +836,7 @@ export default {
             if (this.editSkuPrice) {
                 let sku = shelfSku[0]
                 // id为mall_shop_goods_sku表id
-                let params = { id: sku.id, new_price: commUtil.numberMul(Number(sku.price), 100) }
+                let params = { id: sku.sku_id, new_price: commUtil.numberMul(Number(sku.price), 100) }
                 updateAgentSkuPrice(params)
                     .then(res => {
                         console.log('GOOGLE: res', res)

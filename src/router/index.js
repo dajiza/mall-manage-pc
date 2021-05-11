@@ -37,7 +37,7 @@ export default new Router({
                 {
                     path: '/mall-backend-shop-goods-list',
                     name: 'shop-goods-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/shopGoodsList.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/shopGoodsList.vue'),
                     meta: { title: '店铺商品管理', name: 'shopGoodsList' }
                 },
                 {
