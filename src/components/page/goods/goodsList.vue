@@ -596,7 +596,7 @@ export default {
         //         return [0, 0]
         //     }
         // },
-        // 生成类目显示
+        // 生成类目显示 修复部分类目被删导数据错误问题
         categoryGenerate: function(id, type) {
             if (id == 0) {
                 return ''

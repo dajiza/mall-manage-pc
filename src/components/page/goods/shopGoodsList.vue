@@ -393,7 +393,7 @@ export default {
 
     methods: {
         formatMoney: formatMoney,
-        // 生成类目显示
+        // 生成类目显示 修复部分类目被删导数据错误问题
         categoryGenerate: function(id, type) {
             if (id == 0) {
                 return ''
@@ -433,7 +433,6 @@ export default {
             console.log('GOOGLE: params', params)
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-
             this.filterShop = this.shopList.find(item => item.id == params['shop_id'])
             if (params['typeCategory'].length == 1) {
                 params['goods_type'] = params['typeCategory'][0]
