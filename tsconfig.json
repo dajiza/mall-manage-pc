@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".", // 基础目录，如果有配置了paths必须加这一项
+        "target": "es5", // 编译目标平台
+        "module": "commonjs", // 指定模块生成方式，["commonjs", "amd", "umd", "system", "es6", "es2015", "esnext", "none"]
+        "strict": true, // 同时开启 alwaysStrict, noImplicitAny, noImplicitThis 和 strictNullChecks
+        "esModuleInterop": true, //允许export = 导出，由import from导入
+        "experimentalDecorators": true, //启用装饰器
+        "allowJs": true, // 允许编译javascript文件,不加这一条，在ts中引用js文件就需要定义声明文件
+        "paths": {
+            "@/*": ["src/*"] // 设置路径别名 "src/api/index.js" => "@/api/index.js"
+        }
+    }
+}

@@ -1,11 +1,11 @@
-const path = require('path');
+const path = require('path')
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = {
     publicPath: './',
     assetsDir: 'static',
     productionSourceMap: false,
     chainWebpack: config => {
-        config.resolve.symlinks(true);
+        config.resolve.symlinks(true)
     }, //自动热更新
     pluginOptions: {
         'style-resources-loader': {
@@ -36,6 +36,21 @@ module.exports = {
                 }
             }
         }
+    },
+    configureWebpack: {
+        resolve: { extensions: ['.ts', '.tsx', '.js', '.json'] },
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    loader: 'ts-loader',
+                    exclude: /node_modules/,
+                    options: {
+                        appendTsSuffixTo: [/\.vue$/]
+                    }
+                }
+            ]
+        }
     }
     /*configureWebpack: config => {
         // if (process.env.VUE_APP_MODE === 'dev' || process.env.VUE_APP_MODE === 'local') {
@@ -57,4 +72,4 @@ module.exports = {
             );
         // }
     }*/
-};
+}

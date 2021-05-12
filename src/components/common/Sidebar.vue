@@ -193,6 +193,10 @@ export default {
                         {
                             name: 'mall-backend-page',
                             display_name: '页面管理'
+                        },
+                        {
+                            name: 'mall-backend-teamwork-list',
+                            display_name: '团作列表'
                         }
                     ]
                 },

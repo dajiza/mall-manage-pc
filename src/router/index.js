@@ -25,13 +25,13 @@ export default new Router({
                 {
                     path: '/mall-backend-goods-list',
                     name: 'goods-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsList.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsList.vue'),
                     meta: { title: '商品列表', name: 'goodsList' }
                 },
                 {
                     path: '/mall-backend-no-discount-list',
                     name: 'no-discount-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/noDiscountList.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/noDiscountList.vue'),
                     meta: { title: '不享折扣商品', name: 'noDiscountList' }
                 },
                 {
@@ -43,30 +43,30 @@ export default new Router({
                 {
                     path: '/mall-backend-goods-create',
                     name: 'goods-creat',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsCreat.vue'),
                     meta: { title: '新增商品', name: 'goodsCreat' }
                 },
                 {
                     path: '/mall-backend-goods-update',
                     name: 'goods-edit',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsCreat.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsCreat.vue'),
                     meta: { title: '编辑商品', name: 'goodsEdit' }
                 },
                 {
                     path: '/mall-backend-goods-preview',
                     name: 'goods-preview',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/goodsPreview.vue'),
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsPreview.vue'),
                     meta: { title: '查看商品', name: 'goodsPreview' }
                 },
                 {
                     path: '/mall-backend-freight',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freight.vue'),
+                    component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }
                 },
                 {
                     path: '/mall-backend-freightCreat',
                     name: 'freightCreat',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/goods/freightCreat.vue'),
+                    component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freightCreat.vue'),
                     meta: { title: '新增模板', name: 'freightCreat' }
                 },
                 {
@@ -82,22 +82,22 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-customer-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/customer/customerList.vue'),
+                    component: () => import(/* webpackChunkName: "customer" */ '../components/page/customer/customerList.vue'),
                     meta: { title: '客户管理' }
                 },
                 {
                     path: '/mall-backend-discount-setup',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/customer/discountSetup.vue'),
+                    component: () => import(/* webpackChunkName: "customer" */ '../components/page/customer/discountSetup.vue'),
                     meta: { title: '客户管理' }
                 },
                 {
                     path: '/mall-backend-agent-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/agent/agentList.vue'),
+                    component: () => import(/* webpackChunkName: "customer" */ '../components/page/agent/agentList.vue'),
                     meta: { title: '会员折扣配置' }
                 },
                 {
                     path: '/mall-backend-shop-list',
-                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/agent/shopList.vue'),
+                    component: () => import(/* webpackChunkName: "customer" */ '../components/page/agent/shopList.vue'),
                     meta: { title: '店铺管理' }
                 },
                 {
@@ -164,6 +164,11 @@ export default new Router({
                     path: '/mall-backend-page-edit',
                     component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/page-manage/pageCreat.vue'),
                     meta: { title: '编辑页面' }
+                },
+                {
+                    path: '/mall-backend-teamwork-list',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/teamwork/teamworkList.vue'),
+                    meta: { title: '团作列表' }
                 },
                 {
                     path: '/mall-backend-commission',
@@ -256,6 +261,11 @@ export default new Router({
         {
             path: '/test',
             component: () => import(/* webpackChunkName: "tag-test" */ '../components/page/test-demo/TagPickerDemo.vue'),
+            meta: { title: 'test', name: 'test' }
+        },
+        {
+            path: '/test-ts',
+            component: () => import(/* webpackChunkName: "tag-test" */ '../components/page/test-demo/tsTest.vue'),
             meta: { title: 'test', name: 'test' }
         },
         {
