@@ -143,11 +143,11 @@ export default {
                         {
                             name: 'mall-backend-custom-attributes',
                             display_name: '自定义属性'
+                        },
+                        {
+                            name: 'mall-backend-goods-default-detail',
+                            display_name: '商品默认详情'
                         }
-                        // {
-                        //     name: 'mall-backend-custom-attributes',
-                        //     display_name: '自定义属性'
-                        // }
                     ]
                 },
                 {

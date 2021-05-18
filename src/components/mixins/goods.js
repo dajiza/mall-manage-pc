@@ -11,6 +11,7 @@ import ElImageViewer from '@/components/common/image-viewer'
 import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
 import { construct } from '@/utils/json-tree'
+import Editor from '@/components/common/editor/Editor'
 
 export const mixinsGoods = {
     data() {
@@ -100,6 +101,8 @@ export const mixinsGoods = {
             miniProgramTags: [],
             backendTags: [],
             startDatePicker: this.beginDate(), //定时上下架配置
+            editContent: '', //编辑状态 初始文章
+            content: '',
             goods: {
                 title: '', //商品名称 maxlength =200
                 imgs: [
@@ -233,7 +236,8 @@ export const mixinsGoods = {
     components: {
         storeProductList,
         vTagPicker,
-        ElImageViewer
+        ElImageViewer,
+        Editor
     },
     created() {
         // 图片上传地址

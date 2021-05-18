@@ -220,13 +220,13 @@
     </el-dialog>
 </template>
 
-<script>
+<script lang="ts">
 import { queryGoodsListNew, queryShopList, queryCategoryListAll } from '@/api/goods'
 import { updateSkuDiscountBatch } from '@/api/discount'
 import { formatMoney } from '@/plugin/tool'
 import { construct } from '@/utils/json-tree'
-
-export default {
+import Vue from 'vue'
+export default Vue.extend({
     name: 'CheckList',
     props: {},
     data() {
@@ -693,7 +693,7 @@ export default {
                 .catch(err => {})
         }
     }
-}
+})
 </script>
 <style scoped="scoped" lang="less">
 .timg {

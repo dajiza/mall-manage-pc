@@ -408,6 +408,14 @@
                     </el-form-item>
                 </div>
             </div>
+            <div class="table-title">
+                <div class="line"></div>
+                <div class="text">商品详情</div>
+            </div>
+            <div class="divider"></div>
+            <div class="content-goods">
+                <Editor class="editor" :content="editContent" v-model="content"></Editor>
+            </div>
         </el-form>
         <div class="submit-wrap">
             <el-button class="submit-btn" type="primary" size="small" @click.native="submit">提交</el-button>

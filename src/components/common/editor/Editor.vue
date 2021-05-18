@@ -70,7 +70,7 @@ export default {
 
         var editor = new Jodit(this.$refs.editor, {
             width: 600,
-            height: 680,
+            height: 500,
             askBeforePasteHTML: false,
             toolbarSticky: false,
             toolbarButtonSize: 'small',
@@ -130,7 +130,6 @@ export default {
         this.editor = editor
         // 监听编辑器内容改变 给预览 父组件赋值
         editor.events.on('change', function(value, aa, bb) {
-            console.log('GOOGLE: change')
             that.editorContent = value
             that.editorContent = that.editorContent.replace(/crossorigin=\"anonymous\"/g, '')
             // that.editor.value = that.editorContent

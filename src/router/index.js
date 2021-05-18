@@ -59,6 +59,12 @@ export default new Router({
                     meta: { title: '查看商品', name: 'goodsPreview' }
                 },
                 {
+                    path: '/mall-backend-goods-default-detail',
+                    name: 'goods-preview',
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/defaultDetail.vue'),
+                    meta: { title: '商品默认详情', name: 'defaultDetail' }
+                },
+                {
                     path: '/mall-backend-freight',
                     component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }
@@ -169,6 +175,11 @@ export default new Router({
                     path: '/mall-backend-teamwork-list',
                     component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/teamwork/teamworkList.vue'),
                     meta: { title: '团作列表' }
+                },
+                {
+                    path: '/mall-backend-teamwork-detail',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/teamwork/teamworkDetail.vue'),
+                    meta: { title: '团作详情' }
                 },
                 {
                     path: '/mall-backend-commission',
