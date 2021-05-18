@@ -917,6 +917,8 @@
                 })
                 this.allList = defaultList
                 this.itemChange();
+            } else {
+                this.allList = _.cloneDeep(this.default_List)
             }
         },
         mounted() {
