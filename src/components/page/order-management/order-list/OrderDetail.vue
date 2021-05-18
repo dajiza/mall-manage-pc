@@ -235,7 +235,7 @@
                                 </el-table>
                                 <div
                                     class="pos-absolute"
-                                    ref="changeListTip"
+                                    :ref="'changeListTip-'+ scope.row.id"
                                     slot="reference"
                                     v-hasPermission="'mall-backend-order-detail-change-list'"
                                 >
@@ -294,7 +294,7 @@
                                 </el-table>
                                 <div
                                         class="pos-absolute"
-                                        ref="returnMoneyTip"
+                                        :ref="'returnMoneyTip-'+ scope.row.id"
                                         slot="reference"
                                         v-hasPermission="'mall-backend-order-detail-change-list'"
                                 >
@@ -399,10 +399,10 @@
                         <div class="amount-value">¥ {{order_info.price_total/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item coupon-total">
-                        <div class="amount-name">优惠券总额</div>
+                        <div class="amount-name">优惠券(元)</div>
                         <div class="amount-value">¥ {{order_info.off_1/100 | rounding}}</div>
                     </div>
-                    <div class="order-amount-item activity-discount" v-if="false">
+                    <div class="order-amount-item activity-discount">
                         <div class="amount-name">活动优惠总额</div>
                         <div class="amount-value">¥ {{order_info.off_2/100 | rounding}}</div>
                     </div>
@@ -1068,7 +1068,8 @@
                         rLoading.close()
                         if (res.code === 200) {
                             this.orderPriceUpdateList = res.data || [];
-                            this.$refs.changeListTip.click();
+                            const gv = 'changeListTip-' + row.id
+                            this.$refs[gv].click();
                         } else {
                             this.$notify({
                                 title: res.msg,
@@ -1448,7 +1449,8 @@
                         rLoading.close()
                         if (res.code === 200) {
                             this.detailReturnMoneyList = res.data.lists || [];
-                            this.$refs.returnMoneyTip.click();
+                            const gv = 'returnMoneyTip-' + row.id
+                            this.$refs[gv].click();
                         } else {
                             this.$notify({
                                 title: res.msg,
