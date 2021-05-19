@@ -13,7 +13,7 @@ export const queryCourseMediaList = params => post('/backend/course-media-list',
 export const queryCourseApplyList = params => post('/backend/course-apply-list', params)
 
 // 商品默认详情获取
-export const queryDefaultDetail = params => post('/goods-default-detail-get', params)
+export const queryDefaultDetail = params => post('/backend/goods-default-detail-get', params)
 
 // 商品默认详情创建
-export const creatDefaultDetail = params => post('/goods-default-detail-create', params)
+export const creatDefaultDetail = params => post('/backend/goods-default-detail-create', params)

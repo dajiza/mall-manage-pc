@@ -47,6 +47,11 @@
             </div>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table-column label="团作ID" min-width="80">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.id }}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="团作海报" width="176">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.poster_link" alt="" />

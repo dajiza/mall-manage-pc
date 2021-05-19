@@ -18,6 +18,10 @@
                         <span class="label">团作名称：</span>
                         <span class="value">{{ detail.title }}</span>
                     </div>
+                    <div class="sheet w280">
+                        <span class="label">团作ID：</span>
+                        <span class="value">{{ detail.id }}</span>
+                    </div>
                     <div class="sheet w280" v-if="shopList">
                         <span class="label">店铺名称：</span>
                         <!-- <span class="value">{{ shopList.find(item => item.id == detail.shop_id).shop_name }}</span> -->
@@ -132,8 +136,8 @@ import { queryShopList } from '@/api/goods'
 import bus from '@/components/common/bus'
 import { formatMoney } from '@/plugin/tool'
 
-import { Jodit } from 'jodit'
-import 'jodit/build/jodit.es2018.min.css'
+import { Jodit } from '@/plugin/jodit.es2018'
+import '@/plugin/jodit.es2018.min.css'
 
 export default {
     data() {

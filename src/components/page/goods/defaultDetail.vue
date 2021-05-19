@@ -7,7 +7,7 @@
                 <div class="text">商品默认详情</div>
             </div>
             <Editor class="editor" :content="editContent" v-model="content"></Editor>
-            <el-button class="save-btn" type="primary">保存</el-button>
+            <el-button class="save-btn" type="primary" @click="saveDetail">保存</el-button>
         </div>
     </div>
 </template>
@@ -18,6 +18,7 @@ import Editor from '@/components/common/editor/Editor'
 export default {
     data() {
         return {
+            detailId: '',
             editContent: '', //编辑状态 初始文章
 
             content: ''
@@ -26,6 +27,7 @@ export default {
     components: {
         Editor
     },
+    inject: ['reload'],
     created() {},
     mounted() {
         this.getDetail()
@@ -36,6 +38,35 @@ export default {
             queryDefaultDetail()
                 .then(res => {
                     console.log('输出 ~ res', res)
+                    this.detailId = res.data.detailId
+                    this.editContent = res.data.detail
+                })
+                .catch(err => {})
+        },
+        saveDetail() {
+            let params = {
+                detailId: this.detailId, // 该字段为0表示新增，反之为修改
+                detail: this.content
+            }
+            creatDefaultDetail(params)
+                .then(res => {
+                    console.log('输出 ~ res', res)
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: '保存成功',
+                            message: '',
+                            type: 'success',
+                            duration: 3000
+                        })
+                        this.reload()
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
                 })
                 .catch(err => {})
         }

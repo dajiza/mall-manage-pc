@@ -328,11 +328,7 @@ export const mixinsGoods = {
                             return {
                                 label: item.name,
                                 value: item.id,
-                                children: item.children
-                                    ? item.children.map(son => {
-                                          return { label: son.name, value: son.id }
-                                      })
-                                    : []
+                                children: item.children ? item.children.map(son => ({ label: son.name, value: son.id })) : []
                             }
                         })
                         // 其他分类
@@ -394,7 +390,8 @@ export const mixinsGoods = {
                         console.log('GOOGLE: goods', res)
                         // this.goods = res.data;
                         let data = _.cloneDeep(res.data)
-
+                        // 详情
+                        this.editContent = data['detail']
                         // format 标签
                         // data.tag_detail_list
                         //display_platform,//展示平台1 后台 2 小程序' 不搜索-1,
@@ -897,6 +894,8 @@ export const mixinsGoods = {
                 // 验证表单内容
                 if (valid) {
                     let params = _.cloneDeep(this.goods)
+                    // 详情
+                    params['detail'] = this.content
                     // format is_allow_agent
                     params['allow_shop_ids'] = params['is_allow_agent'] == 2 ? [] : params['allow_shop_ids']
                     // format标签

@@ -17,8 +17,8 @@
 // import { getToken } from '@/utils/auth'
 // import { uploadImages, uploadImg } from '@/api/wechat'
 
-import { Jodit } from 'jodit'
-import 'jodit/build/jodit.es2018.min.css'
+import { Jodit } from '@/plugin/jodit.es2018'
+import '@/plugin/jodit.es2018.min.css'
 import { getToken } from '@/utils/auth'
 export default {
     name: 'Editor',
@@ -77,23 +77,21 @@ export default {
             language: 'zh_cn',
             method: 'POST',
             format: 'json',
+            enableDragAndDropFileToEditor: false,
             uploader: {
                 url: this.uploadImgUrl,
                 filesVariableName: function(e) {
                     return 'file'
                 },
+
                 insertImageAsBase64URI: false,
                 imagesExtensions: ['jpg', 'png', 'jpeg', 'gif'],
                 withCredentials: false,
                 headers: this.header,
 
-                // prepareData: function(data) {
-                //     console.log('输出 ~ data', data)
-                //     console.log('输出 ~ data', data.path)
-                //     // delete data.path
-                //     // data.append('id', 24)
-                //     return data
-                // },
+                prepareData: function(data) {
+                    console.log('输出 ~ data', data)
+                },
                 // buildData: function(data) {
                 //     console.log('输出 ~ data', data)
                 //     return { files: data }
@@ -120,7 +118,6 @@ export default {
                 },
                 processPaste: function(event, html) {
                     // console.log('GOOGLE: html', html)
-                    html = '1234'
                 },
                 afterPaste: function(event) {
                     // console.log('GOOGLE: afterPaste')
