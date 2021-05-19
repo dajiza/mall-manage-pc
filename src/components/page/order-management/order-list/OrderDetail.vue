@@ -88,11 +88,11 @@
                         <i></i>
                         <span>订单备注</span>
                     </div>
-                        <el-button
+                    <el-button
                             type="primary"
                             v-hasPermission="'mall-backend-add-remark'"
                             @click="handleAddRemarks"
-                        >添加留言</el-button>
+                    >添加留言</el-button>
                 </div>
             </div>
             <div class="info-content">
@@ -137,10 +137,10 @@
                 >全部退款</el-button>-->
             </div>
             <el-table
-                :data="order_info.detail"
-                :border="true"
-                ref="multipleTable"
-                class="order-detail-info"
+                    :data="order_info.detail"
+                    :border="true"
+                    ref="multipleTable"
+                    class="order-detail-info"
             >
                 <el-table-column
                         label="操作"
@@ -175,7 +175,7 @@
                 </el-table-column>
                 <el-table-column label="图片" width="140" :resizable="true" v-if="back_field_show('图片')">
                     <template slot-scope="scope">
-                        <img class="product-img" :src="getImg(scope.row.product_img)" alt="" @click="viewBigImg(scope.row.product_img)">
+                        <img class="product-img" :src="getImg(scope.row.product_img)" alt="" @click="viewBigImg(scope.row.product_img, scope.$index)">
                     </template>
                 </el-table-column>
                 <el-table-column prop="product_name" label="产品名称" width="200" :resizable="true" v-if="back_field_show('产品名称')"></el-table-column>
@@ -203,7 +203,7 @@
                         <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" :resizable="true" v-if="false">
+                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" :resizable="true" v-if="back_field_show('活动优惠总额(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
@@ -234,19 +234,19 @@
                                     <el-table-column width="180" property="updated_time" label="操作时间"></el-table-column>
                                 </el-table>
                                 <div
-                                    class="pos-absolute"
-                                    :ref="'changeListTip-'+ scope.row.id"
-                                    slot="reference"
-                                    v-hasPermission="'mall-backend-order-detail-change-list'"
+                                        class="pos-absolute"
+                                        :ref="'changeListTip-'+ scope.row.id"
+                                        slot="reference"
+                                        v-hasPermission="'mall-backend-order-detail-change-list'"
                                 >
                                     <i class="remark-tip-img cursor-class"></i>
                                 </div>
                             </el-popover>
                             <div
-                                class="remark-tip-wrap"
-                                slot="reference"
-                                v-hasPermission="'mall-backend-order-detail-change-list'"
-                                @click="getOrderPriceChangeList(scope.$index,scope.row)">
+                                    class="remark-tip-wrap"
+                                    slot="reference"
+                                    v-hasPermission="'mall-backend-order-detail-change-list'"
+                                    @click="getOrderPriceChangeList(scope.$index,scope.row)">
                                 <i class="remark-tip-img cursor-class"></i>
                             </div>
                         </div>
@@ -309,6 +309,11 @@
                                 <i class="remark-tip-img cursor-class"></i>
                             </div>
                         </div>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="price_real" label="佣金(元)" width="100" :resizable="true" v-if="back_field_show('佣金(元)')">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.commission/100 | rounding}}</span>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -399,7 +404,7 @@
                         <div class="amount-value">¥ {{order_info.price_total/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item coupon-total">
-                        <div class="amount-name">优惠券(元)</div>
+                        <div class="amount-name">优惠券</div>
                         <div class="amount-value">¥ {{order_info.off_1/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item activity-discount">
@@ -442,6 +447,10 @@
                             </el-popover>
                             <span>¥ {{refund_money_all/100 | rounding}}</span>
                         </div>
+                    </div>
+                    <div class="order-amount-item activity-discount" v-if="order_info.channel_id !== 1">
+                        <div class="amount-name">佣金</div>
+                        <div class="amount-value">¥ {{order_info.all_commission/100 | rounding}}</div>
                     </div>
                 </div>
             </div>
@@ -606,9 +615,8 @@
                 <el-button type="primary" @click="handleSureRebates('rebatesFormBox')">确 定</el-button>
             </span>
         </el-dialog>
-        <transition name="el-fade-in-linear">
-            <BigImg ref="bigImg" :imgUrl="bigImgUrl"></BigImg>
-        </transition>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex"/>
         <!--<ListFieldShow :local="'orderDetailField'" :allList="allList"></ListFieldShow>-->
     </div>
 </template>
@@ -619,7 +627,7 @@
     import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight,
         updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord } from '../../../../api/orderList';
     import { queryAfterSaleList } from '../../../../api/afterSale';
-    import BigImg from '../../../common/big-img/BigImg';
+    import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import { queryReasonList } from '../../../../api/afterSaleReason';
     import commUtil from '../../../../utils/commUtil';
@@ -681,7 +689,6 @@
                     ]
                 },
                 order_info:{},
-                bigImgUrl:'',  // 需要放大图片url
                 imgBaseUrl:'',
                 order_list:[],
                 logisticsVisible:false,
@@ -776,18 +783,23 @@
                     {name:'单价(元)', is_show: true},
                     {name:'数量', is_show: true},
                     {name:'总价(元)', is_show: true},
+                    {name:'活动优惠总额(元)', is_show: true},
                     {name:'优惠券(元)', is_show: true},
                     {name:'改价(元)', is_show: true},
                     {name:'会员折扣(元)', is_show: true, is_new: true},
                     {name:'实付(元)', is_show: true},
-                    {name:'退款金额(元)', is_show: true}
+                    {name:'退款金额(元)', is_show: true},
+                    {name:'佣金(元)', is_show: true}
                 ],
                 local_show:[],
                 is_all_select: true,
+                previewIndex: 0,
+                imgSrcList:[],
+                dialogVisible: false,
             }
         },
         components: {
-            BigImg,
+            ElImageViewer,
             EmptyList,
             ListFieldShow
         },
@@ -1015,12 +1027,23 @@
                                     this.returnMoneyList.push({money:res.data.refund_freight,type:'运费退款'})
                                 }
                                 this.refund_money_all = Number(res.data.refund_money) + Number(res.data.refund_freight)
+                                this.imgSrcList = [];
                                 this.num_total_all = 0
-                                if(res.data.detail) {
-                                    res.data.detail.forEach((ev,i)=>{
+                                let all_commission = 0
+                                if(this.order_info.detail) {
+                                    this.order_info.detail.forEach((ev,i)=>{
+                                        if(this.order_info.channel_id === 1){
+                                            this.imgSrcList.push(ev.goods_img + '!/fw/640');
+                                        }else {
+                                            this.imgSrcList.push(ev.product_img + '!/fw/640');
+                                        }
                                         this.num_total_all += Number(ev.num)
+                                        if(ev.commission){
+                                            all_commission = all_commission + ev.commission
+                                        }
                                     })
                                 }
+                                this.order_info['all_commission'] = all_commission
                             } else {
                                 this.order_info = {};
                             }
@@ -1129,11 +1152,15 @@
                 this.remarksVisible = false;
             },
             // 查看大图
-            viewBigImg(pic_url){
-                if(pic_url){
-                    this.bigImgUrl =  pic_url + '!/fw/640';
-                    this.$refs.bigImg.show();
+            viewBigImg(pic_url, index){
+                if (pic_url) {
+                    this.previewIndex = index;
+                    this.dialogVisible = true;
                 }
+            },
+            // 关闭大图
+            closeViewer() {
+                this.dialogVisible = false;
             },
             // 查看物流
             handleViewLogistics(index,row){
@@ -1550,22 +1577,22 @@
     }
 </style>
 <style>
-.update-list-popover,.logistics-update-list-popover{
-    padding: 0!important;
-}
-.update-list-popover{
-    transform: translateX(8px);
-}
-.update-list-popover .popover-title, .logistics-update-list-popover .popover-title{
-    width: 100%;
-    height: 32px;
-    line-height: 32px;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    padding-left: 8px;
-    border-bottom: 1px solid rgba(0,0,0,.06);
-}
-.update-price-form .el-input{
-    width: 300px;
-}
+    .update-list-popover,.logistics-update-list-popover{
+        padding: 0!important;
+    }
+    .update-list-popover{
+        transform: translateX(8px);
+    }
+    .update-list-popover .popover-title, .logistics-update-list-popover .popover-title{
+        width: 100%;
+        height: 32px;
+        line-height: 32px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        padding-left: 8px;
+        border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+    .update-price-form .el-input{
+        width: 300px;
+    }
 </style>

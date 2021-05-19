@@ -201,10 +201,14 @@ router.beforeEach((to, from, next) => {
 })
 Vue.filter('rounding', function(value) {
     //全局方法 Vue.filter() 注册一个自定义过滤器,必须放在Vue实例化前面
-    if (typeof value === 'number') {
-        return value.toFixed(2)
+    if(value){
+        if(typeof(value) === 'number'){
+            return value.toFixed(2);
+        }else {
+            return value
+        }
     } else {
-        return value
+        return 0
     }
 })
 /*
