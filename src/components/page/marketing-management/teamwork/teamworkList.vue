@@ -52,6 +52,7 @@
                     <span>{{ scope.row.id }}</span>
                 </template>
             </el-table-column>
+
             <el-table-column label="团作海报" width="176">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.poster_link" alt="" />
