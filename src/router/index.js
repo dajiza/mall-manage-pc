@@ -60,7 +60,7 @@ export default new Router({
                 },
                 {
                     path: '/mall-backend-goods-default-detail',
-                    name: 'goods-preview',
+                    name: 'goods-default-detail',
                     component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/defaultDetail.vue'),
                     meta: { title: '商品默认详情', name: 'defaultDetail' }
                 },

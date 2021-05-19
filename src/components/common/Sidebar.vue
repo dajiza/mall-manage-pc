@@ -122,7 +122,7 @@ export default {
                     subs: [
                         {
                             name: 'mall-backend-goods-list',
-                            display_name: '商品列表'
+                            display_name: '商品列表123'
                         },
                         {
                             name: 'mall-backend-shop-goods-list',
