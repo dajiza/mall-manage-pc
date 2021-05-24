@@ -24,7 +24,7 @@
                     </div>
                     <div class="sheet w280" v-if="shopList">
                         <span class="label">店铺名称：</span>
-                        <!-- <span class="value">{{ shopList.find(item => item.id == detail.shop_id).shop_name }}</span> -->
+                        <span class="value" v-if="detail.shop_id">{{ shopList.find(item => item.id == detail.shop_id).shop_name }}</span>
                     </div>
                     <div class="sheet w280">
                         <span class="label">团作时间：</span>
@@ -34,7 +34,7 @@
                     </div>
                     <div class="sheet w280">
                         <span class="label">创建时间：</span>
-                        <span class="value">{{ detail.phone }}</span>
+                        <span class="value">{{ $moment(detail.created_at_txt).format('YYYY-MM-DD') }}</span>
                     </div>
                     <div class="sheet w280">
                         <span class="label">状态：</span>
@@ -42,7 +42,7 @@
                     </div>
                     <div class="sheet w280">
                         <span class="label">报名人数：</span>
-                        <span class="value">{{ detail.join_num / detail.limit_num }}</span>
+                        <span class="value">{{ detail.join_num }} / {{ detail.limit_num }} </span>
                     </div>
                     <div class="sheet w280">
                         <span class="label">团作模式：</span>
@@ -192,7 +192,7 @@ export default {
     created() {},
     async mounted() {
         await this.queryShopList()
-        this.id = Number(this.$route.query.id)
+        this.id = Number(this.$route.params.id)
 
         this.getDetail()
         var editor = new Jodit(this.$refs.editor, {

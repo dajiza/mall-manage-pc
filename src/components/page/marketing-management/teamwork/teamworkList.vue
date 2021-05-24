@@ -55,7 +55,9 @@
 
             <el-table-column label="团作海报" width="176">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.poster_link" alt="" />
+                    <div class="img-wrap">
+                        <img class="timg" :src="scope.row.poster_link" alt="" />
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="团作名称" min-width="100">
@@ -63,9 +65,9 @@
                     <span>{{ scope.row.title }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="课程时间" width="140">
+            <el-table-column label="课程时间" width="120">
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.start_time_txt).format('YYYY-MM-DD') }}~{{ $moment(scope.row.end_time_txt).format('YYYY-MM-DD') }}</span>
+                    <span>{{ $moment(scope.row.start_time_txt).format('YYYY-MM-DD') }}至{{ $moment(scope.row.end_time_txt).format('YYYY-MM-DD') }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="报名人数" width="100">
@@ -257,7 +259,7 @@ export default Vue.extend({
             cacheData.teamworkData = _.cloneDeep(row)
             this.$router.push({
                 path: '/mall-backend-teamwork-detail',
-                query: {
+                params: {
                     id: row.id
                 }
             })
@@ -305,9 +307,14 @@ export default Vue.extend({
 })
 </script>
 <style scoped="scoped" lang="less">
-.timg {
+.img-wrap {
     width: 125px;
     height: 60px;
+    overflow: hidden;
+}
+.timg {
+    width: 125px;
+    height: auto;
 }
 .type-tag {
     // display: block;
