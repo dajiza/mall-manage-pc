@@ -34,18 +34,18 @@
                     </el-form>
                 </div>
             </transition>
-            <div class="search-value" >
-                <template v-for="(item,i) in searchList">
+            <div class="search-value">
+                <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
-                        {{item.val}}
-                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        {{ item.val }}
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                     </div>
                 </template>
                 <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 <div class="search-value-clone" ref="searchValueBox">
-                    <template v-for="(item,i) in searchList">
-                        <div class="search-item" :ref="'searchItem'+ i">
-                            {{item.val}}
+                    <template v-for="(item, i) in searchList">
+                        <div class="search-item" :ref="'searchItem' + i">
+                            {{ item.val }}
                             <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
@@ -224,7 +224,7 @@
                         :loading="loadingSelect"
                         :remote-method="queryUserList"
                     >
-                        <el-option v-for="item in userList" :key="item.user_id" :label="item.nick_name" :value="item.user_id"> </el-option>
+                        <el-option v-for="item in userList" :key="item.user_id" :label="item.phone + ' (' + item.nick_name + ')'" :value="item.user_id"> </el-option>
                     </el-select>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_id, 'shop_admin_id')">保 存</el-button>
                 </el-form-item>
@@ -338,41 +338,67 @@ export default {
             formCommission: {},
             dialogVisibleCommission: false,
             commissionRules: {
-                basic_rate: [{ required: true, message: '请输入内容', trigger: 'change' }],
-                additional_rate: [{ required: true, message: '请输入内容', trigger: 'change' }]
+                basic_rate: [
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    {
+                        min: 0,
+                        max: 40,
+                        message: '基础奖励0-40%',
+                        type: 'number',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        trigger: 'change'
+                    }
+                ],
+                additional_rate: [
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    {
+                        min: 0,
+                        max: 100,
+                        message: '额外奖励0-100%',
+                        type: 'number',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        trigger: 'change'
+                    }
+                ]
             },
             uploadImgUrl: '',
             dialogTitle: '新增店铺',
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
-            searchList:[],
-            showMaxIndex: 0,
+            searchList: [],
+            showMaxIndex: 0
         }
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     created() {
@@ -502,18 +528,18 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.searchShow = false;
-            this.setSearchValue();
+            this.listQuery.page = 1
+            this.searchShow = false
+            this.setSearchValue()
             this.getList()
         },
         // 设置显示的搜索条件
         setSearchValue() {
-            let _search = [];
+            let _search = []
             // 店铺名称 name
-            if(this.formFilter['name']){
-                this.shopList.forEach((ev)=>{
-                    if(ev.shop_name == this.formFilter['name']){
+            if (this.formFilter['name']) {
+                this.shopList.forEach(ev => {
+                    if (ev.shop_name == this.formFilter['name']) {
                         let obj = {
                             label: 'name',
                             val: ev.shop_name
@@ -524,7 +550,7 @@ export default {
             }
 
             // 绑定代理 agent_name
-            if(this.formFilter['agent_name']){
+            if (this.formFilter['agent_name']) {
                 let obj = {
                     label: 'agent_name',
                     val: this.formFilter['agent_name']
@@ -532,7 +558,7 @@ export default {
                 _search.push(obj)
             }
             // 代理手机号 agent_phone
-            if(this.formFilter['agent_phone']){
+            if (this.formFilter['agent_phone']) {
                 let obj = {
                     label: 'agent_phone',
                     val: this.formFilter['agent_phone']
@@ -541,7 +567,7 @@ export default {
             }
 
             // 管理员微信昵称 shop_admin_phone
-            if(this.formFilter['admin_name']){
+            if (this.formFilter['admin_name']) {
                 let obj = {
                     label: 'admin_name',
                     val: this.formFilter['admin_name']
@@ -550,9 +576,9 @@ export default {
             }
 
             // 店铺状态
-            if(this.formFilter['status']){
-                this.statusList.forEach((ev)=>{
-                    if(ev.id == this.formFilter['status']){
+            if (this.formFilter['status']) {
+                this.statusList.forEach(ev => {
+                    if (ev.id == this.formFilter['status']) {
                         let obj = {
                             label: 'status',
                             val: ev.label
@@ -567,7 +593,7 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
-            this.$set(this.formFilter,item.label, '');
+            this.$set(this.formFilter, item.label, '')
             this.handleFilter()
         },
         // 图片上传前检测
