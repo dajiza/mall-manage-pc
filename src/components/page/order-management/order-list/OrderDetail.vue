@@ -313,7 +313,8 @@
                 </el-table-column>
                 <el-table-column prop="price_real" label="佣金(元)" width="100" :resizable="true" v-if="back_field_show('佣金(元)')">
                     <template slot-scope="scope">
-                        <span>{{scope.row.commission/100 | rounding}}</span>
+                        <span v-if="scope.row.commission_status!=3">{{scope.row.commission/100 | rounding}}</span>
+                        <span v-else>0</span>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -1038,7 +1039,7 @@
                                             this.imgSrcList.push(ev.product_img + '!/fw/640');
                                         }
                                         this.num_total_all += Number(ev.num)
-                                        if(ev.commission){
+                                        if(ev.commission && ev.commission_status != 3){
                                             all_commission = all_commission + ev.commission
                                         }
                                     })
