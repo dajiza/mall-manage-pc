@@ -147,6 +147,10 @@ export default {
                         {
                             name: 'mall-backend-goods-default-detail',
                             display_name: '商品默认详情'
+                        },
+                        {
+                            name: 'mall-backend-goods-comment-list',
+                            display_name: '评论管理'
                         }
                     ]
                 },

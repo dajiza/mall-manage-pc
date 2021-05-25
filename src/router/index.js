@@ -65,6 +65,12 @@ export default new Router({
                     meta: { title: '商品默认详情', name: 'defaultDetail' }
                 },
                 {
+                    path: '/mall-backend-goods-comment-list',
+                    name: 'comment-list',
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/commentList.vue'),
+                    meta: { title: '评论管理', name: 'commentList' }
+                },
+                {
                     path: '/mall-backend-freight',
                     component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }

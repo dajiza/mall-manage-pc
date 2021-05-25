@@ -76,3 +76,9 @@ export const updateAgentSkuPrice = params => post('/backend/agent-shop-sku-price
 
 // 不享折扣商品
 export const goodsDiscountlist = params => post('/backend/goods-sku-discount-list', params)
+
+// 商品评论表
+export const queryCommentList = params => post('/backend/shop-comment-list', params)
+
+// 评价审核
+export const updateCommentApprove = params => post('/backend/shop-comment-approve', params)
