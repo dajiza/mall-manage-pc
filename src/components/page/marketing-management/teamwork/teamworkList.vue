@@ -258,7 +258,7 @@ export default Vue.extend({
         gotoDetail(row) {
             cacheData.teamworkData = _.cloneDeep(row)
             this.$router.push({
-                path: '/mall-backend-teamwork-detail',
+                name: 'teamwork-detail',
                 params: {
                     id: row.id
                 }
@@ -308,9 +308,9 @@ export default Vue.extend({
 </script>
 <style scoped="scoped" lang="less">
 .img-wrap {
+    overflow: hidden;
     width: 125px;
     height: 60px;
-    overflow: hidden;
 }
 .timg {
     width: 125px;

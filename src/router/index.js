@@ -183,7 +183,8 @@ export default new Router({
                     meta: { title: '团作列表' }
                 },
                 {
-                    path: '/mall-backend-teamwork-detail',
+                    path: '/mall-backend-teamwork-detail/:id',
+                    name: 'teamwork-detail',
                     component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/teamwork/teamworkDetail.vue'),
                     meta: { title: '团作详情' }
                 },

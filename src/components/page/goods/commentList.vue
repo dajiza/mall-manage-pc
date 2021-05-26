@@ -12,8 +12,8 @@
                         <el-form-item label="商品名称" prop="skuName">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.skuName"></el-input>
                         </el-form-item>
-                        <el-form-item label="店铺名称" prop="shopName">
-                            <el-select class="filter-item" v-model="formFilter.shopName" placeholder="请选择" filterable>
+                        <el-form-item label="店铺名称" prop="shopId">
+                            <el-select class="filter-item" v-model="formFilter.shopId" placeholder="请选择" filterable>
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
@@ -24,13 +24,13 @@
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.nickName"></el-input>
                         </el-form-item>
                         <el-form-item label="用户ID" prop="userId">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.userId"></el-input>
+                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.userId"></el-input>
                         </el-form-item>
                         <el-form-item class="long-time" label="评价时间" prop="createdTime">
                             <el-date-picker
                                 class="filter-item"
                                 v-model="formFilter.createdTime"
-                                value-format="yyyy-MM-dd HH:mm:ss"
+                                value-format="timestamp"
                                 type="datetimerange"
                                 range-separator="至"
                                 start-placeholder="开始日期"
@@ -72,53 +72,65 @@
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="110">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="" @click.native="gotoDetail(scope.row.id, scope.row.order_id)">通过</el-button>
-                    <el-button class="text-red" type="text" size="" @click.native="gotoDetail(scope.row.id, scope.row.order_id)">拒绝</el-button>
+                    <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
+                    <el-button class="text-red" type="text" v-if="scope.row.status != 3" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
+                    <!-- <el-button class="text-blue" type="text" @click.native="setTop(scope.row.commentId)">置顶</el-button> -->
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="100">
+            <el-table-column label="状态" width="100" v-if="formFilter.isApprove == 2">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span v-if="scope.row.status == 1">未审核</span>
+                    <span v-if="scope.row.status == 2">已通过</span>
+                    <span v-if="scope.row.status == 3">已拒绝</span>
                 </template>
             </el-table-column>
             <el-table-column label="评价内容" width="610">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <div class="contents">
+                        <div class="text" v-if="scope.row.message">{{ scope.row.message }}</div>
+                        <div class="media">
+                            <div class="item" v-for="item in scope.row.medias" :key="item.mediaId">
+                                <img :src="item.link" alt="" v-if="item.mediaType == 1" @click="openPreviewPic(scope.row, item.index)" />
+                                <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 2" @click="openPreviewVideo(item.link)" />
+                                <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 2" @click="openPreviewVideo(item.link)" />
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </el-table-column>
             <el-table-column label="评星" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ scope.row.rate }}星</span>
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="160">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ scope.row.skuName }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="店铺名称" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ shopList.find(item => item.id == scope.row.shopId).shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="订单号" width="120">
+            <el-table-column label="订单号" width="130">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ scope.row.orderNo }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="用户ID" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ scope.row.userId }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="用户名称" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ scope.row.nickName }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="评价时间" width="180">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.order_no }}</span>
+                    <span>{{ $moment(scope.row.createdAt).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -134,11 +146,18 @@
             >
             </el-pagination>
         </div>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreviewPic" :url-list="previewUrlListPic" :initial-index="previewIndexPic" />
+        <!-- 视频预览 -->
+        <el-dialog :visible.sync="dialogVisibleVideo" title="预览">
+            <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions"></video-player>
+        </el-dialog>
     </div>
 </template>
 <script>
-import { queryCommentList, updateCommentApprove } from '@/api/goods'
+import { queryCommentList, updateCommentApprove, putCommentTop } from '@/api/goods'
 import { queryShopList } from '@/api/goods'
+import ElImageViewer from '@/components/common/image-viewer'
 
 import { formatMoney } from '@/plugin/tool'
 
@@ -158,8 +177,8 @@ export default {
                 pi: 1,
                 ps: 10,
                 skuName: '', //商品名称
-                shopName: '', // 店铺名称
-                orderNo: 0, // 订单编号
+                shopId: '', // 店铺名称
+                orderNo: '', // 订单编号
                 nickName: '', // 用户名称
                 userId: '', // 用户id
                 isApprove: 1, // 是否审核 1未审核 2已审核
@@ -170,8 +189,46 @@ export default {
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
             searchList: [],
-            showMaxIndex: 0
+            showMaxIndex: 0,
+            imgVedio: require('@/assets/img/vedio.png'),
+            imgPlay: require('@/assets/img/play.png'),
+            // 图片预览
+            dialogVisiblePic: false,
+            previewUrlListPic: [],
+            previewIndexPic: 0,
+            // 视频预览
+            dialogVisibleVideo: false,
+            // 视频播放
+            playerOptions: {
+                playbackRates: [0.7, 1.0, 1.5, 2.0], //播放速度
+                autoplay: false, //如果true,浏览器准备好时开始回放。
+                muted: false, // 默认情况下将会消除任何音频。
+                loop: false, // 导致视频一结束就重新开始。
+                preload: 'auto', // 建议浏览器在<video>加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+                language: 'zh-CN',
+                aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+                fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+                sources: [
+                    {
+                        type: '',
+                        src: 'http://vjs.zencdn.net/v/oceans.mp4' //url地址
+                        // src: "" //url地址
+                    }
+                ],
+                poster: '', //你的封面地址
+                // width: document.documentElement.clientWidth,
+                notSupportedMessage: '此视频暂无法播放，请稍后再试', //允许覆盖Video.js无法播放媒体源时显示的默认信息。
+                controlBar: {
+                    timeDivider: true,
+                    durationDisplay: true,
+                    remainingTimeDisplay: false,
+                    fullscreenToggle: true //全屏按钮
+                }
+            }
         }
+    },
+    components: {
+        ElImageViewer
     },
     watch: {
         searchList: function() {
@@ -209,24 +266,34 @@ export default {
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = this.$refs['formFilter'].model
+            let params = _.cloneDeep(this.$refs['formFilter'].model)
             if (params.createdTime.length == 2) {
-                params['startTime'] = params.createdTime[0]
-                params['endTime'] = params.createdTime[1]
+                params['startTime'] = Number(this.$moment(params.createdTime[0]).format('X'))
+                params['endTime'] = Number(this.$moment(params.createdTime[1]).format('X'))
             } else {
                 params['startTime'] = 0
                 params['endTime'] = 0
             }
 
-            params['orderNo'] = params['orderNo'] || 0
-            params['pi'] = this.listQuery.limit
-            params['ps'] = this.listQuery.page
+            params['orderNo'] = params['orderNo'] ? Number(params['orderNo']) : 0
+            params['ps'] = this.listQuery.limit
+            params['pi'] = this.listQuery.page
 
             console.log('params', params)
             queryCommentList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    this.list = res.data.lists
+                    this.list = res.data.list.map(item => {
+                        item.medias = item.medias || []
+                        item['img'] = item.medias
+                            .filter(e => e.mediaType == 1)
+                            .map((e, index) => {
+                                e['index'] = index
+                                return e
+                            })
+                        item['video'] = item.medias.filter(e => e.mediaType == 2)
+                        return item
+                    })
                     this.total = res.data.total
                 })
                 .catch(err => {})
@@ -239,7 +306,20 @@ export default {
                 })
                 .catch(err => {})
         },
+        closePreviewPic() {
+            this.dialogVisiblePic = false
+        },
+        openPreviewPic(row, index) {
+            console.log('输出 ~ row', row)
+            this.previewUrlListPic = row.img.map(item => item.link)
 
+            this.previewIndexPic = index
+            this.dialogVisiblePic = true
+        },
+        openPreviewVideo(url) {
+            this.playerOptions['sources'][0]['src'] = url
+            this.dialogVisibleVideo = true
+        },
         gotoDetail(id, order_id) {
             this.$router.push({
                 name: 'afterSaleDetail',
@@ -275,17 +355,18 @@ export default {
                 _search.push(obj)
             }
             // 店铺名称
-            if (this.formFilter['shopName']) {
+            if (this.formFilter['shopId']) {
                 this.shopList.forEach(ev => {
-                    if (ev.id == this.formFilter['shop_id']) {
+                    if (ev.id == this.formFilter['shopId']) {
                         let obj = {
-                            label: 'shop_id',
+                            label: 'shopId',
                             val: ev.shop_name
                         }
                         _search.push(obj)
                     }
                 })
             }
+
             // 订单编号
             if (this.formFilter['orderNo']) {
                 let obj = {
@@ -330,7 +411,69 @@ export default {
             console.log('_search', _search)
             this.searchList = _.cloneDeep(_search)
         },
-
+        // 审核
+        updateCommentStatus(commentId, status) {
+            let params = {
+                commentId, // 评论id
+                status // 状态 2通过 3拒绝
+            }
+            let text = status == 2 ? '通过' : '拒绝'
+            this.$confirm(`确定审核${text}?`, '', {
+                confirmButtonText: '审核' + text,
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    updateCommentApprove(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '审核成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 2000
+                                })
+                                this.getList()
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(err => {})
+                })
+                .catch(() => {})
+        },
+        setTop(commentId) {
+            let params = {
+                goodsCommentId: commentId, // 商品评论id
+                top: 1 // 0不置顶 1置顶
+            }
+            putCommentTop(params)
+                .then(res => {
+                    if (res.code === 200) {
+                        this.$notify({
+                            title: '置顶成功',
+                            message: '',
+                            type: 'success',
+                            duration: 2000
+                        })
+                        this.getList()
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(err => {})
+        },
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             this.$set(this.formFilter, item.label, '')
@@ -398,6 +541,40 @@ export default {
         width: 8px;
         height: 8px;
         border-radius: 4px;
+    }
+}
+.contents {
+    display: flex;
+    align-items: center;
+    .text {
+        margin-right: 18px;
+        width: 260px;
+        font-size: 14px;
+    }
+    .media {
+        display: flex;
+        .item {
+            position: relative;
+            overflow: hidden;
+            margin-right: 8px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            img {
+                width: 60px;
+                height: auto;
+            }
+            .play {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                margin: auto;
+                width: 30px;
+                height: 30px;
+            }
+        }
     }
 }
 </style>
