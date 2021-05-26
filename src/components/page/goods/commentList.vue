@@ -90,9 +90,9 @@
                         <div class="text" v-if="scope.row.message">{{ scope.row.message }}</div>
                         <div class="media">
                             <div class="item" v-for="item in scope.row.medias" :key="item.mediaId">
-                                <img :src="item.link" alt="" v-if="item.mediaType == 1" @click="openPreviewPic(scope.row, item.index)" />
-                                <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 2" @click="openPreviewVideo(item.link)" />
-                                <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 2" @click="openPreviewVideo(item.link)" />
+                                <img :src="item.link" alt="" v-if="item.mediaType == 2" @click="openPreviewPic(scope.row, item.index)" />
+                                <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
+                                <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
                             </div>
                         </div>
                     </div>
@@ -286,12 +286,12 @@ export default {
                     this.list = res.data.list.map(item => {
                         item.medias = item.medias || []
                         item['img'] = item.medias
-                            .filter(e => e.mediaType == 1)
+                            .filter(e => e.mediaType == 2)
                             .map((e, index) => {
                                 e['index'] = index
                                 return e
                             })
-                        item['video'] = item.medias.filter(e => e.mediaType == 2)
+                        item['video'] = item.medias.filter(e => e.mediaType == 1)
                         return item
                     })
                     this.total = res.data.total
