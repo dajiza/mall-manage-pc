@@ -56,7 +56,7 @@
             <el-table-column label="团作海报" width="176">
                 <template slot-scope="scope">
                     <div class="img-wrap">
-                        <img class="timg" :src="scope.row.poster_link" alt="" />
+                        <img class="timg" :src="scope.row.poster_link" alt="" @click="openPreviewPic(scope.$index)" />
                     </div>
                 </template>
             </el-table-column>
@@ -126,19 +126,19 @@
             >
             </el-pagination>
         </div>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreviewPic" :url-list="previewUrlListPic" :initial-index="previewIndexPic" />
     </div>
 </template>
-<script lang="ts">
+<script>
 import { queryCourseList, cacheData } from '@/api/teamwork'
 // import * as teamwork from '@/api/teamwork'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
 import commUtil from '@/utils/commUtil'
+import ElImageViewer from '@/components/common/image-viewer'
 
-import { Component, Vue } from 'vue-property-decorator'
-import { ElForm } from 'element-ui/types/form'
-
-export default Vue.extend({
+export default {
     name: 'customer-list',
     data() {
         return {
@@ -159,18 +159,24 @@ export default Vue.extend({
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
             searchList: [],
-            showMaxIndex: 0
+            showMaxIndex: 0,
+            // 图片预览
+            dialogVisiblePic: false,
+            previewUrlListPic: [],
+            previewIndexPic: 0
         }
     },
-
+    components: {
+        ElImageViewer
+    },
     watch: {
         searchList: function() {
             this.$nextTick(
-                function(): void {
-                    if (!(this.$refs.searchValueBox as ElForm)) {
+                function() {
+                    if (!this.$refs.searchValueBox) {
                         return
                     }
-                    let maxWidth: number = (window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') as any) - 20
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
                     let showWidth = 0
                     for (let i = 0; i < this.searchList.length; i++) {
                         let el = 'searchItem' + i
@@ -210,9 +216,7 @@ export default Vue.extend({
                 params['shop_id'] = -1
                 this.filterShop = {}
             }
-
             params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
-
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
 
@@ -222,10 +226,17 @@ export default Vue.extend({
                     console.log('输出 ~ res', res)
                     this.list = res.data.lists
                     this.total = res.data.total
+                    this.previewUrlListPic = this.list.map(item => item.poster_link)
                 })
                 .catch(err => {})
         },
-
+        closePreviewPic() {
+            this.dialogVisiblePic = false
+        },
+        openPreviewPic(index) {
+            this.previewIndexPic = index
+            this.dialogVisiblePic = true
+        },
         // 代理店铺列表
         queryShopList() {
             return new Promise((resolve, reject) => {
@@ -304,7 +315,7 @@ export default Vue.extend({
             this.getList()
         }
     }
-})
+}
 </script>
 <style scoped="scoped" lang="less">
 .img-wrap {

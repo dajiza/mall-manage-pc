@@ -9,7 +9,7 @@
             <div class="divider"></div>
             <div class="substance" style="padding: 22px 32px 32px">
                 <div class="order-info">
-                    <div class=" w280">
+                    <div class="w280 head-img-wrap">
                         <img class="head-img" :src="detail.poster_link" alt="" />
                     </div>
                 </div>
@@ -321,9 +321,14 @@ export default {
         .order-info {
             display: flex;
             flex-wrap: wrap;
-            .head-img {
+            .head-img-wrap {
+                overflow: hidden;
                 width: 250px;
                 height: 120px;
+            }
+            .head-img {
+                width: 250px;
+                height: auto;
                 border-radius: 3px;
             }
             // padding-top: 10px;
