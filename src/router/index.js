@@ -189,6 +189,11 @@ export default new Router({
                     meta: { title: '团作详情' }
                 },
                 {
+                    path: '/mall-backend-page-share',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/page-share/pageShare.vue'),
+                    meta: { title: '小程序分享页' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
