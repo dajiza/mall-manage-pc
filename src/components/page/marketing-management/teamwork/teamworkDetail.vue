@@ -140,6 +140,7 @@ import { Jodit } from '@/plugin/jodit.es2018'
 import '@/plugin/jodit.es2018.min.css'
 
 export default {
+    name: 'teamworkDetail',
     data() {
         return {
             id: '',
