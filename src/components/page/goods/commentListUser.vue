@@ -91,13 +91,6 @@
                 <template slot-scope="scope">
                     <div class="contents">
                         <div class="text" v-if="scope.row.message">{{ scope.row.message }}</div>
-                        <div class="media">
-                            <div class="item" v-for="item in scope.row.medias" :key="item.mediaId">
-                                <img :src="item.link" alt="" v-if="item.mediaType == 2" @click="openPreviewPic(scope.row, item.index)" />
-                                <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
-                                <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
-                            </div>
-                        </div>
                     </div>
                 </template>
             </el-table-column>
@@ -156,12 +149,45 @@
             <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions"></video-player>
         </el-dialog>
         <!-- 置顶 -->
-        <el-dialog :visible.sync="dialogVisibleTop" title="置顶" width="380px" @closed="closeDialogTop">
-            <el-checkbox v-model="checkedSelf">本宝贝置顶</el-checkbox>
-            <el-checkbox v-model="checkedOther">其他宝贝置顶</el-checkbox>
+        <el-dialog :visible.sync="dialogVisibleGoods" title="查看原文" width="400px" @closed="closeDialogGoods">
+            <div class="comment">
+                <div class="goods-card">
+                    <div class="img">
+                        <img :src="imgVedio" alt="" />
+                    </div>
+                    <div class="text">
+                        <div class="title">卡通卡拉猫女可爱布艺手工布包帆布手拎包手提包便当卡通卡拉猫女可爱布艺手工布包帆布手拎包手提包便</div>
+                        <div class="info">
+                            <div class="spec">蓝色:S</div>
+                            <div class="price"><span class="symbol">¥</span>264</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail">
+                    <div class="user">
+                        <div class="avator">
+                            <img class="fullimg" :src="imgVedio" alt="" />
+                        </div>
+                        <div class="info">
+                            <div class="name">周杰伦</div>
+                            <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                        </div>
+                    </div>
+                    <div class="contents">
+                        超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
+                    </div>
+                    <div class="media">
+                        <div class="item" v-for="item in scope.row.medias" :key="item.mediaId">
+                            <img :src="item.link" alt="" v-if="item.mediaType == 2" @click="openPreviewPic(scope.row, item.index)" />
+                            <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
+                            <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="closeDialogTop">取 消</el-button>
-                <el-button type="primary" @click="saveTop">确 定</el-button>
+                <el-button @click="closeDialogGoods">取 消</el-button>
+                <el-button type="primary" @click="saveGoods">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -237,11 +263,9 @@ export default {
                     fullscreenToggle: true //全屏按钮
                 }
             },
-            activeTab: '1',
-            // 置顶
-            dialogVisibleTop: false,
-            checkedSelf: false, //本宝贝置顶
-            checkedOther: false //其他宝贝置顶
+            activeTab: '2',
+            // 评论
+            dialogVisibleGoods: true
         }
     },
     components: {
@@ -517,16 +541,16 @@ export default {
         },
         // tab
         onTabClick(e) {
-            if (e.name == 2) {
-                this.$router.push({ path: '/mall-backend-goods-comment-list-user' })
+            if (e.name == 1) {
+                this.$router.push({ path: '/mall-backend-goods-comment-list' })
             }
         },
         // 关闭弹框
-        closeDialogTop() {
-            this.dialogVisibleTop = false
+        closeDialogGoods() {
+            this.dialogVisibleGoods = false
         },
-        saveTop() {
-            this.dialogVisibleTop = false
+        saveGoods() {
+            this.dialogVisibleGoods = false
         }
     }
 }
@@ -579,7 +603,6 @@ export default {
     .text {
         margin-right: 18px;
         width: 260px;
-        font-size: 14px;
     }
     .media {
         display: flex;
@@ -617,6 +640,93 @@ export default {
     }
     & /deep/ .el-tabs__item {
         line-height: 66px;
+    }
+}
+.comment {
+    .goods-card {
+        display: flex;
+        box-sizing: border-box;
+        padding: 10px;
+        width: 325px;
+        height: 88px;
+        border-radius: 10px;
+        background: #efefef;
+        .img {
+            overflow: hidden;
+            flex-basis: 68px;
+            flex-shrink: 0;
+            margin-right: 10px;
+            height: 68px;
+            border-radius: 4px;
+            img {
+                width: 68px;
+                height: auto;
+            }
+        }
+        .text {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            .title {
+                overflow: hidden;
+                height: 40px;
+                line-height: 20px;
+            }
+            .info {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                .spec {
+                    color: #b2b2b2;
+                    font-size: 13px;
+                }
+                .price {
+                    font-size: 15px;
+                    .symbol {
+                        padding-right: 3px;
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
+    }
+    .detail {
+        margin-top: 20px;
+        .user {
+            display: flex;
+            .avator {
+                overflow: hidden;
+                margin-right: 8px;
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+            }
+            .info {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                .name {
+                    font-weight: 500;
+                }
+                .time {
+                    display: flex;
+                    align-items: center;
+                    color: #b2b2b2;
+                    font-size: 12px;
+                    .line {
+                        display: block;
+                        margin: 0 6px;
+                        width: 1px;
+                        height: 10px;
+                        background: #d8d8d8;
+                    }
+                }
+            }
+        }
+        .contents {
+            margin-top: 10px;
+            line-height: 20px;
+        }
     }
 }
 </style>

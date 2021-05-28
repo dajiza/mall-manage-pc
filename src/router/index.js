@@ -71,6 +71,12 @@ export default new Router({
                     meta: { title: '评论管理', name: 'commentList' }
                 },
                 {
+                    path: '/mall-backend-goods-comment-list-user',
+                    name: 'comment-list-user',
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/commentListUser.vue'),
+                    meta: { title: '评论管理-用户', name: 'commentListUser' }
+                },
+                {
                     path: '/mall-backend-freight',
                     component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }
