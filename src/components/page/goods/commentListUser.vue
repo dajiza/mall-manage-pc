@@ -177,12 +177,30 @@
                         超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                     </div>
                     <div class="media">
-                        <div class="item" v-for="item in scope.row.medias" :key="item.mediaId">
-                            <img :src="item.link" alt="" v-if="item.mediaType == 2" @click="openPreviewPic(scope.row, item.index)" />
-                            <img :src="scope.row.videoImg || imgVedio" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
-                            <img class="play" :src="imgPlay" alt="" v-if="item.mediaType == 1" @click="openPreviewVideo(item.link)" />
+                        <!-- <div class="item" v-for="item in [1, 2, 3, 4, 5, 6, 7]">
+                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
+                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
+                        </div> -->
+                        <div class="item item-single">
+                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
+                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
                         </div>
                     </div>
+                </div>
+                <div class="reply">3条回复</div>
+                <div class="user">
+                    <div class="avator">
+                        <img class="fullimg" :src="imgVedio" alt="" />
+                    </div>
+                    <div class="info">
+                        <div class="name">周杰伦</div>
+                        <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                    </div>
+                </div>
+                <div class="contents">
+                    超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
@@ -604,31 +622,6 @@ export default {
         margin-right: 18px;
         width: 260px;
     }
-    .media {
-        display: flex;
-        .item {
-            position: relative;
-            overflow: hidden;
-            margin-right: 8px;
-            width: 60px;
-            height: 60px;
-            cursor: pointer;
-            img {
-                width: 60px;
-                height: auto;
-            }
-            .play {
-                position: absolute;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                margin: auto;
-                width: 30px;
-                height: 30px;
-            }
-        }
-    }
 }
 .tabs {
     margin-left: 30px;
@@ -646,6 +639,7 @@ export default {
     .goods-card {
         display: flex;
         box-sizing: border-box;
+        margin: auto;
         padding: 10px;
         width: 325px;
         height: 88px;
@@ -727,6 +721,46 @@ export default {
             margin-top: 10px;
             line-height: 20px;
         }
+        .media {
+            display: flex;
+            flex-wrap: wrap;
+            .item {
+                position: relative;
+                overflow: hidden;
+                flex-shrink: 0;
+                margin-right: 5px;
+                margin-bottom: 5px;
+                width: 80px;
+                height: 80px;
+                cursor: pointer;
+                img {
+                    width: 80px;
+                    height: auto;
+                }
+                .play {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    margin: auto;
+                    width: 40px;
+                    height: 40px;
+                }
+            }
+            .item-single {
+                width: 200px;
+                height: 200px;
+                img {
+                    width: 200px;
+                    height: 200px;
+                }
+            }
+        }
+    }
+    .reply {
+        margin: 15px 0 20px;
+        font-weight: 500;
     }
 }
 </style>
