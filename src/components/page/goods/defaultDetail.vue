@@ -7,7 +7,7 @@
                 <div class="text">商品默认详情</div>
             </div>
             <Editor class="editor" :content="editContent" v-model="content"></Editor>
-            <el-button class="save-btn" type="primary" @click="saveDetail">保存</el-button>
+            <el-button class="save-btn" type="primary" v-hasPermission="'mall-backend-goods-default-detail-save'" @click="saveDetail">保存</el-button>
         </div>
     </div>
 </template>

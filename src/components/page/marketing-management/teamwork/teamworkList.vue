@@ -110,7 +110,7 @@
 
             <el-table-column label="操作" width="80">
                 <template slot-scope="scope">
-                    <el-button class="btn-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">详情</el-button>
+                    <el-button class="btn-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-teamwork-detail'" @click="gotoDetail(scope.row)">详情</el-button>
                 </template>
             </el-table-column>
         </el-table>
