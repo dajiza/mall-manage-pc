@@ -72,6 +72,7 @@
                 <el-radio-button :label="2">已审核</el-radio-button>
             </el-radio-group>
         </div>
+        <div class="aa" @click="dialogVisibleGoods = true">open</div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="110">
                 <template slot-scope="scope">
@@ -148,9 +149,9 @@
         <el-dialog :visible.sync="dialogVisibleVideo" title="预览">
             <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions"></video-player>
         </el-dialog>
-        <!-- 置顶 -->
-        <el-dialog :visible.sync="dialogVisibleGoods" title="查看原文" width="400px" @closed="closeDialogGoods">
-            <div class="comment">
+        <!-- 商品 评论 -->
+        <el-dialog class="comment-dialog" :visible.sync="dialogVisibleGoods" title="查看原文" width="400px" @closed="closeDialogGoods">
+            <div class="comment" id="comment">
                 <div class="goods-card">
                     <div class="img">
                         <img :src="imgVedio" alt="" />
@@ -164,17 +165,19 @@
                     </div>
                 </div>
                 <div class="detail">
-                    <div class="user">
-                        <div class="avator">
-                            <img class="fullimg" :src="imgVedio" alt="" />
+                    <div class="comment-item">
+                        <div class="user">
+                            <div class="avator">
+                                <img class="fullimg" :src="imgVedio" alt="" />
+                            </div>
+                            <div class="info">
+                                <div class="name">周杰伦</div>
+                                <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                            </div>
                         </div>
-                        <div class="info">
-                            <div class="name">周杰伦</div>
-                            <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                        <div class="contents">
+                            超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                         </div>
-                    </div>
-                    <div class="contents">
-                        超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                     </div>
                     <div class="media">
                         <!-- <div class="item" v-for="item in [1, 2, 3, 4, 5, 6, 7]">
@@ -190,22 +193,80 @@
                     </div>
                 </div>
                 <div class="reply">3条回复</div>
-                <div class="user">
-                    <div class="avator">
-                        <img class="fullimg" :src="imgVedio" alt="" />
+                <div class="comment-item active" v-for="item in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
+                    <div class="user" :id="'user' + item">
+                        <div class="avator">
+                            <img class="fullimg" :src="imgVedio" alt="" />
+                        </div>
+                        <div class="info">
+                            <div class="name">周杰伦</div>
+                            <div class="time">05/06 16:00</div>
+                        </div>
                     </div>
-                    <div class="info">
-                        <div class="name">周杰伦</div>
-                        <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                    <div class="contents">
+                        超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                     </div>
-                </div>
-                <div class="contents">
-                    超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="closeDialogGoods">取 消</el-button>
-                <el-button type="primary" @click="saveGoods">确 定</el-button>
+                <el-button @click="closeDialogGoods">拒 绝</el-button>
+                <el-button type="primary" @click="saveGoods">通 过</el-button>
+            </span>
+        </el-dialog>
+        <!-- 圈子 评论 -->
+        <el-dialog class="comment-dialog comment-circle" :visible.sync="dialogVisibleCircle" title="查看原文" width="400px" @closed="closeDialogCircle">
+            <div class="comment" id="comment">
+                <div class="detail">
+                    <div class="comment-item">
+                        <div class="user">
+                            <div class="avator">
+                                <img class="fullimg" :src="imgVedio" alt="" />
+                            </div>
+                            <div class="info">
+                                <div class="name">周杰伦</div>
+                                <div class="contents">
+                                    超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="media">
+                        <!-- <div class="item" v-for="item in [1, 2, 3, 4, 5, 6, 7]">
+                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
+                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
+                        </div> -->
+                        <div class="item item-single">
+                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
+                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
+                        </div>
+                    </div>
+                </div>
+                <div class="reply-time">5分钟前</div>
+                <div class="reply-circle">
+                    <div class="like-box">
+                        <span class="iconfont icon-like"></span>
+                        <span class="like-name" v-for="item in [1, 2, 3, 4, 5, 6, 7, 8]">学习学习,</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="circle-item active">
+                        <span class="name">马云：</span>
+                        小打小闹的弄不好的了！备份
+                    </div>
+                    <div class="circle-item">
+                        <span class="name">马云：</span>
+                        小打小闹的弄不好的了！备份
+                    </div>
+                    <div class="circle-item">
+                        <span class="name">马云：</span>
+                        小打小闹的弄不好的了！备份
+                    </div>
+                </div>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeDialogCircle">拒 绝</el-button>
+                <el-button type="primary" @click="saveCircle">通 过</el-button>
             </span>
         </el-dialog>
     </div>
@@ -283,7 +344,8 @@ export default {
             },
             activeTab: '2',
             // 评论
-            dialogVisibleGoods: true
+            dialogVisibleGoods: true,
+            dialogVisibleCircle: false
         }
     },
     components: {
@@ -321,6 +383,19 @@ export default {
     mounted() {
         this.queryShopList()
         this.getList()
+
+        // var timer = null
+        // console.log('输出 ~ document.getElementById', document.getElementById('user7'))
+        // var element = document.getElementById('user7').offsetTop
+        // var pageTop = document.getElementById('comment')
+        // timer = setInterval(function() {
+        //     if (pageTop.scrollTop >= element) {
+        //         clearInterval(timer)
+        //         pageTop.scrollTop = element
+        //     } else {
+        //         pageTop.scrollTop += 10
+        //     }
+        // }, 20)
     },
     methods: {
         formatMoney: formatMoney,
@@ -563,12 +638,22 @@ export default {
                 this.$router.push({ path: '/mall-backend-goods-comment-list' })
             }
         },
-        // 关闭弹框
+        // 关闭弹框 商品
         closeDialogGoods() {
             this.dialogVisibleGoods = false
         },
         saveGoods() {
-            this.dialogVisibleGoods = false
+            // this.dialogVisibleGoods = false
+            let uu = document.getElementById('user7')
+            uu.scrollIntoView()
+            // comment.scrollTop = 1000
+        },
+        // 关闭弹框 圈子
+        closeDialogCircle() {
+            this.dialogVisibleCircle = false
+        },
+        saveCircle() {
+            this.dialogVisibleCircle = false
         }
     }
 }
@@ -635,11 +720,26 @@ export default {
         line-height: 66px;
     }
 }
+.comment-dialog {
+    & /deep/ .el-dialog {
+        margin-top: 50px !important;
+    }
+    & /deep/ .el-dialog__body {
+        padding: 0 !important;
+    }
+}
+
 .comment {
+    overflow-y: scroll;
+    height: 500px;
+    &::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
     .goods-card {
         display: flex;
         box-sizing: border-box;
-        margin: auto;
+        margin: 20px auto 0;
         padding: 10px;
         width: 325px;
         height: 88px;
@@ -647,9 +747,9 @@ export default {
         background: #efefef;
         .img {
             overflow: hidden;
-            flex-basis: 68px;
             flex-shrink: 0;
             margin-right: 10px;
+            width: 68px;
             height: 68px;
             border-radius: 4px;
             img {
@@ -684,12 +784,16 @@ export default {
             }
         }
     }
-    .detail {
-        margin-top: 20px;
+    .comment-item {
+        padding: 10px 24px;
+        &.active {
+            background: rgba(24, 144, 255, 0.08);
+        }
         .user {
             display: flex;
             .avator {
                 overflow: hidden;
+                flex-shrink: 0;
                 margin-right: 8px;
                 width: 38px;
                 height: 38px;
@@ -720,6 +824,14 @@ export default {
         .contents {
             margin-top: 10px;
             line-height: 20px;
+        }
+    }
+    .detail {
+        margin-top: 20px;
+        padding: 0 24px;
+        .comment-item {
+            margin-bottom: 20px;
+            padding: 0;
         }
         .media {
             display: flex;
@@ -760,7 +872,54 @@ export default {
     }
     .reply {
         margin: 15px 0 20px;
+        padding: 0 24px;
         font-weight: 500;
+    }
+}
+.comment-circle {
+    .comment-item {
+        .contents {
+            margin-top: 8px;
+        }
+    }
+    .detail {
+        .media {
+            margin-left: 48px;
+        }
+    }
+    .reply-time {
+        margin: 15px 0 20px;
+        padding: 0 24px 0 72px;
+        color: #b2b2b2;
+        font-size: 12px;
+    }
+    .reply-circle {
+        margin-left: 72px;
+        padding-bottom: 1px;
+        width: 295px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.05);
+        .like-box {
+            padding: 4px 10px 8px;
+            font-weight: 500;
+            line-height: 20px;
+            .icon-like {
+                margin-right: 4px;
+            }
+        }
+        .divider {
+            margin: 0px auto 4px;
+            width: 275px;
+        }
+        .circle-item {
+            padding: 4px 10px 4px;
+            .name {
+                font-weight: 500;
+            }
+            &.active {
+                background: rgba(24, 144, 255, 0.08);
+            }
+        }
     }
 }
 </style>

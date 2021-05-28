@@ -6,9 +6,16 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "21081149",
-      "name": "搜索 放大",
-      "font_class": "search",
+      "icon_id": "21904595",
+      "name": "点赞icon备份 3",
+      "font_class": "like",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "21195642",
+      "name": "drag",
+      "font_class": "drag",
       "unicode": "e624",
       "unicode_decimal": 58916
     },
