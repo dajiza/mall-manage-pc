@@ -193,7 +193,7 @@ export default {
     created() {},
     async mounted() {
         await this.queryShopList()
-        this.id = Number(this.$route.params.id)
+        this.id = Number(this.$route.query.id)
 
         this.getDetail()
         var editor = new Jodit(this.$refs.editor, {

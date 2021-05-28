@@ -270,7 +270,7 @@ export default {
             cacheData.teamworkData = _.cloneDeep(row)
             this.$router.push({
                 name: 'teamwork-detail',
-                params: {
+                query: {
                     id: row.id
                 }
             })
