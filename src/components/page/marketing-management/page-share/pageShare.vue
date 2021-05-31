@@ -581,7 +581,12 @@ export default {
                         // 0 自定义 1 团作列表 2优惠卷领取 3 直播间  4 团作详情 5 页面 6 商品列表  7 商品详情
                         if (this.addDialogForm.type === 0) {
                             // 自定义
-                            new_link = this.addDialogForm.link
+                            let new_link_list = this.addDialogForm.link.split('?')
+                            console.log('new_link_list', new_link_list)
+                            new_link = new_link_list[0]
+                            if(new_link_list.length > 1){
+                                new_query = this.addDialogForm.link.replace(new_link+'?',"");
+                            }
                         } else if (this.addDialogForm.type === 1) {
                             // 团作列表
                             new_link = '/pages/teamworkIndex/teamworkIndex'
