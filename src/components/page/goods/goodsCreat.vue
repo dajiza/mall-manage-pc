@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container">
+    <div class="app-container goods-detail-page">
         <el-form class="freight-form" :inline="true" label-position="top" :model="goods" :rules="rules" ref="formRef">
             <!-- 新增商品 -->
             <div class="table-title">
@@ -411,6 +411,7 @@
             <div class="table-title">
                 <div class="line"></div>
                 <div class="text">商品详情</div>
+                <el-button class="add-sku" type="primary" @click="onImportTemplate">导入模版</el-button>
             </div>
             <div class="divider"></div>
             <div class="content-goods">
@@ -455,6 +456,21 @@
                 <el-button type="primary" @click="saveDiscount">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 导入模版 -->
+        <el-dialog :visible.sync="importDialogShow" title="导入模版" width="380px" @closed="closeImportDialog">
+            <el-form class="form-creat" :inline="true" size="small" label-position="left">
+                <el-form-item label="会员折扣" class="">
+                    <el-select class="filter-item" v-model="detailTemplateId" placeholder="请选择" style="width:200px">
+                        <el-option v-for="item in templateList" :key="item.detailId" :label="item.title" :value="item.detailId"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="closeImportDialog">取 消</el-button>
+                <el-button type="primary" @click="saveTemplate">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -471,3 +487,12 @@ export default {
 </script>
 
 <style scoped src="./goodsCreat.less" lang="less"></style>
+<style lang="less">
+    .el-message-box {
+        width: 340px;
+    }
+    .el-message-box--center .el-message-box__content{
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+</style>

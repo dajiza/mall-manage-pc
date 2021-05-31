@@ -59,10 +59,15 @@ export default new Router({
                     meta: { title: '查看商品', name: 'goodsPreview' }
                 },
                 {
-                    path: '/mall-backend-goods-default-detail',
-                    name: 'goods-default-detail',
-                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/defaultDetail.vue'),
-                    meta: { title: '商品默认详情', name: 'defaultDetail' }
+                    path: '/mall-backend-goods-detail-template',
+                    name: 'goods-detail-template',
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsDetailTemplate.vue'),
+                    meta: { title: '详情页模版', name: 'defaultDetail' }
+                },
+                {
+                    path: '/mall-backend-goods-detail-template-creat',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/goods/defaultDetail.vue'),
+                    meta: { title: '新增模版' }
                 },
                 {
                     path: '/mall-backend-goods-comment-list',

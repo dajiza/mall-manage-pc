@@ -4,6 +4,7 @@ import { queryFreightList } from '@/api/freight'
 import { getLabelAllList } from '@/api/goodsLabel'
 import { formatMoney } from '@/plugin/tool'
 import { getToken } from '@/utils/auth'
+import { queryDetailTemplateList } from '@/api/teamwork'
 import { ATTR, ATTR_NAME } from '@/plugin/constant'
 import storeProductList from '@/components/common/store-product-list/StoreProductList'
 import vTagPicker from '@/components/common/TagPicker.vue'
@@ -204,7 +205,10 @@ export const mixinsGoods = {
             // 设置会员弹框
             dialogVisibleCreat: false,
             discountValue: '',
-            discountRow: ''
+            discountRow: '',
+            importDialogShow: false,
+            templateList: [],
+            detailTemplateId: null
         }
     },
     watch: {
@@ -1284,6 +1288,65 @@ export const mixinsGoods = {
                 type: 'success',
                 duration: 500
             })
+        },
+        onImportTemplate() {
+            console.log('content', this.content)
+            if(this.content){
+                const str = '导入模板会覆盖当前已编辑的信息，'+'\n'+ '是否继续？'
+                this.$confirm(str, '', {
+                    confirmButtonText: '继续',
+                    cancelButtonText: '取消',
+                    type: 'warning',
+                    center: true
+                }).then(() => {
+                    this.queryTemplateList()
+                }).catch(() => {
+                    console.log('取消')
+                })
+            }else {
+                this.queryTemplateList()
+            }
+        },
+        queryTemplateList(){
+            const rLoading = this.openLoading()
+            queryDetailTemplateList({})
+                .then(res => {
+                    rLoading.close()
+                    console.log('res', res)
+                    this.templateList = res.data || []
+                    this.importDialogShow = true
+                    console.log('this.list', this.list)
+                })
+                .catch(err => {
+                    rLoading.close()
+                })
+        },
+        // 关闭导入模版弹窗
+        closeImportDialog() {
+            this.detailTemplateId = null
+            this.importDialogShow = false
+        },
+        saveTemplate(){
+            if(this.detailTemplateId){
+                console.log('this.detailTemplateId', this.detailTemplateId)
+                const obj = this.templateList.filter(item=>{return item.detailId == this.detailTemplateId})[0]
+                console.log('obj', obj)
+                this.content = ''
+                this.editContent = ''
+                this.$nextTick(()=>{
+                    this.editContent = obj.detail
+                    this.content = this.editContent
+                })
+                console.log('this.editContent', this.editContent )
+                console.log('this.content', this.content )
+                this.importDialogShow = false
+            } else {
+                this.$notify({
+                    title: '请选择模版',
+                    type: 'warning',
+                    duration: 3000
+                })
+            }
         }
     }
 }
