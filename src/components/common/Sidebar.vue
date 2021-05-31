@@ -201,7 +201,12 @@ export default {
                         {
                             name: 'mall-backend-teamwork-list',
                             display_name: '团作列表'
+                        },
+                        {
+                            name: 'mall-backend-page-share',
+                            display_name: '小程序分享页'
                         }
+
                     ]
                 },
                 {
