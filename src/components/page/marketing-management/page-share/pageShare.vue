@@ -129,7 +129,7 @@
                 :destroy-on-close="true"
                 :close-on-click-modal="false"
         >
-            <el-form class="send-coupons-form" ref="addDialogForm" :model="addDialogForm" :rules="formRules" label-width="80px" label-position="right">
+            <el-form class="send-coupons-form" ref="addDialogForm" :model="addDialogForm" :rules="formRules" label-width="85px" label-position="right">
                 <el-form-item class="form-item" label="名称:" prop="title">
                     <el-input class="w300" placeholder="请输入名称" type="text" v-model="addDialogForm.title"></el-input>
                 </el-form-item>
