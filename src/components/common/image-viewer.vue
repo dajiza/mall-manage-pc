@@ -73,7 +73,7 @@ export default {
         },
         zIndex: {
             type: Number,
-            default: 2000
+            default: 3000
         },
         onSwitch: {
             type: Function,

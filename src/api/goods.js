@@ -85,3 +85,9 @@ export const updateCommentApprove = params => post('/backend/goods-comment-appro
 
 // 评论置顶
 export const putCommentTop = params => post('/backend/goods-comment-top', params)
+
+// 查看原文接口
+export const queryReplySubject = params => post('/backend/comment-reply-subject', params)
+
+// 评论/回复列表
+export const queryReplyList = params => post('/backend/comment-reply-list', params)

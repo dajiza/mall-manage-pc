@@ -12,22 +12,26 @@
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                         <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                        <el-form-item label="商品名称" prop="skuName">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.skuName"></el-input>
-                        </el-form-item>
-                        <el-form-item label="店铺名称" prop="shopId">
-                            <el-select class="filter-item" v-model="formFilter.shopId" placeholder="请选择" filterable>
-                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                        <el-form-item label="状态" prop="checkStatus" v-show="formFilter.isApprove == 2">
+                            <el-select class="filter-item" v-model="formFilter.checkStatus" placeholder="请选择" filterable>
+                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="订单号" prop="orderNo">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.orderNo"></el-input>
+                        <el-form-item label="评论类型" prop="platform">
+                            <el-select class="filter-item" v-model="formFilter.platform" placeholder="请选择" filterable>
+                                <el-option v-for="item in platformList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="用户ID" prop="userId">
+                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.userId"></el-input>
                         </el-form-item>
                         <el-form-item label="用户名称" prop="nickName">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.nickName"></el-input>
                         </el-form-item>
-                        <el-form-item label="用户ID" prop="userId">
-                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.userId"></el-input>
+                        <el-form-item label="店铺" prop="shopId">
+                            <el-select class="filter-item" v-model="formFilter.shopId" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
                         </el-form-item>
                         <el-form-item class="long-time" label="评价时间" prop="createdTime">
                             <el-date-picker
@@ -72,13 +76,12 @@
                 <el-radio-button :label="2">已审核</el-radio-button>
             </el-radio-group>
         </div>
-        <div class="aa" @click="dialogVisibleGoods = true">open</div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="操作" width="110">
+            <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
                     <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
                     <el-button class="text-red" type="text" v-if="scope.row.status != 3" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
-                    <!-- <el-button class="text-blue" type="text" @click.native="setTop(scope.row.commentId)">置顶</el-button> -->
+                    <el-button class="text-blue" type="text" @click.native="openSubject(scope.row)">查看原文</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100" v-if="formFilter.isApprove == 2">
@@ -88,36 +91,26 @@
                     <span v-if="scope.row.status == 3">已拒绝</span>
                 </template>
             </el-table-column>
-            <el-table-column label="评价内容" width="610">
+            <el-table-column label="评价内容" min-width="400">
                 <template slot-scope="scope">
                     <div class="contents">
                         <div class="text" v-if="scope.row.message">{{ scope.row.message }}</div>
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="评星" width="100">
+            <el-table-column label="评论类型" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.rate }}星</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="商品名称" width="160">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.skuName }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="店铺名称" width="100">
-                <template slot-scope="scope">
-                    <span>{{ shopList.find(item => item.id == scope.row.shopId).shop_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="订单号" width="130">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.orderNo }}</span>
+                    <span>{{ platformList.find(item => item.value == scope.row.platform).label }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="用户ID" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.userId }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="店铺名称" width="100">
+                <template slot-scope="scope">
+                    <span>{{ shopList.find(item => item.id == scope.row.shopId).shop_name }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="用户名称" width="100">
@@ -151,128 +144,133 @@
         </el-dialog>
         <!-- 商品 评论 -->
         <el-dialog class="comment-dialog" :visible.sync="dialogVisibleGoods" title="查看原文" width="400px" @closed="closeDialogGoods">
-            <div class="comment" id="comment">
+            <div class="comment" id="comment" v-if="replyData && activePlatform == 1">
                 <div class="goods-card">
                     <div class="img">
-                        <img :src="imgVedio" alt="" />
+                        <img :src="replyData.goodsSku.skuImg" alt="" />
                     </div>
                     <div class="text">
-                        <div class="title">卡通卡拉猫女可爱布艺手工布包帆布手拎包手提包便当卡通卡拉猫女可爱布艺手工布包帆布手拎包手提包便</div>
+                        <div class="title">{{ replyData.goodsSku.skuName }}</div>
                         <div class="info">
-                            <div class="spec">蓝色:S</div>
-                            <div class="price"><span class="symbol">¥</span>264</div>
+                            <div class="spec">{{ replyData.goodsSku.skuAttr.map(item => `${item.Title}:${item.Value}`).join(',') }}</div>
+                            <div class="price"><span class="symbol">¥</span>{{ formatMoney(replyData.goodsSku.skuPrice) }}</div>
                         </div>
                     </div>
                 </div>
                 <div class="detail">
                     <div class="comment-item">
                         <div class="user">
-                            <div class="avator">
-                                <img class="fullimg" :src="imgVedio" alt="" />
+                            <div class="avatar">
+                                <img class="fullimg" :src="replyData.avatar || avatar" alt="" />
                             </div>
                             <div class="info">
-                                <div class="name">周杰伦</div>
-                                <div class="time">05/06 16:00 <span class="line"></span> Sevebberry 粉色</div>
+                                <div class="name">{{ replyData.nickName }}</div>
+                                <div class="time">
+                                    {{ $moment(replyData.createdAt).format('MM/DD HH:mm') }} <span class="line"></span>
+                                    {{ replyData.goodsSku.skuAttr.map(item => item.Value).join(' ') }}
+                                </div>
                             </div>
                         </div>
                         <div class="contents">
-                            超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
+                            {{ replyData.message }}
                         </div>
                     </div>
                     <div class="media">
-                        <!-- <div class="item" v-for="item in [1, 2, 3, 4, 5, 6, 7]">
-                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
-                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
-                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
-                        </div> -->
-                        <div class="item item-single">
-                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
-                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
-                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
+                        <div class="item" v-for="item in replyData.medias" :key="item.mediaId" v-if="replyData.medias.length > 1">
+                            <img :src="item.link" alt="" @click="openPreviewPic(item.index)" v-if="item.mediaType == 2" />
+                            <img :src="item.videoImg || imgVedio" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                        </div>
+                        <div class="item item-single" v-for="item in replyData.medias" :key="item.mediaId" v-if="replyData.medias.length == 1">
+                            <img :src="item.link" alt="" @click="openPreviewPic(item.index)" v-if="item.mediaType == 2" />
+                            <img :src="item.videoImg || imgVedio" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
                         </div>
                     </div>
                 </div>
-                <div class="reply">3条回复</div>
-                <div class="comment-item active" v-for="item in [1, 2, 3, 4, 5, 6, 7, 8, 9]">
+                <div class="reply">{{ replyData.replyList.length }}条回复</div>
+                <div
+                    :id="item.commentId == activeCommentId ? 'active' : ''"
+                    :class="['comment-item', item.commentId == activeCommentId ? 'active' : '']"
+                    v-for="item in replyData.replyList"
+                    :key="item.commentId"
+                >
                     <div class="user" :id="'user' + item">
-                        <div class="avator">
-                            <img class="fullimg" :src="imgVedio" alt="" />
+                        <div class="avatar">
+                            <img class="fullimg" :src="item.avatar" alt="" />
                         </div>
                         <div class="info">
-                            <div class="name">周杰伦</div>
-                            <div class="time">05/06 16:00</div>
+                            <div class="name">{{ item.nickName }}</div>
+                            <div class="time">{{ $moment(item.createdAt).format('MM/DD HH:mm') }}</div>
                         </div>
                     </div>
                     <div class="contents">
-                        超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
+                        {{ item.message }}
                     </div>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="closeDialogGoods">拒 绝</el-button>
-                <el-button type="primary" @click="saveGoods">通 过</el-button>
+                <el-button type="danger" @click="checkCommit(3)" v-if="activeStatus != 3">拒 绝</el-button>
+                <el-button type="primary" @click="checkCommit(2)" v-if="formFilter.isApprove == 1">通 过</el-button>
             </span>
         </el-dialog>
         <!-- 圈子 评论 -->
         <el-dialog class="comment-dialog comment-circle" :visible.sync="dialogVisibleCircle" title="查看原文" width="400px" @closed="closeDialogCircle">
-            <div class="comment" id="comment">
+            <div class="comment" id="comment" v-if="replyData && activePlatform != 1">
                 <div class="detail">
                     <div class="comment-item">
                         <div class="user">
-                            <div class="avator">
-                                <img class="fullimg" :src="imgVedio" alt="" />
+                            <div class="avatar">
+                                <img class="fullimg" :src="replyData.avatar" alt="" />
                             </div>
                             <div class="info">
-                                <div class="name">周杰伦</div>
+                                <div class="name">{{ replyData.nickName }}</div>
                                 <div class="contents">
-                                    超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。超级好看的一款布，不买绝对后悔，超级好看的。
+                                    {{ replyData.message }}
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="media">
-                        <!-- <div class="item" v-for="item in [1, 2, 3, 4, 5, 6, 7]">
-                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
-                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
-                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
-                        </div> -->
-                        <div class="item item-single">
-                            <img :src="imgVedio" alt="" @click="openPreviewPic(scope.row, item.index)" />
-                            <img :src="imgVedio" alt="" v-if="false" @click="openPreviewVideo(item.link)" />
-                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" />
+                        <div class="item" v-for="item in replyData.medias" :key="item.mediaId" v-if="replyData.medias.length > 1">
+                            <img :src="item.link" alt="" @click="openPreviewPic(item.index)" v-if="item.mediaType == 2" />
+                            <img :src="item.videoImg || imgVedio" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                        </div>
+                        <div class="item item-single" v-for="item in replyData.medias" :key="item.mediaId" v-if="replyData.medias.length == 1">
+                            <img :src="item.link" alt="" @click="openPreviewPic(item.index)" v-if="item.mediaType == 2" />
+                            <img :src="item.videoImg || imgVedio" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
+                            <img class="play" :src="imgPlay" alt="" @click="openPreviewVideo(item.link)" v-if="item.mediaType == 1" />
                         </div>
                     </div>
                 </div>
-                <div class="reply-time">5分钟前</div>
+                <div class="reply-time">{{ $moment(replyData.createdAt).format('MM/DD HH:mm') }}</div>
                 <div class="reply-circle">
                     <div class="like-box">
                         <span class="iconfont icon-like"></span>
-                        <span class="like-name" v-for="item in [1, 2, 3, 4, 5, 6, 7, 8]">学习学习,</span>
+                        <span class="like-name">{{ replyData.likeUsers.join(',') }}</span>
                     </div>
                     <div class="divider"></div>
-                    <div class="circle-item active">
-                        <span class="name">马云：</span>
-                        小打小闹的弄不好的了！备份
-                    </div>
-                    <div class="circle-item">
-                        <span class="name">马云：</span>
-                        小打小闹的弄不好的了！备份
-                    </div>
-                    <div class="circle-item">
-                        <span class="name">马云：</span>
-                        小打小闹的弄不好的了！备份
+                    <div
+                        :id="item.commentId == activeCommentId ? 'active' : ''"
+                        :class="['circle-item', item.commentId == activeCommentId ? 'active' : '']"
+                        v-for="item in replyData.replyList"
+                        :key="item.commentId"
+                    >
+                        <span class="name">{{ item.nickName }}：</span>
+                        {{ item.message }}
                     </div>
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="closeDialogCircle">拒 绝</el-button>
-                <el-button type="primary" @click="saveCircle">通 过</el-button>
+                <el-button type="danger" @click="checkCommit(3)" v-if="activeStatus != 3">拒 绝</el-button>
+                <el-button type="primary" @click="checkCommit(2)" v-if="formFilter.isApprove == 1">通 过</el-button>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
-import { queryCommentList, updateCommentApprove, putCommentTop } from '@/api/goods'
+import { queryReplyList, updateCommentApprove, queryReplySubject } from '@/api/goods'
 import { queryShopList } from '@/api/goods'
 import ElImageViewer from '@/components/common/image-viewer'
 
@@ -281,6 +279,7 @@ import { formatMoney } from '@/plugin/tool'
 export default {
     data() {
         return {
+            avatar: require('@/assets/img/wx.jpeg'),
             list: null,
             total: 0,
             listLoading: false,
@@ -293,16 +292,27 @@ export default {
             formFilter: {
                 pi: 1,
                 ps: 10,
-                skuName: '', //商品名称
-                shopId: '', // 店铺名称
-                orderNo: '', // 订单编号
-                nickName: '', // 用户名称
-                userId: '', // 用户id
+                shopId: '',
+                platform: '', //0忽略条件查询 1 店铺商品 2 圈子 3 作业
+                userId: '',
+                nickName: '',
                 isApprove: 1, // 是否审核 1未审核 2已审核
-                startTime: 0, // 时间戳
-                endTime: 0, //时间戳
-                createdTime: ''
+                checkStatus: '', //暂存 审核结果
+                status: '', // 审核状态 1未审核 2通过 3拒绝
+                createdTime: [],
+                startTime: 0, // 10位时间戳
+                endTime: 0 // 10位时间戳
             },
+            //0忽略条件查询 1 店铺商品 2 圈子 3 作业
+            platformList: [
+                { value: 1, label: '店铺商品' },
+                { value: 2, label: '圈子' },
+                { value: 3, label: '作业' }
+            ],
+            statusList: [
+                { value: 2, label: '通过' },
+                { value: 3, label: '拒绝' }
+            ],
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
             searchList: [],
@@ -344,13 +354,26 @@ export default {
             },
             activeTab: '2',
             // 评论
-            dialogVisibleGoods: true,
-            dialogVisibleCircle: false
+            dialogVisibleGoods: false,
+            dialogVisibleCircle: false,
+            replyData: '',
+            activePlatform: '', //查看原文的平台
+            activeCommentId: '', //查看原文的评论id
+            activeStatus: '' //查看原文的评论状态
         }
     },
     components: {
         ElImageViewer
     },
+    // computed: {
+    //     // 格式化attr
+    //     formatAttr: function() {
+    //         return data => {
+    //             data = JSON.parse(data)
+    //             return data.map(item => `${item.Title}:${item.Value}`).join(',')
+    //         }
+    //     }
+    // },
     watch: {
         searchList: function() {
             this.$nextTick(
@@ -408,26 +431,32 @@ export default {
                 params['startTime'] = 0
                 params['endTime'] = 0
             }
-
+            if (params['checkStatus']) {
+                params['status'] = [params['checkStatus']]
+            } else {
+                params['status'] = params['isApprove'] == 1 ? [1] : [2, 3]
+            }
+            params['platform'] = params['platform'] ? Number(params['platform']) : 0
             params['orderNo'] = params['orderNo'] ? Number(params['orderNo']) : 0
             params['ps'] = this.listQuery.limit
             params['pi'] = this.listQuery.page
 
             console.log('params', params)
-            queryCommentList(params)
+            queryReplyList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    this.list = res.data.list.map(item => {
-                        item.medias = item.medias || []
-                        item['img'] = item.medias
-                            .filter(e => e.mediaType == 2)
-                            .map((e, index) => {
-                                e['index'] = index
-                                return e
-                            })
-                        item['video'] = item.medias.filter(e => e.mediaType == 1)
-                        return item
-                    })
+                    this.list = res.data.list
+                    // this.list = res.data.list.map(item => {
+                    //     item.medias = item.medias || []
+                    //     item['img'] = item.medias
+                    //         .filter(e => e.mediaType == 2)
+                    //         .map((e, index) => {
+                    //             e['index'] = index
+                    //             return e
+                    //         })
+                    //     item['video'] = item.medias.filter(e => e.mediaType == 1)
+                    //     return item
+                    // })
                     this.total = res.data.total
                 })
                 .catch(err => {})
@@ -443,10 +472,7 @@ export default {
         closePreviewPic() {
             this.dialogVisiblePic = false
         },
-        openPreviewPic(row, index) {
-            console.log('输出 ~ row', row)
-            this.previewUrlListPic = row.img.map(item => item.link)
-
+        openPreviewPic(index) {
             this.previewIndexPic = index
             this.dialogVisiblePic = true
         },
@@ -480,14 +506,7 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = []
-            // 商品名称
-            if (this.formFilter['skuName']) {
-                let obj = {
-                    label: 'skuName',
-                    val: this.formFilter['skuName']
-                }
-                _search.push(obj)
-            }
+
             // 店铺名称
             if (this.formFilter['shopId']) {
                 this.shopList.forEach(ev => {
@@ -500,14 +519,17 @@ export default {
                     }
                 })
             }
-
-            // 订单编号
-            if (this.formFilter['orderNo']) {
-                let obj = {
-                    label: 'orderNo',
-                    val: this.formFilter['orderNo']
-                }
-                _search.push(obj)
+            // 评论类型
+            if (this.formFilter['platform']) {
+                this.platformList.forEach(ev => {
+                    if (ev.value == this.formFilter['platform']) {
+                        let obj = {
+                            label: 'platform',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
             }
             // 用户名称
             if (this.formFilter['nickName']) {
@@ -541,11 +563,22 @@ export default {
                 }
                 _search.push(obj)
             }
-
+            // status
+            if (this.formFilter['checkStatus']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.formFilter['checkStatus']) {
+                        let obj = {
+                            label: 'checkStatus',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
             console.log('_search', _search)
             this.searchList = _.cloneDeep(_search)
         },
-        // 审核
+        // 审核 列表
         updateCommentStatus(commentId, status) {
             let params = {
                 commentId, // 评论id
@@ -582,32 +615,78 @@ export default {
                 })
                 .catch(() => {})
         },
-        setTop(commentId) {
+        // 审核 弹窗
+        checkCommit(status) {
             let params = {
-                goodsCommentId: commentId, // 商品评论id
-                top: 1 // 0不置顶 1置顶
+                commentId: this.commentId, // 评论id
+                status // 状态 2通过 3拒绝
             }
-            putCommentTop(params)
-                .then(res => {
-                    if (res.code === 200) {
-                        this.$notify({
-                            title: '置顶成功',
-                            message: '',
-                            type: 'success',
-                            duration: 2000
+            let text = status == 2 ? '通过' : '拒绝'
+            this.$confirm(`确定审核${text}?`, '', {
+                confirmButtonText: '审核' + text,
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    updateCommentApprove(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '审核成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 2000
+                                })
+                                this.dialogVisibleGoods = false
+                                this.dialogVisibleCircle = false
+                                this.getList()
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
                         })
-                        this.getList()
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            message: '',
-                            type: 'error',
-                            duration: 5000
-                        })
-                    }
+                        .catch(err => {})
                 })
-                .catch(err => {})
+                .catch(() => {})
         },
+
+        openSubject(row) {
+            console.log('输出 ~ row', row)
+            let params = {
+                commentId: row.rootId,
+                platform: row.platform //1 店铺商品 2 圈子 3 作业
+            }
+            this.activePlatform = row.platform
+            this.activeCommentId = row.commentId
+            this.activeStatus = row.status
+            queryReplySubject(params).then(res => {
+                console.log('输出 ~ res', res)
+
+                if (res.data.medias) {
+                    this.previewUrlListPic = res.data.medias.filter(item => item.mediaType == 2).map(item => item.link)
+                } else {
+                    res.data.medias = []
+                }
+                this.replyData = _.cloneDeep(res.data)
+
+                if (row.platform == 1) {
+                    this.dialogVisibleGoods = true
+                    this.replyData.goodsSku.skuAttr = this.replyData.goodsSku.skuAttr ? JSON.parse(this.replyData.goodsSku.skuAttr) : []
+                } else {
+                    this.dialogVisibleCircle = true
+                }
+                this.$nextTick(() => {
+                    let activeDom = document.getElementById('active')
+                    activeDom.scrollIntoView()
+                })
+            })
+        },
+
         // 清除单个搜索条件
         closeSearchItem(item, i) {
             this.$set(this.formFilter, item.label, '')
@@ -629,8 +708,8 @@ export default {
         // radio
         onRadioClick() {
             this.listQuery.page = 1
+            this.resetForm('formFilter')
             this.setSearchValue()
-            this.getList()
         },
         // tab
         onTabClick(e) {
@@ -640,19 +719,12 @@ export default {
         },
         // 关闭弹框 商品
         closeDialogGoods() {
+            this.replyData = ''
             this.dialogVisibleGoods = false
-        },
-        saveGoods() {
-            // this.dialogVisibleGoods = false
-            let uu = document.getElementById('user7')
-            uu.scrollIntoView()
-            // comment.scrollTop = 1000
         },
         // 关闭弹框 圈子
         closeDialogCircle() {
-            this.dialogVisibleCircle = false
-        },
-        saveCircle() {
+            this.replyData = ''
             this.dialogVisibleCircle = false
         }
     }
@@ -760,6 +832,7 @@ export default {
         .text {
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
             justify-content: space-between;
             .title {
                 overflow: hidden;
@@ -791,7 +864,7 @@ export default {
         }
         .user {
             display: flex;
-            .avator {
+            .avatar {
                 overflow: hidden;
                 flex-shrink: 0;
                 margin-right: 8px;

@@ -42,6 +42,16 @@
                             >
                             </el-date-picker>
                         </el-form-item>
+                        <el-form-item label="状态" prop="checkStatus" v-show="formFilter.isApprove == 2">
+                            <el-select class="filter-item" v-model="formFilter.checkStatus" placeholder="请选择" filterable>
+                                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="置顶状态" prop="top" v-show="formFilter.isApprove == 2">
+                            <el-select class="filter-item" v-model="formFilter.top" placeholder="请选择" filterable>
+                                <el-option v-for="item in topList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -79,7 +89,7 @@
                         <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
                         <el-button class="text-red" type="text" v-if="scope.row.status != 3" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
                     </template>
-                    <!-- <el-button class="text-blue" type="text" @click.native="setTop(scope.row.commentId)">置顶</el-button> -->
+                    <el-button class="text-blue" type="text" v-if="scope.row.status == 2 && formFilter.isApprove == 2" @click.native="openTopDialog(scope.row)">置顶</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100" v-if="formFilter.isApprove == 2">
@@ -198,8 +208,21 @@ export default {
                 isApprove: 1, // 是否审核 1未审核 2已审核
                 startTime: 0, // 时间戳
                 endTime: 0, //时间戳
-                createdTime: ''
+                createdTime: '',
+                checkStatus: '', //暂存 审核结果
+                status: '', //审核状态 1未审核 2通过 3拒绝
+                top: '' // 0 未置顶 1 本宝贝 2 其他宝贝 3 全部
             },
+            topList: [
+                { value: 0, label: '未置顶' },
+                { value: 1, label: '本宝贝' },
+                { value: 2, label: '其他宝贝' },
+                { value: 3, label: '全部置顶' }
+            ],
+            statusList: [
+                { value: 2, label: '通过' },
+                { value: 3, label: '拒绝' }
+            ],
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
             searchList: [],
@@ -241,6 +264,7 @@ export default {
             },
             activeTab: '1',
             // 置顶
+            setTopId: '',
             dialogVisibleTop: false,
             checkedSelf: false, //本宝贝置顶
             checkedOther: false //其他宝贝置顶
@@ -286,6 +310,7 @@ export default {
         formatMoney: formatMoney,
         getList() {
             let params = _.cloneDeep(this.$refs['formFilter'].model)
+            console.log('输出 ~ params', params)
             if (params.createdTime.length == 2) {
                 params['startTime'] = Number(this.$moment(params.createdTime[0]).format('X'))
                 params['endTime'] = Number(this.$moment(params.createdTime[1]).format('X'))
@@ -293,15 +318,17 @@ export default {
                 params['startTime'] = 0
                 params['endTime'] = 0
             }
-
+            if (params['checkStatus']) {
+                params['status'] = [params['checkStatus']]
+            } else {
+                params['status'] = params['isApprove'] == 1 ? [1] : [2, 3]
+            }
             params['orderNo'] = params['orderNo'] ? Number(params['orderNo']) : 0
             params['ps'] = this.listQuery.limit
             params['pi'] = this.listQuery.page
 
-            console.log('params', params)
             queryCommentList(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res)
                     this.list = res.data.list.map(item => {
                         item.medias = item.medias || []
                         item['img'] = item.medias
@@ -426,7 +453,30 @@ export default {
                 }
                 _search.push(obj)
             }
-
+            // top
+            if (this.formFilter['top']) {
+                this.topList.forEach(ev => {
+                    if (ev.value == this.formFilter['top']) {
+                        let obj = {
+                            label: 'top',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // status
+            if (this.formFilter['checkStatus']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.formFilter['checkStatus']) {
+                        let obj = {
+                            label: 'checkStatus',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
             console.log('_search', _search)
             this.searchList = _.cloneDeep(_search)
         },
@@ -467,10 +517,50 @@ export default {
                 })
                 .catch(() => {})
         },
-        setTop(commentId) {
+        openTopDialog(row) {
+            console.log('输出 ~ row', row)
+            //             dialogVisibleTop: false,
+            // checkedSelf: false, //本宝贝置顶
+            // checkedOther: false //其他宝贝置顶
+            // 0 未置顶 1 本宝贝 2 其他宝贝 3 全部
+            switch (row.top) {
+                case 0:
+                    this.checkedSelf = false
+                    this.checkedOther = false
+                    break
+                case 1:
+                    this.checkedSelf = true
+                    this.checkedOther = false
+                    break
+                case 2:
+                    this.checkedSelf = false
+                    this.checkedOther = true
+                    break
+                case 3:
+                    this.checkedSelf = true
+                    this.checkedOther = true
+                    break
+                default:
+                    break
+            }
+            this.setTopId = row.goodsCommentId
+            this.dialogVisibleTop = true
+        },
+        saveTop() {
+            let commentId = this.setTopId
+            let checkedSelf = this.checkedSelf
+            let checkedOther = this.checkedOther
+            let top = 0
+            if (checkedSelf && checkedOther) {
+                top = 3
+            } else if (checkedSelf == true && checkedOther == false) {
+                top = 1
+            } else if (checkedSelf == false && checkedOther == true) {
+                top = 2
+            }
             let params = {
                 goodsCommentId: commentId, // 商品评论id
-                top: 1 // 0不置顶 1置顶
+                top: top // 0 未置顶 1 本宝贝 2 其他宝贝 3 全部
             }
             putCommentTop(params)
                 .then(res => {
@@ -482,6 +572,7 @@ export default {
                             duration: 2000
                         })
                         this.getList()
+                        this.dialogVisibleTop = false
                     } else {
                         this.$notify({
                             title: res.msg,
@@ -514,8 +605,8 @@ export default {
         // radio
         onRadioClick() {
             this.listQuery.page = 1
+            this.resetForm('formFilter')
             this.setSearchValue()
-            this.getList()
         },
         // tab
         onTabClick(e) {
@@ -525,9 +616,6 @@ export default {
         },
         // 关闭弹框
         closeDialogTop() {
-            this.dialogVisibleTop = false
-        },
-        saveTop() {
             this.dialogVisibleTop = false
         }
     }
