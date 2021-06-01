@@ -246,11 +246,11 @@
                 </div>
                 <div class="reply-time">{{ $moment(replyData.createdAt).format('MM/DD HH:mm') }}</div>
                 <div class="reply-circle">
-                    <div class="like-box">
+                    <div class="like-box" v-if="replyData.likeUsers.length > 0">
                         <span class="iconfont icon-like"></span>
                         <span class="like-name">{{ replyData.likeUsers.join(',') }}</span>
                     </div>
-                    <div class="divider"></div>
+                    <div class="divider" v-if="replyData.likeUsers.length > 0"></div>
                     <div
                         :id="item.commentId == activeCommentId ? 'active' : ''"
                         :class="['circle-item', item.commentId == activeCommentId ? 'active' : '']"
