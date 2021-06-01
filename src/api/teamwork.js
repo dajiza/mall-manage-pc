@@ -25,5 +25,5 @@ export const queryDetailTemplateList = params => post('/backend/goods-detail-tem
 // 商品详情模版创建、编辑
 export const creatDetailTemplate = params => post('/backend/goods-detail-template-edit', params)
 
-// 商品详情模版创建、编辑
+// 商品详情模版删除
 export const deleteDetailTemplate = params => post('/backend/goods-detail-template-delete', params)

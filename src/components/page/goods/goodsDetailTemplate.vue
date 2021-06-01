@@ -55,7 +55,7 @@
                     </div>
                 </div>
             </template>
-            <el-button type="primary" @click="templateCreat" class="creat-page" v-hasPermission="'mall-backend-page-manage-goods-add'">新增</el-button>
+            <el-button type="primary" @click="templateCreat" class="creat-page" v-hasPermission="'mall-backend-goods-detail-template-edit'">新增</el-button>
         </div>
         <el-table :height="tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
             <el-table-column prop="detailId" label="页面ID" width="100"></el-table-column>
@@ -68,14 +68,14 @@
             </el-table-column>
             <el-table-column label="操作" width="126">
                 <template slot-scope="scope">
-                    <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-page-manage-goods-update'" @click="templateEdit(scope.row)">
+                    <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-goods-detail-template-edit'" @click="templateEdit(scope.row)">
                         编辑
                     </el-button>
                     <el-button
                         class="text-red btn-opt table-btn"
                         type="text"
                         size=""
-                        v-hasPermission="'mall-backend-page-manage-goods-delete'"
+                        v-hasPermission="'mall-backend-goods-detail-template-delete'"
                         @click="templateDelete(scope.row.detailId, scope.$index)"
                     >
                         删除
