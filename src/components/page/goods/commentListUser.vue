@@ -307,7 +307,8 @@ export default {
             platformList: [
                 { value: 1, label: '店铺商品' },
                 { value: 2, label: '圈子' },
-                { value: 3, label: '作业' }
+                { value: 3, label: '作业' },
+                { value: 4, label: '示范作业' }
             ],
             statusList: [
                 { value: 2, label: '通过' },
