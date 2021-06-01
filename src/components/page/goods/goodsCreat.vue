@@ -459,7 +459,7 @@
         <!-- 导入模版 -->
         <el-dialog :visible.sync="importDialogShow" title="导入模版" width="380px" @closed="closeImportDialog">
             <el-form class="form-creat" :inline="true" size="small" label-position="left">
-                <el-form-item label="会员折扣" class="">
+                <el-form-item label="选择模版" class="">
                     <el-select class="filter-item" v-model="detailTemplateId" placeholder="请选择" style="width:200px">
                         <el-option v-for="item in templateList" :key="item.detailId" :label="item.title" :value="item.detailId"></el-option>
                     </el-select>
