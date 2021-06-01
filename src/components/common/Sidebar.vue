@@ -145,8 +145,8 @@ export default {
                             display_name: '自定义属性'
                         },
                         {
-                            name: 'mall-backend-goods-default-detail',
-                            display_name: '商品默认详情'
+                            name: 'mall-backend-goods-detail-template',
+                            display_name: '详情页模版'
                         },
                         {
                             name: 'mall-backend-goods-comment-list',
@@ -201,7 +201,12 @@ export default {
                         {
                             name: 'mall-backend-teamwork-list',
                             display_name: '团作列表'
+                        },
+                        {
+                            name: 'mall-backend-page-share',
+                            display_name: '小程序分享页'
                         }
+
                     ]
                 },
                 {

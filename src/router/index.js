@@ -59,10 +59,15 @@ export default new Router({
                     meta: { title: '查看商品', name: 'goodsPreview' }
                 },
                 {
-                    path: '/mall-backend-goods-default-detail',
-                    name: 'goods-default-detail',
-                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/defaultDetail.vue'),
-                    meta: { title: '商品默认详情', name: 'defaultDetail' }
+                    path: '/mall-backend-goods-detail-template',
+                    name: 'goods-detail-template',
+                    component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/goodsDetailTemplate.vue'),
+                    meta: { title: '详情页模版', name: 'defaultDetail' }
+                },
+                {
+                    path: '/mall-backend-goods-detail-template-creat',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/goods/defaultDetail.vue'),
+                    meta: { title: '新增模版' }
                 },
                 {
                     path: '/mall-backend-goods-comment-list',
@@ -193,6 +198,11 @@ export default new Router({
                     name: 'teamwork-detail',
                     component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/marketing-management/teamwork/teamworkDetail.vue'),
                     meta: { title: '团作详情' }
+                },
+                {
+                    path: '/mall-backend-page-share',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/page-share/pageShare.vue'),
+                    meta: { title: '小程序分享页' }
                 },
                 {
                     path: '/mall-backend-commission',
