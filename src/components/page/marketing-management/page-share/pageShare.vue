@@ -558,6 +558,8 @@ export default {
         },
 
         addDialogClose() {
+            this.$refs['addDialogForm'].resetFields()
+            this.$refs['addDialogForm'].clearValidate()
             this.showAddDialog = false
         },
 
@@ -574,7 +576,13 @@ export default {
                 this.$refs['addDialogForm'].validate(valid => {
                     // 验证表单内容
                     if (valid) {
-                        let params = _.cloneDeep(this.addDialogForm)
+                        // let params = _.cloneDeep(this.addDialogForm)
+                        let params = {
+                            title: this.addDialogForm.title,
+                            type: this.addDialogForm.type,
+                            comment: this.addDialogForm.comment,
+                            shop_id: this.addDialogForm.shop_id
+                        }
                         console.log('params', params)
                         let new_link = '',
                             new_query = ''
@@ -604,12 +612,12 @@ export default {
                             new_query = 'id=' + this.addDialogForm.link
                         } else if (this.addDialogForm.type === 5) {
                             // 页面
-                            new_link = '/packageAgent/article/article?id=' + this.addDialogForm.link
+                            new_link = '/packageAgent/article/article'
                             new_query = 'id=' + this.addDialogForm.link
                         } else if (this.addDialogForm.type === 6) {
                             // 商品列表
                             new_link = '/pages/goodsSearchResult/goodsSearchResult'
-                            new_query = 'id=' + this.addDialogForm.link
+                            new_query = this.addDialogForm.link
                         } else if (this.addDialogForm.type === 7) {
                             // 商品详情
                             new_link = '/pages/goodsDetail/goodsDetail'
@@ -647,6 +655,8 @@ export default {
                             type: 'success',
                             duration: 3000
                         })
+                        this.$refs['addDialogForm'].resetFields()
+                        this.$refs['addDialogForm'].clearValidate()
                         that.showAddDialog = false
                         this.listQuery.page = 1
                         this.getList()
