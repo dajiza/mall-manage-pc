@@ -334,13 +334,13 @@ export default {
         back_type: function() {
             let link_label = ''
             return data => {
-                // 0自定义 1 团作列表 2优惠券领取 3 直播间  4 团作详情 5 页面 6 商品列表  7 商品详情
+                // 0自定义 1 团作列表 2 优惠券领取 3 直播间  4 团作详情 5 页面 6 商品列表  7 商品详情
                 if (data === 0) {
                     link_label = '自定义'
                 } else if (data === 1) {
                     link_label = '团作列表'
                 } else if (data === 2) {
-                    link_label = '2优惠券'
+                    link_label = '优惠券领取'
                 } else if (data === 3) {
                     link_label = '直播间'
                 } else if (data === 4) {
