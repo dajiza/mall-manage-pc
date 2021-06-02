@@ -619,7 +619,7 @@ export default {
         // 审核 弹窗
         checkCommit(status) {
             let params = {
-                commentId: this.commentId, // 评论id
+                commentId: this.activeCommentId, // 评论id
                 status // 状态 2通过 3拒绝
             }
             let text = status == 2 ? '通过' : '拒绝'
