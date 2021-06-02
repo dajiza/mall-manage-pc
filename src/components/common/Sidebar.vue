@@ -205,8 +205,11 @@ export default {
                         {
                             name: 'mall-backend-page-share',
                             display_name: '小程序分享页'
+                        },
+                        {
+                            name: 'mall-backend-page-points-shop-list',
+                            display_name: '积分商城'
                         }
-
                     ]
                 },
                 {

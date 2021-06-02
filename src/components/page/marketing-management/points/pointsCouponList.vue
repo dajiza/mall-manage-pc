@@ -2,14 +2,22 @@
     <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">团作管理</div>
+            <div class="text">商品管理</div>
             <div class="grey-line"></div>
             <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
             <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
                         <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
-                        <el-form-item label="店铺" prop="shop_id">
+                        <!-- <el-form-item label="店铺" prop="shop_id">
+                            <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
+                                <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item> -->
+                        <el-form-item label="名称" prop="title" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
+                        </el-form-item>
+                        <el-form-item label="状态" prop="shop_id">
                             <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" filterable>
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                             </el-select>
@@ -45,72 +53,57 @@
                     <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 </div>
             </div>
+            <el-radio-group v-model="formFilter.shop_goods_status" class="tab-way" @change="onTabClick">
+                <el-radio-button :label="2">商品</el-radio-button>
+                <el-radio-button :label="1">优惠券</el-radio-button>
+            </el-radio-group>
+            <el-button type="primary" @click="goodsPuton" class="goods-put">新增</el-button>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="团作ID" min-width="80">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.id }}</span>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="团作海报" width="176">
+            <el-table-column label="图片" width="128">
                 <template slot-scope="scope">
                     <div class="img-wrap">
                         <img class="timg" :src="scope.row.poster_link" alt="" @click="openPreviewPic(scope.$index)" />
                     </div>
                 </template>
             </el-table-column>
-            <el-table-column label="团作名称" min-width="100">
+            <el-table-column label="名称" min-width="200">
+                <template slot-scope="scope">
+                    <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                        {{ scope.row.title }}
+                    </router-link>
+                </template>
+            </el-table-column>
+            <el-table-column label="需要积分" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.title }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="课程时间" width="120">
+            <el-table-column label="已兑/总数" width="120">
                 <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.start_time_txt).format('YYYY-MM-DD') }}至{{ $moment(scope.row.end_time_txt).format('YYYY-MM-DD') }}</span>
+                    <span>{{ scope.row.title }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="报名人数" width="100">
+            <el-table-column label="店铺" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.join_num }}/{{ scope.row.limit_num }}</span>
+                    <span>{{ scope.row.title }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="模式" width="80">
+            <el-table-column label="状态" width="170">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.type == 1">免费</span>
-                    <span v-else-if="scope.row.type == 2">付费</span>
-                    <span v-else>押金</span>
+                    <span class="text-red cursor" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">
+                        已下架
+                    </span>
+                    <span class="text-blue cursor" @click="setSkuStatus(props.row, scope.row, props.$index, scope.$index)">
+                        已上架
+                    </span>
                 </template>
             </el-table-column>
-            <el-table-column label="价格" width="80">
+            <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.course_price">{{ formatMoney(scope.row.course_price) }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="店铺" width="100">
-                <template slot-scope="scope">
-                    <span>{{ shopList.find(item => item.id == scope.row.shop_id).shop_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="老师昵称" width="100">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.nick_name }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="状态" width="80">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.time_status }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="是否删除" width="100">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.deleted_at_txt ? '是' : '否' }}</span>
-                </template>
-            </el-table-column>
-
-            <el-table-column label="操作" width="80">
-                <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">详情</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">编辑</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">下架</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -313,6 +306,12 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // tab
+        onTabClick(e) {
+            if (e.name == 2) {
+                this.$router.push({ path: '/mall-backend-goods-comment-list-user' })
+            }
         }
     }
 }
@@ -324,7 +323,7 @@ export default {
     height: 60px;
 }
 .timg {
-    width: 125px;
+    width: 80px;
     height: auto;
 }
 .type-tag {
@@ -390,5 +389,11 @@ export default {
             border-radius: 10px;
         }
     }
+}
+.tab-way {
+    margin-right: 10px;
+}
+.goods-put {
+    margin-right: 32px;
 }
 </style>
