@@ -205,6 +205,10 @@
                         </div>
                     </div>
                     <div class="contents">
+                        <span v-if="item.parentId != rootId">
+                            回复<span class="answer-name">{{ item.atNickName }}</span
+                            >:&nbsp;
+                        </span>
                         {{ item.message }}
                     </div>
                 </div>
@@ -258,6 +262,10 @@
                         :key="item.commentId"
                     >
                         <span class="name">{{ item.nickName }}：</span>
+                        <span v-if="item.parentId != rootId">
+                            回复<span class="answer-name">{{ item.atNickName }}</span
+                            >:&nbsp;
+                        </span>
                         {{ item.message }}
                     </div>
                 </div>
@@ -360,7 +368,8 @@ export default {
             replyData: '',
             activePlatform: '', //查看原文的平台
             activeCommentId: '', //查看原文的评论id
-            activeStatus: '' //查看原文的评论状态
+            activeStatus: '', //查看原文的评论状态
+            rootId: '' //查看原文的rootId
         }
     },
     components: {
@@ -665,6 +674,7 @@ export default {
             this.activePlatform = row.platform
             this.activeCommentId = row.commentId
             this.activeStatus = row.status
+            this.rootId = row.rootId
             queryReplySubject(params).then(res => {
                 console.log('输出 ~ res', res)
 
@@ -898,6 +908,9 @@ export default {
         .contents {
             margin-top: 10px;
             line-height: 20px;
+            .answer-name {
+                color: #f9739f;
+            }
         }
     }
     .detail {
@@ -992,6 +1005,9 @@ export default {
             }
             &.active {
                 background: rgba(24, 144, 255, 0.08);
+            }
+            .answer-name {
+                color: #f9739f;
             }
         }
     }
