@@ -55,7 +55,7 @@
                     </div>
                 </div>
             </template>
-            <el-button type="primary" @click="templateCreat" class="creat-page" v-hasPermission="'mall-backend-goods-detail-template-edit'">新增</el-button>
+            <el-button type="primary" @click="templateCreat" class="creat-page" v-hasPermission="'mall-backend-goods-detail-template-create'">新增</el-button>
         </div>
         <el-table :height="tableHeight" class="table" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading">
             <el-table-column prop="detailId" label="页面ID" width="100"></el-table-column>
@@ -232,12 +232,12 @@ export default {
         },
         templateCreat() {
             this.$router.push({
-                path: 'mall-backend-goods-detail-template-creat'
+                path: 'mall-backend-goods-detail-template-create'
             })
         },
         templateEdit(info) {
             this.$router.push({
-                path: 'mall-backend-goods-detail-template-creat',
+                path: 'mall-backend-goods-detail-template-edit',
                 query: {
                     id: info.detailId
                 }

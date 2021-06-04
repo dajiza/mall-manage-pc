@@ -65,9 +65,14 @@ export default new Router({
                     meta: { title: '详情页模版', name: 'defaultDetail' }
                 },
                 {
-                    path: '/mall-backend-goods-detail-template-creat',
+                    path: '/mall-backend-goods-detail-template-create',
                     component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/goods/defaultDetail.vue'),
                     meta: { title: '新增模版' }
+                },
+                {
+                    path: '/mall-backend-goods-detail-template-edit',
+                    component: () => import(/* webpackChunkName: "activity-management" */ '../components/page/goods/defaultDetail.vue'),
+                    meta: { title: '编辑模版' }
                 },
                 {
                     path: '/mall-backend-goods-comment-list',
