@@ -138,7 +138,7 @@
                             v-model="addDialogForm.type"
                             @change="chooseLinkType"
                     >
-                        <el-radio :label="6">商品列表页</el-radio>
+                        <!--<el-radio :label="6">商品列表页</el-radio>-->
                         <el-radio :label="7">商品详情页</el-radio>
                         <el-radio :label="3">直播间</el-radio>
                         <el-radio :label="5">页面</el-radio>
@@ -259,7 +259,7 @@ export default {
             showAddDialog: false,
             addDialogForm:{
                 title:'', // 标题
-                type: 6, // 类型 0自定义 1 团作列表 2优惠卷领取 3 直播间  4 团作详情 5 页面 6 商品列表  7 商品详情
+                type: 7, // 类型 0自定义 1 团作列表 2优惠卷领取 3 直播间  4 团作详情 5 页面 6 商品列表  7 商品详情
                 link: '', // 链接 参数
                 comment:'', // 描述
                 shop_id: '', // 可用店铺
