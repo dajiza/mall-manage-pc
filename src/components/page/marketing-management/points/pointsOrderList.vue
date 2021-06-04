@@ -68,31 +68,27 @@
             </el-radio-group>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="积分订单号" prop="orderNo"></el-table-column>
-            <el-table-column label="用户ID" prop="orderNo"></el-table-column>
-            <el-table-column label="客户微信名" prop="orderNo"></el-table-column>
-            <el-table-column label="店铺" prop="orderNo"></el-table-column>
-            <el-table-column label="商品数量" width="100">
+            <el-table-column label="积分订单号" prop="orderNo" width="140"></el-table-column>
+            <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
+            <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
+            <el-table-column label="店铺" prop="orderNo">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.title }}</span>
+                    <span>{{ filterShop.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="积分总额" width="120">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.title }}</span>
-                </template>
-            </el-table-column>
+            <el-table-column label="商品数量" prop="num" width="110"></el-table-column>
+            <el-table-column label="积分总额" prop="pointsTotal" width="120"></el-table-column>
             <el-table-column label="兑换时间" width="180">
                 <template slot-scope="scope">
                     <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="120">
+            <el-table-column label="状态" width="100">
                 <template slot-scope="scope">
                     <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="180">
+            <el-table-column label="操作" width="140">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">发货</el-button>
                 </template>
@@ -131,13 +127,13 @@
                         orderId: 1,
                         orderNo: "No12345",
                         userId: 0,
-                        wxNickName: "",
+                        wxNickName: "微信名",
                         shopId: 1,
                         num: 10, //兑换数量
                         pointsTotal: 100,// 积分总额
-                        redeemTime: "",// 兑换时间
+                        redeemTime: "2021-05-25T17:33:32+08:00",// 兑换时间
                         isSend: false,// true 发货 false 未发货
-                        uniqueNo:""// 合单发货编号
+                        uniqueNo:"12345"// 合单发货编号
                     }
                 ],
                 total: 0,
@@ -195,6 +191,18 @@
                 )
             }
         },
+        computed: {
+            backShopName: function() {
+                let shop_name = ''
+                return data => {
+                    const filter_arr = this.shopList.filter(item => {return item.id == data})
+                    if(filter_arr.length > 0) {
+                        shop_name = filter_arr[0].name
+                    }
+                    return shop_name
+                }
+            }
+        },
         created() {
             this.shopId = Number(this.$route.query.shopId)
             console.log('this.shopId', this.shopId)
@@ -206,9 +214,6 @@
         },
         methods: {
             formatMoney: formatMoney,
-            addSku() {
-                this.$refs.productList.show()
-            },
             getList() {
                 let params = _.cloneDeep(this.$refs['formFilter'].model)
                 if (params.createdTime.length == 2) {
@@ -223,7 +228,7 @@
                 } else {
                     params['userId'] = -1
                 }
-                params['shopId'] = 1;
+                params['shopId'] = this.shopId;
 
                 params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
                 params['ps'] = this.listQuery.limit
@@ -238,19 +243,19 @@
                     })
                     .catch(err => {})
             },
-            closePreviewPic() {
-                this.dialogVisiblePic = false
-            },
-            openPreviewPic(index) {
-                this.previewIndexPic = index
-                this.dialogVisiblePic = true
-            },
+
             // 代理店铺列表
             queryShopList() {
                 return new Promise((resolve, reject) => {
                     queryShopList()
                         .then(res => {
                             this.shopList = res.data
+
+                            this.shopList.forEach((ev)=>{
+                                if(ev.id == this.shopId){
+                                    this.filterShop = ev
+                                }
+                            })
                             resolve(res)
                         })
                         .catch(err => {
@@ -288,17 +293,45 @@
             setSearchValue() {
                 let _search = []
                 console.log('this.formFilter', this.formFilter)
-                // 所属店铺 shop_id
-                if (this.formFilter['shop_id']) {
-                    this.shopList.forEach(ev => {
-                        if (ev.id == this.formFilter['shop_id']) {
-                            let obj = {
-                                label: 'shop_id',
-                                val: ev.shop_name
-                            }
-                            _search.push(obj)
-                        }
-                    })
+                // userId
+                if (this.formFilter['userId']) {
+                    let obj = {
+                        label: 'userId',
+                        val: this.formFilter['userId']
+                    }
+                    _search.push(obj)
+                }
+                // wxNickName
+                if (this.formFilter['wxNickName']) {
+                    let obj = {
+                        label: 'wxNickName',
+                        val: this.formFilter['wxNickName']
+                    }
+                    _search.push(obj)
+                }
+                // orderNo
+                if (this.formFilter['orderNo']) {
+                    let obj = {
+                        label: 'orderNo',
+                        val: this.formFilter['orderNo']
+                    }
+                    _search.push(obj)
+                }
+                // 评价时间 createdTime
+                if (this.formFilter['createdTime'] && this.formFilter['createdTime'].length === 2) {
+                    let _ge_arr = this.$moment(this.formFilter.createdTime[0])
+                        .format('YYYY-MM-DD ')
+                        .split('-')
+                    let _le_arr = this.$moment(this.formFilter.createdTime[1])
+                        .format('YYYY-MM-DD ')
+                        .split('-')
+                    let _ge = _ge_arr[1] + '.' + _ge_arr[2]
+                    let _le = _le_arr[1] + '.' + _le_arr[2]
+                    let obj = {
+                        label: 'createdTime',
+                        val: _ge + ' - ' + _le
+                    }
+                    _search.push(obj)
                 }
 
                 this.searchList = _.cloneDeep(_search)
@@ -307,9 +340,8 @@
             // 清除单个搜索条件
             closeSearchItem(item, i) {
                 this.$set(this.formFilter, item.label, '')
-                if (item.label == 'consumption_count') {
-                    this.$set(this.formFilter, 'consumption_min', '')
-                    this.$set(this.formFilter, 'consumption_max', '')
+                if (item.label == 'createdTime') {
+                    this.$set(this.formFilter, 'createdTime', [])
                 }
                 this.handleFilter()
             },
