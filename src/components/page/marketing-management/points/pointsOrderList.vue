@@ -1,0 +1,439 @@
+<template>
+    <div class="app-container" @click.stop="searchShow = false">
+        <div class="table-title" style="height: 56px;border-bottom: 1px solid #E8E8E8">
+            <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick">
+                <el-tab-pane label="商品" name="1"></el-tab-pane>
+                <el-tab-pane label="优惠券" name="2"></el-tab-pane>
+            </el-tabs>
+            <div class="grey-line"></div>
+            <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+            <transition name="slide-fade">
+                <div class="head-container" v-show="searchShow" @click.stop="">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                        <el-form-item label="积分订单号" prop="title" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.orderNo"></el-input>
+                        </el-form-item>
+                        <el-form-item label="客户微信号" prop="title" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.wxNickName"></el-input>
+                        </el-form-item>
+                        <el-form-item class="long-time" label="评价时间" prop="createdTime">
+                            <el-date-picker
+                                    class="filter-item"
+                                    v-model="formFilter.createdTime"
+                                    value-format="timestamp"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    start-placeholder="开始日期"
+                                    end-placeholder="结束日期"
+                                    :default-time="['00:00:00', '23:59:59']"
+                            >
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="用户ID" prop="title" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.userId"></el-input>
+                        </el-form-item>
+                        <el-form-item class="form-item-btn" label="">
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </transition>
+            <div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span class="text">所有店铺</span></div>
+            <div class="shop-icon shop-filter" v-if="filterShop.id">
+                <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
+            </div>
+            <div class="search-value">
+                <template v-for="(item, i) in searchList">
+                    <div class="search-item" v-if="i <= showMaxIndex">
+                        {{ item.val }}
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
+                    </div>
+                </template>
+                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <div class="search-value-clone" ref="searchValueBox">
+                    <template v-for="(item, i) in searchList">
+                        <div class="search-item" :ref="'searchItem' + i">
+                            {{ item.val }}
+                            <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                        </div>
+                    </template>
+                    <span>{{ showMaxIndex }}</span>
+                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                </div>
+            </div>
+            <el-radio-group v-model="formFilter.shop_goods_status" class="tab-way" @change="onTabClick">
+                <el-radio-button :label="1">未发货({{notShippedCount}})</el-radio-button>
+                <el-radio-button :label="2">已发货</el-radio-button>
+            </el-radio-group>
+        </div>
+        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table-column label="积分订单号" prop="orderNo"></el-table-column>
+            <el-table-column label="用户ID" prop="orderNo"></el-table-column>
+            <el-table-column label="客户微信名" prop="orderNo"></el-table-column>
+            <el-table-column label="店铺" prop="orderNo"></el-table-column>
+            <el-table-column label="商品数量" width="100">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.title }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="积分总额" width="120">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.title }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="兑换时间" width="180">
+                <template slot-scope="scope">
+                    <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="状态" width="120">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" width="180">
+                <template slot-scope="scope">
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">发货</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <div class="pagination-container">
+            <el-pagination
+                    background
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="listQuery.page"
+                    :page-size="listQuery.limit"
+                    layout="total, prev, pager, next, jumper"
+                    :total="total"
+            >
+            </el-pagination>
+        </div>
+    </div>
+</template>
+<script>
+    import { queryCourseList, cacheData } from '@/api/teamwork'
+    import { queryGoodsList, queryCouponList } from '@/api/points'
+    // import * as teamwork from '@/api/teamwork'
+    import { formatMoney } from '@/plugin/tool'
+    import { queryShopList } from '@/api/goods'
+    import commUtil from '@/utils/commUtil'
+
+    export default {
+        name: 'customer-list',
+        data() {
+            return {
+                filterShop: {},
+                commUtil,
+                list: [
+                    {
+                        orderId: 1,
+                        orderNo: "No12345",
+                        userId: 0,
+                        wxNickName: "",
+                        shopId: 1,
+                        num: 10, //兑换数量
+                        pointsTotal: 100,// 积分总额
+                        redeemTime: "",// 兑换时间
+                        isSend: false,// true 发货 false 未发货
+                        uniqueNo:""// 合单发货编号
+                    }
+                ],
+                total: 0,
+                listLoading: false,
+                shopList: [],
+                listQuery: {
+                    page: 1,
+                    limit: 10
+                },
+
+                formFilter: {
+                    orderNo: '',
+                    wxNickName: '',
+                    createdTime: [],
+                    shopId: '', //不搜索 为-1
+                },
+                tableHeight: 'calc(100vh - 194px)',
+                searchShow: false,
+                searchList: [],
+                showMaxIndex: 0,
+                // 图片预览
+                dialogVisiblePic: false,
+                previewIndexPic: 0,
+                activeTab: '1',
+                notShippedCount: 0,
+                shopId: 0
+            }
+        },
+        components: {},
+        watch: {
+            searchList: function() {
+                this.$nextTick(
+                    function() {
+                        if (!this.$refs.searchValueBox) {
+                            return
+                        }
+                        let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                        let showWidth = 0
+                        for (let i = 0; i < this.searchList.length; i++) {
+                            let el = 'searchItem' + i
+                            let _width = this.$refs[el][0].offsetWidth
+                            showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                            if (showWidth > maxWidth) {
+                                this.showMaxIndex = i - 1
+                                // console.log('this.showMaxIndex', this.showMaxIndex)
+                                return
+                            }
+                            if (i == this.searchList.length - 1) {
+                                if (showWidth <= maxWidth - 20) {
+                                    this.showMaxIndex = this.searchList.length - 1
+                                }
+                            }
+                        }
+                    }.bind(this)
+                )
+            }
+        },
+        created() {
+            this.shopId = Number(this.$route.query.shopId)
+            console.log('this.shopId', this.shopId)
+        },
+        async mounted() {
+            await this.queryShopList()
+
+            this.getList()
+        },
+        methods: {
+            formatMoney: formatMoney,
+            addSku() {
+                this.$refs.productList.show()
+            },
+            getList() {
+                let params = _.cloneDeep(this.$refs['formFilter'].model)
+                if (params.createdTime.length == 2) {
+                    params['redeemStartTime'] = Number(this.$moment(params.createdTime[0]).format('X'))
+                    params['redeemEndTime'] = Number(this.$moment(params.createdTime[1]).format('X'))
+                } else {
+                    params['redeemStartTime'] = 0
+                    params['redeemEndTime'] = 0
+                }
+                if (params['userId']) {
+                    params['userId'] = Number(params['userId'])
+                } else {
+                    params['userId'] = -1
+                }
+                params['shopId'] = 1;
+
+                params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
+                params['ps'] = this.listQuery.limit
+                params['pi'] = this.listQuery.page
+
+                console.log(params)
+                queryGoodsList(params)
+                    .then(res => {
+                        console.log('输出 ~ res', res)
+                        this.list = res.data.lists
+                        this.total = res.data.total
+                    })
+                    .catch(err => {})
+            },
+            closePreviewPic() {
+                this.dialogVisiblePic = false
+            },
+            openPreviewPic(index) {
+                this.previewIndexPic = index
+                this.dialogVisiblePic = true
+            },
+            // 代理店铺列表
+            queryShopList() {
+                return new Promise((resolve, reject) => {
+                    queryShopList()
+                        .then(res => {
+                            this.shopList = res.data
+                            resolve(res)
+                        })
+                        .catch(err => {
+                            reject(err)
+                        })
+                })
+            },
+            // 搜索
+            handleFilter() {
+                this.listQuery.page = 1
+                this.searchShow = false
+                this.setSearchValue()
+                this.getList()
+            },
+            // 重置
+            resetForm(formName) {
+                console.log(this.$refs[formName].model)
+                this.$refs[formName].resetFields()
+                this.formFilter.consumption_min = ''
+                this.formFilter.consumption_max = ''
+                this.handleFilter()
+            },
+            // 跳转详情
+            gotoDetail(row) {
+                cacheData.teamworkData = _.cloneDeep(row)
+                this.$router.push({
+                    name: 'teamwork-detail',
+                    query: {
+                        id: row.id
+                    }
+                })
+            },
+
+            // 设置显示的搜索条件
+            setSearchValue() {
+                let _search = []
+                console.log('this.formFilter', this.formFilter)
+                // 所属店铺 shop_id
+                if (this.formFilter['shop_id']) {
+                    this.shopList.forEach(ev => {
+                        if (ev.id == this.formFilter['shop_id']) {
+                            let obj = {
+                                label: 'shop_id',
+                                val: ev.shop_name
+                            }
+                            _search.push(obj)
+                        }
+                    })
+                }
+
+                this.searchList = _.cloneDeep(_search)
+            },
+
+            // 清除单个搜索条件
+            closeSearchItem(item, i) {
+                this.$set(this.formFilter, item.label, '')
+                if (item.label == 'consumption_count') {
+                    this.$set(this.formFilter, 'consumption_min', '')
+                    this.$set(this.formFilter, 'consumption_max', '')
+                }
+                this.handleFilter()
+            },
+            // 分页方法
+            handleSizeChange(val) {
+                this.listQuery.limit = val
+                this.getList()
+            },
+            handleCurrentChange(val) {
+                this.listQuery.page = val
+                this.getList()
+            },
+            // tab
+            onTabClick(e) {
+                console.log('输出 ~ e', e)
+                if (e.name == 2) {
+                    this.$router.push({ path: '/mall-backend-page-points-coupon-list' })
+                }
+            }
+        }
+    }
+</script>
+<style scoped="scoped" lang="less">
+    .img-wrap {
+        overflow: hidden;
+        width: 125px;
+        height: 60px;
+    }
+    .timg {
+        width: 80px;
+        height: auto;
+    }
+    .type-tag {
+        // display: block;
+        padding: 0 11px;
+        width: fit-content;
+        height: 26px;
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.85);
+        word-break: keep-all;
+        font-weight: 400;
+        line-height: 26px;
+        &.type-red {
+            background-color: #ff4d4f;
+        }
+        &.type-purple {
+            background-color: #a151ff;
+        }
+        &.type-yellow {
+            background-color: #faad14;
+        }
+    }
+    .status {
+        display: flex;
+        align-items: center;
+        .text-grey {
+            color: rgba(0, 0, 0, 0.25);
+        }
+        .dot {
+            display: block;
+            margin-right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+        }
+    }
+    .shop-icon {
+        display: flex;
+        margin-left: 23px;
+        padding: 0 10px;
+        height: 30px;
+        border-radius: 15px;
+        background: #ffffff;
+        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.16);
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 30px;
+        &.shop-all {
+            color: #1890ff;
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+            .icon-shop {
+                margin-right: 6px;
+            }
+        }
+        &.shop-filter {
+            color: rgba(0, 0, 0, 0.85);
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+            .shop-img {
+                margin-top: 5px;
+                margin-right: 6px;
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+            }
+        }
+    }
+    .tab-way {
+        margin-right: 10px;
+    }
+    .goods-put {
+        margin-right: 32px;
+    }
+    .tabs {
+        margin-left: 30px;
+        & /deep/ .el-tabs__header {
+            margin: 0;
+        }
+        & /deep/ .el-tabs__nav {
+            height: 56px;
+        }
+        & /deep/ .el-tabs__item {
+            line-height: 56px;
+        }
+    }
+</style>
+<style>
+    .el-tabs__nav-wrap::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 2px;
+        background-color: transparent !important;
+        z-index: 1;
+    }
+</style>

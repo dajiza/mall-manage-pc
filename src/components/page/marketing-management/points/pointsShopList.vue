@@ -5,7 +5,7 @@
             <div class="text">店铺列表</div>
         </div>
 
-        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+        <el-table :height="tableHeight" :data="shopList" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="logo" width="140">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.avatar_url || avatar" alt="" />
@@ -26,7 +26,7 @@
             <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" @click="setMember(scope.row)">商品管理</el-button>
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="setMember(scope.row)">兑换订单</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" v-has-permission="'mall-backend-redeem-order'" @click="handleRedeemOrder(scope.row)">兑换订单</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -265,6 +265,12 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // 兑换订单
+        handleRedeemOrder(row) {
+            const _id = row.id
+            console.log('_id', _id)
+            this.$router.push({ path: '/mall-backend-page-points-order?shopId='+ _id })
         }
     }
 }

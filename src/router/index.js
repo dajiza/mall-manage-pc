@@ -230,6 +230,11 @@ export default new Router({
                     meta: { title: '积分优惠券' }
                 },
                 {
+                    path: '/mall-backend-page-points-order',
+                    component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/pointsOrderList.vue'),
+                    meta: { title: '积分兑换订单' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
