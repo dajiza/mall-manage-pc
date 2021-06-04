@@ -219,7 +219,7 @@
                             class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="scope.row.status == 1"
+                            v-if="scope.row.status == 1"
                             v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                         >
@@ -229,7 +229,7 @@
                             class="text-red btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="scope.row.status == 2"
+                            v-if="scope.row.status == 2"
                             v-hasPermission="'mall-backend-goods-dismounting'"
                             @click.native="updateStatus(scope.row.id, scope.row.status)"
                         >
@@ -243,7 +243,7 @@
                             type="text"
                             size=""
                             @click.native="goodsAssign(scope.row.id, scope.row)"
-                            v-show="scope.row.allow_agent == 1"
+                            v-if="scope.row.allow_agent == 1"
                             v-hasPermission="'mall-backend-goods-assign-shop'"
                         >
                             指定代理

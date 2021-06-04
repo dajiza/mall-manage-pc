@@ -354,7 +354,7 @@
                             <span>运费</span>
                             <div
                                     class="update-icon-box"
-                                    v-show="order_info.status === 0"
+                                    v-if="order_info.status === 0"
                                     v-hasPermission="'mall-backend-order-freight-update'"
                                     @click="updateShipping">
                                 <img
@@ -364,7 +364,7 @@
                             </div>
                             <div
                                     class="update-icon-box"
-                                    v-show="order_info.status > 0 && order_info.status!==9 && order_info.logistics_money > 0"
+                                    v-if="order_info.status > 0 && order_info.status!==9 && order_info.logistics_money > 0"
                                     v-hasPermission="'mall-backend-order-apply-freight'"
                                     @click="handleReturnFreight">
                                 <img

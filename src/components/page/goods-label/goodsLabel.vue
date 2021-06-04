@@ -31,10 +31,10 @@
                         @click="selectCategory(item)"
                     >
                         <span>{{ item.name }}</span>
-                        <div v-show="index > 0" class="edit-icon-box" v-hasPermission="'mall-backend-tag-category-update'" @click.stop="handleEditCategory(item)">
+                        <div v-if="index > 0" class="edit-icon-box" v-hasPermission="'mall-backend-tag-category-update'" @click.stop="handleEditCategory(item)">
                             <div class="edit-icon" :class="{ 'edit-choose': selectedCategoryId === item.id }"></div>
                         </div>
-                        <div v-show="index > 0" class="delete-icon-box" v-hasPermission="'mall-backend-tag-category-delete'" @click.stop="handleDeleteCategory(item)">
+                        <div v-if="index > 0" class="delete-icon-box" v-hasPermission="'mall-backend-tag-category-delete'" @click.stop="handleDeleteCategory(item)">
                             <div class="delete-icon" :class="{ 'delete-choose': selectedCategoryId === item.id }"></div>
                         </div>
                     </div>

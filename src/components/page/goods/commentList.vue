@@ -85,11 +85,9 @@
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="110">
                 <template slot-scope="scope">
-                    <template v-hasPermission="'mall-backend-comment-approve'">
-                        <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
-                        <el-button class="text-red" type="text" v-if="scope.row.status != 3" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
-                    </template>
-                    <el-button class="text-blue" type="text" v-if="scope.row.status == 2 && formFilter.isApprove == 2" @click.native="openTopDialog(scope.row)">置顶</el-button>
+                    <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
+                    <el-button class="text-red" type="text" v-if="scope.row.status != 3" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
+                    <el-button class="text-blue" type="text" v-if="scope.row.status == 2 && formFilter.isApprove == 2" v-hasPermission="'mall-backend-goods-comment-top'" @click.native="openTopDialog(scope.row)">置顶</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100" v-if="formFilter.isApprove == 2">

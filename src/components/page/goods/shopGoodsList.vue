@@ -164,7 +164,7 @@
                             class="text-blue btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="formFilter.shop_goods_status == 1"
+                            v-if="formFilter.shop_goods_status == 1"
                             v-hasPermission="'mall-backend-shop-goods-on'"
                             @click.native="updateOnShelf(scope.row)"
                         >
@@ -174,7 +174,7 @@
                             class="text-red btn-opt table-btn"
                             type="text"
                             size=""
-                            v-show="formFilter.shop_goods_status == 2"
+                            v-if="formFilter.shop_goods_status == 2"
                             v-hasPermission="'mall-backend-shop-goods-down'"
                             @click.native="updateOffShelf(scope.row)"
                         >

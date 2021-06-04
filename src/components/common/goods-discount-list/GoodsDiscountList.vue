@@ -89,10 +89,8 @@
                             </el-table-column>
                             <el-table-column label="状态" width="90">
                                 <template slot-scope="scope">
-                                    <template v-hasPermission="'mall-backend-goods-sku-status-update'">
-                                        <span v-show="scope.row.status == 1">已下架</span>
-                                        <span v-show="scope.row.status == 2">已上架</span>
-                                    </template>
+                                    <span v-show="scope.row.status == 1">已下架</span>
+                                    <span v-show="scope.row.status == 2">已上架</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="SKU图片" width="120">

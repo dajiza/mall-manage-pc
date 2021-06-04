@@ -112,7 +112,7 @@
                         <el-button
                             type="text"
                             class="cancel-order delete-color table-btn"
-                            v-show="scope.row.status === 0"
+                            v-if="scope.row.status === 0"
                             v-hasPermission="'mall-backend-order-cancel'"
                             @click="handleCancelOrder(scope.$index, scope.row)"
                             >取消订单</el-button

@@ -79,9 +79,9 @@
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
-                    <el-button class="text-red" type="text" v-if="scope.row.status != 3" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
-                    <el-button class="text-blue" type="text" @click.native="openSubject(scope.row)">查看原文</el-button>
+                    <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
+                    <el-button class="text-red" type="text" v-if="scope.row.status != 3" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
+                    <el-button class="text-blue" type="text" v-hasPermission="'mall-backend-comment-reply-subject'" @click.native="openSubject(scope.row)">查看原文</el-button>
                 </template>
             </el-table-column>
             <el-table-column label="状态" width="100" v-if="formFilter.isApprove == 2">
@@ -271,8 +271,8 @@
                 </div>
             </div>
             <span slot="footer" class="dialog-footer">
-                <el-button type="danger" @click="checkCommit(3)" v-if="activeStatus != 3">拒 绝</el-button>
-                <el-button type="primary" @click="checkCommit(2)" v-if="formFilter.isApprove == 1">通 过</el-button>
+                <el-button type="danger" @click="checkCommit(3)" v-if="activeStatus != 3" v-hasPermission="'mall-backend-comment-approve'">拒 绝</el-button>
+                <el-button type="primary" @click="checkCommit(2)" v-if="formFilter.isApprove == 1" v-hasPermission="'mall-backend-comment-approve'">通 过</el-button>
             </span>
         </el-dialog>
     </div>
