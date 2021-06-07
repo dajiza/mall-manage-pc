@@ -1,7 +1,7 @@
 <template>
     <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title" style="height: 56px;border-bottom: 1px solid #E8E8E8">
-            <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick">
+            <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick" :before-leave="beforeLeave">
                 <el-tab-pane label="商品" name="1"></el-tab-pane>
                 <el-tab-pane label="优惠券" name="2"></el-tab-pane>
             </el-tabs>
@@ -10,13 +10,16 @@
             <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
-                        <el-form-item label="积分订单号" prop="title" label-width="">
+                        <el-form-item label="优惠券名称" prop="couponTitle" label-width="" v-if="activeTab == 2">
+                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.couponTitle"></el-input>
+                        </el-form-item>
+                        <el-form-item label="积分订单号" prop="orderNo" label-width="" v-if="activeTab == 1">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.orderNo"></el-input>
                         </el-form-item>
-                        <el-form-item label="客户微信号" prop="title" label-width="">
+                        <el-form-item label="客户微信名" prop="wxNickName" label-width="">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.wxNickName"></el-input>
                         </el-form-item>
-                        <el-form-item class="long-time" label="评价时间" prop="createdTime">
+                        <el-form-item class="long-time" label="兑换时间" prop="createdTime">
                             <el-date-picker
                                     class="filter-item"
                                     v-model="formFilter.createdTime"
@@ -29,8 +32,8 @@
                             >
                             </el-date-picker>
                         </el-form-item>
-                        <el-form-item label="用户ID" prop="title" label-width="">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.userId"></el-input>
+                        <el-form-item label="用户ID" prop="userId" label-width="">
+                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.userId"></el-input>
                         </el-form-item>
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
@@ -62,35 +65,38 @@
                     <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 </div>
             </div>
-            <el-radio-group v-model="formFilter.shop_goods_status" class="tab-way" @change="onTabClick">
+            <el-radio-group v-model="isSend" class="tab-way" @change="statusChange" v-if="activeTab == 1">
                 <el-radio-button :label="1">未发货({{notShippedCount}})</el-radio-button>
                 <el-radio-button :label="2">已发货</el-radio-button>
             </el-radio-group>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="积分订单号" prop="orderNo" width="140"></el-table-column>
+            <el-table-column label="积分订单号" prop="orderNo" width="140" v-if="activeTab == 1"></el-table-column>
             <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
             <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
+            <el-table-column label="客户手机号" prop="phone" v-if="activeTab == 2"></el-table-column>
             <el-table-column label="店铺" prop="orderNo">
                 <template slot-scope="scope">
                     <span>{{ filterShop.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="商品数量" prop="num" width="110"></el-table-column>
-            <el-table-column label="积分总额" prop="pointsTotal" width="120"></el-table-column>
+            <el-table-column label="优惠券名称" prop="couponTitle" v-if="activeTab == 2"></el-table-column>
+            <el-table-column label="兑换数量" prop="num" width="90" v-if="activeTab == 2"></el-table-column>
+            <el-table-column label="商品数量" prop="num" width="90" v-if="activeTab == 1"></el-table-column>
+            <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
             <el-table-column label="兑换时间" width="180">
                 <template slot-scope="scope">
                     <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" width="100">
+            <el-table-column label="状态" width="100" v-if="activeTab == 1">
                 <template slot-scope="scope">
                     <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="140">
+            <el-table-column label="操作" width="140" v-if="activeTab == 1">
                 <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">发货</el-button>
+                    <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">发货</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -145,6 +151,7 @@
                 },
 
                 formFilter: {
+                    couponTitle: '',
                     orderNo: '',
                     wxNickName: '',
                     createdTime: [],
@@ -159,7 +166,8 @@
                 previewIndexPic: 0,
                 activeTab: '1',
                 notShippedCount: 0,
-                shopId: 0
+                shopId: 0,
+                isSend: '1'
             }
         },
         components: {},
@@ -209,39 +217,64 @@
         },
         async mounted() {
             await this.queryShopList()
-
-            this.getList()
+            // this.getList()
         },
         methods: {
             formatMoney: formatMoney,
             getList() {
-                let params = _.cloneDeep(this.$refs['formFilter'].model)
-                if (params.createdTime.length == 2) {
-                    params['redeemStartTime'] = Number(this.$moment(params.createdTime[0]).format('X'))
-                    params['redeemEndTime'] = Number(this.$moment(params.createdTime[1]).format('X'))
+                console.log('activeTab', this.activeTab)
+                const search_obj = _.cloneDeep(this.$refs['formFilter'].model)
+                let params = {
+                    userId: search_obj['userId'] ? Number(search_obj['userId']) : 0,
+                    shopId: this.shopId,
+                    wxNickName: search_obj['search_obj'] || '',
+                }
+                if (this.activeTab == 1) {
+                    params['isSend'] = this.isSend == 2
+                    params['orderNo'] = search_obj['orderNo'] || ''
+                } else {
+                    params['couponTitle'] = search_obj['couponTitle'] || ''
+                }
+                if (search_obj.createdTime.length == 2) {
+                    params['redeemStartTime'] = Number(this.$moment(search_obj.createdTime[0]).format('X'))
+                    params['redeemEndTime'] = Number(this.$moment(search_obj.createdTime[1]).format('X'))
                 } else {
                     params['redeemStartTime'] = 0
                     params['redeemEndTime'] = 0
                 }
-                if (params['userId']) {
-                    params['userId'] = Number(params['userId'])
-                } else {
-                    params['userId'] = -1
-                }
-                params['shopId'] = this.shopId;
-
-                params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
+                console.log('this.isSend', this.isSend)
                 params['ps'] = this.listQuery.limit
                 params['pi'] = this.listQuery.page
 
                 console.log(params)
-                queryGoodsList(params)
-                    .then(res => {
-                        console.log('输出 ~ res', res)
-                        this.list = res.data.lists
-                        this.total = res.data.total
-                    })
-                    .catch(err => {})
+                const rLoading = this.openLoading()
+                if (this.activeTab == 1) {
+                    queryGoodsList(params)
+                        .then(res => {
+                            console.log('输出 ~ res', res)
+                            rLoading.close()
+                            this.list = res.data.lists
+                            this.total = res.data.total
+                            if(this.isSend == '1'){
+                                this.notShippedCount = res.data.total
+                            }
+                        })
+                        .catch(err => {
+                            rLoading.close()
+                        })
+                } else {
+                    queryCouponList(params)
+                        .then(res => {
+                            console.log('输出 ~ res', res)
+                            rLoading.close()
+                            this.list = res.data.lists
+                            this.total = res.data.total
+                        })
+                        .catch(err => {
+                            rLoading.close()
+                        })
+                }
+
             },
 
             // 代理店铺列表
@@ -249,8 +282,7 @@
                 return new Promise((resolve, reject) => {
                     queryShopList()
                         .then(res => {
-                            this.shopList = res.data
-
+                            this.shopList = res.data || []
                             this.shopList.forEach((ev)=>{
                                 if(ev.id == this.shopId){
                                     this.filterShop = ev
@@ -274,17 +306,16 @@
             resetForm(formName) {
                 console.log(this.$refs[formName].model)
                 this.$refs[formName].resetFields()
-                this.formFilter.consumption_min = ''
-                this.formFilter.consumption_max = ''
                 this.handleFilter()
             },
             // 跳转详情
             gotoDetail(row) {
-                cacheData.teamworkData = _.cloneDeep(row)
                 this.$router.push({
-                    name: 'teamwork-detail',
+                    path: '/mall-backend-points-order-detail',
                     query: {
-                        id: row.id
+                        uniqueNo: row.uniqueNo,
+                        shopId: this.filterShop.shopId,
+                        shopName: this.filterShop.shop_name
                     }
                 })
             },
@@ -354,12 +385,19 @@
                 this.listQuery.page = val
                 this.getList()
             },
+            beforeLeave(activeName, oldActiveName){
+                this.activeTab = activeName
+                // console.log('activeName', activeName)
+                // console.log('oldActiveName', oldActiveName)
+                this.isSend = '1'
+                this.resetForm('formFilter')
+            },
             // tab
             onTabClick(e) {
-                console.log('输出 ~ e', e)
-                if (e.name == 2) {
-                    this.$router.push({ path: '/mall-backend-page-points-coupon-list' })
-                }
+            },
+            statusChange() {
+                this.listQuery.page = 1
+                this.getList()
             }
         }
     }

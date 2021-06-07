@@ -6,3 +6,12 @@ export const queryGoodsList = params => post('/backend/points-order-goods-list',
 
 // 订单列表-优惠券
 export const queryCouponList = params => post('/backend/points-order-coupon-list', params)
+
+// 订单详情
+export const queryOrderDetail = params => post('/backend/points-order-detail', params)
+
+// 修改物流
+export const updateLogistics = params => post('/backend/points-order-logistics-edit', params)
+
+// 自动发货
+export const queryLogisticsAuto = params => post('/backend/points-order-logistics-auto', params)
