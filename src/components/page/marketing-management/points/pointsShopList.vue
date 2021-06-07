@@ -8,29 +8,32 @@
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="logo" width="140">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.avatar_url || avatar" alt="" />
+                    <img class="timg" :src="scope.row.shopIcon || avatar" alt="" />
                 </template>
             </el-table-column>
             <el-table-column label="店铺名" min-width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.shop_name }}</span>
+                    <span>{{ scope.row.shopName }}</span>
                 </template>
             </el-table-column>
 
             <el-table-column label="状态" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.phone }}</span>
+                    <span>{{ scope.row.status == 1 ? '启用' : '未启用' }}</span>
                 </template>
             </el-table-column>
 
             <el-table-column label="操作" width="200">
                 <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="setMember(scope.row)">商品管理</el-button>
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="setMember(scope.row)">兑换订单</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoGoodsAdmin(scope.row)">商品管理</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" v-has-permission="'mall-backend-redeem-order'" @click="handleRedeemOrder(scope.row)">
+                        兑换订单
+                        <span class="num">{{ scope.row.redeemQty }}</span>
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <div class="pagination-container">
+        <!-- <div class="pagination-container">
             <el-pagination
                 background
                 @size-change="handleSizeChange"
@@ -41,11 +44,11 @@
                 :total="total"
             >
             </el-pagination>
-        </div>
+        </div> -->
     </div>
 </template>
 <script>
-import { queryDiscountList, updateUserDiscount } from '@/api/discount'
+import { queryPointsShopList } from '@/api/points'
 import { queryCustomerList } from '@/api/customer'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
@@ -56,7 +59,15 @@ export default {
         return {
             commUtil,
             avatar: require('@/assets/img/wx.jpeg'),
-            list: null,
+            list: [
+                {
+                    shopId: 0,
+                    shopName: '店铺名',
+                    shopIcon: 'https://www.w3school.com.cn/i/eg_tulip.jpg',
+                    status: 1, // 1使用中 2停止使用
+                    redeemQty: 2 // 兑换数
+                }
+            ],
             total: 0,
             listLoading: false,
             shopList: [],
@@ -99,139 +110,30 @@ export default {
     created() {},
     mounted() {
         this.queryShopList()
-        this.queryDiscountList()
         this.getList()
     },
     methods: {
         formatMoney: formatMoney,
         getList() {
-            let params = _.cloneDeep(this.$refs['formFilter'].model)
-
-            if (!params['discount_id']) {
-                params['discount_id'] = 0
-            }
-            if (params['searchTime'] && params['searchTime'].length == 2) {
-                params['discount_end_start'] = this.$moment(params.searchTime[0]).format('YYYY-MM-DD')
-                params['discount_end_end'] = this.$moment(params.searchTime[1]).format('YYYY-MM-DD')
-            } else {
-                params['discount_end_start'] = ''
-                params['discount_end_end'] = ''
-            }
-            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 100)
-            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 100)
-            params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
-
-            params['limit'] = this.listQuery.limit
-            params['page'] = this.listQuery.page
-
-            console.log(params)
-            queryCustomerList(params)
+            queryPointsShopList()
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    this.list = res.data.lists
-                    this.total = res.data.total
+                    // this.list = res.data.lists
                 })
                 .catch(err => {})
         },
-        // 获取折扣列表
-        queryDiscountList() {
-            queryDiscountList()
-                .then(res => {
-                    console.log('输出 ~ res', res)
-                    this.discountList = res.data.list.map(item => {
-                        item.discount = commUtil.numberMul(Number(item.discount_value), 10) + '折'
-                        return item
-                    })
-                })
-                .catch(err => {})
-        },
-        closeDialog() {
-            this.formMember = {
-                user_id: '',
-                discount_id: '', // 折扣id
-                discount_end_at: '' // 到期时间
-            }
-            this.dialogVisibleMember = false
-        },
-        // 设置会员
-        setMember(row) {
-            console.log('输出 ~ row', row)
-            this.isEdit = row.discount_id ? true : false
-            this.formMember.user_id = row.user_id
-            this.formMember.discount_id = row.discount_id || ''
-            this.formMember.discount_end_at = row.discount_end_at || null
-            this.dialogVisibleMember = true
-        },
-        // 结束合作
-        endMember() {
-            let params = {
-                type: 2, // 1.设置 2.删除
-                user_id: this.formMember.user_id
-            }
-            updateUserDiscount(params)
-                .then(res => {
-                    console.log('GOOGLE: res', res)
-                    if (res.code == 200) {
-                        this.$notify({
-                            title: '结束合作成功',
-                            type: 'success',
-                            duration: 3000
-                        })
-                        this.closeDialog()
-                        this.getList()
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            type: 'warning',
-                            duration: 5000
-                        })
-                    }
-                })
-                .catch(err => {})
-        },
-        // 设置折扣
-        updateMember() {
-            this.$refs['formMember'].validate(valid => {
-                // 验证表单内容
-                if (valid) {
-                    let params = {
-                        type: 1, // 1.设置 2.删除
-                        user_id: this.formMember.user_id,
-                        discount_id: this.formMember.discount_id, // 折扣id
-                        discount_end_at: this.$moment(this.formMember.discount_end_at)
-                            .set({ hour: 23, minute: 59, second: 59 })
-                            .format('YYYY-MM-DD') // 到期时间
-                    }
-                    updateUserDiscount(params)
-                        .then(res => {
-                            console.log('GOOGLE: res', res)
-                            if (res.code == 200) {
-                                this.$notify({
-                                    title: '会员设置成功',
-                                    type: 'success',
-                                    duration: 3000
-                                })
-                                this.closeDialog()
-                                this.getList()
-                            } else {
-                                this.$notify({
-                                    title: res.msg,
-                                    type: 'warning',
-                                    duration: 5000
-                                })
-                            }
-                        })
-                        .catch(err => {})
-                } else {
-                    this.$notify({
-                        title: '请选择后提交',
-                        message: '',
-                        type: 'warning',
-                        duration: 5000
-                    })
+
+        // 商品管理
+        gotoGoodsAdmin(row) {
+            this.$router.push({
+                path: '/mall-backend-page-points-goods-list',
+                query: {
+                    shopId: row.shopId || 1
                 }
             })
         },
+        // 兑换订单
+        gotoOrder(row) {},
 
         // 代理店铺列表
         queryShopList() {
@@ -265,6 +167,12 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // 兑换订单
+        handleRedeemOrder(row) {
+            const _id = row.id
+            console.log('_id', _id)
+            this.$router.push({ path: '/mall-backend-page-points-order?shopId=' + _id })
         }
     }
 }
@@ -307,5 +215,21 @@ export default {
         height: 8px;
         border-radius: 4px;
     }
+}
+
+.num {
+    padding: 0 5px;
+    height: 16px;
+    background: #ff4d4f;
+    border-radius: 8px;
+    position: absolute;
+    font-size: 13px;
+    font-weight: 400;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    left: 135px;
+    top: 12px;
 }
 </style>

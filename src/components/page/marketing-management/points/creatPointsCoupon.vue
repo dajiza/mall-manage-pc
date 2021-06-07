@@ -10,9 +10,9 @@
             <div class="substance" style="padding: 22px 32px 32px">
                 <el-form class="freight-form" :inline="false" :model="goods" :rules="rules" ref="formRef" label-width="100px">
                     <el-form-item label="类型" prop="title">
-                        <el-radio-group v-model="goods.radio" @change="onChangeRadio">
-                            <el-radio :label="3">商品</el-radio>
-                            <el-radio :label="6">优惠券</el-radio>
+                        <el-radio-group v-model="typeIndex" @change="onChangeRadio">
+                            <el-radio :label="1">商品</el-radio>
+                            <el-radio :label="2">优惠券</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="可用店铺" prop="title">
@@ -89,13 +89,12 @@ export default {
             listLoading: false,
             header: {},
             goods: {
-                title: '',
-                radio: ''
+                title: ''
             },
+            typeIndex: 2,
             tfile: [],
             attrList: [{ label: '', value: '' }],
             rules: {
-                imgs: [{ required: true, message: '请上传图片', trigger: 'blur' }],
                 title: [
                     { required: true, message: '请输入名称', trigger: 'blur' },
                     { min: 1, max: 200, message: '长度在 1 到 200 个字符', trigger: 'blur' }
@@ -180,7 +179,7 @@ export default {
             this.handleFilter()
         },
         onChangeRadio() {
-            console.log('输出 ~ onChangeRadio')
+            this.$router.push('/mall-backend-page-points-goods-creat')
         },
         getCoupon(coupon) {
             console.log('输出 ~ getCoupon', coupon)

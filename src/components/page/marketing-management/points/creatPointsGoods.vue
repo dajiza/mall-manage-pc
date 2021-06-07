@@ -9,14 +9,14 @@
             <div class="divider"></div>
             <div class="substance" style="padding: 22px 32px 32px">
                 <el-form class="freight-form" :inline="false" :model="goods" :rules="rules" ref="formRef" label-width="100px">
-                    <el-form-item label="类型" prop="title">
-                        <el-radio-group v-model="goods.radio" @change="onChangeRadio">
-                            <el-radio :label="3">商品</el-radio>
-                            <el-radio :label="6">优惠券</el-radio>
+                    <el-form-item label="类型" prop="">
+                        <el-radio-group v-model="typeIndex" @change="onChangeRadio">
+                            <el-radio :label="1">商品</el-radio>
+                            <el-radio :label="2">优惠券</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="可用店铺" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title" disabled></el-input>
+                    <el-form-item label="可用店铺" prop="">
+                        <el-input style="width:180px" placeholder="请输入" v-model="shopName" disabled></el-input>
                     </el-form-item>
                     <el-form-item label="商品名称" prop="title">
                         <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
@@ -24,7 +24,7 @@
                     <el-form-item label="商品图片">
                         <el-upload
                             list-type="picture-card"
-                            :class="tfile.length > 4 ? 'hide-upload' : ''"
+                            :class="tfile.length > 6 ? 'hide-upload' : ''"
                             :action="uploadImgUrl"
                             :headers="header"
                             :before-upload="beforeUploadMultiple"
@@ -57,31 +57,35 @@
                             </div>
                         </el-upload>
                     </el-form-item>
-                    <el-form-item label="商品属性" prop="title">
+                    <el-form-item label="商品属性">
                         <el-button type="primary" size="mini" @click="addAttr">添加</el-button>
-                        <div class="attr" v-for="(item, index) in attrList" :key="index">
-                            <el-input style="width:100px;margin-right:10px" placeholder="属性名称" v-model="item.label"></el-input>
-                            <el-input style="width:180px;margin-right:10px" placeholder="属性值" v-model="item.value"></el-input>
-                            <el-button type="danger" size="mini" @click="deleteAttr(index)">删除</el-button>
+                        <div class="attr" v-for="(item, index) in goods.attrList" :key="index">
+                            <el-form-item label="" :prop="'attrList.' + index + '.title'" :rules="rulesAttr" style="width:100px;margin-right:10px">
+                                <el-input placeholder="属性名称" v-model="item.title"></el-input>
+                            </el-form-item>
+                            <el-form-item label="" :prop="'attrList.' + index + '.value'" :rules="rulesAttr" style="width:180px;margin-right:10px">
+                                <el-input placeholder="属性值" v-model="item.value"></el-input>
+                            </el-form-item>
+                            <el-button class="attr-btn" type="danger" size="mini" @click="deleteAttr(index)">删除</el-button>
                         </div>
                     </el-form-item>
-                    <el-form-item label="需要积分" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
+                    <el-form-item label="需要积分" prop="points">
+                        <el-input style="width:180px" placeholder="请输入" v-model.number="goods.points"></el-input>
                     </el-form-item>
-                    <el-form-item label="原售价" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
+                    <el-form-item label="原售价" prop="price">
+                        <el-input style="width:180px" placeholder="请输入" v-model="goods.price"></el-input>
                     </el-form-item>
-                    <el-form-item label="库存数量" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
+                    <el-form-item label="库存数量" prop="stockQty">
+                        <el-input style="width:180px" placeholder="请输入" v-model.number="goods.stockQty"></el-input>
                     </el-form-item>
-                    <el-form-item label="单用户限制" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
+                    <el-form-item label="单用户限制" prop="redeemQty">
+                        <el-input style="width:180px" placeholder="请输入" v-model.number="goods.redeemQty"></el-input>
                     </el-form-item>
                 </el-form>
             </div>
             <div class="brn-wrap">
-                <el-button type="danger" size="large">删除</el-button>
-                <el-button type="primary" size="large">保存</el-button>
+                <el-button type="danger" size="large" @click="deleteGoods" v-if="id != 0">删除</el-button>
+                <el-button type="primary" size="large" @click="save">保存</el-button>
             </div>
         </div>
         <!--大图预览-->
@@ -89,40 +93,69 @@
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail } from '@/api/afterSale'
+import { creatPointsGoods } from '@/api/points'
 import { getToken } from '@/utils/auth'
+import { queryShopList } from '@/api/goods'
 
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
+import bus from '@/components/common/bus'
+
 export default {
     data() {
         return {
             id: '',
-
+            shopId: '',
+            shopName: '',
             detail: null,
             list: null,
             logList: null,
             listLoading: false,
             header: {},
+            shopList: [],
             goods: {
                 title: '',
-                radio: ''
+                medias: [
+                    // 默认第一张为商品首图；注：编辑状态下如果没有新增图片，该集合为空
+                    // {
+                    //     link: 'http://wx-record-upyun.chuanshui.com/wx_record/2021-05-26/image/th_84f32ef1a8a8588c9a2356c33122a991hd.jpg',
+                    //     type: 2,
+                    //     sort: 1
+                    // }
+                ],
+                delMediaIds: [], // 编辑状态下需要删除的图片id集合
+                points: '',
+                price: '',
+                stockQty: '',
+                redeemQty: '',
+                attrs: '',
+                attrList: []
             },
+            typeIndex: 1,
             tfile: [],
-            attrList: [{ label: '', value: '' }],
             rules: {
-                imgs: [{ required: true, message: '请上传图片', trigger: 'blur' }],
                 title: [
                     { required: true, message: '请输入名称', trigger: 'blur' },
                     { min: 1, max: 200, message: '长度在 1 到 200 个字符', trigger: 'blur' }
                 ],
-                display_sales: [
-                    { required: true, message: '请输入销量', trigger: 'blur' },
-                    { type: 'number', message: '请输入数字' }
+                points: [
+                    { required: true, message: '请输入积分', trigger: 'blur' },
+                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
                 ],
-                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
-                category_id: [{ required: true, message: '请选择分类', trigger: 'blur' }]
+                price: [
+                    { required: true, message: '请输入价格', trigger: 'blur' },
+                    { pattern: /(^0\.[1-9]\d?$)|(^0\.\d[1-9]?$)|(^[1-9]\d{0,7}(\.\d{0,2})?$)/, message: '请输入正确价格', trigger: 'blur' }
+                ],
+                stockQty: [
+                    { required: true, message: '请输入库存', trigger: 'blur' },
+                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
+                ],
+                redeemQty: [
+                    { required: true, message: '请输入', trigger: 'blur' },
+                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
+                ]
             },
+            rulesAttr: [{ required: true, message: '请输入内容', trigger: 'blur' }],
             //图片预览
             dialogVisiblePic: false,
             previewUrlList: [],
@@ -132,6 +165,7 @@ export default {
     components: {
         ElImageViewer
     },
+
     created() {
         // this.id = Number(this.$route.query.id)
         // this.order_id = Number(this.$route.query.orderId)
@@ -140,31 +174,47 @@ export default {
         this.header['token'] = getToken()
         // this.getDetail()
     },
-    mounted() {},
+    async mounted() {
+        await this.queryShopList()
+        this.shopId = Number(this.$route.query.shopId)
+        this.shopName = this.shopList.find(item => item.id == this.shopId).shop_name
+        this.id = Number(this.$route.query.id)
+    },
     inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
         getDetail() {
-            let params = {
-                id: this.id
-            }
-
-            console.log(params)
-            queryAfterSaleDetail(params)
-                .then(res => {
-                    console.log('GOOGLE: res', res)
-
-                    this.detail = res.data
-                })
-                .catch(err => {})
+            // let params = {
+            //     id: this.id
+            // }
+            // console.log(params)
+            // queryAfterSaleDetail(params)
+            //     .then(res => {
+            //         console.log('GOOGLE: res', res)
+            //         this.detail = res.data
+            //     })
+            //     .catch(err => {})
         },
         addAttr() {
-            if (this.attrList.length < 6) {
-                this.attrList.push({ label: '', value: '' })
+            if (this.goods.attrList.length < 6) {
+                this.goods.attrList.push({ label: '', value: '' })
             }
         },
         deleteAttr(index) {
-            this.attrList.splice(index, 1)
+            this.goods.attrList.splice(index, 1)
+        },
+        // 代理店铺列表
+        queryShopList() {
+            return new Promise((resolve, reject) => {
+                queryShopList()
+                    .then(res => {
+                        this.shopList = res.data
+                        resolve(res)
+                    })
+                    .catch(err => {
+                        reject(err)
+                    })
+            })
         },
         // 图片上传前检测
         beforeUploadMultiple(file) {
@@ -308,6 +358,84 @@ export default {
         },
         onChangeRadio() {
             this.$router.push('/mall-backend-page-points-coupon-creat')
+        },
+        save() {
+            const rLoading = this.openLoading()
+            console.log('输出 ~ this.tfile', this.tfile)
+
+            this.$refs['formRef'].validate(valid => {
+                // 验证表单内容
+                if (valid) {
+                    let params = _.cloneDeep(this.goods)
+                    // format 图片
+                    if (this.tfile.length == 0) {
+                        this.$notify({
+                            title: '请上传图片',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        rLoading.close()
+                        return
+                    }
+                    params['medias'] = this.tfile.map((item, index) => ({
+                        link: item.response.data.file_url,
+                        type: 2,
+                        sort: index
+                    }))
+                    // format 属性
+                    if (params['attrList'].length == 0) {
+                        this.$notify({
+                            title: '请填写至少一条属性',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        rLoading.close()
+                        return
+                    }
+                    params['attrs'] = JSON.stringify(params['attrList'])
+                    params['id'] = this.id || 0
+                    params['shopId'] = this.shopId
+
+                    creatPointsGoods(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: this.id == 0 ? '创建成功' : '编辑成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                                bus.$emit('close_current_tags')
+                                bus.$emit('refreshPointsGoodsList', this.id == 0 ? 'add' : 'edit')
+                                // this.$router.push({
+                                //     path: '/mall-backend-page-points-goods-list'
+                                // })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
+                            rLoading.close()
+                        })
+                        .catch(err => {
+                            rLoading.close()
+                        })
+                } else {
+                    rLoading.close()
+                    this.$notify({
+                        title: '请填写完成数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+            })
         }
     }
 }
@@ -440,5 +568,11 @@ export default {
 }
 .attr {
     margin-top: 20px;
+    display: flex;
+    height: 32px;
+    .attr-btn {
+        height: 28px;
+        margin-top: 3px;
+    }
 }
 </style>
