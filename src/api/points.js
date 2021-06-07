@@ -25,3 +25,6 @@ export const updateLogistics = params => post('/backend/points-order-logistics-e
 
 // 自动发货
 export const queryLogisticsAuto = params => post('/backend/points-order-logistics-auto', params)
+
+// 物流详情
+export const queryLogisticsDetail = params => post('/backend/points-order-logistics-status', params)

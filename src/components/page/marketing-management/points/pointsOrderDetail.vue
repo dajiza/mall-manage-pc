@@ -212,7 +212,8 @@
 <script>
     import './pointsOrderDetail.less';
     import { queryConfigList } from '@/api/configManagement'
-    import { queryOrderDetail, updateLogistics, queryLogisticsAuto } from '@/api/points'
+    import { queryOrderDetail, updateLogistics, queryLogisticsAuto, queryLogisticsDetail } from '@/api/points'
+    import { querySDList } from '@/api/afterSale'
     import { queryOrderSdInfo } from '../../../../api/orderList';
     import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
@@ -286,6 +287,8 @@
                 ],
                 imgBaseUrl:'',
                 updateLogisticsVisible:false,
+
+                logistics_company_id: -1,
                 logistics_company_name:'极兔',
                 logistics_no:'123456',
 
@@ -394,7 +397,8 @@
             },
         },
         created() {
-            this.getConfig()
+            this.getConfig() // 获取仓库地址
+            this.getSDList() // 快递公司列表
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
             this.shopId = this.$route.query.shopId
             this.shopName = this.$route.query.shopName
@@ -415,6 +419,14 @@
             // this.getOrderInfo();
         },
         methods:{
+            // 快递公司列表
+            getSDList() {
+                querySDList()
+                    .then(res => {
+                        this.logisticsCompanyList = res.data
+                    })
+                    .catch(err => {})
+            },
             // 请求 - 获取配置 仓库地址
             getConfig(){
                 queryConfigList({})
@@ -481,6 +493,18 @@
             },
             // 发货
             handleOnSend() {
+                // this.expressInfo = {
+                //     logistics_no: 12345678,
+                //     logistics_order_bulkpen: 33334444,
+                //     logistics_name: 'fzf',
+                //     logistics_phone: 18142044813,
+                //     logistics_province: '浙江省',
+                //     logistics_city: '宁波市',
+                //     logistics_area: '江北区',
+                //     logistics_address: '万达公寓',
+                // };
+                // this.showPrint = true
+                // return
                 this.logisticsTitle = '填写物流'
                 this.updateLogisticsVisible = true;
             },
@@ -522,10 +546,12 @@
                             .then((res) => {
                                 rLoading.close();
                                 if (res.code === 200) {
-                                    this.autoShipVisible = false;
                                     this.logistics_no = res.orderNum
                                     this.logistics_company_name = logistics_company_name
                                     this.is_send = true
+                                    this.logistics_company_id = this.autoForm.logistics_company_id
+                                    this.logistics_company_name = logistics_company_name
+                                    this.autoShipVisible = false;
                                     // 请求新的物流详情
                                     this.getSdInfo()
                                     // 打开快递单
@@ -564,7 +590,6 @@
                     }
                 })
                 this.updateLogisticsVisible = true;
-                // this.getSdInfo(row.id);
             },
 
             // 确定修改物流信息
@@ -591,6 +616,7 @@
                                 if (res.code === 200) {
                                     this.logistics_no = this.updateForm.logistics_no
                                     this.logistics_company_name = logistics_company_name
+                                    this.logistics_company_id = params.LogisticsCompanyId
                                     this.is_send = true
                                     // 请求新的物流详情
                                     this.getSdInfo()
@@ -605,17 +631,16 @@
                 })
             },
 
-            // 请求 - 物流信息
-            getSdInfo(id){
+            // 请求 - 物流详情信息
+            getSdInfo(){
                 const params = {
-                    order_id: -1,
-                    order_detail_id: id,
-                    apply_id:-1,
+                    companyId: this.logistics_company_id,//快递公司id
+                    logisticsNo: this.logistics_no  // 快递单号
                 }
                 let _this = this;
                 const rLoading = this.openLoading();
                 this.activities = [];
-                queryOrderSdInfo(params)
+                queryLogisticsDetail(params)
                     .then((res) => {
                         rLoading.close();
                         if (res.code === 200) {
@@ -623,14 +648,14 @@
                                 let logisticss_list = res.data.lists || [];
                                 let new_arr = logisticss_list.reverse();
                                 new_arr.forEach((ev,index)=>{
-                                    let params = {
+                                    let obj = {
                                         content: ev.message,
                                         timestamp: _this.formatDate(ev.time)
                                     }
                                     if(index === logisticss_list.length -1){
-                                        params['color'] = '#FAAD14'
+                                        obj['color'] = '#FAAD14'
                                     }
-                                    _this.activities.push(params);
+                                    _this.activities.push(obj);
                                 })
 
                             }
@@ -643,9 +668,10 @@
 
             // 弹框关闭前操作
             updateDialogClose(){
+                console.log('弹框关闭前操作')
                 this.$refs['updateForm'].clearValidate();
                 this.$refs['updateForm'].resetFields();
-                this.updateDialogClose = false;
+                this.updateLogisticsVisible = false;
             },
 
             formatDate(val) {
