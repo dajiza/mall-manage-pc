@@ -132,20 +132,7 @@
             return {
                 filterShop: {},
                 commUtil,
-                list: [
-                    {
-                        orderId: 1,
-                        orderNo: "No12345",
-                        userId: 0,
-                        wxNickName: "微信名",
-                        shopId: 1,
-                        num: 10, //兑换数量
-                        pointsTotal: 100,// 积分总额
-                        redeemTime: "2021-05-25T17:33:32+08:00",// 兑换时间
-                        isSend: false,// true 发货 false 未发货
-                        uniqueNo:"12345"// 合单发货编号
-                    }
-                ],
+                list: [],
                 total: 0,
                 listLoading: false,
                 shopList: [],
@@ -223,7 +210,7 @@
         },
         async mounted() {
             await this.queryShopList()
-            // this.getList()
+            this.getList()
         },
         methods: {
             formatMoney: formatMoney,
@@ -233,7 +220,7 @@
                 let params = {
                     userId: search_obj['userId'] ? Number(search_obj['userId']) : 0,
                     shopId: this.shopId,
-                    wxNickName: search_obj['search_obj'] || '',
+                    wxNickName: search_obj['wxNickName'] || '',
                 }
                 if (this.activeTab == 1) {
                     params['isSend'] = this.isSend == 2
@@ -259,7 +246,7 @@
                         .then(res => {
                             console.log('输出 ~ res', res)
                             rLoading.close()
-                            this.list = res.data.lists
+                            this.list = res.data.list
                             this.total = res.data.total
                             if(this.isSend == '1'){
                                 this.notShippedCount = res.data.total
@@ -273,7 +260,7 @@
                         .then(res => {
                             console.log('输出 ~ res', res)
                             rLoading.close()
-                            this.list = res.data.lists
+                            this.list = res.data.list
                             this.total = res.data.total
                         })
                         .catch(err => {

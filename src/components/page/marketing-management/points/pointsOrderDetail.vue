@@ -342,7 +342,7 @@
             this.is_send = Number(this.$route.query.isSend) == 1
         },
         mounted() {
-            // this.getOrderInfo();
+            this.getOrderInfo();
         },
         methods:{
             // 快递公司列表
@@ -378,7 +378,7 @@
             // 请求 - 详情信息
             getOrderInfo(){
                 const params = {
-                    uniqueNo: Number(this.$route.query.uniqueNo),
+                    uniqueNo: this.$route.query.uniqueNo,
                 }
                 const rLoading = this.openLoading();
                 queryOrderDetail(params)
