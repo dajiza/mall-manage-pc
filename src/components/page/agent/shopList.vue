@@ -178,37 +178,37 @@
             </span>
         </el-dialog>
         <!-- 订单配置 -->
-        <el-dialog :visible.sync="dialogVisibleOrder" :before-close="handleCloseOrder" title="订单配置" width="473px">
+        <el-dialog :visible.sync="dialogVisibleOrder" :before-close="handleCloseOrder" title="订单配置" width="493px">
             <el-form ref="formOrder" :model="formOrder" :inline="true" size="small" label-position="left">
                 <el-form-item label="订单未付款失效时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_timeout"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_timeout"></el-input>
                     <span class="order-unit">分</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="发货后自动收货时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
                     <span class="order-unit">分</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="收货后允许售后时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_apply_stop_time"></el-input>
                     <span class="order-unit">分</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')">
                         保 存
                     </el-button>
                 </el-form-item>
                 <el-form-item label="允许单人未付款sku数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_sku_count"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:170px" v-model.number="formOrder.bad_sku_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_sku_count, 'bad_sku_count')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="允许单人未付款订单数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:144px" v-model.number="formOrder.bad_order_count"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:164px" v-model.number="formOrder.bad_order_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_order_count, 'bad_order_count')">保 存</el-button>
                 </el-form-item>
                 <el-form-item label="允许单人未付款商品总数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:130px" v-model.number="formOrder.bad_num_count"></el-input>
+                    <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_num_count"></el-input>
                     <span class="order-unit">个</span>
                     <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
                 </el-form-item>
@@ -216,18 +216,26 @@
                     <span slot="label">绑定管理员<br />(输入手机号搜索)</span>
                     <el-select
                         class="dialog-item"
-                        v-model="formOrder.shop_admin_id"
-                        style="width:200px;margin-top:12px"
+                        v-model="formOrder.shop_admin_ids"
+                        style="width:220px;margin-top:12px"
                         filterable
                         remote
                         placeholder="请输入手机搜索"
                         :loading="loadingSelect"
                         :remote-method="queryUserList"
+                        multiple
                     >
                         <el-option v-for="item in userList" :key="item.user_id" :label="item.phone + ' (' + item.nick_name + ')'" :value="item.user_id"> </el-option>
                     </el-select>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_id, 'shop_admin_id')">保 存</el-button>
+                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_ids, 'shop_admin_ids')">保 存</el-button>
                 </el-form-item>
+                <!-- <template v-for="user in formOrder.adminList">
+                    <div class="user-item" :key="user.id">
+                        <div class="name">{{ user.phone + ' (' + user.name + ')' }}</div>
+                        <el-button class="text-red" size="" type="text" @click="deleteAdminuser(user.id)">删除</el-button>
+                    </div>
+                    <div class="divider"></div>
+                </template> -->
             </el-form>
             <!-- <span slot="footer" class="dialog-footer">
                 <el-button @click="handleCloseConfig">取 消</el-button>
@@ -451,9 +459,9 @@ export default {
         },
         // 用户列表
         queryUserList(e) {
-            if (e == '') {
-                return
-            }
+            // if (e == '') {
+            //     return
+            // }
             this.loadingSelect = true
             let params = {
                 phone: e,
@@ -827,10 +835,10 @@ export default {
             })
         },
         async updateOrder(row) {
-            console.log('输出 ~ row', row)
-            row.shop_admin_id = row.shop_admin_id == 0 ? '' : row.shop_admin_id
+            row.shop_admin_ids = row.admins.map(item => item.id)
+            row.adminList = row.admins.map(item => ({ id: item.id, phone: item.phone, name: item.nick_name }))
             this.shopIdSelected = row.id
-            await this.queryUserList(row.shop_admin_phone)
+            await this.queryUserList('1')
             this.formOrder = _.cloneDeep(row)
             this.formOrderSubmit = _.cloneDeep(row)
             this.formOrder['order_timeout'] = row['order_timeout'] / 60
@@ -906,6 +914,13 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // 删除订单配置 绑定管理员
+        deleteAdminuser(id) {
+            let adminIndex = this.formOrder.adminList.findIndex(item => item.id == id)
+            this.formOrder.adminList.splice(adminIndex, 1)
+            let adminShopIndex = this.formOrder.shop_admin_ids.findIndex(item => item.id == id)
+            this.formOrder.shop_admin_ids.splice(adminShopIndex, 1)
         }
     }
 }
@@ -991,5 +1006,11 @@ export default {
         height: 8px;
         border-radius: 4px;
     }
+}
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 16px auto;
+    width: 90%;
 }
 </style>
