@@ -1528,6 +1528,9 @@
     .logistics-timeline-box{
         height: 500px;
         overflow-y: scroll;
+        padding: 30px 50px 10px 220px;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
         //background: #ccc;
         .el-timeline-item__timestamp.is-bottom{
             position: absolute;
