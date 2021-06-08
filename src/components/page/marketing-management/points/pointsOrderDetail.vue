@@ -173,7 +173,6 @@
                 append-to-body
         >
             <el-form ref="autoForm" :rules="autoFormRules" :model="autoForm" :inline="true" size="small" label-position="top">
-
                 <el-form-item label="物流公司：" prop="logistics_company_id" style="margin-right: 20px">
                     <el-select style="width: 240px;" class="dialog-item" v-model="autoForm.logistics_company_id" placeholder="请选择" filterable>
                         <el-option v-for="item in logisticsCompanyList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
@@ -188,8 +187,8 @@
                 <el-form-item label="手机号：" prop="phone">
                     <el-input style="width: 240px" class="dialog-item" placeholder="请输入" v-model="autoForm.phone"></el-input>
                 </el-form-item>
-                <el-form-item label="收货地址：" prop="ShipAddress">
-                    <el-input style="width: 500px" class="dialog-item" placeholder="请输入" v-model="autoForm.ShipAddress"></el-input>
+                <el-form-item label="收货地址：" prop="shipAddress">
+                    <el-input style="width: 500px" class="dialog-item" placeholder="请输入" v-model="autoForm.shipAddress"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -198,7 +197,7 @@
         </el-dialog>
 
         <!--大图预览-->
-        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex"/>
+        <el-image-viewer v-if="imgDialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex"/>
 
         <!--预览快递单-->
         <transition name="el-fade-in-linear">
@@ -214,15 +213,13 @@
     import { queryConfigList } from '@/api/configManagement'
     import { queryOrderDetail, updateLogistics, queryLogisticsAuto, queryLogisticsDetail } from '@/api/points'
     import { querySDList } from '@/api/afterSale'
-    import { queryOrderSdInfo } from '../../../../api/orderList';
     import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import PrintExpress from '../../../common/print-express/PrintExpress';
     import commUtil from '../../../../utils/commUtil';
     import { REFUND_STATUS } from '@/plugin/constant'
-    import ListFieldShow from '../../../common/list-field-show/listFieldShow';
     export default {
-        name: 'OrderDetail',
+        name: 'pointsOrderDetail',
         data() {
             var checkMobile = (rule, value, callback) => {
                 const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
@@ -238,53 +235,8 @@
             };
             return{
                 REFUND_STATUS,
-                logistics_info:{
-                    logisticsName: "封志锋",
-                    logisticsPhone: "18142044813",
-                    logisticsProvince: "浙江省",
-                    logisticsCity: "宁波市",
-                    logisticsArea: "海曙区",
-                    logisticsAddress: "青林湾东区101",
-                    nickName: '微信昵称',
-                    userId: 2,
-                    redeemTime: "2021-05-25T17:33:32+08:00", // 兑换时间
-                    img: "https://storehouse-upyun.chuanshui.cn/2021-04-16/files/fCDLka5AqpUs6akV.jpeg",
-                    title: "123",
-                    points: 100,
-                    num: 2
-                },
-                orderList: [
-                    {
-                        logisticsName: "封志锋",
-                        logisticsPhone: "18142044813",
-                        logisticsProvince: "浙江省",
-                        logisticsCity: "宁波市",
-                        logisticsArea: "海曙区",
-                        logisticsAddress: "青林湾东区101",
-                        nickName: '微信昵称',
-                        userId: 2,
-                        redeemTime: "2021-05-25T17:33:32+08:00", // 兑换时间
-                        img: "https://storehouse-upyun.chuanshui.cn/2021-04-16/files/fCDLka5AqpUs6akV.jpeg",
-                        title: "123",
-                        points: 100,
-                        num: 2
-                    },
-                    {
-                        logisticsName: "封志锋",
-                        logisticsPhone: "18142044813",
-                        logisticsProvince: "浙江省",
-                        logisticsCity: "宁波市",
-                        logisticsArea: "海曙区",
-                        logisticsAddress: "青林湾东区101",
-                        nickName: '微信昵称',
-                        userId: 2,
-                        redeemTime: "2021-05-25T17:33:32+08:00", // 兑换时间
-                        img: "https://storehouse-upyun.chuanshui.cn/2021-04-16/files/fCDLka5AqpUs6akV.jpeg",
-                        title: "拉布拉卡达拉布拉卡达拉布拉卡达",
-                        points:50,
-                        num: 3
-                    }
-                ],
+                logistics_info:{},
+                orderList: [],
                 imgBaseUrl:'',
                 updateLogisticsVisible:false,
 
@@ -292,24 +244,14 @@
                 logistics_company_name:'极兔',
                 logistics_no:'123456',
 
-                priceUpdateVisible: false, // 价格
-                shippingUpdateVisible: false, // 运费修改弹框
-                dialogTitle:'',
                 previewIndex: 0,
                 imgSrcList:[],
-                dialogVisible: false,
+                imgDialogVisible: false,
                 is_send: false, // false 未发货 true 已发货
                 shopId: 0,
                 shopName: '',
                 activities: [],
-                logistics_list:[
-                    {message: "包裹正在等待揽收", time: 1603264819, type: "已发货"},
-                    {message: "在分拨中心浙江义乌分拨中心进行称重扫描", time: 1599445186, type: "运输中"},
-                    {message: "在浙江义乌分拨中心进行装车 扫描，发往：浙江杭州分拨中心", time: 1599445186, type: "运输中"},
-                    {message: "在分拨中心浙江杭州分拨中心进行卸车扫描", time: 1599445186, type: "运输中"},
-                    {message: "从浙江杭州分拨中心发出，本次转运目的地：浙江杭州西湖区溪畔公司", time: 1599445186, type: "运输中"},
-                    {message: "在浙江杭州西湖去溪畔公司进行派件扫描；派送业务员：陈卫中   联系电话：17816197313", time: 1599445186, type: "派件中"}
-                ],
+                logistics_list:[],
                 updateForm: {
                     logistics_company_id: '',
                     logistics_no: ''
@@ -324,7 +266,7 @@
                     logistics_company_id: '',
                     name: '',
                     phone: '',
-                    ShipAddress: ''
+                    shipAddress: ''
                 },
                 autoFormRules: {
                     name: [
@@ -337,15 +279,11 @@
                             trigger: 'blur'
                         }
                     ],
-                    ShipAddress: [
+                    shipAddress: [
                         { required: true, message: '请输入收货地址', trigger: 'blur' }
                     ],
                 },
-                logisticsCompanyList: [
-                    {id:1,name:'极兔'},
-                    {id:2,name:'顺风'},
-                    {id:3,name:'极兔3'},
-                ],
+                logisticsCompanyList: [],
                 addressInfo:{},
                 logisticsTitle: '填写物流',
                 autoShipVisible: false, // 自动发货 弹窗
@@ -356,7 +294,6 @@
         components: {
             ElImageViewer,
             EmptyList,
-            ListFieldShow,
             PrintExpress
         },
         watch: {
@@ -402,18 +339,7 @@
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
             this.shopId = this.$route.query.shopId
             this.shopName = this.$route.query.shopName
-            // this.activities
-            let new_arr = this.logistics_list.reverse();
-            new_arr.forEach((ev,index)=>{
-                let params = {
-                    content: ev.message,
-                    timestamp: this.formatDate(ev.time)
-                }
-                if(index === new_arr.length -1){
-                    params['color'] = '#FAAD14'
-                }
-                this.activities.push(params);
-            })
+            this.is_send = Number(this.$route.query.isSend) == 1
         },
         mounted() {
             // this.getOrderInfo();
@@ -463,11 +389,18 @@
                                 this.orderList = res.data || [];
                                 if(res.data && res.data.length > 0){
                                     this.logistics_info = res.data[0]
+                                    this.logistics_company_name = this.logisticsCompanyName
+                                    this.logistics_company_id = this.logisticsCompanyId
+                                    this.logistics_no = this.logisticsNo
                                     this.imgSrcList = res.data.map(item =>{return item.img})
                                     console.log('imgSrcList', this.imgSrcList)
+                                    if(this.is_send){
+                                        // 请求 物流详情
+                                        this.getSdInfo()
+                                    }
                                 }
                             } else {
-                                this.order_info = {};
+                                this.logistics_info = {};
                                 this.orderList = []
                             }
                         } else {
@@ -484,13 +417,15 @@
                 console.log('pic_url', pic_url)
                 if (pic_url) {
                     this.previewIndex = index;
-                    this.dialogVisible = true;
+                    this.imgDialogVisible = true;
                 }
             },
+
             // 关闭大图
             closeViewer() {
-                this.dialogVisible = false;
+                this.imgDialogVisible = false;
             },
+
             // 发货
             handleOnSend() {
                 // this.expressInfo = {
@@ -515,7 +450,7 @@
                 this.autoForm.logistics_company_id = ''
                 this.autoForm.name = this.logistics_info.logisticsName
                 this.autoForm.phone = this.logistics_info.logisticsPhone
-                this.autoForm.ShipAddress = this.logistics_info.logisticsProvince + this.logistics_info.logisticsCity + this.logistics_info.logisticsArea + this.logistics_info.logisticsAddress
+                this.autoForm.shipAddress = this.logistics_info.logisticsProvince + this.logistics_info.logisticsCity + this.logistics_info.logisticsArea + this.logistics_info.logisticsAddress
                 this.autoShipVisible = true;
             },
 
@@ -529,6 +464,27 @@
                                 logistics_company_name = ev.name
                             }
                         })
+                        let province_txt = '',
+                            city_txt = '',
+                            area_txt = '',
+                            address_txt = ''
+                        if(this.autoForm.shipAddress){
+                            let txt = this.autoForm.shipAddress
+                            if (txt.indexOf('省') > -1) {
+                                province_txt = txt.split('省')[0] + '省'
+                                txt = txt.split('省')[1]
+                            }
+                            if (txt.indexOf('市') > -1) {
+                                city_txt = txt.split('市')[0] + '市'
+                                txt = txt.split('市')[1]
+                            }
+
+                            if (txt.indexOf('区') > -1) {
+                                area_txt = txt.split('区')[0] + '区'
+                                txt = txt.split('区')[1]
+                            }
+                            address_txt = txt
+                        }
                         const params = {
                             logisticsUnique: Number(this.$route.query.uniqueNo),
                             companyId: this.autoForm.logistics_company_id, // 物流公司id
@@ -536,10 +492,10 @@
                             shopId: this.shopId,
                             phone: this.autoForm.phone,
                             name: this.autoForm.name,
-                            province: '',
-                            city: '',
-                            area: '',
-                            address: ''
+                            province: province_txt,
+                            city: city_txt,
+                            area: area_txt,
+                            address: address_txt
                         }
                         const rLoading = this.openLoading();
                         queryLogisticsAuto(params)
@@ -560,10 +516,10 @@
                                         logistics_order_bulkpen: res.orderBulkpen,
                                         logistics_name: params.name,
                                         logistics_phone: params.phone,
-                                        logistics_province: '',
-                                        logistics_city: '',
-                                        logistics_area: '',
-                                        logistics_address: '',
+                                        logistics_province: params.province,
+                                        logistics_city: params.city,
+                                        logistics_area: params.area,
+                                        logistics_address: params.address
                                     };
                                     this.showPrint = true
                                 } else {
@@ -576,10 +532,12 @@
                     }
                 })
             },
+
             // 关闭打印
             closePrint(){
                 this.showPrint = false;
             },
+
             // 修改物流信息
             updateLogisticsInfo(index,row){
                 this.logisticsTitle = '修改物流'
@@ -699,16 +657,6 @@
                 }
             },
 
-            queryRebatesAPISuccess() {
-                this.$notify({
-                    title: '操作成功',
-                    message: '',
-                    type: 'success',
-                    duration: 3000
-                });
-                this.getOrderInfo();
-                this.rebatesDialogClose();
-            },
             queryAPIError(msg) {
                 this.$notify({ title: msg, message: '', type: 'error', duration: 5000 });
             },

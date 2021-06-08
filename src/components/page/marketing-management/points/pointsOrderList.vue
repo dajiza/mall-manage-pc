@@ -96,9 +96,12 @@
             </el-table-column>
             <el-table-column label="操作" width="140" v-if="activeTab == 1">
                 <template slot-scope="scope">
-                    <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">发货</el-button>
+                    <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">{{scope.row.isSend?'详情':'发货'}}</el-button>
                 </template>
             </el-table-column>
+            <template slot="empty">
+                <EmptyList></EmptyList>
+            </template>
         </el-table>
         <div class="pagination-container">
             <el-pagination
@@ -121,6 +124,7 @@
     import { formatMoney } from '@/plugin/tool'
     import { queryShopList } from '@/api/goods'
     import commUtil from '@/utils/commUtil'
+    import EmptyList from '@/components/common/empty-list/EmptyList'
 
     export default {
         name: 'customer-list',
@@ -170,7 +174,9 @@
                 isSend: '1'
             }
         },
-        components: {},
+        components: {
+            EmptyList
+        },
         watch: {
             searchList: function() {
                 this.$nextTick(
@@ -315,7 +321,8 @@
                     query: {
                         uniqueNo: row.uniqueNo,
                         shopId: this.filterShop.shopId,
-                        shopName: this.filterShop.shop_name
+                        shopName: this.filterShop.shop_name,
+                        isSend: row.isSend ? 1 : 0
                     }
                 })
             },
@@ -348,7 +355,7 @@
                     }
                     _search.push(obj)
                 }
-                // 评价时间 createdTime
+                // 时间 createdTime
                 if (this.formFilter['createdTime'] && this.formFilter['createdTime'].length === 2) {
                     let _ge_arr = this.$moment(this.formFilter.createdTime[0])
                         .format('YYYY-MM-DD ')

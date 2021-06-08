@@ -61,8 +61,8 @@ export default {
             avatar: require('@/assets/img/wx.jpeg'),
             list: [
                 {
-                    shopId: 0,
-                    shopName: '店铺名',
+                    shopId: 1,
+                    shopName: '川家布',
                     shopIcon: 'https://www.w3school.com.cn/i/eg_tulip.jpg',
                     status: 1, // 1使用中 2停止使用
                     redeemQty: 2 // 兑换数
@@ -170,7 +170,7 @@ export default {
         },
         // 兑换订单
         handleRedeemOrder(row) {
-            const _id = row.id
+            const _id = row.shopId
             console.log('_id', _id)
             this.$router.push({ path: '/mall-backend-page-points-order?shopId=' + _id })
         }
