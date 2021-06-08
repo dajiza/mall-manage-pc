@@ -59,12 +59,12 @@
                 <el-radio-button :label="1">商品</el-radio-button>
                 <el-radio-button :label="2">优惠券</el-radio-button>
             </el-radio-group>
-            <el-button type="primary" @click="creatGoods" class="goods-put">新增</el-button>
+            <el-button type="primary" @click="creatGoods" class="goods-put" v-hasPermission="'mall-backend-points-coupon-edit'">新增</el-button>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="名称" min-width="300">
                 <template slot-scope="scope">
-                    <span class="edit-goods" @click="editGoods(scope.row)">
+                    <span class="edit-goods" @click="editGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-detail'">
                         {{ scope.row.title }}
                     </span>
                 </template>
@@ -96,10 +96,10 @@
             </el-table-column>
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="editGoods(scope.row)">编辑</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 2">下架</el-button>
-                    <el-button class="text-blue opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 1">上架</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)">删除</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="editGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-edit'">编辑</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 2" v-hasPermission="'mall-backend-change-points-coupon-status'">下架</el-button>
+                    <el-button class="text-blue opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 1" v-hasPermission="'mall-backend-change-points-coupon-status'">上架</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-delete'">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
