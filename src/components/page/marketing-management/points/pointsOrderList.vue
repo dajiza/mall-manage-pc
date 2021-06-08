@@ -70,39 +70,61 @@
                 <el-radio-button :label="2">已发货</el-radio-button>
             </el-radio-group>
         </div>
-        <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="积分订单号" prop="orderNo" width="140" v-if="activeTab == 1"></el-table-column>
-            <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
-            <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
-            <el-table-column label="客户手机号" prop="phone" v-if="activeTab == 2"></el-table-column>
-            <el-table-column label="店铺" prop="orderNo">
-                <template slot-scope="scope">
-                    <span>{{ filterShop.shop_name }}</span>
+        <template v-if="activeTab == 1">
+            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                <el-table-column label="积分订单号" prop="orderNo" width="140"></el-table-column>
+                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
+                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
+                <el-table-column label="店铺" prop="orderNo">
+                    <template slot-scope="scope">
+                        <span>{{ filterShop.shop_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="商品数量" prop="num" width="90"></el-table-column>
+                <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
+                <el-table-column label="兑换时间" width="180">
+                    <template slot-scope="scope">
+                        <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="状态" width="100">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" width="140">
+                    <template slot-scope="scope">
+                        <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)" v-hasPermission="'mall-backend-points-order-detail'">{{scope.row.isSend?'详情':'发货'}}</el-button>
+                    </template>
+                </el-table-column>
+                <template slot="empty">
+                    <EmptyList></EmptyList>
                 </template>
-            </el-table-column>
-            <el-table-column label="优惠券名称" prop="couponTitle" v-if="activeTab == 2"></el-table-column>
-            <el-table-column label="兑换数量" prop="num" width="90" v-if="activeTab == 2"></el-table-column>
-            <el-table-column label="商品数量" prop="num" width="90" v-if="activeTab == 1"></el-table-column>
-            <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
-            <el-table-column label="兑换时间" width="180">
-                <template slot-scope="scope">
-                    <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+            </el-table>
+        </template>
+        <template v-if="activeTab == 2">
+            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
+                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
+                <el-table-column label="客户手机号" prop="phone"></el-table-column>
+                <el-table-column label="店铺" prop="orderNo">
+                    <template slot-scope="scope">
+                        <span>{{ filterShop.shop_name }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="优惠券名称" prop="couponTitle" v-if="activeTab == 2"></el-table-column>
+                <el-table-column label="兑换数量" prop="num" width="90" v-if="activeTab == 2"></el-table-column>
+                <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
+                <el-table-column label="兑换时间" width="180">
+                    <template slot-scope="scope">
+                        <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                    </template>
+                </el-table-column>
+                <template slot="empty">
+                    <EmptyList></EmptyList>
                 </template>
-            </el-table-column>
-            <el-table-column label="状态" width="100" v-if="activeTab == 1">
-                <template slot-scope="scope">
-                    <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
-                </template>
-            </el-table-column>
-            <el-table-column label="操作" width="140" v-if="activeTab == 1">
-                <template slot-scope="scope">
-                    <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">{{scope.row.isSend?'详情':'发货'}}</el-button>
-                </template>
-            </el-table-column>
-            <template slot="empty">
-                <EmptyList></EmptyList>
-            </template>
-        </el-table>
+            </el-table>
+        </template>
         <div class="pagination-container">
             <el-pagination
                     background
@@ -306,8 +328,8 @@
                 this.$router.push({
                     path: '/mall-backend-points-order-detail',
                     query: {
+                        shopId: this.filterShop.id,
                         uniqueNo: row.uniqueNo,
-                        shopId: this.filterShop.shopId,
                         shopName: this.filterShop.shop_name,
                         isSend: row.isSend ? 1 : 0
                     }

@@ -144,19 +144,19 @@
                 :before-close="updateDialogClose"
                 append-to-body
         >
-            <el-form ref="updateForm" :rules="updateFormRules" :model="updateForm" :inline="true" size="small" label-position="left" label-width="76px">
+            <el-form ref="updateForm" :rules="updateFormRules" :model="updateForm" :inline="true" size="small" label-position="left" label-width="82px">
 
-                <el-form-item label="物流公司" prop="agent_id">
-                    <el-select style="width: 220px" class="dialog-item" v-model="updateForm.logistics_company_id" placeholder="请选择" filterable>
+                <el-form-item label="物流公司" prop="logistics_company_id">
+                    <el-select style="width: 210px" class="dialog-item" v-model="updateForm.logistics_company_id" placeholder="请选择" filterable>
                         <el-option v-for="item in logisticsCompanyList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="物流单号" prop="name">
-                    <el-input style="width: 220px" class="dialog-item" placeholder="请输入" v-model="updateForm.logistics_no"></el-input>
+                <el-form-item label="物流单号" prop="logistics_no">
+                    <el-input style="width: 210px" class="dialog-item" placeholder="请输入" v-model="updateForm.logistics_no"></el-input>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button class="auto-send" type="primary" v-if="!is_send" @click="handleOnAuto">自动</el-button>
+                <el-button class="auto-send" type="primary" v-if="!is_send" v-hasPermission="'mall-backend-points-order-logistics-auto'" @click="handleOnAuto">自动</el-button>
                 <el-button @click="updateDialogClose">取 消</el-button>
                 <el-button type="primary" @click="sureUpdateLogistics">确 定</el-button>
             </span>
@@ -168,7 +168,6 @@
                 :visible.sync="autoShipVisible"
                 width="560px"
                 :destroy-on-close="true"
-
                 custom-class="logistics-info-dialog"
                 append-to-body
         >
@@ -257,6 +256,9 @@
                     logistics_no: ''
                 },
                 updateFormRules:{
+                    logistics_company_id: [
+                        { required: true, message: '请选择物流公司', trigger: 'blur' }
+                    ],
                     logistics_no: [
                         { required: true, message: '请输入物流单号', trigger: 'blur' },
                         // { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
@@ -269,6 +271,9 @@
                     shipAddress: ''
                 },
                 autoFormRules: {
+                    logistics_company_id: [
+                        { required: true, message: '请选择物流公司', trigger: 'blur' }
+                    ],
                     name: [
                         { required: true, message: '请输入姓名', trigger: 'blur' }
                     ],
@@ -337,7 +342,7 @@
             this.getConfig() // 获取仓库地址
             this.getSDList() // 快递公司列表
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
-            this.shopId = this.$route.query.shopId
+            this.shopId = Number(this.$route.query.shopId)
             this.shopName = this.$route.query.shopName
             this.is_send = Number(this.$route.query.isSend) == 1
         },
@@ -452,6 +457,7 @@
                 this.autoForm.phone = this.logistics_info.logisticsPhone
                 this.autoForm.shipAddress = this.logistics_info.logisticsProvince + this.logistics_info.logisticsCity + this.logistics_info.logisticsArea + this.logistics_info.logisticsAddress
                 this.autoShipVisible = true;
+                this.updateLogisticsVisible = false
             },
 
             // 预览
@@ -468,25 +474,37 @@
                             city_txt = '',
                             area_txt = '',
                             address_txt = ''
-                        if(this.autoForm.shipAddress){
-                            let txt = this.autoForm.shipAddress
-                            if (txt.indexOf('省') > -1) {
-                                province_txt = txt.split('省')[0] + '省'
-                                txt = txt.split('省')[1]
-                            }
-                            if (txt.indexOf('市') > -1) {
-                                city_txt = txt.split('市')[0] + '市'
-                                txt = txt.split('市')[1]
+                        if(this.autoForm.shipAddress) {
+                            const old_address = this.logistics_info.logisticsProvince + this.logistics_info.logisticsCity + this.logistics_info.logisticsArea + this.logistics_info.logisticsAddress
+                            if (this.autoForm.shipAddress == old_address) {
+                                province_txt = this.logistics_info.logisticsProvince
+                                city_txt = this.logistics_info.logisticsCity
+                                area_txt = this.logistics_info.logisticsArea
+                                address_txt = this.logistics_info.logisticsAddress
+                            } else {
+                                let txt = this.autoForm.shipAddress
+                                if (txt.indexOf('省') > -1) {
+                                    province_txt = txt.split('省')[0] + '省'
+                                    const _len = province_txt.length
+                                    txt = txt.substring(_len)
+                                }
+                                if (txt.indexOf('市') > -1) {
+                                    city_txt = txt.split('市')[0] + '市'
+                                    const _len = city_txt.length
+                                    txt = txt.substring(_len)
+                                }
+
+                                if (txt.indexOf('区') > -1) {
+                                    area_txt = txt.split('区')[0] + '区'
+                                    const _len = area_txt.length
+                                    txt = txt.substring(_len)
+                                }
+                                address_txt = txt
                             }
 
-                            if (txt.indexOf('区') > -1) {
-                                area_txt = txt.split('区')[0] + '区'
-                                txt = txt.split('区')[1]
-                            }
-                            address_txt = txt
                         }
                         const params = {
-                            logisticsUnique: Number(this.$route.query.uniqueNo),
+                            logisticsUnique: this.$route.query.uniqueNo,
                             companyId: this.autoForm.logistics_company_id, // 物流公司id
                             companyName: logistics_company_name, // 物流名称
                             shopId: this.shopId,
@@ -497,23 +515,24 @@
                             area: area_txt,
                             address: address_txt
                         }
+                        console.log('params', params)
                         const rLoading = this.openLoading();
                         queryLogisticsAuto(params)
                             .then((res) => {
                                 rLoading.close();
                                 if (res.code === 200) {
-                                    this.logistics_no = res.orderNum
+                                    this.logistics_no = res.data.orderNum
                                     this.logistics_company_name = logistics_company_name
                                     this.is_send = true
                                     this.logistics_company_id = this.autoForm.logistics_company_id
                                     this.logistics_company_name = logistics_company_name
                                     this.autoShipVisible = false;
-                                    // 请求新的物流详情
-                                    this.getSdInfo()
+
                                     // 打开快递单
+                                    console.log('res=======533', res)
                                     this.expressInfo = {
-                                        logistics_no: res.orderNum,
-                                        logistics_order_bulkpen: res.orderBulkpen,
+                                        logistics_no: res.data.orderNum,
+                                        logistics_order_bulkpen: res.data.orderBulkpen,
                                         logistics_name: params.name,
                                         logistics_phone: params.phone,
                                         logistics_province: params.province,
@@ -521,7 +540,10 @@
                                         logistics_area: params.area,
                                         logistics_address: params.address
                                     };
+                                    console.log('this.expressInfo', this.expressInfo)
                                     this.showPrint = true
+                                    // 请求新的物流详情
+                                    this.getSdInfo()
                                 } else {
                                     this.queryAPIError(res.msg)
                                 }
@@ -562,7 +584,7 @@
                         })
                         // 请求 接口
                         const params = {
-                            uniqueNo: Number(this.$route.query.uniqueNo),
+                            uniqueNo: this.$route.query.uniqueNo,
                             LogisticsCompanyId: this.updateForm.logistics_company_id, // 物流公司id
                             logisticsNo: this.updateForm.logistics_no, // 快递单号
                             logisticsCompanyName: logistics_company_name // 物流名称
@@ -733,7 +755,7 @@
         background: #1890FF;
         border-radius: 2px;
         text-align: center;
-        line-height: 24px;
+        line-height: 22px;
         font-size: 14px;
         font-weight: 400;
         color: #FFFFFF;

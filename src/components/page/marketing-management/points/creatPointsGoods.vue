@@ -84,8 +84,8 @@
                 </el-form>
             </div>
             <div class="brn-wrap">
-                <el-button type="danger" size="large" @click="deleteGoods" v-if="id != 0">删除</el-button>
-                <el-button type="primary" size="large" @click="save">保存</el-button>
+                <el-button type="danger" size="large" @click="deleteGoods" v-if="id != 0" v-hasPermission="'mall-backend-points-goods-delete'">删除</el-button>
+                <el-button type="primary" size="large" @click="save" v-hasPermission="'mall-backend-points-goods-edit'">保存</el-button>
             </div>
         </div>
         <!--大图预览-->

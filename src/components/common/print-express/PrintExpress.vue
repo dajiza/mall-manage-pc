@@ -131,6 +131,7 @@
         },
         mounted() {
             this.$nextTick(()=>{
+                console.log('expressInfo', this.expressInfo)
                 if(localStorage.getItem('sys_sender_address') && localStorage.getItem('sys_sender_address')!=='undefined'){
                     const obj = JSON.parse(localStorage.getItem('sys_sender_address'));
                     const send_address = obj.province + obj.city + obj.area + obj.address;
