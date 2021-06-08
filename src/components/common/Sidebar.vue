@@ -207,7 +207,7 @@ export default {
                             display_name: '小程序分享页'
                         },
                         {
-                            name: 'mall-backend-page-points-shop-list',
+                            name: 'mall-backend-points-shop-list',
                             display_name: '积分商城'
                         }
                     ]

@@ -60,13 +60,13 @@ export default {
             commUtil,
             avatar: require('@/assets/img/wx.jpeg'),
             list: [
-                {
-                    shopId: 1,
-                    shopName: '川家布',
-                    shopIcon: 'https://www.w3school.com.cn/i/eg_tulip.jpg',
-                    status: 1, // 1使用中 2停止使用
-                    redeemQty: 2 // 兑换数
-                }
+                // {
+                //     shopId: 0,
+                //     shopName: '店铺名',
+                //     shopIcon: 'https://www.w3school.com.cn/i/eg_tulip.jpg',
+                //     status: 1, // 1使用中 2停止使用
+                //     redeemQty: 2 // 兑换数
+                // }
             ],
             total: 0,
             listLoading: false,
@@ -118,7 +118,7 @@ export default {
             queryPointsShopList()
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    // this.list = res.data.lists
+                    this.list = res.data
                 })
                 .catch(err => {})
         },
@@ -126,9 +126,9 @@ export default {
         // 商品管理
         gotoGoodsAdmin(row) {
             this.$router.push({
-                path: '/mall-backend-page-points-goods-list',
+                path: '/mall-backend-points-goods-list',
                 query: {
-                    shopId: row.shopId || 1
+                    shopId: row.shopId
                 }
             })
         },

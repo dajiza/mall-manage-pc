@@ -9,6 +9,30 @@ export const queryPointsGoodsList = params => post('/backend/points-goods-list',
 // 创建/编辑商品
 export const creatPointsGoods = params => post('/backend/points-goods-edit', params)
 
+// 积分商品详情-后台
+export const queryPointsGoodsDetail = params => post('/backend/points-goods-detail', params)
+
+// 删除商品-后台
+export const deletePointsGoods = params => post('/backend/points-goods-delete', params)
+
+// 商品上下架-后台
+export const putPointsGoodsStatus = params => post('/backend/points-goods-status', params)
+
+// 优惠券列表后台
+export const queryPointsCouponList = params => post('/backend/points-coupon-list', params)
+
+// 优惠券后台新增/编辑
+export const creatPointsCoupon = params => post('/backend/points-coupon-edit', params)
+
+// 优惠券详情-后台
+export const queryPointsCouponDetail = params => post('/backend/points-coupon-detail', params)
+
+// 删除优惠券后台
+export const deletePointsCoupon = params => post('/backend/points-coupon-delete', params)
+
+// 优惠券上/下架-后台
+export const putPointsCouponStatus = params => post('/backend/points-coupon-status', params)
+
 // 列表-详情 暂存数据
 export var cacheData = {}
 // 订单列表-商品

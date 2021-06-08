@@ -93,13 +93,14 @@
     </div>
 </template>
 <script>
-import { creatPointsGoods } from '@/api/points'
+import { creatPointsGoods, queryPointsGoodsDetail, deletePointsGoods } from '@/api/points'
 import { getToken } from '@/utils/auth'
 import { queryShopList } from '@/api/goods'
 
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import bus from '@/components/common/bus'
+import commUtil from '@/utils/commUtil'
 
 export default {
     data() {
@@ -107,6 +108,8 @@ export default {
             id: '',
             shopId: '',
             shopName: '',
+            commUtil,
+
             detail: null,
             list: null,
             logList: null,
@@ -167,33 +170,44 @@ export default {
     },
 
     created() {
-        // this.id = Number(this.$route.query.id)
-        // this.order_id = Number(this.$route.query.orderId)
         // 图片上传地址
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
         this.header['token'] = getToken()
-        // this.getDetail()
     },
     async mounted() {
         await this.queryShopList()
         this.shopId = Number(this.$route.query.shopId)
         this.shopName = this.shopList.find(item => item.id == this.shopId).shop_name
         this.id = Number(this.$route.query.id)
+
+        if (this.id != 0) {
+            this.getDetail()
+        }
     },
     inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
         getDetail() {
-            // let params = {
-            //     id: this.id
-            // }
-            // console.log(params)
-            // queryAfterSaleDetail(params)
-            //     .then(res => {
-            //         console.log('GOOGLE: res', res)
-            //         this.detail = res.data
-            //     })
-            //     .catch(err => {})
+            let params = {
+                goodsId: this.id
+            }
+            queryPointsGoodsDetail(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    this.tfile = res.data.medias.map(item => {
+                        return {
+                            url: item.link,
+                            sort: item.sort,
+                            id: item.id,
+                            type: item.type
+                        }
+                    })
+                    res.data.delMediaIds = []
+                    res.data.attrList = JSON.parse(res.data.attrs)
+                    res.data.price = res.data.price / 100
+                    this.goods = _.cloneDeep(res.data)
+                })
+                .catch(err => {})
         },
         addAttr() {
             if (this.goods.attrList.length < 6) {
@@ -291,6 +305,10 @@ export default {
         },
         // 图片视频
         handleRemoveMultiple(file) {
+            console.log('输出 ~ file', file)
+            if (file.id) {
+                this.goods.delMediaIds.push(file.id)
+            }
             this.tfile.splice(this.tfile.indexOf(file), 1)
         },
         // 图片视频
@@ -357,7 +375,46 @@ export default {
             this.handleFilter()
         },
         onChangeRadio() {
-            this.$router.push('/mall-backend-page-points-coupon-creat')
+            this.$router.push('/mall-backend-points-coupon-creat')
+        },
+        deleteGoods() {
+            this.$confirm('确认要删除该商品吗?', '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    let params = {
+                        goodsId: this.id
+                    }
+                    deletePointsGoods(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '商品删除成功',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                                bus.$emit('close_current_tags')
+                                bus.$emit('refreshPointsGoodsList', 'edit')
+                                this.$router.push({
+                                    path: '/mall-backend-points-goods-list',
+                                    query: {
+                                        shopId: this.shopId
+                                    }
+                                })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(err => {})
+                })
+                .catch(() => {})
         },
         save() {
             const rLoading = this.openLoading()
@@ -367,6 +424,7 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     let params = _.cloneDeep(this.goods)
+                    console.log('输出 ~ params', params)
                     // format 图片
                     if (this.tfile.length == 0) {
                         this.$notify({
@@ -378,11 +436,16 @@ export default {
                         rLoading.close()
                         return
                     }
-                    params['medias'] = this.tfile.map((item, index) => ({
-                        link: item.response.data.file_url,
-                        type: 2,
-                        sort: index
-                    }))
+                    // 重建sort 格式化图片
+                    params['medias'] = this.tfile.map((item, index) => {
+                        item.sort = index
+                        item.link = item.id ? item.url : item.response.data.file_url
+                        item.type = 2
+                        return item
+                    })
+                    // 删选出新增图片
+                    params['medias'] = params['medias'].filter(item => !item.id)
+
                     // format 属性
                     if (params['attrList'].length == 0) {
                         this.$notify({
@@ -395,6 +458,8 @@ export default {
                         return
                     }
                     params['attrs'] = JSON.stringify(params['attrList'])
+                    // format 价格
+                    params['price'] = commUtil.numberMul(Number(params['price']), 100)
                     params['id'] = this.id || 0
                     params['shopId'] = this.shopId
 
@@ -410,9 +475,12 @@ export default {
                                 })
                                 bus.$emit('close_current_tags')
                                 bus.$emit('refreshPointsGoodsList', this.id == 0 ? 'add' : 'edit')
-                                // this.$router.push({
-                                //     path: '/mall-backend-page-points-goods-list'
-                                // })
+                                this.$router.push({
+                                    path: '/mall-backend-points-goods-list',
+                                    query: {
+                                        shopId: this.shopId
+                                    }
+                                })
                             } else {
                                 this.$notify({
                                     title: res.msg,

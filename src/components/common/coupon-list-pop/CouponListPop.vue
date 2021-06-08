@@ -104,7 +104,8 @@ import commUtil from '@/utils/commUtil'
 import { formatMoney } from '@/plugin/tool'
 export default {
     name: 'CheckList',
-    props: {},
+    props: ['couponId'],
+
     data() {
         return {
             list: [],
@@ -172,6 +173,7 @@ export default {
         formatMoney: formatMoney,
         open() {},
         opened() {
+            this.checkedId = Number(this.couponId)
             this.queryShopList()
 
             this.getList()

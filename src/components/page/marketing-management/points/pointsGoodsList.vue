@@ -71,9 +71,9 @@
             </el-table-column>
             <el-table-column label="名称" min-width="200">
                 <template slot-scope="scope">
-                    <router-link :to="{ name: 'goods-edit', query: { id: scope.row.id } }">
+                    <span class="edit-goods" @click="editGoods(scope.row)">
                         {{ scope.row.title }}
-                    </router-link>
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column label="需要积分" width="100">
@@ -103,9 +103,10 @@
             </el-table-column>
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">编辑</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">下架</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="gotoDetail(scope.row)">删除</el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="editGoods(scope.row)">编辑</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 2">下架</el-button>
+                    <el-button class="text-blue opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 1">上架</el-button>
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -126,19 +127,18 @@
     </div>
 </template>
 <script>
-import { queryPointsGoodsList } from '@/api/points'
+import { queryPointsGoodsList, deletePointsGoods, putPointsGoodsStatus } from '@/api/points'
 // import * as teamwork from '@/api/teamwork'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
-import commUtil from '@/utils/commUtil'
 import ElImageViewer from '@/components/common/image-viewer'
+import bus from '@/components/common/bus'
 
 export default {
     name: 'customer-list',
     data() {
         return {
             filterShop: {},
-            commUtil,
             list: null,
             total: 0,
             listLoading: false,
@@ -280,7 +280,15 @@ export default {
             this.handleFilter()
         },
         // 跳转详情
-        gotoDetail(row) {},
+        editGoods(row) {
+            this.$router.push({
+                path: '/mall-backend-points-goods-creat',
+                query: {
+                    id: row.goodsId,
+                    shopId: this.shopId
+                }
+            })
+        },
 
         // 设置显示的搜索条件
         setSearchValue() {
@@ -331,18 +339,81 @@ export default {
         onTabClick(e) {
             console.log('输出 ~ e', e)
             if (e == 2) {
-                this.$router.push({ path: '/mall-backend-page-points-coupon-list' })
+                this.$router.push({
+                    path: '/mall-backend-points-coupon-list',
+                    query: {
+                        shopId: this.shopId
+                    }
+                })
             }
             this.tabIndex = 1
         },
         creatGoods() {
             this.$router.push({
-                path: '/mall-backend-page-points-goods-creat',
+                path: '/mall-backend-points-goods-creat',
                 query: {
                     id: 0,
                     shopId: this.shopId
                 }
             })
+        },
+        // 上下架
+        setStatus(row) {
+            let params = {
+                goodsId: row.goodsId,
+                status: row.status == 1 ? 2 : 1 // 1下架 2上架
+            }
+            putPointsGoodsStatus(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: row.status == 1 ? '上架成功' : '下架成功',
+                            type: 'success',
+                            duration: 3000
+                        })
+                        this.getList()
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(err => {})
+        },
+        deleteGoods(row) {
+            this.$confirm('确认要删除该商品吗?', '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    let params = {
+                        goodsId: row.goodsId
+                    }
+                    deletePointsGoods(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '商品删除成功',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                                this.getList()
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(err => {})
+                })
+                .catch(() => {})
         }
     }
 }
@@ -426,5 +497,9 @@ export default {
 }
 .goods-put {
     margin-right: 32px;
+}
+.edit-goods {
+    cursor: pointer;
+    color: #1890ff;
 }
 </style>

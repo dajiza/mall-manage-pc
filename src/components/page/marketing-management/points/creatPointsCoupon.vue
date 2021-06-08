@@ -15,12 +15,12 @@
                             <el-radio :label="2">优惠券</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item label="可用店铺" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title" disabled></el-input>
+                    <el-form-item label="可用店铺" prop="">
+                        <el-input style="width:180px" placeholder="请输入" v-model="shopName" disabled></el-input>
                     </el-form-item>
 
-                    <el-form-item label="需要积分" prop="title">
-                        <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
+                    <el-form-item label="需要积分" prop="points">
+                        <el-input style="width:180px" placeholder="请输入" v-model.number="goods.points"></el-input>
                     </el-form-item>
                     <el-button class="add-btn" type="primary" size="mini" @click="addCoupon">选择优惠券</el-button>
                     <el-table :data="activeCoupon" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
@@ -64,47 +64,43 @@
                 </el-form>
             </div>
             <div class="brn-wrap">
-                <el-button type="danger" size="large">删除</el-button>
-                <el-button type="primary" size="large">保存</el-button>
+                <el-button type="danger" size="large" @click="deleteGoods" v-if="id != 0">删除</el-button>
+                <el-button type="primary" size="large" @click="save">保存</el-button>
             </div>
         </div>
         <!-- 商品添加 -->
-        <coupon-list ref="couponList" @add-success="getCoupon"></coupon-list>
+        <coupon-list ref="couponList" @add-success="getCoupon" :couponId="activeCoupon.length > 0 ? activeCoupon[0].id : ''"></coupon-list>
     </div>
 </template>
 <script>
-import { queryAfterSaleDetail } from '@/api/afterSale'
+import { creatPointsCoupon, queryPointsCouponDetail, deletePointsCoupon } from '@/api/points'
 import { getToken } from '@/utils/auth'
-
+import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
-import ElImageViewer from '@/components/common/image-viewer'
 import couponList from '@/components/common/coupon-list-pop/CouponListPop'
+import bus from '@/components/common/bus'
 
 export default {
     data() {
         return {
             id: '',
+            shopName: '',
 
             list: [{}],
             listLoading: false,
             header: {},
             goods: {
-                title: ''
+                points: '', // 积分
+                couponId: '' // 优惠券id
             },
             typeIndex: 2,
             tfile: [],
             attrList: [{ label: '', value: '' }],
             rules: {
-                title: [
-                    { required: true, message: '请输入名称', trigger: 'blur' },
-                    { min: 1, max: 200, message: '长度在 1 到 200 个字符', trigger: 'blur' }
-                ],
-                display_sales: [
-                    { required: true, message: '请输入销量', trigger: 'blur' },
-                    { type: 'number', message: '请输入数字' }
-                ],
-                freight_id: [{ required: true, message: '请选择运费模板', trigger: 'blur' }],
-                category_id: [{ required: true, message: '请选择分类', trigger: 'blur' }]
+                points: [
+                    { required: true, message: '请输入积分', trigger: 'blur' },
+                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
+                ]
             },
             activeCoupon: []
         }
@@ -136,7 +132,6 @@ export default {
         }
     },
     components: {
-        ElImageViewer,
         couponList
     },
     created() {
@@ -147,21 +142,41 @@ export default {
         this.header['token'] = getToken()
         // this.getDetail()
     },
-    mounted() {},
+    async mounted() {
+        await this.queryShopList()
+        this.shopId = Number(this.$route.query.shopId)
+        this.shopName = this.shopList.find(item => item.id == this.shopId).shop_name
+        this.id = Number(this.$route.query.id)
+        if (this.id != 0) {
+            this.getDetail()
+        }
+    },
     inject: ['reload'],
     methods: {
         formatMoney: formatMoney,
+        // 代理店铺列表
+        queryShopList() {
+            return new Promise((resolve, reject) => {
+                queryShopList()
+                    .then(res => {
+                        this.shopList = res.data
+                        resolve(res)
+                    })
+                    .catch(err => {
+                        reject(err)
+                    })
+            })
+        },
         getDetail() {
             let params = {
                 id: this.id
             }
-
             console.log(params)
-            queryAfterSaleDetail(params)
+            queryPointsCouponDetail(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
-
-                    this.detail = res.data
+                    this.activeCoupon = [res.data.coupon]
+                    this.goods.points = res.data.points
                 })
                 .catch(err => {})
         },
@@ -179,12 +194,115 @@ export default {
             this.handleFilter()
         },
         onChangeRadio() {
-            this.$router.push('/mall-backend-page-points-goods-creat')
+            this.$router.push('/mall-backend-points-goods-creat')
         },
         getCoupon(coupon) {
             console.log('输出 ~ getCoupon', coupon)
             this.activeCoupon = []
             this.activeCoupon.push(coupon)
+        },
+        deleteGoods() {
+            this.$confirm('确认要删除该优惠券吗?', '确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    let params = {
+                        id: this.id
+                    }
+                    deletePointsCoupon(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code == 200) {
+                                this.$notify({
+                                    title: '优惠券删除成功',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                                bus.$emit('close_current_tags')
+                                bus.$emit('refreshPointsCouponList', 'edit')
+                                this.$router.push({
+                                    path: 'mall-backend-points-coupon-list',
+                                    query: {
+                                        shopId: this.shopId
+                                    }
+                                })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    type: 'warning',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(err => {})
+                })
+                .catch(() => {})
+        },
+        save() {
+            const rLoading = this.openLoading()
+
+            this.$refs['formRef'].validate(valid => {
+                // 验证表单内容
+                if (valid) {
+                    let params = _.cloneDeep(this.goods)
+                    if (this.activeCoupon.length == 0) {
+                        this.$notify({
+                            title: '请选择优惠券',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        rLoading.close()
+                        return
+                    }
+                    // format 价格
+                    params['id'] = this.id || 0
+                    params['shopId'] = this.shopId
+                    params['couponId'] = this.activeCoupon[0].id
+
+                    creatPointsCoupon(params)
+                        .then(res => {
+                            console.log('GOOGLE: res', res)
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: this.id == 0 ? '创建成功' : '编辑成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                                bus.$emit('close_current_tags')
+                                bus.$emit('refreshPointsCouponList', this.id == 0 ? 'add' : 'edit')
+                                this.$router.push({
+                                    path: 'mall-backend-points-coupon-list',
+                                    query: {
+                                        shopId: this.shopId
+                                    }
+                                })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
+                            rLoading.close()
+                        })
+                        .catch(err => {
+                            rLoading.close()
+                        })
+                } else {
+                    rLoading.close()
+                    this.$notify({
+                        title: '请填写完成数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+            })
         }
     }
 }

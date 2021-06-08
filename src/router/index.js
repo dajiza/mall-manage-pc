@@ -205,27 +205,27 @@ export default new Router({
                     meta: { title: '小程序分享页' }
                 },
                 {
-                    path: '/mall-backend-page-points-shop-list',
+                    path: '/mall-backend-points-shop-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/pointsShopList.vue'),
                     meta: { title: '店铺列表' }
                 },
                 {
-                    path: '/mall-backend-page-points-goods-list',
+                    path: '/mall-backend-points-goods-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/pointsGoodsList.vue'),
                     meta: { title: '积分商品管理' }
                 },
                 {
-                    path: '/mall-backend-page-points-coupon-list',
+                    path: '/mall-backend-points-coupon-list',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/pointsCouponList.vue'),
                     meta: { title: '积分优惠券管理' }
                 },
                 {
-                    path: '/mall-backend-page-points-goods-creat',
+                    path: '/mall-backend-points-goods-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/creatPointsGoods.vue'),
                     meta: { title: '积分商品' }
                 },
                 {
-                    path: '/mall-backend-page-points-coupon-creat',
+                    path: '/mall-backend-points-coupon-creat',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/marketing-management/points/creatPointsCoupon.vue'),
                     meta: { title: '积分优惠券' }
                 },
