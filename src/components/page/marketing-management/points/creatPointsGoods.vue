@@ -126,7 +126,6 @@ export default {
                     //     sort: 1
                     // }
                 ],
-                delMediaIds: [], // 编辑状态下需要删除的图片id集合
                 points: '',
                 price: '',
                 stockQty: '',
@@ -203,7 +202,6 @@ export default {
                             type: item.type
                         }
                     })
-                    res.data.delMediaIds = []
                     res.data.attrList = JSON.parse(res.data.attrs)
                     res.data.price = res.data.price / 100
                     this.goods = _.cloneDeep(res.data)
@@ -312,10 +310,6 @@ export default {
         },
         // 图片视频
         handleRemoveMultiple(file) {
-            console.log('输出 ~ file', file)
-            if (file.id) {
-                this.goods.delMediaIds.push(file.id)
-            }
             this.tfile.splice(this.tfile.indexOf(file), 1)
         },
         // 图片视频
@@ -451,7 +445,7 @@ export default {
                         return item
                     })
                     // 删选出新增图片
-                    params['medias'] = params['medias'].filter(item => !item.id)
+                    // params['medias'] = params['medias'].filter(item => !item.id)
 
                     // format 属性
                     if (params['attrList'].length == 0) {
