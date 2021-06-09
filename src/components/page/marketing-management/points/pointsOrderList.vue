@@ -114,7 +114,11 @@
                 </el-table-column>
                 <el-table-column label="优惠券名称" prop="couponTitle" v-if="activeTab == 2"></el-table-column>
                 <el-table-column label="兑换数量" prop="num" width="90" v-if="activeTab == 2"></el-table-column>
-                <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
+                <el-table-column label="积分总额" prop="pointsTotal" width="100">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.pointsTotal }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="兑换时间" width="180">
                     <template slot-scope="scope">
                         <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>

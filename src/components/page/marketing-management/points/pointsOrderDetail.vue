@@ -140,6 +140,7 @@
                 :visible.sync="updateLogisticsVisible"
                 width="360px"
                 :destroy-on-close="true"
+                :close-on-click-modal="false"
                 custom-class="logistics-info-dialog"
                 :before-close="updateDialogClose"
                 append-to-body
@@ -157,17 +158,18 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button class="auto-send" type="primary" v-if="!is_send" v-hasPermission="'mall-backend-points-order-logistics-auto'" @click="handleOnAuto">自动</el-button>
-                <el-button @click="updateDialogClose">取 消</el-button>
+                <el-button style="margin-left: auto" @click="updateDialogClose">取 消</el-button>
                 <el-button type="primary" @click="sureUpdateLogistics">确 定</el-button>
             </span>
         </el-dialog>
 
-        <!--选择物流公司-->
+        <!--选择物流公司 自动-->
         <el-dialog
                 title="选择物流公司"
                 :visible.sync="autoShipVisible"
                 width="560px"
                 :destroy-on-close="true"
+                :close-on-click-modal="false"
                 custom-class="logistics-info-dialog"
                 append-to-body
         >
@@ -598,6 +600,7 @@
                                     this.logistics_company_name = logistics_company_name
                                     this.logistics_company_id = params.LogisticsCompanyId
                                     this.is_send = true
+                                    this.updateLogisticsVisible = false
                                     // 请求新的物流详情
                                     this.getSdInfo()
                                 } else {
@@ -625,7 +628,7 @@
                         rLoading.close();
                         if (res.code === 200) {
                             if (res.data) {
-                                let logisticss_list = res.data.lists || [];
+                                let logisticss_list = res.data || [];
                                 let new_arr = logisticss_list.reverse();
                                 new_arr.forEach((ev,index)=>{
                                     let obj = {
