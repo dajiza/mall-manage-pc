@@ -27,11 +27,11 @@
                     </div>
                     <div class="info-content-item">
                         <p class="label">客户微信名：</p>
-                        <p class="info-value">{{logistics_info.logisticsName}}</p>
+                        <p class="info-value">{{logistics_info.nickName}}</p>
                     </div>
                     <div class="info-content-item">
                         <p class="label">订单号：</p>
-                        <p class="info-value">{{logistics_info.logisticsName}}</p>
+                        <p class="info-value">{{logistics_info.logisticsNo}}</p>
                     </div>
                     <div class="info-content-item">
                         <p class="label">兑换时间：</p>
