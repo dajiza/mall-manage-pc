@@ -21,10 +21,10 @@
                     <el-form-item label="商品名称" prop="title">
                         <el-input style="width:180px" placeholder="请输入" v-model="goods.title"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品图片">
+                    <el-form-item label="商品图片" :rules="rules.require">
                         <el-upload
                             list-type="picture-card"
-                            :class="tfile.length > 6 ? 'hide-upload' : ''"
+                            :class="tfile.length > 5 ? 'hide-upload' : ''"
                             :action="uploadImgUrl"
                             :headers="header"
                             :before-upload="beforeUploadMultiple"
@@ -35,7 +35,7 @@
                             :on-preview="handlePictureCardPreview"
                             :file-list="tfile"
                             multiple
-                            :limit="5"
+                            :limit="6"
                         >
                             <i class="el-icon-plus"></i>
                             <div slot="file" slot-scope="{ file }">
@@ -57,7 +57,7 @@
                             </div>
                         </el-upload>
                     </el-form-item>
-                    <el-form-item label="商品属性">
+                    <el-form-item label="商品属性" :rules="rules.require">
                         <el-button type="primary" size="mini" @click="addAttr">添加</el-button>
                         <div class="attr" v-for="(item, index) in goods.attrList" :key="index">
                             <el-form-item label="" :prop="'attrList.' + index + '.title'" :rules="rulesAttr" style="width:100px;margin-right:10px">
@@ -156,7 +156,8 @@ export default {
                 redeemQty: [
                     { required: true, message: '请输入', trigger: 'blur' },
                     { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
-                ]
+                ],
+                require: [{ required: true, message: '请输入', trigger: 'blur' }]
             },
             rulesAttr: [{ required: true, message: '请输入内容', trigger: 'blur' }],
             //图片预览
@@ -212,6 +213,12 @@ export default {
         addAttr() {
             if (this.goods.attrList.length < 6) {
                 this.goods.attrList.push({ label: '', value: '' })
+            } else {
+                this.$notify({
+                    title: '最多可添加6条属性',
+                    type: 'warning',
+                    duration: 5000
+                })
             }
         },
         deleteAttr(index) {
@@ -635,12 +642,17 @@ export default {
     padding: 0px 0 34px 32px;
 }
 .attr {
-    margin-top: 20px;
     display: flex;
+    margin-top: 20px;
     height: 32px;
     .attr-btn {
-        height: 28px;
         margin-top: 3px;
+        height: 28px;
+    }
+}
+.hide-upload {
+    & /deep/ .el-upload--picture-card {
+        display: none;
     }
 }
 </style>
