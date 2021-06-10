@@ -104,7 +104,7 @@
             </div>
         </div>
         <!--物流详情-->
-        <div class="container-box m-t-16 logistics-info-container" v-if="is_send">
+        <div class="container-box m-t-16 logistics-info-container" v-if="is_send && activities.length > 0">
             <div class="info-title">
                 <div class="global-table-title">
                     <div class="title">
@@ -193,7 +193,7 @@
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" style="margin-left: auto" @click="handleOnPreview">预 览</el-button>
+                <el-button type="primary" style="margin-left: auto" @click="handleOnPreview">发 货</el-button>
             </span>
         </el-dialog>
 
@@ -242,8 +242,8 @@
                 updateLogisticsVisible:false,
 
                 logistics_company_id: -1,
-                logistics_company_name:'极兔',
-                logistics_no:'123456',
+                logistics_company_name:'',
+                logistics_no:'',
 
                 previewIndex: 0,
                 imgSrcList:[],
@@ -321,24 +321,7 @@
                         return data + '!/fw/' + 80;
                     }
                 }
-            },
-            orderStatus: function() {
-                return data => {
-                    if (data === 0) {
-                        return '待付款';
-                    } else if (data === 1) {
-                        return '已付款';
-                    } else if (data === 2) {
-                        return '处理中';
-                    } else if (data === 3) {
-                        return '已发货';
-                    } else if (data === 9) {
-                        return '交易关闭';
-                    } else if (data === 10) {
-                        return '交易成功';
-                    }
-                };
-            },
+            }
         },
         created() {
             this.getConfig() // 获取仓库地址
@@ -346,7 +329,6 @@
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
             this.shopId = Number(this.$route.query.shopId)
             this.shopName = this.$route.query.shopName
-            this.is_send = Number(this.$route.query.isSend) == 1
         },
         mounted() {
             this.getOrderInfo();
@@ -395,15 +377,18 @@
                             if (res.data) {
                                 this.orderList = res.data || [];
                                 if(res.data && res.data.length > 0){
-                                    this.logistics_info = res.data[0]
-                                    this.logistics_company_name = this.logisticsCompanyName
-                                    this.logistics_company_id = this.logisticsCompanyId
+                                    const i = res.data.length -1
+                                    this.logistics_info = res.data[i]
+                                    this.logistics_company_name = this.logistics_info.logisticsCompanyName
+                                    this.logistics_company_id = Number(this.logistics_info.logisticsCompanyId)
                                     this.logistics_no = this.logisticsNo
                                     this.imgSrcList = res.data.map(item =>{return item.img})
                                     console.log('imgSrcList', this.imgSrcList)
-                                    if(this.is_send){
-                                        // 请求 物流详情
-                                        this.getSdInfo()
+                                    console.log('logistics_company_id', this.logistics_company_id)
+                                    console.log('logistics_no', this.logistics_no)
+                                    if(this.logistics_info.sandTime) {
+                                        this.is_send = true
+                                        this.getSdInfo() // 请求 物流详情
                                     }
                                 }
                             } else {
@@ -462,7 +447,7 @@
                 this.updateLogisticsVisible = false
             },
 
-            // 预览
+            // 发货
             handleOnPreview() {
                 this.$refs['autoForm'].validate((valid) => {
                     if (valid) {
@@ -545,7 +530,7 @@
                                     console.log('this.expressInfo', this.expressInfo)
                                     this.showPrint = true
                                     // 请求新的物流详情
-                                    this.getSdInfo()
+                                    // this.getSdInfo()
                                 } else {
                                     this.queryAPIError(res.msg)
                                 }
@@ -602,7 +587,7 @@
                                     this.is_send = true
                                     this.updateLogisticsVisible = false
                                     // 请求新的物流详情
-                                    this.getSdInfo()
+                                    // this.getSdInfo()
                                 } else {
                                     this.queryAPIError(res.msg)
                                 }
@@ -616,6 +601,8 @@
 
             // 请求 - 物流详情信息
             getSdInfo(){
+                console.log('logistics_company_id', this.logistics_company_id)
+                console.log('logistics_no', this.logistics_no)
                 const params = {
                     companyId: this.logistics_company_id,//快递公司id
                     logisticsNo: this.logistics_no  // 快递单号
