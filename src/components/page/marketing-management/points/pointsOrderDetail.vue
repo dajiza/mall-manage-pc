@@ -306,8 +306,8 @@
         watch: {
             activities() {
                 this.$nextTick(()=>{
-                    if(this.is_send){
-                        const container = this.$el.querySelector("#logisticsTimelineBox");
+                    const container = this.$el.querySelector("#logisticsTimelineBox");
+                    if(this.is_send && container){
                         container.scrollTop = container.scrollHeight;
                     }
                 })
@@ -329,6 +329,8 @@
             this.imgBaseUrl = localStorage.getItem('sys_upyun_source_url');
             this.shopId = Number(this.$route.query.shopId)
             this.shopName = this.$route.query.shopName
+            this.logistics_no = this.$route.query.logisticsNo || ''
+            console.log('logistics_no', this.logistics_no)
         },
         mounted() {
             this.getOrderInfo();
@@ -367,7 +369,10 @@
             // 请求 - 详情信息
             getOrderInfo(){
                 const params = {
-                    uniqueNo: this.$route.query.uniqueNo,
+                    uniqueNo: this.$route.query.uniqueNo,// 合单编号
+                    isSend: this.$route.query.isSend > 0 , // 已发货true 未发货false
+                    logisticsNo: this.$route.query.logisticsNo || '', // 快递单号 true 状态下 必填 logisticsNo
+                    companyId: Number(this.$route.query.logisticsCompanyId) || '' // 物流公司id true 状态下 必填 logisticsCompanyId
                 }
                 const rLoading = this.openLoading();
                 queryOrderDetail(params)
@@ -381,7 +386,9 @@
                                     this.logistics_info = res.data[i]
                                     this.logistics_company_name = this.logistics_info.logisticsCompanyName
                                     this.logistics_company_id = Number(this.logistics_info.logisticsCompanyId)
-                                    this.logistics_no = this.logisticsNo
+                                    if(this.logistics_info.logisticsNo){
+                                        this.logistics_no = this.logistics_info.logisticsNo
+                                    }
                                     this.imgSrcList = res.data.map(item =>{return item.img})
                                     console.log('imgSrcList', this.imgSrcList)
                                     console.log('logistics_company_id', this.logistics_company_id)
