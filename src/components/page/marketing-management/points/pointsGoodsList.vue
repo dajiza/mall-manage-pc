@@ -104,9 +104,27 @@
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" @click="editGoods(scope.row)" v-hasPermission="'mall-backend-points-goods-edit'">编辑</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 2" v-hasPermission="'mall-backend-change-points-goods-status'">下架</el-button>
-                    <el-button class="text-blue opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 1" v-hasPermission="'mall-backend-change-points-goods-status'">上架</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)" v-hasPermission="'mall-backend-points-goods-delete'">删除</el-button>
+                    <el-button
+                        class="text-red opt-btn"
+                        type="text"
+                        size="small"
+                        @click="setStatus(scope.row)"
+                        v-if="scope.row.status == 2"
+                        v-hasPermission="'mall-backend-change-points-goods-status'"
+                        >下架</el-button
+                    >
+                    <el-button
+                        class="text-blue opt-btn"
+                        type="text"
+                        size="small"
+                        @click="setStatus(scope.row)"
+                        v-if="scope.row.status == 1"
+                        v-hasPermission="'mall-backend-change-points-goods-status'"
+                        >上架</el-button
+                    >
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)" v-hasPermission="'mall-backend-points-goods-delete'"
+                        >删除</el-button
+                    >
                 </template>
             </el-table-column>
         </el-table>
@@ -135,7 +153,7 @@ import ElImageViewer from '@/components/common/image-viewer'
 import bus from '@/components/common/bus'
 
 export default {
-    name: 'customer-list',
+    name: 'points-goods-list',
     data() {
         return {
             filterShop: {},
@@ -499,7 +517,7 @@ export default {
     margin-right: 32px;
 }
 .edit-goods {
-    cursor: pointer;
     color: #1890ff;
+    cursor: pointer;
 }
 </style>

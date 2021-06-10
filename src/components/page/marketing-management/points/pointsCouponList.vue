@@ -97,9 +97,27 @@
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" @click="editGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-edit'">编辑</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 2" v-hasPermission="'mall-backend-change-points-coupon-status'">下架</el-button>
-                    <el-button class="text-blue opt-btn" type="text" size="small" @click="setStatus(scope.row)" v-if="scope.row.status == 1" v-hasPermission="'mall-backend-change-points-coupon-status'">上架</el-button>
-                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-delete'">删除</el-button>
+                    <el-button
+                        class="text-red opt-btn"
+                        type="text"
+                        size="small"
+                        @click="setStatus(scope.row)"
+                        v-if="scope.row.status == 2"
+                        v-hasPermission="'mall-backend-change-points-coupon-status'"
+                        >下架</el-button
+                    >
+                    <el-button
+                        class="text-blue opt-btn"
+                        type="text"
+                        size="small"
+                        @click="setStatus(scope.row)"
+                        v-if="scope.row.status == 1"
+                        v-hasPermission="'mall-backend-change-points-coupon-status'"
+                        >上架</el-button
+                    >
+                    <el-button class="text-red opt-btn" type="text" size="small" @click="deleteGoods(scope.row)" v-hasPermission="'mall-backend-points-coupon-delete'"
+                        >删除</el-button
+                    >
                 </template>
             </el-table-column>
         </el-table>
@@ -128,7 +146,7 @@ import ElImageViewer from '@/components/common/image-viewer'
 import bus from '@/components/common/bus'
 
 export default {
-    name: 'customer-list',
+    name: 'points-coupon-list',
     data() {
         return {
             filterShop: {},
@@ -295,7 +313,7 @@ export default {
                 }
                 _search.push(obj)
             }
-            // 上下架
+            // 上下架git
             if (this.formFilter['status']) {
                 this.statusList.forEach(ev => {
                     if (ev.value == this.formFilter['status']) {
@@ -491,7 +509,7 @@ export default {
     margin-right: 32px;
 }
 .edit-goods {
-    cursor: pointer;
     color: #1890ff;
+    cursor: pointer;
 }
 </style>

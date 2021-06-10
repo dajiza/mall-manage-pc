@@ -33,27 +33,33 @@
                             </el-date-picker>
                         </el-form-item>
                         <el-form-item label="用户ID" prop="userId" label-width="">
-                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.userId"></el-input>
+                            <el-input class="filter-item" placeholder="请输入"
+                                      v-model.number="formFilter.userId"></el-input>
                         </el-form-item>
                         <el-form-item class="form-item-btn" label="">
-                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                            <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置
+                            </el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
                         </el-form-item>
                     </el-form>
                 </div>
             </transition>
-            <div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span class="text">所有店铺</span></div>
+            <div class="shop-icon shop-all" v-if="!filterShop.id"><span class="iconfont icon-shop"></span><span
+                    class="text">所有店铺</span></div>
             <div class="shop-icon shop-filter" v-if="filterShop.id">
-                <img class="shop-img" :src="filterShop.shop_icon" alt="" /><span class="text">{{ filterShop.shop_name }}</span>
+                <img class="shop-img" :src="filterShop.shop_icon" alt=""/><span
+                    class="text">{{ filterShop.shop_name }}</span>
             </div>
             <div class="search-value">
                 <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
                         {{ item.val }}
-                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i
+                                class="el-icon-close"></i></span>
                     </div>
                 </template>
-                <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                <span style="width: 20px;display: inline-block"
+                      v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 <div class="search-value-clone" ref="searchValueBox">
                     <template v-for="(item, i) in searchList">
                         <div class="search-item" :ref="'searchItem' + i">
@@ -62,16 +68,18 @@
                         </div>
                     </template>
                     <span>{{ showMaxIndex }}</span>
-                    <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                    <span style="width: 20px;display: inline-block"
+                          v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 </div>
             </div>
             <el-radio-group v-model="isSend" class="tab-way" @change="statusChange" v-if="activeTab == 1">
-                <el-radio-button :label="1">未发货({{notShippedCount}})</el-radio-button>
+                <el-radio-button :label="1">未发货({{ notShippedCount }})</el-radio-button>
                 <el-radio-button :label="2">已发货</el-radio-button>
             </el-radio-group>
         </div>
         <template v-if="activeTab == 1">
-            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading"
+                      :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                 <el-table-column label="积分订单号" prop="orderNo" width="140"></el-table-column>
                 <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
                 <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
@@ -89,12 +97,16 @@
                 </el-table-column>
                 <el-table-column label="状态" width="100">
                     <template slot-scope="scope">
-                        <span>{{ scope.row.isSend?'已发货':'未发货' }}</span>
+                        <span>{{ scope.row.isSend ? '已发货' : '未发货' }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="操作" width="140">
                     <template slot-scope="scope">
-                        <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)" v-hasPermission="'mall-backend-points-order-detail'">{{scope.row.isSend?'详情':'发货'}}</el-button>
+                        <el-button class="text-blue opt-btn" type="text" size="small" @click="gotoDetail(scope.row)"
+                                   v-hasPermission="'mall-backend-points-order-detail'">{{
+                            scope.row.isSend ? '详情' : '发货'
+                            }}
+                        </el-button>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -103,7 +115,8 @@
             </el-table>
         </template>
         <template v-if="activeTab == 2">
-            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table :height="tableHeight" :data="list" v-loading.body="listLoading"
+                      :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                 <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
                 <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
                 <el-table-column label="客户手机号" prop="phone"></el-table-column>
@@ -144,12 +157,13 @@
     </div>
 </template>
 <script>
-    import { queryGoodsList, queryCouponList, cacheData } from '@/api/points'
+    import { queryCourseList, cacheData } from '@/api/teamwork';
+    import { queryGoodsList, queryCouponList } from '@/api/points';
     // import * as teamwork from '@/api/teamwork'
-    import { formatMoney } from '@/plugin/tool'
-    import { queryShopList } from '@/api/goods'
-    import commUtil from '@/utils/commUtil'
-    import EmptyList from '@/components/common/empty-list/EmptyList'
+    import { formatMoney } from '@/plugin/tool';
+    import { queryShopList } from '@/api/goods';
+    import commUtil from '@/utils/commUtil';
+    import EmptyList from '@/components/common/empty-list/EmptyList';
     import bus from '@/components/common/bus'
     export default {
         name: 'customer-list',
@@ -165,13 +179,12 @@
                     page: 1,
                     limit: 10
                 },
-
                 formFilter: {
                     couponTitle: '',
                     orderNo: '',
                     wxNickName: '',
                     createdTime: [],
-                    shopId: '', //不搜索 为-1
+                    shopId: '' //不搜索 为-1
                 },
                 tableHeight: 'calc(100vh - 194px)',
                 searchShow: false,
@@ -184,7 +197,7 @@
                 notShippedCount: 0,
                 shopId: 0,
                 isSend: '1'
-            }
+            };
         },
         components: {
             EmptyList
@@ -194,149 +207,147 @@
                 this.$nextTick(
                     function() {
                         if (!this.$refs.searchValueBox) {
-                            return
+                            return;
                         }
-                        let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
-                        let showWidth = 0
+                        let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20;
+                        let showWidth = 0;
                         for (let i = 0; i < this.searchList.length; i++) {
-                            let el = 'searchItem' + i
-                            let _width = this.$refs[el][0].offsetWidth
-                            showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                            let el = 'searchItem' + i;
+                            let _width = this.$refs[el][0].offsetWidth;
+                            showWidth = showWidth + Math.ceil(Number(_width)) + 8;
                             if (showWidth > maxWidth) {
-                                this.showMaxIndex = i - 1
+                                this.showMaxIndex = i - 1;
                                 // console.log('this.showMaxIndex', this.showMaxIndex)
-                                return
+                                return;
                             }
                             if (i == this.searchList.length - 1) {
                                 if (showWidth <= maxWidth - 20) {
-                                    this.showMaxIndex = this.searchList.length - 1
+                                    this.showMaxIndex = this.searchList.length - 1;
                                 }
                             }
                         }
                     }.bind(this)
-                )
+                );
             }
         },
         computed: {
             backShopName: function() {
-                let shop_name = ''
+                let shop_name = '';
                 return data => {
-                    const filter_arr = this.shopList.filter(item => {return item.id == data})
-                    if(filter_arr.length > 0) {
-                        shop_name = filter_arr[0].name
+                    const filter_arr = this.shopList.filter(item => {
+                        return item.id == data;
+                    });
+                    if (filter_arr.length > 0) {
+                        shop_name = filter_arr[0].name;
                     }
-                    return shop_name
-                }
+                    return shop_name;
+                };
             }
         },
         created() {
-            this.shopId = Number(this.$route.query.shopId)
-            console.log('this.shopId', this.shopId)
+            this.shopId = Number(this.$route.query.shopId);
+            console.log('this.shopId', this.shopId);
             bus.$on('refreshPointOrderList', target => {
                 console.log('target', target);
                 // this.$set(this.pageInfo, 'pageIndex', 1);
-                if( target == 'sandSuccess') {
+                if (target == 'sandSuccess') {
 
                 }
-                this.getList()
+                this.getList();
             });
         },
         async mounted() {
-            await this.queryShopList()
-            this.getList()
+            await this.queryShopList();
+            this.getList();
         },
         methods: {
             formatMoney: formatMoney,
             getList() {
-                console.log('activeTab', this.activeTab)
-                const search_obj = _.cloneDeep(this.$refs['formFilter'].model)
+                console.log('activeTab', this.activeTab);
+                const search_obj = _.cloneDeep(this.$refs['formFilter'].model);
                 let params = {
                     userId: search_obj['userId'] ? Number(search_obj['userId']) : 0,
                     shopId: this.shopId,
-                    wxNickName: search_obj['wxNickName'] || '',
-                }
+                    wxNickName: search_obj['wxNickName'] || ''
+                };
                 if (this.activeTab == 1) {
-                    params['isSend'] = this.isSend == 2
-                    params['orderNo'] = search_obj['orderNo'] || ''
+                    params['isSend'] = this.isSend == 2;
+                    params['orderNo'] = search_obj['orderNo'] || '';
                 } else {
-                    params['couponTitle'] = search_obj['couponTitle'] || ''
+                    params['couponTitle'] = search_obj['couponTitle'] || '';
                 }
                 if (search_obj.createdTime.length == 2) {
-                    params['redeemStartTime'] = Number(this.$moment(search_obj.createdTime[0]).format('X'))
-                    params['redeemEndTime'] = Number(this.$moment(search_obj.createdTime[1]).format('X'))
+                    params['redeemStartTime'] = Number(this.$moment(search_obj.createdTime[0]).format('X'));
+                    params['redeemEndTime'] = Number(this.$moment(search_obj.createdTime[1]).format('X'));
                 } else {
-                    params['redeemStartTime'] = 0
-                    params['redeemEndTime'] = 0
+                    params['redeemStartTime'] = 0;
+                    params['redeemEndTime'] = 0;
                 }
-                console.log('this.isSend', this.isSend)
-                params['ps'] = this.listQuery.limit
-                params['pi'] = this.listQuery.page
-
-                console.log(params)
-                const rLoading = this.openLoading()
+                console.log('this.isSend', this.isSend);
+                params['ps'] = this.listQuery.limit;
+                params['pi'] = this.listQuery.page;
+                console.log(params);
+                const rLoading = this.openLoading();
                 if (this.activeTab == 1) {
                     queryGoodsList(params)
                         .then(res => {
-                            console.log('输出 ~ res', res)
-                            rLoading.close()
-                            this.list = res.data.list
-                            this.total = res.data.total
-                            if(this.isSend == '1'){
-                                this.notShippedCount = res.data.total
+                            console.log('输出 ~ res', res);
+                            rLoading.close();
+                            this.list = res.data.list;
+                            this.total = res.data.total;
+                            if (this.isSend == '1') {
+                                this.notShippedCount = res.data.total;
                             }
                         })
                         .catch(err => {
-                            rLoading.close()
-                        })
+                            rLoading.close();
+                        });
                 } else {
                     queryCouponList(params)
                         .then(res => {
-                            console.log('输出 ~ res', res)
-                            rLoading.close()
-                            this.list = res.data.list
-                            this.total = res.data.total
+                            console.log('输出 ~ res', res);
+                            rLoading.close();
+                            this.list = res.data.list;
+                            this.total = res.data.total;
                         })
                         .catch(err => {
-                            rLoading.close()
-                        })
+                            rLoading.close();
+                        });
                 }
-
             },
-
             // 代理店铺列表
             queryShopList() {
                 return new Promise((resolve, reject) => {
                     queryShopList()
                         .then(res => {
-                            this.shopList = res.data || []
-                            this.shopList.forEach((ev)=>{
-                                if(ev.id == this.shopId){
-                                    this.filterShop = ev
+                            this.shopList = res.data || [];
+                            this.shopList.forEach(ev => {
+                                if (ev.id == this.shopId) {
+                                    this.filterShop = ev;
                                 }
-                            })
-                            resolve(res)
+                            });
+                            resolve(res);
                         })
                         .catch(err => {
-                            reject(err)
-                        })
-                })
+                            reject(err);
+                        });
+                });
             },
             // 搜索
             handleFilter() {
-                this.listQuery.page = 1
-                this.searchShow = false
-                this.setSearchValue()
-                this.getList()
+                this.listQuery.page = 1;
+                this.searchShow = false;
+                this.setSearchValue();
+                this.getList();
             },
             // 重置
             resetForm(formName) {
-                console.log(this.$refs[formName].model)
-                this.$refs[formName].resetFields()
-                this.handleFilter()
+                console.log(this.$refs[formName].model);
+                this.$refs[formName].resetFields();
+                this.handleFilter();
             },
             // 跳转详情
             gotoDetail(row) {
-                cacheData.orderInfo = _.cloneDeep(row)
                 this.$router.push({
                     path: '/mall-backend-points-order-detail',
                     query: {
@@ -345,92 +356,139 @@
                         shopName: this.filterShop.shop_name,
                         isSend: row.isSend ? 1 : 0,
                         logisticsNo: row.logisticsNo || '',
-                        logisticsCompanyId: row.logisticsCompanyId || 0,
+                        logisticsCompanyId: row.logisticsCompanyId || 0
                     }
-                })
+                });
+            },
+
+            // 代理店铺列表
+            queryShopList() {
+                return new Promise((resolve, reject) => {
+                    queryShopList()
+                        .then(res => {
+                            this.shopList = res.data || [];
+                            this.shopList.forEach((ev) => {
+                                if (ev.id == this.shopId) {
+                                    this.filterShop = ev;
+                                }
+                            });
+                            resolve(res);
+                        })
+                        .catch(err => {
+                            reject(err);
+                        });
+                });
+            },
+            // 搜索
+            handleFilter() {
+                this.listQuery.page = 1;
+                this.searchShow = false;
+                this.setSearchValue();
+                this.getList();
+            },
+            // 重置
+            resetForm(formName) {
+                console.log(this.$refs[formName].model);
+                this.$refs[formName].resetFields();
+                this.handleFilter();
+            },
+            // 跳转详情
+            gotoDetail(row) {
+                cacheData.orderInfo = _.cloneDeep(row);
+                this.$router.push({
+                    path: '/mall-backend-points-order-detail',
+                    query: {
+                        shopId: this.filterShop.id,
+                        uniqueNo: row.uniqueNo,
+                        shopName: this.filterShop.shop_name,
+                        isSend: row.isSend ? 1 : 0,
+                        logisticsNo: row.logisticsNo || '',
+                        logisticsCompanyId: row.logisticsCompanyId || 0
+                    }
+                });
             },
 
             // 设置显示的搜索条件
             setSearchValue() {
-                let _search = []
-                console.log('this.formFilter', this.formFilter)
+                let _search = [];
+                console.log('this.formFilter', this.formFilter);
                 // userId
                 if (this.formFilter['userId']) {
                     let obj = {
                         label: 'userId',
                         val: this.formFilter['userId']
-                    }
-                    _search.push(obj)
+                    };
+                    _search.push(obj);
                 }
                 // wxNickName
                 if (this.formFilter['wxNickName']) {
                     let obj = {
                         label: 'wxNickName',
                         val: this.formFilter['wxNickName']
-                    }
-                    _search.push(obj)
+                    };
+                    _search.push(obj);
                 }
                 // orderNo
                 if (this.formFilter['orderNo']) {
                     let obj = {
                         label: 'orderNo',
                         val: this.formFilter['orderNo']
-                    }
-                    _search.push(obj)
+                    };
+                    _search.push(obj);
                 }
                 // 时间 createdTime
                 if (this.formFilter['createdTime'] && this.formFilter['createdTime'].length === 2) {
                     let _ge_arr = this.$moment(this.formFilter.createdTime[0])
                         .format('YYYY-MM-DD ')
-                        .split('-')
+                        .split('-');
                     let _le_arr = this.$moment(this.formFilter.createdTime[1])
                         .format('YYYY-MM-DD ')
-                        .split('-')
-                    let _ge = _ge_arr[1] + '.' + _ge_arr[2]
-                    let _le = _le_arr[1] + '.' + _le_arr[2]
+                        .split('-');
+                    let _ge = _ge_arr[1] + '.' + _ge_arr[2];
+                    let _le = _le_arr[1] + '.' + _le_arr[2];
                     let obj = {
                         label: 'createdTime',
                         val: _ge + ' - ' + _le
-                    }
-                    _search.push(obj)
+                    };
+                    _search.push(obj);
                 }
 
-                this.searchList = _.cloneDeep(_search)
+                this.searchList = _.cloneDeep(_search);
             },
 
             // 清除单个搜索条件
             closeSearchItem(item, i) {
-                this.$set(this.formFilter, item.label, '')
+                this.$set(this.formFilter, item.label, '');
                 if (item.label == 'createdTime') {
-                    this.$set(this.formFilter, 'createdTime', [])
+                    this.$set(this.formFilter, 'createdTime', []);
                 }
-                this.handleFilter()
+                this.handleFilter();
             },
             // 分页方法
             handleSizeChange(val) {
-                this.listQuery.limit = val
-                this.getList()
+                this.listQuery.limit = val;
+                this.getList();
             },
             handleCurrentChange(val) {
-                this.listQuery.page = val
-                this.getList()
+                this.listQuery.page = val;
+                this.getList();
             },
-            beforeLeave(activeName, oldActiveName){
-                this.activeTab = activeName
+            beforeLeave(activeName, oldActiveName) {
+                this.activeTab = activeName;
                 // console.log('activeName', activeName)
                 // console.log('oldActiveName', oldActiveName)
-                this.isSend = '1'
-                this.resetForm('formFilter')
+                this.isSend = '1';
+                this.resetForm('formFilter');
             },
             // tab
             onTabClick(e) {
             },
             statusChange() {
-                this.listQuery.page = 1
-                this.getList()
+                this.listQuery.page = 1;
+                this.getList();
             }
         }
-    }
+    };
 </script>
 <style scoped="scoped" lang="less">
     .img-wrap {
@@ -438,10 +496,12 @@
         width: 125px;
         height: 60px;
     }
+
     .timg {
         width: 80px;
         height: auto;
     }
+
     .type-tag {
         // display: block;
         padding: 0 11px;
@@ -452,22 +512,28 @@
         word-break: keep-all;
         font-weight: 400;
         line-height: 26px;
+
         &.type-red {
             background-color: #ff4d4f;
         }
+
         &.type-purple {
             background-color: #a151ff;
         }
+
         &.type-yellow {
             background-color: #faad14;
         }
     }
+
     .status {
         display: flex;
         align-items: center;
+
         .text-grey {
             color: rgba(0, 0, 0, 0.25);
         }
+
         .dot {
             display: block;
             margin-right: 8px;
@@ -476,6 +542,7 @@
             border-radius: 4px;
         }
     }
+
     .shop-icon {
         display: flex;
         margin-left: 23px;
@@ -487,16 +554,20 @@
         font-weight: 500;
         font-size: 14px;
         line-height: 30px;
+
         &.shop-all {
             color: #1890ff;
             text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+
             .icon-shop {
                 margin-right: 6px;
             }
         }
+
         &.shop-filter {
             color: rgba(0, 0, 0, 0.85);
             text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.16);
+
             .shop-img {
                 margin-top: 5px;
                 margin-right: 6px;
@@ -506,20 +577,26 @@
             }
         }
     }
+
     .tab-way {
         margin-right: 10px;
     }
+
     .goods-put {
         margin-right: 32px;
     }
+
     .tabs {
         margin-left: 30px;
+
         & /deep/ .el-tabs__header {
             margin: 0;
         }
+
         & /deep/ .el-tabs__nav {
             height: 56px;
         }
+
         & /deep/ .el-tabs__item {
             line-height: 56px;
         }
@@ -527,13 +604,13 @@
 </style>
 <style>
     .el-tabs__nav-wrap::after {
-        content: "";
         position: absolute;
-        left: 0;
         bottom: 0;
+        left: 0;
+        z-index: 1;
         width: 100%;
         height: 2px;
         background-color: transparent !important;
-        z-index: 1;
+        content: '';
     }
 </style>
