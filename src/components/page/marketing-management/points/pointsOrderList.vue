@@ -155,7 +155,7 @@ import commUtil from '@/utils/commUtil'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 
 export default {
-    name: 'points-order-list',
+    name: 'customer-list',
     data() {
         return {
             filterShop: {},
@@ -338,7 +338,9 @@ export default {
                     shopId: this.filterShop.id,
                     uniqueNo: row.uniqueNo,
                     shopName: this.filterShop.shop_name,
-                    isSend: row.isSend ? 1 : 0
+                    isSend: row.isSend ? 1 : 0,
+                    logisticsNo: row.logisticsNo || '',
+                    logisticsCompanyId: row.logisticsCompanyId || 0
                 }
             })
         },

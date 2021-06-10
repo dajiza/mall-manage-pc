@@ -66,7 +66,7 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-button type="primary" @click="handleAdd" v-hasPermission="'mall-backend-adv-create'">新增广告</el-button>
+                <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-adv-create'">新增广告</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="操作" width="110">
