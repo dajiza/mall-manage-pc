@@ -54,7 +54,7 @@ import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
 import commUtil from '@/utils/commUtil'
 export default {
-    name: 'customer-list',
+    name: 'points-shop-list',
     data() {
         return {
             commUtil,
@@ -218,18 +218,18 @@ export default {
 }
 
 .num {
-    padding: 0 5px;
-    height: 16px;
-    background: #ff4d4f;
-    border-radius: 8px;
     position: absolute;
-    font-size: 13px;
-    font-weight: 400;
-    color: #ffffff;
+    top: 12px;
+    left: 135px;
     display: flex;
     align-items: center;
     justify-content: center;
-    left: 135px;
-    top: 12px;
+    padding: 0 5px;
+    height: 16px;
+    border-radius: 8px;
+    background: #ff4d4f;
+    color: #ffffff;
+    font-weight: 400;
+    font-size: 13px;
 }
 </style>

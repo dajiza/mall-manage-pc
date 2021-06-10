@@ -81,6 +81,7 @@ import couponList from '@/components/common/coupon-list-pop/CouponListPop'
 import bus from '@/components/common/bus'
 
 export default {
+    name: 'creat-points-coupon',
     data() {
         return {
             id: '',

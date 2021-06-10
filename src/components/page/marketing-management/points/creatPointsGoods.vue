@@ -103,6 +103,7 @@ import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
 
 export default {
+    name: 'creat-points-goods',
     data() {
         return {
             id: '',
