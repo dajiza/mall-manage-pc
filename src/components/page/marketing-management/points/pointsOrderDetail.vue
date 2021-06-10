@@ -30,14 +30,6 @@
                         <p class="info-value">{{logistics_info.nickName}}</p>
                     </div>
                     <div class="info-content-item">
-                        <p class="label">订单号：</p>
-                        <p class="info-value">{{logistics_info.logisticsNo}}</p>
-                    </div>
-                    <div class="info-content-item">
-                        <p class="label">兑换时间：</p>
-                        <p class="info-value">{{ $moment(logistics_info.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</p>
-                    </div>
-                    <div class="info-content-item">
                         <p class="label">用户ID：</p>
                         <p class="info-value">{{logistics_info.userId}}</p>
                     </div>
@@ -69,8 +61,14 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="商品名称" prop="title"></el-table-column>
-                <el-table-column label="积分" prop="points" width="120"></el-table-column>
-                <el-table-column label="数量" prop="num" width="120"></el-table-column>
+                <el-table-column label="订单号" prop="orderNo" width="170"></el-table-column>
+                <el-table-column label="兑换时间" width="180">
+                    <template slot-scope="scope">
+                        {{ scope.row.redeemTime ? $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') : '' }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="积分" prop="points" width="100"></el-table-column>
+                <el-table-column label="数量" prop="num" width="100"></el-table-column>
                 <el-table-column label="积分总额" prop="title" width="120">
                     <template slot-scope="scope">{{scope.row.num * scope.row.points}}</template>
                 </el-table-column>
@@ -212,11 +210,12 @@
 <script>
     import './pointsOrderDetail.less';
     import { queryConfigList } from '@/api/configManagement'
-    import { queryOrderDetail, updateLogistics, queryLogisticsAuto, queryLogisticsDetail } from '@/api/points'
+    import { queryOrderDetail, updateLogistics, queryLogisticsAuto, queryLogisticsDetail, cacheData } from '@/api/points'
     import { querySDList } from '@/api/afterSale'
     import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
     import PrintExpress from '../../../common/print-express/PrintExpress';
+    import bus from '@/components/common/bus'
     import commUtil from '../../../../utils/commUtil';
     import { REFUND_STATUS } from '@/plugin/constant'
     export default {
@@ -333,8 +332,21 @@
             console.log('logistics_no', this.logistics_no)
         },
         mounted() {
+            console.log('cacheData.orderInfo', cacheData.orderInfo)
+            if(cacheData.orderInfo && cacheData.orderInfo.orderId){
+                console.log('yes')
+            } else {
+                console.log('找不到订单id')
+                bus.$emit('close_current_tags')
+                this.$router.push({
+                    path: '/mall-backend-page-points-order?shopId=' + Number(this.$route.query.shopId)
+                })
+                bus.$emit('refreshPointOrderList','reload');
+                return
+            }
             this.getOrderInfo();
         },
+        inject: ['reload'],
         methods:{
             // 快递公司列表
             getSDList() {
@@ -497,7 +509,9 @@
                             }
 
                         }
+                        const ids = this.orderList.map(item=>{return item.orderId})
                         const params = {
+                            orderIds: ids,
                             logisticsUnique: this.$route.query.uniqueNo,
                             companyId: this.autoForm.logistics_company_id, // 物流公司id
                             companyName: logistics_company_name, // 物流名称
@@ -536,6 +550,8 @@
                                     };
                                     console.log('this.expressInfo', this.expressInfo)
                                     this.showPrint = true
+                                    // 通知订单列表刷新
+                                    bus.$emit('refreshPointOrderList', 'sandSuccess');
                                     // 请求新的物流详情
                                     // this.getSdInfo()
                                 } else {
@@ -577,7 +593,9 @@
                             }
                         })
                         // 请求 接口
+                        const ids = this.orderList.map(item=>{return item.orderId})
                         const params = {
+                            orderIds: ids,
                             uniqueNo: this.$route.query.uniqueNo,
                             LogisticsCompanyId: this.updateForm.logistics_company_id, // 物流公司id
                             logisticsNo: this.updateForm.logistics_no, // 快递单号
@@ -593,6 +611,8 @@
                                     this.logistics_company_id = params.LogisticsCompanyId
                                     this.is_send = true
                                     this.updateLogisticsVisible = false
+                                    // 通知订单列表刷新
+                                    bus.$emit('refreshPointOrderList', 'sandSuccess');
                                     // 请求新的物流详情
                                     // this.getSdInfo()
                                 } else {
@@ -623,8 +643,8 @@
                         if (res.code === 200) {
                             if (res.data) {
                                 let logisticss_list = res.data || [];
-                                let new_arr = logisticss_list.reverse();
-                                new_arr.forEach((ev,index)=>{
+                                // let new_arr = logisticss_list.reverse();
+                                logisticss_list.forEach((ev,index)=>{
                                     let obj = {
                                         content: ev.message,
                                         timestamp: _this.formatDate(ev.time)
@@ -633,8 +653,9 @@
                                         obj['color'] = '#FAAD14'
                                     }
                                     _this.activities.push(obj);
-                                })
 
+                                })
+                                console.log('activities',_this.activities)
                             }
                         } else {
                             _this.queryAPIError(res.msg)

@@ -34,7 +34,9 @@ export const deletePointsCoupon = params => post('/backend/points-coupon-delete'
 export const putPointsCouponStatus = params => post('/backend/points-coupon-status', params)
 
 // 列表-详情 暂存数据
-export var cacheData = {}
+export var cacheData = {
+    orderInfo:{}
+}
 // 订单列表-商品
 export const queryGoodsList = params => post('/backend/points-order-goods-list', params)
 

@@ -144,14 +144,13 @@
     </div>
 </template>
 <script>
-    import { queryCourseList, cacheData } from '@/api/teamwork'
-    import { queryGoodsList, queryCouponList } from '@/api/points'
+    import { queryGoodsList, queryCouponList, cacheData } from '@/api/points'
     // import * as teamwork from '@/api/teamwork'
     import { formatMoney } from '@/plugin/tool'
     import { queryShopList } from '@/api/goods'
     import commUtil from '@/utils/commUtil'
     import EmptyList from '@/components/common/empty-list/EmptyList'
-
+    import bus from '@/components/common/bus'
     export default {
         name: 'customer-list',
         data() {
@@ -233,6 +232,14 @@
         created() {
             this.shopId = Number(this.$route.query.shopId)
             console.log('this.shopId', this.shopId)
+            bus.$on('refreshPointOrderList', target => {
+                console.log('target', target);
+                // this.$set(this.pageInfo, 'pageIndex', 1);
+                if( target == 'sandSuccess') {
+
+                }
+                this.getList()
+            });
         },
         async mounted() {
             await this.queryShopList()
@@ -329,6 +336,7 @@
             },
             // 跳转详情
             gotoDetail(row) {
+                cacheData.orderInfo = _.cloneDeep(row)
                 this.$router.push({
                     path: '/mall-backend-points-order-detail',
                     query: {
