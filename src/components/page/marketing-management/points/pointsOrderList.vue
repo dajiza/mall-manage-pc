@@ -231,7 +231,7 @@
                     orderNo: '',
                     wxNickName: '',
                     createdTime: [],
-                    shopId: '' //不搜索 为-1
+                    userId: '' //不搜索 为-1
                 },
                 tableHeight: 'calc(100vh - 194px)',
                 searchShow: false,
