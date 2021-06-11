@@ -83,7 +83,7 @@
             </el-table-column>
             <el-table-column label="已兑/总数" width="120">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.salesQty }}/{{ scope.row.stockQty }}</span>
+                    <span>{{ scope.row.salesQty }}/{{ scope.row.stockQty + scope.row.salesQty }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="店铺" width="120">

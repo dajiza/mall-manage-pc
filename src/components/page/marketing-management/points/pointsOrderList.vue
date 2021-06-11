@@ -73,26 +73,62 @@
                 </div>
             </div>
             <el-radio-group v-model="isSend" class="tab-way" @change="statusChange" v-if="activeTab == 1">
-                <el-radio-button :label="1">未发货({{ notShippedCount }})</el-radio-button>
-                <el-radio-button :label="2">已发货</el-radio-button>
+                <el-radio-button :label="0">未发货({{ notShippedCount }})</el-radio-button>
+                <el-radio-button :label="1">已发货</el-radio-button>
             </el-radio-group>
         </div>
         <template v-if="activeTab == 1">
             <el-table :height="tableHeight" :data="list" v-loading.body="listLoading"
                       :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-                <el-table-column label="积分订单号" prop="orderNo" width="140"></el-table-column>
-                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
-                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
-                <el-table-column label="店铺" prop="orderNo">
+                <el-table-column label="积分订单号" prop="orderNo" width="160">
                     <template slot-scope="scope">
-                        <span>{{ filterShop.shop_name }}</span>
+                        <div class="son-wrap" v-if="scope.row.son && scope.row.son.length > 0">
+                            <div class="son-item" v-for="(item, i) in scope.row.son">
+                                <span>{{ item.orderNo }}</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <span v-else>{{ scope.row.orderNo }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="商品数量" prop="num" width="90"></el-table-column>
-                <el-table-column label="积分总额" prop="pointsTotal" width="100"></el-table-column>
+                <el-table-column label="商品数量" prop="num" width="90">
+                    <template slot-scope="scope">
+                        <div class="son-wrap" v-if="scope.row.son && scope.row.son.length > 0">
+                            <div class="son-item" v-for="(item, i) in scope.row.son">
+                                <span>{{ item.num }}</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <span v-else>{{ scope.row.num }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="积分总额" prop="pointsTotal" width="100">
+                    <template slot-scope="scope">
+                        <div class="son-wrap" v-if="scope.row.son && scope.row.son.length > 0">
+                            <div class="son-item" v-for="(item, i) in scope.row.son">
+                                <span>{{ item.pointsTotal }}</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <span v-else>{{ scope.row.pointsTotal }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="兑换时间" width="180">
                     <template slot-scope="scope">
-                        <span>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                        <div class="son-wrap" v-if="scope.row.son && scope.row.son.length > 0">
+                            <div class="son-item" v-for="(item, i) in scope.row.son">
+                                <span>{{ $moment(item.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                                <div class="line"></div>
+                            </div>
+                        </div>
+                        <span v-else>{{ $moment(scope.row.redeemTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
+                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
+                <el-table-column label="店铺" prop="orderNo" width="120">
+                    <template slot-scope="scope">
+                        <span>{{ filterShop.shop_name }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="状态" width="100">
@@ -117,9 +153,21 @@
         <template v-if="activeTab == 2">
             <el-table :height="tableHeight" :data="list" v-loading.body="listLoading"
                       :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
-                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
-                <el-table-column label="客户手机号" prop="phone"></el-table-column>
+                <el-table-column label="用户ID" width="84">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.userId }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="客户微信名">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.wxNickName }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="客户手机号" prop="phone">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.phone }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="店铺" prop="orderNo">
                     <template slot-scope="scope">
                         <span>{{ filterShop.shop_name }}</span>
@@ -157,8 +205,7 @@
     </div>
 </template>
 <script>
-    import { queryCourseList, cacheData } from '@/api/teamwork';
-    import { queryGoodsList, queryCouponList } from '@/api/points';
+    import { queryGoodsList, queryCouponList, cacheData } from '@/api/points';
     // import * as teamwork from '@/api/teamwork'
     import { formatMoney } from '@/plugin/tool';
     import { queryShopList } from '@/api/goods';
@@ -184,7 +231,7 @@
                     orderNo: '',
                     wxNickName: '',
                     createdTime: [],
-                    shopId: '' //不搜索 为-1
+                    userId: '' //不搜索 为-1
                 },
                 tableHeight: 'calc(100vh - 194px)',
                 searchShow: false,
@@ -196,7 +243,7 @@
                 activeTab: '1',
                 notShippedCount: 0,
                 shopId: 0,
-                isSend: '1'
+                isSend: '0'
             };
         },
         components: {
@@ -271,7 +318,7 @@
                     wxNickName: search_obj['wxNickName'] || ''
                 };
                 if (this.activeTab == 1) {
-                    params['isSend'] = this.isSend == 2;
+                    params['isSend'] = this.isSend == 1;
                     params['orderNo'] = search_obj['orderNo'] || '';
                 } else {
                     params['couponTitle'] = search_obj['couponTitle'] || '';
@@ -295,8 +342,29 @@
                             rLoading.close();
                             this.list = res.data.list;
                             this.total = res.data.total;
-                            if (this.isSend == '1') {
+                            if (this.isSend == '0') {
                                 this.notShippedCount = res.data.total;
+                                // 未发货
+                                if(res.data.list && res.data.list.length > 0){
+                                    const new_arr = this.returnNewArr(res.data.list, 'uniqueNo')
+                                    console.log('new_arr', new_arr)
+                                    let new_list = []
+                                    new_arr.forEach((ev)=>{
+                                        let obj = {}
+                                        if(ev.length > 1){
+                                            obj = ev[0]
+                                            obj['son'] = ev
+
+                                        } else {
+                                            obj =  ev[0]
+                                            obj['son'] = []
+                                        }
+                                        console.log('obj', obj)
+                                        new_list.push(obj)
+                                    })
+                                    console.log('new_list', new_list)
+                                    this.list = new_list
+                                }
                             }
                         })
                         .catch(err => {
@@ -315,50 +383,14 @@
                         });
                 }
             },
-            // 代理店铺列表
-            queryShopList() {
-                return new Promise((resolve, reject) => {
-                    queryShopList()
-                        .then(res => {
-                            this.shopList = res.data || [];
-                            this.shopList.forEach(ev => {
-                                if (ev.id == this.shopId) {
-                                    this.filterShop = ev;
-                                }
-                            });
-                            resolve(res);
-                        })
-                        .catch(err => {
-                            reject(err);
-                        });
-                });
-            },
-            // 搜索
-            handleFilter() {
-                this.listQuery.page = 1;
-                this.searchShow = false;
-                this.setSearchValue();
-                this.getList();
-            },
-            // 重置
-            resetForm(formName) {
-                console.log(this.$refs[formName].model);
-                this.$refs[formName].resetFields();
-                this.handleFilter();
-            },
-            // 跳转详情
-            gotoDetail(row) {
-                this.$router.push({
-                    path: '/mall-backend-points-order-detail',
-                    query: {
-                        shopId: this.filterShop.id,
-                        uniqueNo: row.uniqueNo,
-                        shopName: this.filterShop.shop_name,
-                        isSend: row.isSend ? 1 : 0,
-                        logisticsNo: row.logisticsNo || '',
-                        logisticsCompanyId: row.logisticsCompanyId || 0
-                    }
-                });
+            returnNewArr(_list,key) {
+                let map = new Map();
+                let newArr = [];
+                _list.forEach(item => {
+                    map.has(item[key]) ? map.get(item[key]).push(item) : map.set(item[key], [item]);
+                })
+                newArr = [...map.values()];
+                return newArr
             },
 
             // 代理店铺列表
@@ -394,6 +426,7 @@
             },
             // 跳转详情
             gotoDetail(row) {
+                console.log('row', row)
                 cacheData.orderInfo = _.cloneDeep(row);
                 this.$router.push({
                     path: '/mall-backend-points-order-detail',
@@ -477,7 +510,7 @@
                 this.activeTab = activeName;
                 // console.log('activeName', activeName)
                 // console.log('oldActiveName', oldActiveName)
-                this.isSend = '1';
+                this.isSend = '0';
                 this.resetForm('formFilter');
             },
             // tab
@@ -599,6 +632,39 @@
 
         & /deep/ .el-tabs__item {
             line-height: 56px;
+        }
+    }
+    .son-wrap{
+
+    }
+    .son-item{
+        height: 54px;
+        line-height: 54px;
+        /*border-bottom: 1px solid #EBEEF5;*/
+        position: relative;
+    }
+    .son-item .line{
+        position: absolute;
+        top: 54px;
+        left: -24px;
+        width: 180px;
+        height: 1px;
+        background: #EBEEF5;
+    }
+    .son-wrap .son-item:first-child{
+        height: 38px;
+        line-height: 22px;
+        .line{
+            top: 38px;
+        }
+    }
+    .son-wrap .son-item:last-child{
+        height: 38px;
+        line-height: 54px;
+        border-bottom: none;
+        box-sizing: border-box;
+        .line{
+            height: 0px;
         }
     }
 </style>
