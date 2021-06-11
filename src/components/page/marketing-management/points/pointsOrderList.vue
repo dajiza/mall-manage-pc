@@ -153,9 +153,21 @@
         <template v-if="activeTab == 2">
             <el-table :height="tableHeight" :data="list" v-loading.body="listLoading"
                       :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-                <el-table-column label="用户ID" prop="userId" width="84"></el-table-column>
-                <el-table-column label="客户微信名" prop="wxNickName"></el-table-column>
-                <el-table-column label="客户手机号" prop="phone"></el-table-column>
+                <el-table-column label="用户ID" width="84">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.userId }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="客户微信名">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.wxNickName }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="客户手机号" prop="phone">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.phone }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="店铺" prop="orderNo">
                     <template slot-scope="scope">
                         <span>{{ filterShop.shop_name }}</span>
