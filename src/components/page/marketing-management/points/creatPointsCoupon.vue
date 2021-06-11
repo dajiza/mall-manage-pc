@@ -46,7 +46,7 @@
                         <el-table-column label="使用期限" width="176">
                             <template slot-scope="scope">
                                 <div v-if="Number(scope.row.valid_type) === 1">领券后{{ scope.row.valid_days }}天内</div>
-                                <div v-else>{{ scope.row.valid_start_time }} - {{ scope.row.valid_end_time }}</div>
+                                <div v-else>{{ $moment(scope.row.valid_start_time).format('YYYY-MM-DD HH:mm:ss') }} - {{ $moment(scope.row.valid_end_time).format('YYYY-MM-DD HH:mm:ss') }}</div>
                             </template>
                         </el-table-column>
                         <el-table-column prop="quota" label="发放数量" width="100"></el-table-column>
