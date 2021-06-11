@@ -43,7 +43,7 @@
                                 <div v-else>无门槛</div>
                             </template>
                         </el-table-column>
-                        <el-table-column label="使用期限" width="176">
+                        <el-table-column label="使用期限" width="180">
                             <template slot-scope="scope">
                                 <div v-if="Number(scope.row.valid_type) === 1">领券后{{ scope.row.valid_days }}天内</div>
                                 <div v-else>{{ $moment(scope.row.valid_start_time).format('YYYY.MM.DD') }} - {{ $moment(scope.row.valid_end_time).format('YYYY.MM.DD') }}</div>
