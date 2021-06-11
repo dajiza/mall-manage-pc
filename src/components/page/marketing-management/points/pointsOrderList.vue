@@ -157,8 +157,7 @@
     </div>
 </template>
 <script>
-    import { queryCourseList, cacheData } from '@/api/teamwork';
-    import { queryGoodsList, queryCouponList } from '@/api/points';
+    import { queryGoodsList, queryCouponList, cacheData } from '@/api/points';
     // import * as teamwork from '@/api/teamwork'
     import { formatMoney } from '@/plugin/tool';
     import { queryShopList } from '@/api/goods';
@@ -315,51 +314,7 @@
                         });
                 }
             },
-            // 代理店铺列表
-            queryShopList() {
-                return new Promise((resolve, reject) => {
-                    queryShopList()
-                        .then(res => {
-                            this.shopList = res.data || [];
-                            this.shopList.forEach(ev => {
-                                if (ev.id == this.shopId) {
-                                    this.filterShop = ev;
-                                }
-                            });
-                            resolve(res);
-                        })
-                        .catch(err => {
-                            reject(err);
-                        });
-                });
-            },
-            // 搜索
-            handleFilter() {
-                this.listQuery.page = 1;
-                this.searchShow = false;
-                this.setSearchValue();
-                this.getList();
-            },
-            // 重置
-            resetForm(formName) {
-                console.log(this.$refs[formName].model);
-                this.$refs[formName].resetFields();
-                this.handleFilter();
-            },
-            // 跳转详情
-            gotoDetail(row) {
-                this.$router.push({
-                    path: '/mall-backend-points-order-detail',
-                    query: {
-                        shopId: this.filterShop.id,
-                        uniqueNo: row.uniqueNo,
-                        shopName: this.filterShop.shop_name,
-                        isSend: row.isSend ? 1 : 0,
-                        logisticsNo: row.logisticsNo || '',
-                        logisticsCompanyId: row.logisticsCompanyId || 0
-                    }
-                });
-            },
+
 
             // 代理店铺列表
             queryShopList() {
@@ -394,6 +349,7 @@
             },
             // 跳转详情
             gotoDetail(row) {
+                console.log('row', row)
                 cacheData.orderInfo = _.cloneDeep(row);
                 this.$router.push({
                     path: '/mall-backend-points-order-detail',
