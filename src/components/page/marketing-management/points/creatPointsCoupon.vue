@@ -10,9 +10,9 @@
             <div class="substance" style="padding: 22px 32px 32px">
                 <el-form class="freight-form" :inline="false" :model="goods" :rules="rules" ref="formRef" label-width="100px">
                     <el-form-item label="类型" prop="title">
-                        <el-radio-group v-model="typeIndex" @change="onChangeRadio">
-                            <el-radio :label="1">商品</el-radio>
-                            <el-radio :label="2">优惠券</el-radio>
+                        <el-radio-group :value="2" @change="onChangeRadio">
+                            <el-radio :label="1" :disabled="id != 0">商品</el-radio>
+                            <el-radio :label="2" :disabled="id != 0">优惠券</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="可用店铺" prop="">
@@ -146,7 +146,7 @@ export default {
     async mounted() {
         await this.queryShopList()
         this.shopId = Number(this.$route.query.shopId)
-        this.shopName = this.shopList.find(item => item.id == this.shopId).shop_name
+        this.shopName = this.shopId ? this.shopList.find(item => item.id == this.shopId).shop_name : ''
         this.id = Number(this.$route.query.id)
         if (this.id != 0) {
             this.getDetail()
@@ -195,7 +195,13 @@ export default {
             this.handleFilter()
         },
         onChangeRadio() {
-            this.$router.push('/mall-backend-points-goods-creat')
+            this.$router.push({
+                path: '/mall-backend-points-goods-creat',
+                query: {
+                    id: 0,
+                    shopId: this.shopId
+                }
+            })
         },
         getCoupon(coupon) {
             console.log('输出 ~ getCoupon', coupon)

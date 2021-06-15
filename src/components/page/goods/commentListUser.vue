@@ -2,7 +2,7 @@
     <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <!-- <div class="line"></div> -->
-            <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick">
+            <el-tabs class="tabs" value="2" @tab-click="onTabClick">
                 <el-tab-pane label="商品评论" name="1"></el-tab-pane>
                 <el-tab-pane label="用户评论" name="2"></el-tab-pane>
             </el-tabs>
@@ -79,8 +79,22 @@
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="操作" width="180">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" v-if="formFilter.isApprove == 1" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 2)">通过</el-button>
-                    <el-button class="text-red" type="text" v-if="scope.row.status != 3" v-hasPermission="'mall-backend-comment-approve'" @click.native="updateCommentStatus(scope.row.commentId, 3)">拒绝</el-button>
+                    <el-button
+                        class="text-blue"
+                        type="text"
+                        v-if="formFilter.isApprove == 1"
+                        v-hasPermission="'mall-backend-comment-approve'"
+                        @click.native="updateCommentStatus(scope.row.commentId, 2)"
+                        >通过</el-button
+                    >
+                    <el-button
+                        class="text-red"
+                        type="text"
+                        v-if="scope.row.status != 3"
+                        v-hasPermission="'mall-backend-comment-approve'"
+                        @click.native="updateCommentStatus(scope.row.commentId, 3)"
+                        >拒绝</el-button
+                    >
                     <el-button class="text-blue" type="text" v-hasPermission="'mall-backend-comment-reply-subject'" @click.native="openSubject(scope.row)">查看原文</el-button>
                 </template>
             </el-table-column>
