@@ -65,7 +65,7 @@
             </div>
             <div class="brn-wrap">
                 <el-button type="danger" size="large" @click="deleteGoods" v-if="id != 0" v-hasPermission="'mall-backend-points-coupon-delete'">删除</el-button>
-                <el-button type="primary" size="large" @click="save" v-hasPermission="'mall-backend-points-coupon-edit'">保存</el-button>
+                <el-button type="primary" size="large" @click="save" v-hasPermission="'mall-backend-points-coupon-creat'">保存</el-button>
             </div>
         </div>
         <!-- 商品添加 -->
