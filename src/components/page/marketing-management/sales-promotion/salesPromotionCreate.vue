@@ -10,32 +10,77 @@
             <div class="form-content">
                 <el-form-item class="form-item" label="促销类型:" prop="type">
                     <el-radio-group v-model="operationForm.type" :disabled="operationTitle === '编辑促销'" @change="chooseCouponsType">
-                        <el-radio :label="1">满减</el-radio>
-                        <el-radio :label="2">折扣</el-radio>
+                        <el-radio :label="1">每满减</el-radio>
+                        <el-radio :label="2">满减</el-radio>
+                        <el-radio :label="3">满折</el-radio>
+                        <el-radio :label="4">满件折</el-radio>
+                        <el-radio :label="5">加价购</el-radio>
+                        <el-radio :label="6">满券</el-radio>
                     </el-radio-group>
+                </el-form-item>
+                <!--每满减-->
+                <el-form-item class="form-item inline-block" label="每满:" prop="amount1" required v-if="operationForm.type == 1">
+                    <el-input class="w120" placeholder="" v-model="operationForm.amount1" :disabled="operationTitle === '编辑促销'"></el-input>
+                    <span style="padding: 0 10px">减</span>
+                </el-form-item>
+                <el-form-item class="form-item inline-block" label="" prop="discount1" label-width="0px" v-if="operationForm.type == 1">
+                    <el-input class="w120" placeholder="" v-model="operationForm.discount1" :disabled="operationTitle === '编辑促销'"></el-input>
+                </el-form-item>
+                <!--阶梯 - 满减、满折、满件折-->
+                <el-form-item class="form-item inline-block" label="阶梯:" required v-if="operationForm.type == 2 ||operationForm.type == 3 || operationForm.type == 4">
+                    <el-button type="primary" @click="handleAddLadder">添加阶梯</el-button>
+                </el-form-item>
+                <div class="ladder-wrap clearfix" v-for="(item, index) in operationForm.ladderList" :key="index"  v-if="operationForm.type == 2 ||operationForm.type == 3 || operationForm.type == 4">
+                    <span style="padding:0 10px 0 100px">满</span>
+                    <!---->
+                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.amountValue'"
+                                  :rules="rules.amountValue" v-if="operationForm.type != 4">
+                        <el-input class="w120" v-model="item.amountValue" placeholder="请输入" :precision="2"></el-input>
+                        <span style="padding: 0 10px" v-if="operationForm.type == 2">减</span>
+                        <span style="padding: 0 10px" v-if="operationForm.type == 3 || operationForm.type == 6">元</span>
+                    </el-form-item>
+                    <!---->
+                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.piecesValue'"
+                                  :rules="rules.piecesValue" v-if="operationForm.type == 4">
+                        <el-input class="w120" v-model="item.piecesValue" placeholder="请输入" ></el-input>
+                        <span style="padding: 0 10px" v-if="operationForm.type == 4">件</span>
+                    </el-form-item>
+                    <!--优惠金额-->
+                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.discountValue'"
+                                  :rules="rules.discountValue" v-if="operationForm.type == 2">
+                        <el-input class="w120" v-model="item.discountValue" placeholder="请输入" :precision="1"></el-input>
+                    </el-form-item>
+                    <!--折扣-->
+                    <el-form-item class="form-item inline-block" label=""  label-width="0px" :prop="'ladderList.' + index + '.discountAmount'"
+                                  :rules="rules.discountAmount" v-if="operationForm.type == 3 || operationForm.type == 4">
+                        <el-input class="w120" v-model="item.discountAmount" placeholder="请输入" :precision="1"></el-input>
+                        <span style="padding-left: 10px">折</span>
+                    </el-form-item>
+                    <div class="btn-box inline-block" style="margin-left: 10px">
+                        <el-button type="danger" @click.prevent="removeSingleGood(item, index)">删除</el-button>
+                    </div>
+                </div>
+
+                <!--加价购-->
+                <el-form-item class="form-item inline-block" label="满:" prop="amount1" required v-if="operationForm.type == 5">
+                    <el-input class="w120" placeholder="" v-model="operationForm.amount1" :disabled="operationTitle === '编辑促销'"></el-input>
+                    <span style="padding: 0 10px">加</span>
+                </el-form-item>
+                <el-form-item class="form-item inline-block" label="" prop="discount1" label-width="0px" v-if="operationForm.type == 5">
+                    <el-input class="w120" placeholder="" v-model="operationForm.discount1" :disabled="operationTitle === '编辑促销'"></el-input>
+                    <span style="padding: 0 10px">可换购赠品</span>
+                </el-form-item>
+
+
+                <el-form-item class="form-item" label="封顶优惠:" prop="discount_top" required v-if="operationForm.type == 3 || operationForm.type == 4 || operationForm.type == 6">
+                    <el-input class="w300" placeholder="" v-model.number="operationForm.discount_top" :disabled="operationTitle === '编辑促销'"></el-input>
+                    元
                 </el-form-item>
                 <el-form-item class="form-item" label="促销名称:" prop="title">
-                    <el-input class="w300" placeholder="请输入名称" v-model="operationForm.title" :disabled="operationTitle === '编辑促销'" />
+                    <el-input class="w300" placeholder="请输入促销名称" v-model="operationForm.title" :disabled="operationTitle === '编辑促销'" />
                 </el-form-item>
-                <el-form-item class="form-item" label="使用门槛:" prop="threshold" required>
-                    <el-radio-group v-model="operationForm.threshold" :disabled="operationTitle === '编辑促销'" @change="chooseThresholdType">
-                        <el-radio :label="1">无门槛</el-radio>
-                        <el-radio :label="2">
-                            满
-                            <el-form-item
-                                    style="display: inline-block;margin-bottom: 0"
-                                    class="form-item"
-                                    label=""
-                                    prop="with_amount"
-                                    :rules="[{ required: operationForm.threshold === 2, message: '请输入金额', trigger: 'blur' }]"
-                            >
-                                <el-input class="w100" placeholder="" v-model.number="operationForm.with_amount" :disabled="operationTitle === '编辑促销'"></el-input>
-                            </el-form-item>
-                            元可用
-                        </el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item
+
+               <!-- <el-form-item
                         ref="fullReduction"
                         class="form-item"
                         style="margin-bottom: 20px"
@@ -50,77 +95,8 @@
                         <template slot="append" class="append-unit">元</template>
                     </el-input>
                     <div class="tip-text">{{ operationForm.type > 1 ? '1 ~ 9.9，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
-                </el-form-item>
-                <el-form-item class="form-item" label="封顶金额:" prop="have_discount_top" required v-if="operationForm.type === 2">
-                    <el-radio-group v-model="operationForm.have_discount_top" :disabled="operationTitle === '编辑促销'" @change="disTopChange">
-                        <el-radio :label="1">无封顶</el-radio>
-                        <el-radio :label="2">
-                            封顶优惠
-                            <el-form-item
-                                    style="display: inline-block;margin-bottom: 0"
-                                    class="form-item"
-                                    label=""
-                                    prop="discount_top"
-                                    :rules="[{ required: operationForm.have_discount_top === 2, message: '请输入金额', trigger: 'blur' }]"
-                            >
-                                <el-input class="w100" placeholder="" v-model.number="operationForm.discount_top" :disabled="operationTitle === '编辑促销'"></el-input>
-                            </el-form-item>
-                            元
-                        </el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item class="form-item" label="有效期:" prop="valid_type">
-                    <el-radio-group v-model="operationForm.valid_type" @change="chooseValidityType" :disabled="operationTitle === '编辑促销'">
-                        <el-radio :label="1">领取后天数</el-radio>
-                        <el-radio :label="2">有效期间</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item class="form-item" label="领取后天数:" prop="valid_days" v-if="operationForm.valid_type === 1">
-                    <el-input class="w300" placeholder="" v-model.number="operationForm.valid_days" :disabled="operationTitle === '编辑促销'">
-                        <template slot="append" class="append-unit">天</template>
-                    </el-input>
-                </el-form-item>
-                <template v-if="operationForm.valid_type === 2">
-                    <el-form-item class="form-item inline-block" label="有效期间:" prop="valid_start_time" :disabled="operationTitle === '编辑促销'">
-                        <el-date-picker
-                                style="width:200px"
-                                class="filter-item"
-                                v-model="operationForm.valid_start_time"
-                                type="datetime"
-                                placeholder="开始时间"
-                                default-time="00:00:00"
-                                format="yyyy-MM-dd HH:mm:ss"
-                                :picker-options="validityOptionsStart"
-                                :disabled="operationTitle === '编辑促销'"
-                        >
-                        </el-date-picker>
-                    </el-form-item>
-                    <span style="padding: 0 10px">至</span>
-                    <el-form-item class="form-item inline-block" label="" prop="valid_end_time" label-width="0px">
-                        <el-date-picker
-                                style="width:200px"
-                                class="filter-item"
-                                v-model="operationForm.valid_end_time"
-                                type="datetime"
-                                placeholder="结束时间"
-                                default-time="23:59:59"
-                                format="yyyy-MM-dd HH:mm:ss"
-                                :picker-options="validityOptionsEnd"
-                                :disabled="operationTitle === '编辑促销'"
-                        >
-                        </el-date-picker>
-                    </el-form-item>
-                </template>
-
-                <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'">
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item class="form-item" label="发放数量:" prop="quota">
-                    <el-input class="w300" placeholder="" v-model.number="operationForm.quota" :disabled="operationTitle === '编辑促销'" />
-                </el-form-item>
-                <el-form-item class="form-item inline-block" label="领用时间:" prop="grant_start_time">
+                </el-form-item>-->
+                <el-form-item class="form-item inline-block" label="促销时间:" prop="grant_start_time">
                     <el-date-picker
                             style="width:200px"
                             class="filter-item"
@@ -151,25 +127,12 @@
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item class="form-item" label="单用户领取次数:" prop="person_get_type" required label-width="120">
-                    <el-radio-group v-model="operationForm.person_get_type" :disabled="operationTitle === '编辑促销'" @change="disTopChange">
-                        <el-radio :label="1">无限制</el-radio>
-                        <el-radio :label="2">
-                            最多领取
-                            <el-form-item
-                                    style="display: inline-block;margin-bottom: 0"
-                                    class="form-item"
-                                    label=""
-                                    prop="person_get_count"
-                                    :rules="[{ required: operationForm.person_get_type === 2, message: '请输入金额', trigger: 'blur' }]"
-                            >
-                                <el-input class="w100" placeholder="" v-model.number="operationForm.person_get_count" :disabled="operationTitle === '编辑促销'"></el-input>
-                            </el-form-item>
-                            次
-                        </el-radio>
-                    </el-radio-group>
+                <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'">
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item class="form-item" label="领取用户:" prop="receive_user">
+                <el-form-item class="form-item" label="用户群体:" prop="receive_user">
                     <el-radio-group v-model="operationForm.receive_user" :disabled="operationTitle === '编辑促销'">
                         <el-radio :label="1">店铺全体用户</el-radio>
                     </el-radio-group>

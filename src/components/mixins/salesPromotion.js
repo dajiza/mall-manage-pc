@@ -24,6 +24,36 @@ export const mixinsPromotion = {
                 }
             }, 10)
         }
+        var checkAmount1 = (rule, value, callback) => {
+            setTimeout(() => {
+                if( Number(value) && Number(this.operationForm.discount1)){
+                    const num1 = commUtil.numberMul(Number(value),100);
+                    const num2 = commUtil.numberMul(Number(this.operationForm.discount1),100);
+                    if ( num1 <= num2) {
+                        callback(new Error('每满金额应大于优惠金额'));
+                    } else {
+                        callback();
+                    }
+                } else {
+                    callback();
+                }
+            }, 10);
+        };
+        var checkDiscount1 = (rule, value, callback) => {
+            setTimeout(() => {
+                if( Number(value) && Number(this.operationForm.amount1)){
+                    const num1 = commUtil.numberMul(Number(value),100);
+                    const num2 = commUtil.numberMul(Number(this.operationForm.amount1),100);
+                    if ( num1 >= num2) {
+                        callback(new Error('优惠金额应小于每满金额'));
+                    } else {
+                        callback();
+                    }
+                } else {
+                    callback();
+                }
+            }, 10);
+        };
         return {
             ATTR_NAME,
             tableKey: 0,
@@ -38,18 +68,13 @@ export const mixinsPromotion = {
             operationForm: {
                 type: 1,
                 title: '',
-                valid_type: 1,
-                valid_days: '',
-                valid_start_time: '',
-                valid_end_time: '',
+                amount1: '',
+                discount1: '',
+                ladderList: [], // 阶梯
                 coupon_amount: '', // 优惠券面额 - 满减/折扣
                 threshold: 1, // 有无门槛
                 with_amount: '', // 有门槛时最低消费
-                have_discount_top: 1, // 有无最高优惠限制
                 discount_top: '', // 最高优惠
-                person_get_type: 1, // 单个用户领取次数限制 1 无限制 2 有限制
-                person_get_count: '', // 单个用户领取次数
-                quota: '', // 发放数量
                 shop_id: '', // 可用店铺
                 grant_start_time: '', // 领用开始时间
                 grant_end_time: '', // 领用结束时间
@@ -107,8 +132,58 @@ export const mixinsPromotion = {
                     { required: true, message: '请输入优惠券名称', trigger: 'blur' },
                     { min: 1, max: 150, message: '长度在 1 到 150 个字符', trigger: 'blur' }
                 ],
-                quota: [{ required: true, message: '请输入发放数量', trigger: 'blur' }],
-                valid_type: [{ required: true, message: '请选择', trigger: 'change' }],
+                amount1:[
+                    { required: true, message: '请输入', trigger: 'blur' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
+                    {
+                        type: 'number',
+                        message: '最小值为1',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        min: 1
+                    },
+                    { validator: checkAmount1, trigger: ['blur', 'change'] }
+                ],
+                discount1:[
+                    { required: true, message: '请输入', trigger: 'blur' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
+                    {
+                        type: 'number',
+                        message: '最小值为1',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        min: 1
+                    },
+                    { validator: checkDiscount1, trigger: ['blur', 'change'] }
+                ],
+                piecesValue:[
+                    { required: true, message: '请输入', trigger: 'blur' },
+                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数' },
+                    {
+                        type: 'number',
+                        message: '最小值为1',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        min: 1
+                    }
+                ],
+                amountValue: [{ required: true, message: '请输入' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                ],
+                discountValue: [
+                    { required: true, message: '请输入' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9])?$)|(^(0){1}$)|(^[0-9]\.[0-9]?$)/, message: '请输入正确格式,可保留一位小数' },
+                ],
+                discountAmount: [
+                    { required: true, message: '请输入' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' }
+                ],
+                discount_top: [
+                    { required: true, message: '请输入封顶优惠', trigger: 'blur' }
+                ],
                 shop_id: [{ required: true, message: '请选择' }],
                 with_amount: [],
                 valid_days: [
@@ -123,8 +198,6 @@ export const mixinsPromotion = {
                         min: 1
                     }
                 ],
-                valid_start_time: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
-                valid_end_time: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
                 grant_start_time: [{ required: true, message: '请选择开始时间', trigger: 'change' }],
                 grant_end_time: [{ required: true, message: '请选择结束时间', trigger: 'change' }],
                 receive_user: [{ required: true, message: '请选择', trigger: 'change' }],
@@ -133,20 +206,6 @@ export const mixinsPromotion = {
             },
             listLoading: false,
             saveIsClick: false,
-            validityOptionsStart: {
-                disabledDate: time => {
-                    if (this.operationForm.valid_end_time !== '') {
-                        return time.getTime() > this.operationForm.valid_end_time
-                    } else {
-                        // return time.getTime() > Date.now();
-                    }
-                }
-            },
-            validityOptionsEnd: {
-                disabledDate: time => {
-                    return time.getTime() < this.operationForm.valid_start_time
-                }
-            },
             pickerOptions1: {
                 disabledDate: time => {
                     if (this.operationForm.grant_end_time !== '') {
@@ -331,38 +390,22 @@ export const mixinsPromotion = {
         setDetailInfo(info) {
             this.$set(this.operationForm, 'type', Number(info.type))
             this.$set(this.operationForm, 'title', info.title)
-            this.$set(this.operationForm, 'valid_type', Number(info.valid_type))
             this.$set(this.operationForm, 'shop_id', Number(info.shop_id))
             this.$set(this.operationForm, 'use_goods_type', Number(info.use_goods_type))
-            this.$set(this.operationForm, 'quota', Number(info.quota))
             if (info.type > 1) {
                 this.$set(this.operationForm, 'coupon_amount', Number(info.coupon_amount / 10))
                 // 封顶优惠
                 if (info.discount_top > 0) {
-                    this.$set(this.operationForm, 'have_discount_top', 2)
                     this.$set(this.operationForm, 'discount_top', Number(info.discount_top / 100))
-                } else {
-                    this.$set(this.operationForm, 'have_discount_top', 1)
                 }
             } else {
                 this.$set(this.operationForm, 'coupon_amount', Number(info.coupon_amount / 100))
-            }
-            if (info.person_get_count > 0) {
-                this.$set(this.operationForm, 'person_get_type', 2)
-                this.$set(this.operationForm, 'person_get_count', Number(info.person_get_count))
-            } else {
-                this.$set(this.operationForm, 'person_get_type', 1)
             }
             if (info.with_amount > 0) {
                 this.$set(this.operationForm, 'threshold', 2)
                 this.$set(this.operationForm, 'with_amount', Number(info.with_amount / 100))
             }
-            if (info.valid_type > 1) {
-                this.$set(this.operationForm, 'valid_start_time', info.valid_start_time)
-                this.$set(this.operationForm, 'valid_end_time', info.valid_end_time)
-            } else {
-                this.$set(this.operationForm, 'valid_days', Number(info.valid_days))
-            }
+
             // const use_start_time =  new Date(parseInt(info.grant_start_time) * 1000);
             // const use_end_time =  new Date(parseInt(info.grant_end_time) * 1000);
             this.$set(this.operationForm, 'grant_start_time', info.grant_start_time)
@@ -424,10 +467,10 @@ export const mixinsPromotion = {
         },
         // 切换类型
         chooseCouponsType() {
-            this.$set(this.operationForm, 'coupon_amount', '') // 清除优惠券面额
-            this.$nextTick(() => {
-                this.$refs['fullReduction'].clearValidate() // 清除优惠券面额的验证
-            })
+            // this.$set(this.operationForm, 'coupon_amount', '') // 清除优惠券面额
+            // this.$nextTick(() => {
+            //     this.$refs['fullReduction'].clearValidate() // 清除优惠券面额的验证
+            // })
         },
         chooseValidityType() {},
         // 使用门槛切换
@@ -447,14 +490,11 @@ export const mixinsPromotion = {
                     let params = {
                         type: Number(this.operationForm.type),
                         title: this.operationForm.title,
-                        valid_type: Number(this.operationForm.valid_type),
-                        valid_days: 0,
                         shop_id: Number(this.operationForm.shop_id),
-                        quota: Number(this.operationForm.quota),
                         with_amount: 0,
                         discount_top: 0,
                         coupon_amount: 0,
-                        person_get_count: 0,
+
                         use_goods_type: Number(this.operationForm.use_goods_type),
                         use_goods_ids: [],
                         use_goods_tag_ids: []
@@ -471,9 +511,6 @@ export const mixinsPromotion = {
                         params['with_amount'] = commUtil.numberMul(Number(this.operationForm.with_amount), 100)
                     } else {
                         params['with_amount'] = 0
-                    }
-                    if (this.operationForm.person_get_type === 2) {
-                        params['person_get_count'] = this.operationForm.person_get_count
                     }
                     if (this.operationForm.threshold === 2 && this.operationForm.type === 1) {
                         if (params['with_amount'] < params['coupon_amount']) {
@@ -531,19 +568,6 @@ export const mixinsPromotion = {
                         // 请求编辑
                         this.queryEdit(editParams)
                     } else {
-                        if (this.operationForm.valid_type === 2) {
-                            // 有效期间
-                            // params['valid_start_time'] = this.getTime(this.operationForm.valid_start_time);
-                            // params['valid_end_time'] = this.getTime(this.operationForm.valid_end_time);
-                            let valid_start = this.getTime(this.operationForm.valid_start_time).toString()
-                            let valid_end = this.getTime(this.operationForm.valid_end_time)
-                            valid_start = new Date(valid_start)
-                            valid_end = new Date(valid_end)
-                            params['valid_start_time'] = valid_start.getTime() / 1000
-                            params['valid_end_time'] = valid_end.getTime() / 1000
-                        } else {
-                            params['valid_days'] = Number(this.operationForm.valid_days)
-                        }
                         // 领用时间
                         let grant_start = this.getTime(this.operationForm.grant_start_time)
                         let grant_end = this.getTime(this.operationForm.grant_end_time)
@@ -1127,6 +1151,22 @@ export const mixinsPromotion = {
             } else {
                 return '-1'
             }
-        }
+        },
+
+        // 按钮 - 添加阶梯
+        handleAddLadder() {
+            this.operationForm.ladderList.push({
+                amountValue: '',
+            });
+        },
+
+        // 按钮 - 删除单个优惠阶梯
+        removeSingleGood(item, index) {
+            const del_amount = 'ladderList.' + index + '.amountValue';
+            const del_discount = 'ladderList.' + index + '.discountValue';
+            this.$refs.operationForm.clearValidate(del_amount);
+            this.$refs.operationForm.clearValidate(del_discount);
+            this.operationForm.ladderList.splice(index,1);
+        },
     }
 }
