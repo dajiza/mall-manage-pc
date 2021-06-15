@@ -4,7 +4,7 @@
         <div class="wrap detail">
             <div class="table-title">
                 <div class="line"></div>
-                <div class="text">新增</div>
+                <div class="text">{{ id == 0 ? '新增' : '编辑' }}</div>
             </div>
             <div class="divider"></div>
             <div class="substance" style="padding: 22px 32px 32px">
