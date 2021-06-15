@@ -332,14 +332,17 @@ export default {
 
             this.previewUrlList = []
             let list = this.tfile
+            console.log('输出 ~ this.tfile', this.tfile)
             for (let i = 0; i < list.length; i++) {
                 const item = list[i]
                 if (item.response) {
                     this.previewUrlList.push(item.response.data.file_url)
                 } else {
-                    this.previewUrlList.push(dialogImageUrl)
+                    this.previewUrlList.push(item.url)
                 }
             }
+            console.log('输出 ~ this.previewUrlList', this.previewUrlList)
+
             this.previewIndex = this.previewUrlList.indexOf(this.dialogImageUrl)
             this.dialogVisiblePic = true
         },
