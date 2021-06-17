@@ -209,7 +209,12 @@ export default {
                         {
                             name: 'mall-backend-points-shop-list',
                             display_name: '积分商城'
-                        }
+                        },
+                        {
+                            name: 'mall-backend-sales-promotion',
+                            display_name: '促销管理'
+                        },
+
                     ]
                 },
                 {

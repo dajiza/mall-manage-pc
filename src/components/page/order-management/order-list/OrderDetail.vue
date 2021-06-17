@@ -203,9 +203,9 @@
                         <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="活动优惠总额(元)" width="140" :resizable="true" v-if="back_field_show('活动优惠总额(元)')">
+                <el-table-column prop="off_2" label="促销优惠金额(元)" width="140" :resizable="true" v-if="back_field_show('促销优惠金额(元)')">
                     <template slot-scope="scope">
-                        <span>{{scope.row.off_2/100 | rounding}}</span>
+                        <span>{{scope.row.off_3/100 | rounding}}</span>
                     </template>
                 </el-table-column>
                 <el-table-column prop="off_1" label="优惠券(元)" width="120" :resizable="true" v-if="back_field_show('优惠券(元)')">
@@ -409,8 +409,8 @@
                         <div class="amount-value">¥ {{order_info.off_1/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item activity-discount">
-                        <div class="amount-name">活动优惠总额</div>
-                        <div class="amount-value">¥ {{order_info.off_2/100 | rounding}}</div>
+                        <div class="amount-name">促销优惠金额</div>
+                        <div class="amount-value">¥ {{order_info.off_3/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item activity-discount">
                         <div class="amount-name">改价总额</div>
@@ -784,7 +784,7 @@
                     {name:'单价(元)', is_show: true},
                     {name:'数量', is_show: true},
                     {name:'总价(元)', is_show: true},
-                    {name:'活动优惠总额(元)', is_show: true},
+                    {name:'促销优惠金额(元)', is_show: true},
                     {name:'优惠券(元)', is_show: true},
                     {name:'改价(元)', is_show: true},
                     {name:'会员折扣(元)', is_show: true, is_new: true},

@@ -32,7 +32,7 @@
                     </el-form-item>
                 </el-form>
             </div>
-            <el-table v-loading="loading" :data="list" ref="multipleTable" class="order-list-table" :height="$tableHeight" :header-cell-style="$tableHeaderColor">
+            <el-table v-loading="loading" :data="list" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column prop="status" label="" width="60">
                     <template slot-scope="scope">
                         <el-radio v-model="checkedId" :label="scope.row.id" @change="e => onChangeRadio(e, scope.row)">{{ '' }}</el-radio>
@@ -136,7 +136,7 @@ export default {
                 coupon_amount: '' // 优惠券面额
             },
             loading: false,
-
+            tableHeight: 'calc(100vh - 334px)',
             shopOptions: [], // 代理店铺下拉列表
             activeCoupon: '' //选中的优惠券
         }
@@ -273,6 +273,18 @@ export default {
 }
 </script>
 <style scoped="scoped" lang="less">
+/deep/.el-dialog {
+    top: 50%;
+    left: 50%;
+    margin: 0 !important;
+    transform: translate(-50%, -50%);
+}
+/deep/.el-dialog__body {
+    padding: 0 !important;
+}
+.head-container{
+    margin-bottom: 0;
+}
 .timg {
     width: 80px;
     height: 60px;

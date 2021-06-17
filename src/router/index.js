@@ -245,6 +245,21 @@ export default new Router({
                     meta: { title: '订单详情' }
                 },
                 {
+                    path: '/mall-backend-sales-promotion',
+                    component: () => import(/* webpackChunkName: "promotionList" */ '../components/page/marketing-management/sales-promotion/salesPromotion.vue'),
+                    meta: { title: '促销管理' }
+                },
+                {
+                    path: '/mall-backend-sales-promotion-create',
+                    component: () => import(/* webpackChunkName: "promotionCreate" */ '../components/page/marketing-management/sales-promotion/salesPromotionCreate.vue'),
+                    meta: { title: '新增促销' }
+                },
+                {
+                    path: '/mall-backend-sales-promotion-update',
+                    component: () => import(/* webpackChunkName: "promotionUpdate" */ '../components/page/marketing-management/sales-promotion/salesPromotionCreate.vue'),
+                    meta: { title: '编辑促销' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
