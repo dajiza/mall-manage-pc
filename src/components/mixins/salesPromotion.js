@@ -89,27 +89,11 @@ export const mixinsPromotion = {
                 amount1:[
                     { required: true, message: '请输入', trigger: 'blur' },
                     { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
-                    {
-                        type: 'number',
-                        message: '最小值为1',
-                        transform(value) {
-                            return Number(value)
-                        },
-                        min: 1
-                    },
                     { validator: checkAmount1, trigger: ['blur', 'change'] }
                 ],
                 discount1:[
                     { required: true, message: '请输入', trigger: 'blur' },
                     { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '请输入正确格式,可保留两位小数' },
-                    {
-                        type: 'number',
-                        message: '最小值为1',
-                        transform(value) {
-                            return Number(value)
-                        },
-                        min: 1
-                    },
                     { validator: checkDiscount1, trigger: ['blur', 'change'] }
                 ],
                 piecesValue:[
@@ -206,7 +190,9 @@ export const mixinsPromotion = {
             checked_sku_list: [],
             addGoodsCount: 0,
             activeTab: '1',
-            promotionSkuCount: 0
+            promotionSkuCount: 0,
+            promotionGoodsAll: [], // 加购商品 总
+            promotionGoodsData: [] // 加购商品 当前页列表
         }
     },
     watch: {},
@@ -366,14 +352,19 @@ export const mixinsPromotion = {
                 } else {
                     let ladder_arr = []
                     info.typeList.forEach((ev)=>{
-                        let _subNum
-                        if(info.type == 3 || info.type == 4){
+                        let _subNum,_needNum
+                        if(info.type == 3 ){
                             _subNum = ev.subNum ? (ev.subNum / 10) : ''
+                            _needNum = ev.needNum ? (ev.needNum / 100) : ''
+                        } else if(info.type == 4) {
+                            _subNum = ev.subNum ? (ev.subNum / 10) : ''
+                            _needNum = ev.needNum ? ev.needNum : ''
                         } else {
                             _subNum = ev.subNum ? (ev.subNum / 100) : ''
+                            _needNum = ev.needNum ? (ev.needNum / 100) : ''
                         }
                         ladder_arr.push({
-                            needNum: ev.needNum ? (ev.needNum / 100) : '',
+                            needNum: _needNum,
                             subNum: _subNum,
                             coupon_id: ev.objId,
                             coupon_title: ev.objName
@@ -491,19 +482,22 @@ export const mixinsPromotion = {
                         type_list.push(_obj)
                     } else {
                         this.operationForm.ladderList.forEach((item)=>{
-                            let _subNum = 0,
+                            let _needNum = 0,
+                                _subNum = 0,
                                 _objId = 0,
                                 _objName = ''
                             if (this.operationForm.type == 6){
                                 _objId = item.coupon_id
                                 _objName = item.coupon_title
-                            } else if(this.operationForm.type == 3 || 4) {
-                                _subNum = commUtil.numberMul(Number(item.needNum), 10)
+                            } else if(this.operationForm.type == 3) {
+                                _subNum = commUtil.numberMul(Number(item.subNum), 10)
+                            } else if(this.operationForm.type == 4) {
+                                _subNum = commUtil.numberMul(Number(item.subNum), 10)
                             } else {
-                                _subNum = commUtil.numberMul(Number(item.needNum), 100)
+                                _subNum = commUtil.numberMul(Number(item.subNum), 100)
                             }
                             let _obj = {
-                                needNum: commUtil.numberMul(Number(item.needNum), 100),
+                                needNum: this.operationForm.type == 4? Number(item.needNum) : commUtil.numberMul(Number(item.needNum), 100),
                                 subNum: _subNum,
                                 objId: _objId,
                                 objName: _objName
@@ -666,6 +660,9 @@ export const mixinsPromotion = {
         handlePageChange(val) {
             this.goodsPage = val
             this.searchForm = _.cloneDeep(this.searchParams)
+            if(this.operationForm.type == 5 && this.activeTab==2){
+
+            }
             this.getListData()
         },
 
@@ -675,7 +672,7 @@ export const mixinsPromotion = {
             this.searchParams = _.cloneDeep(this.searchForm)
             if (this.operationForm.type == 5 && this.activeTab == '2') {
                 // 换购商品列表
-
+                this.getPromotion()
             } else {
                 this.getListData()
             }
@@ -938,9 +935,7 @@ export const mixinsPromotion = {
 
         // 获取 总商品 / 分类下商品
         getAllOrCateGoods(name, type, cate_id, str) {
-            console.log('str===925', str)
-            console.log('allLimit===926', this.allLimit)
-            console.log('cateLimit===927', this.cateLimit)
+
             let params = {
                 page: 1,
                 limit: str === 'all' ? this.allLimit : this.cateLimit,
@@ -1154,9 +1149,73 @@ export const mixinsPromotion = {
             console.log('this.operationForm.ladderList', this.operationForm.ladderList)
         },
 
-        // 确定添加SKU
+        // 确定添加换购商品
         getAddSku(sku_arr){
-
+            console.log('sku_arr', sku_arr)
+            const sku_ids = sku_arr.map(item=>{return item.id})
+            console.log('sku_ids', sku_ids)
+            console.log('promotionGoodsAll', this.promotionGoodsAll)
+            console.log('promotionGoodsData', this.promotionGoodsData)
+            sku_ids.forEach((item)=>{
+                if(this.checked_sku_list.indexOf(item) == -1){
+                    this.checked_sku_list.push(item)
+                }
+            })
+            const _list = sku_arr.concat(this.promotionGoodsAll)
+            this.promotionGoodsAll = [..._list]
+            console.log('this.checked_sku_list', this.checked_sku_list)
+            //  换购商品列表
+            this.getPromotion()
+            this.getPromotionGoods()
+        },
+        getPromotion() {
+            this.goodsPage = 1
+        },
+        // 换购商品列表-已添加
+        getPromotionGoods() {
+            let cateId = this.backCateId()
+            let params = {
+                page: this.goodsPage,
+                limit: this.goodsLimit,
+                goods_name: this.searchParams.goods_name,
+                category_id: cateId,
+                goods_ids: this.selected_goods,
+                goodsName: this.searchParams.goods_name,
+                skuName: this.searchParams.skuName,
+                skuCode: this.searchParams.skuCode,
+                promotionId: 6
+            }
+            if (this.selected_goods.length > 0) {
+                params['goods_ids'] = this.selected_goods
+            } else {
+                this.goodsInit()
+                return
+            }
+            const rLoading = this.openLoading()
+            queryCouponGoodsList(params)
+                .then(res => {
+                    rLoading.close()
+                    this.imgList = []
+                    this.previewIndex = 0
+                    if (res.code === 200) {
+                        if (res.data) {
+                            this.goodsData = res.data.lists || []
+                            this.pageTotal = res.data.total
+                            this.addGoodsCount = res.data.total
+                            this.goodsData.forEach(item => {
+                                this.imgList.push(item.goods_img)
+                            })
+                        }
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(() => {})
         },
 
         // 单个添加、添加选中

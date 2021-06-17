@@ -283,11 +283,11 @@
                 </template>
             </el-table-column>
 
-            <el-table-column label="商品分类" width="80">
+            <el-table-column label="商品分类" width="120">
                 <template slot-scope="scope">
                     <span v-if="scope.row.type == 1">布料</span>
-                    <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
-                    <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
+                    <span v-if="scope.row.type == 2"> 其他{{ categoryGenerate(scope.row.category_id, 2) }} </span>
+                    <span v-if="scope.row.type == 3"> 布组{{ categoryGenerate(scope.row.category_id, 3) }} </span>
                 </template>
             </el-table-column>
             <el-table-column label="状态">
