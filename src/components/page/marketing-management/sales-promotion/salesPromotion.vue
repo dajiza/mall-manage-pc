@@ -70,16 +70,20 @@
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column prop="title" label="促销名称"></el-table-column>
-                <el-table-column prop="location" label="促销类型" width="120">
+                <el-table-column prop="type" label="促销类型" width="120">
                     <template slot-scope="scope">
-                        <span>{{ backType(2) }}</span>
+                        <span>{{ backType(scope.row.type) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="促销时间" width="350">
-                    <template slot-scope="scope"> {{ scope.row.start_time }} 至 {{ scope.row.end_time || '无限制' }} </template>
+                    <template slot-scope="scope"> {{$moment(scope.row.startTime).format('YYYY-MM-DD HH:mm:ss')}} 至 {{ $moment(scope.row.endTime).format('YYYY-MM-DD HH:mm:ss') }} </template>
                 </el-table-column>
-                <el-table-column prop="shop_name" label="可用店铺" width="140"></el-table-column>
-                <el-table-column prop="status" label="状态" width="90">
+                <el-table-column label="可用店铺" width="140">
+                    <template slot-scope="scope">
+                        <span>{{ backShopName(scope.row.shopId) }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="status" label="状态" width="110">
                     <template slot-scope="scope">
                         <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已上架' : '已下架' }}</span>
                     </template>
@@ -115,11 +119,13 @@
             </div>
         </div>
         <!--大图预览-->
-        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex" />
+<!--        <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex" />-->
     </div>
 </template>
 
 <script>
+
+import { queryList, changeStatus } from '@/api/promotion'
 import { queryAdvList, updateAdvStatus } from '../../../../api/activity'
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './salesPromotion.less'
@@ -128,21 +134,22 @@ import IssueRecord from '../../../common/issue-record/IssueRecord.vue'
 import ElImageViewer from '../../..//common/image-viewer'
 import commUtil from '@/utils/commUtil'
 import { getToken } from '@/utils/auth'
+import bus from '@/components/common/bus'
 
 export default {
     name: 'AdvList',
     data() {
         return {
             searchForm: {
-                title: '', // 优惠券名称
-                location: '', // 位置
-                status: '', // 优惠券状态
-                shop_id: '', // 优惠券店铺
-                adv_time: [] // 广告时间
+                title: '', // 名称
+                type: '', // 类型
+                status: '', // 状态
+                shop_id: '', // 店铺
+                adv_time: [] // 促销时间
             },
             searchParams: {
                 title: '', // 优惠券名称
-                location: '', // 位置
+                type: '', // 位置
                 status: '', // 优惠券状态
                 shop_id: '', // 优惠券店铺
                 adv_time: [] // 广告时间
@@ -159,7 +166,7 @@ export default {
             statusOptions: [
                 { id: 2, name: '上架' },
                 { id: 1, name: '下架' }
-            ], // 状态下拉
+            ], // 状态下拉 下架1 上架2
             shopOptions: [], // 代理店铺下拉列表
             typeOptions: [
                 { id: '1', name: '每满减' },
@@ -168,7 +175,7 @@ export default {
                 { id: '4', name: '满件折' },
                 { id: '5', name: '加价购' },
                 { id: '6', name: '满券' }
-            ], // location下拉列表
+            ],
             tableHeight: 'calc(100vh - 194px)',
             imgSrcList: [],
             previewIndex: 0,
@@ -184,19 +191,31 @@ export default {
         ElImageViewer
     },
     computed: {
+        backShopName: function() {
+            let shop_name = '';
+            return data => {
+                const filter_arr = this.shopOptions.filter(item => {
+                    return item.id == data;
+                });
+                if (filter_arr.length > 0) {
+                    shop_name = filter_arr[0].shop_name;
+                }
+                return shop_name;
+            };
+        },
         backType: function() {
             return data => {
-                if (data == 0) {
+                if (data == 1) {
                     return '每满减'
-                } else if (data == 1) {
-                    return '满减'
                 } else if (data == 2) {
-                    return '满折'
+                    return '满减'
                 } else if (data == 3) {
-                    return '满件折'
+                    return '满折'
                 } else if (data == 4) {
-                    return '加价购'
+                    return '满件折'
                 } else if (data == 5) {
+                    return '加价购'
+                } else if (data == 6) {
                     return '满券'
                 }
             }
@@ -262,11 +281,21 @@ export default {
             )
         }
     },
-    created() {},
+    created() {
+        bus.$on('refreshProductList', target => {
+            // console.log(target);
+            if(target==='add'){
+                this.$set(this.pageInfo, 'pageIndex', 1);
+                this.resetForm('searchForm')
+            } else {
+                // this.getProductList();
+                this.getListData()
+            }
+
+        });
+    },
     mounted() {
         this.queryShopList() // 获取代理店铺列表
-        // 获取订单列表数据
-        this.getListData()
     },
     methods: {
         // 请求-获取订单列表数据
@@ -275,7 +304,6 @@ export default {
                 time_end,
                 start_time = 0,
                 end_time = 0
-            // console.log('this.searchParams.adv_time', this.searchParams.adv_time);
             if (this.searchParams.adv_time.length > 0) {
                 time_start = this.getTime(this.searchParams.adv_time[0]).toString()
                 time_end = this.getTime(this.searchParams.adv_time[1]).toString()
@@ -285,28 +313,28 @@ export default {
                 end_time = time_end.getTime() / 1000
             }
             let params = {
-                page: this.pageInfo.pageIndex,
-                limit: this.pageInfo.pageSize,
+                status: this.searchParams.status > 0 ? this.searchParams.status : 0,
+                pi: this.pageInfo.pageIndex,
+                ps: this.pageInfo.pageSize,
+                shopId: this.searchParams.shop_id ? this.searchParams.shop_id : 0,
                 title: this.searchParams.title,
-                location: this.searchParams.location > 0 ? this.searchParams.location : -1,
-                status: this.searchParams.status > 0 ? this.searchParams.status : -1,
-                shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
-                start_time: start_time || -1,
-                end_time: end_time || -1
+                startTime: start_time || 0,
+                endTime: end_time || 0,
+                type: Number(this.searchParams.type) || 0 //1每满减 2满减 3满折 4满件折 5加价购 6满卷
             }
             const rLoading = this.openLoading()
-            queryAdvList(params)
+            queryList(params)
                 .then(res => {
                     rLoading.close()
                     if (res.code === 200) {
-                        if (res.data.lists) {
-                            this.tableData = res.data.lists
+                        if (res.data.list) {
+                            this.tableData = res.data.list
                             this.pageTotal = res.data.total
                             this.imgSrcList = []
                             this.previewIndex = 0
-                            this.tableData.forEach(ev => {
-                                this.imgSrcList.push(ev.logo + '!/fw/640')
-                            })
+                            // this.tableData.forEach(ev => {
+                            //     this.imgSrcList.push(ev.logo + '!/fw/640')
+                            // })
                         } else {
                             this.tableData = []
                             this.pageTotal = 0
@@ -328,6 +356,8 @@ export default {
             queryShopList()
                 .then(res => {
                     this.shopOptions = res.data || []
+                    // 获取订单列表数据
+                    this.getListData()
                 })
                 .catch(err => {})
         },
@@ -351,7 +381,7 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = []
-            // 广告名称 coupon_title
+            // 名称 coupon_title
             if (this.searchParams['title']) {
                 let obj = {
                     label: 'title',
@@ -359,7 +389,6 @@ export default {
                 }
                 _search.push(obj)
             }
-            // location
             if (this.searchParams['type']) {
                 this.typeOptions.forEach(ev => {
                     if (ev.id == this.searchParams['type']) {
@@ -385,7 +414,7 @@ export default {
                 })
             }
 
-            // 广告状态 status
+            // 状态 status
             if (this.searchParams['status']) {
                 this.statusOptions.forEach(ev => {
                     if (ev.id == this.searchParams['status']) {
@@ -398,7 +427,7 @@ export default {
                 })
             }
 
-            // 广告时间 adv_time
+            // 时间 adv_time
             if (this.searchParams['adv_time'] && this.searchParams['adv_time'].length === 2) {
                 console.log('adv_time', this.searchParams.adv_time)
                 console.log('111', this.$moment(this.searchParams.adv_time[0]).format('YYYY-MM-DD '))
@@ -443,7 +472,7 @@ export default {
         // 上架/下架
         handleChangeStatus(index, row) {
             let params = {
-                id: Number(row.id)
+                promotionId: Number(row.id)
             }
             if (row.status < 2) {
                 // 上架
@@ -452,7 +481,7 @@ export default {
             } else {
                 // 下架
                 // 二次确认
-                this.$confirm('确定要下架该广告吗？', '', {
+                this.$confirm('确定要下架吗？', '', {
                     customClass: 'message-delete',
                     type: 'warning'
                 })
@@ -466,7 +495,7 @@ export default {
         // 改变状态
         changeStatus(params) {
             const rLoading = this.openLoading()
-            updateAdvStatus(params)
+            changeStatus(params)
                 .then(res => {
                     rLoading.close()
                     if (res.code === 200) {

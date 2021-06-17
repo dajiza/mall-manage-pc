@@ -1,6 +1,6 @@
 <template>
     <div class="app-container operation-container">
-        <el-form class="freight-form" label-position="right" :model="operationForm" :rules="rules" ref="operationForm" label-width="100px">
+        <el-form class="freight-form" label-position="right" :model="operationForm" :rules="rules" ref="operationForm" label-width="90px">
             <!-- 新增商品 -->
             <div class="table-title">
                 <div class="line"></div>
@@ -8,6 +8,15 @@
             </div>
             <div class="divider"></div>
             <div class="form-content">
+                <div class="err-tip" v-if="isShelf">如需修改，请先下架该促销！</div>
+                <el-form-item class="form-item" label="促销名称:" prop="title">
+                    <el-input class="w300" placeholder="请输入促销名称" v-model="operationForm.title" :disabled="operationTitle === '编辑促销'" />
+                </el-form-item>
+                <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'">
+                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item class="form-item" label="促销类型:" prop="type">
                     <el-radio-group v-model="operationForm.type" :disabled="operationTitle === '编辑促销'" @change="chooseCouponsType">
                         <el-radio :label="1">每满减</el-radio>
@@ -18,133 +27,113 @@
                         <el-radio :label="6">满券</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <!--每满减-->
-                <el-form-item class="form-item inline-block" label="每满:" prop="amount1" required v-if="operationForm.type == 1">
-                    <el-input class="w120" placeholder="" v-model="operationForm.amount1" :disabled="operationTitle === '编辑促销'"></el-input>
-                    <span style="padding: 0 10px">减</span>
-                </el-form-item>
-                <el-form-item class="form-item inline-block" label="" prop="discount1" label-width="0px" v-if="operationForm.type == 1">
-                    <el-input class="w120" placeholder="" v-model="operationForm.discount1" :disabled="operationTitle === '编辑促销'"></el-input>
-                </el-form-item>
-                <!--阶梯 - 满减、满折、满件折-->
-                <el-form-item class="form-item inline-block" label="阶梯:" required v-if="operationForm.type == 2 ||operationForm.type == 3 || operationForm.type == 4">
-                    <el-button type="primary" @click="handleAddLadder">添加阶梯</el-button>
-                </el-form-item>
-                <div class="ladder-wrap clearfix" v-for="(item, index) in operationForm.ladderList" :key="index"  v-if="operationForm.type == 2 ||operationForm.type == 3 || operationForm.type == 4">
-                    <span style="padding:0 10px 0 100px">满</span>
-                    <!---->
-                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.amountValue'"
-                                  :rules="rules.amountValue" v-if="operationForm.type != 4">
-                        <el-input class="w120" v-model="item.amountValue" placeholder="请输入" :precision="2"></el-input>
-                        <span style="padding: 0 10px" v-if="operationForm.type == 2">减</span>
-                        <span style="padding: 0 10px" v-if="operationForm.type == 3 || operationForm.type == 6">元</span>
+                <!--每满减、加价购-->
+                <template v-if="operationForm.type == 1 || operationForm.type == 5">
+                    <el-form-item class="form-item inline-block" :label="operationForm.type == 1?'每满:':'满:'" prop="amount1">
+                        <el-input class="w120" placeholder="" v-model="operationForm.amount1" :disabled="isShelf"></el-input>
+                        <span style="padding: 0 10px">减</span>
                     </el-form-item>
-                    <!---->
-                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.piecesValue'"
-                                  :rules="rules.piecesValue" v-if="operationForm.type == 4">
-                        <el-input class="w120" v-model="item.piecesValue" placeholder="请输入" ></el-input>
-                        <span style="padding: 0 10px" v-if="operationForm.type == 4">件</span>
+                    <el-form-item class="form-item inline-block" label="" prop="discount1" label-width="0px">
+                        <el-input class="w120" placeholder="" v-model="operationForm.discount1" :disabled="isShelf"></el-input>
+                        <span style="padding: 0 10px" v-if="operationForm.type == 5">可换购赠品</span>
                     </el-form-item>
-                    <!--优惠金额-->
-                    <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.discountValue'"
-                                  :rules="rules.discountValue" v-if="operationForm.type == 2">
-                        <el-input class="w120" v-model="item.discountValue" placeholder="请输入" :precision="1"></el-input>
+                </template>
+
+                <!--阶梯 - 满减、满折、满件折、满券-->
+                <template v-if="operationForm.type == 2 || operationForm.type == 3 || operationForm.type == 4 || operationForm.type == 6">
+                    <el-form-item style="margin-bottom: 20px" class="form-item inline-block" label="阶梯:">
+                        <el-button class="add-ladder" type="primary" @click="handleAddLadder">添加阶梯</el-button>
                     </el-form-item>
-                    <!--折扣-->
-                    <el-form-item class="form-item inline-block" label=""  label-width="0px" :prop="'ladderList.' + index + '.discountAmount'"
-                                  :rules="rules.discountAmount" v-if="operationForm.type == 3 || operationForm.type == 4">
-                        <el-input class="w120" v-model="item.discountAmount" placeholder="请输入" :precision="1"></el-input>
-                        <span style="padding-left: 10px">折</span>
-                    </el-form-item>
-                    <div class="btn-box inline-block" style="margin-left: 10px">
-                        <el-button type="danger" @click.prevent="removeSingleGood(item, index)">删除</el-button>
+                    <div class="ladder-wrap clearfix" v-for="(item, index) in operationForm.ladderList" :key="index">
+                        <span style="padding:0 10px 0 90px">满</span>
+                        <!---->
+                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
+                                      :rules="rules.needNum" v-if="operationForm.type != 4">
+                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf"></el-input>
+                            <span style="padding: 0 10px">{{operationForm.type == 2?'减':operationForm.type == 3?'元':'送券'}}</span>
+                        </el-form-item>
+                        <!--4满件折-->
+                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
+                                      :rules="rules.piecesValue" v-if="operationForm.type == 4">
+                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :disabled="isShelf"></el-input>
+                            <span style="padding: 0 10px" v-if="operationForm.type == 4">件</span>
+                        </el-form-item>
+                        <!--优惠金额-->
+                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.subNum'"
+                                      :rules="rules.discountAmount" v-if="operationForm.type == 2">
+                            <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
+                        </el-form-item>
+                        <!--折扣-->
+                        <el-form-item class="form-item inline-block" label=""  label-width="0px" :prop="'ladderList.' + index + '.subNum'"
+                                      :rules="rules.discountValue" v-if="operationForm.type == 3 || operationForm.type == 4">
+                            <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
+                            <span style="padding-left: 10px">折</span>
+                        </el-form-item>
+                        <!--优惠券-->
+                        <template v-if="operationForm.type == 6">
+                            <span v-if="item.coupon_title && item.coupon_id > 0">{{item.coupon_title}}</span>
+                            <div class="inline-block" style="margin:0 10px">
+                                <!--v-hasPermission="'mall-backend-promotion-update'"-->
+                                <el-button type="text" class="marginLeft0" @click="selectCoupons(item, index)" :disabled="isShelf">{{item.coupon_id?'重新选择':'选择优惠券'}}</el-button>
+                            </div>
+                        </template>
+                        <div class="inline-block" style="margin-left: 10px" v-if="index > 0">
+                            <el-button class="del-ladder" type="danger" @click.prevent="removeSingleGood(item, index)" :disabled="isShelf">删除</el-button>
+                        </div>
                     </div>
-                </div>
-
-                <!--加价购-->
-                <el-form-item class="form-item inline-block" label="满:" prop="amount1" required v-if="operationForm.type == 5">
-                    <el-input class="w120" placeholder="" v-model="operationForm.amount1" :disabled="operationTitle === '编辑促销'"></el-input>
-                    <span style="padding: 0 10px">加</span>
-                </el-form-item>
-                <el-form-item class="form-item inline-block" label="" prop="discount1" label-width="0px" v-if="operationForm.type == 5">
-                    <el-input class="w120" placeholder="" v-model="operationForm.discount1" :disabled="operationTitle === '编辑促销'"></el-input>
-                    <span style="padding: 0 10px">可换购赠品</span>
-                </el-form-item>
-
-
-                <el-form-item class="form-item" label="封顶优惠:" prop="discount_top" required v-if="operationForm.type == 3 || operationForm.type == 4 || operationForm.type == 6">
-                    <el-input class="w300" placeholder="" v-model.number="operationForm.discount_top" :disabled="operationTitle === '编辑促销'"></el-input>
+                </template>
+                <!--封顶优惠-->
+                <el-form-item class="form-item" label="封顶优惠:" prop="topMoney" required v-if="operationForm.type == 3 || operationForm.type == 4">
+                    <el-input class="w300" placeholder="" v-model.number="operationForm.topMoney" :disabled="isShelf"></el-input>
                     元
                 </el-form-item>
-                <el-form-item class="form-item" label="促销名称:" prop="title">
-                    <el-input class="w300" placeholder="请输入促销名称" v-model="operationForm.title" :disabled="operationTitle === '编辑促销'" />
-                </el-form-item>
-
-               <!-- <el-form-item
-                        ref="fullReduction"
-                        class="form-item"
-                        style="margin-bottom: 20px"
-                        label="促销面额:"
-                        prop="coupon_amount"
-                        :rules="operationForm.type > 1 ? rules_coupon_amount2 : rules_coupon_amount1"
-                >
-                    <el-input class="w300" placeholder="" v-model="operationForm.coupon_amount" v-if="operationForm.type > 1" :disabled="operationTitle === '编辑促销'">
-                        <template slot="append" class="append-unit">折</template>
-                    </el-input>
-                    <el-input class="w300" placeholder="" v-model.number="operationForm.coupon_amount" v-else :disabled="operationTitle === '编辑促销'">
-                        <template slot="append" class="append-unit">元</template>
-                    </el-input>
-                    <div class="tip-text">{{ operationForm.type > 1 ? '1 ~ 9.9，限一位小数' : '1 ~ 100，只限整数，有使用门槛时需小于门槛数字' }}</div>
-                </el-form-item>-->
-                <el-form-item class="form-item inline-block" label="促销时间:" prop="grant_start_time">
-                    <el-date-picker
-                            style="width:200px"
-                            class="filter-item"
-                            v-model="operationForm.grant_start_time"
-                            type="datetime"
-                            placeholder="开始时间"
-                            default-time="00:00:00"
-                            @change="getTimeLe"
-                            format="yyyy-MM-dd HH:mm:ss"
-                            :picker-options="pickerOptions1"
-                            :disabled="operationTitle === '编辑促销'"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <span style="padding: 0 10px">至</span>
-                <el-form-item class="form-item inline-block" label="" prop="grant_end_time" label-width="0px">
-                    <el-date-picker
-                            style="width:200px"
-                            class="filter-item"
-                            v-model="operationForm.grant_end_time"
-                            type="datetime"
-                            placeholder="结束时间"
-                            default-time="23:59:59"
-                            @change="getTimeGe"
-                            format="yyyy-MM-dd HH:mm:ss"
-                            :picker-options="pickerOptions2"
-                            :disabled="operationTitle === '编辑促销'"
-                    >
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'">
-                        <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
-                    </el-select>
-                </el-form-item>
+                <div>
+                    <el-form-item class="form-item inline-block" label="促销时间:" prop="startTime">
+                        <el-date-picker
+                                style="width:200px"
+                                class="filter-item"
+                                v-model="operationForm.startTime"
+                                type="datetime"
+                                placeholder="开始时间"
+                                default-time="00:00:00"
+                                @change="getTimeLe"
+                                format="yyyy-MM-dd HH:mm:ss"
+                                :picker-options="pickerOptions1"
+                                :disabled="isShelf"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                    <span style="padding: 0 10px">至</span>
+                    <el-form-item class="form-item inline-block" label="" prop="endTime" label-width="0px">
+                        <el-date-picker
+                                style="width:200px"
+                                class="filter-item"
+                                v-model="operationForm.endTime"
+                                type="datetime"
+                                placeholder="结束时间"
+                                default-time="23:59:59"
+                                @change="getTimeGe"
+                                format="yyyy-MM-dd HH:mm:ss"
+                                :picker-options="pickerOptions2"
+                                :disabled="isShelf"
+                        >
+                        </el-date-picker>
+                    </el-form-item>
+                </div>
                 <el-form-item class="form-item" label="用户群体:" prop="receive_user">
-                    <el-radio-group v-model="operationForm.receive_user" :disabled="operationTitle === '编辑促销'">
+                    <el-radio-group v-model="operationForm.receive_user" :disabled="isShelf">
                         <el-radio :label="1">店铺全体用户</el-radio>
                     </el-radio-group>
                 </el-form-item>
                 <el-form-item class="form-item" label="可用商品:" prop="use_goods_type">
-                    <el-radio-group v-model="operationForm.use_goods_type" :disabled="operationTitle === '编辑促销'" @change="useGoodsTypeChange">
+                    <el-radio-group v-model="operationForm.use_goods_type" :disabled="isShelf" @change="useGoodsTypeChange">
                         <el-radio :label="1">全场通用</el-radio>
                         <el-radio :label="2">指定商品</el-radio>
                         <el-radio :label="3">指定标签</el-radio>
                     </el-radio-group>
                 </el-form-item>
             </div>
+
             <template v-if="operationForm.use_goods_type === 3">
                 <div class="table-title marginTop20">
                     <div class="line"></div>
@@ -174,11 +163,17 @@
                 </div>
             </template>
             <template v-if="operationForm.use_goods_type === 2">
-                <div class="tabs-wrap marginTop20">
-                    <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
-                        <el-radio-button label="selected">已添加</el-radio-button>
-                        <el-radio-button label="no_select">未添加</el-radio-button>
-                    </el-radio-group>
+                <div class="tabs-wrap flex-wrap marginTop20" :class="{'tabs-padding0':operationForm.type == 5}">
+<!--                    <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">-->
+<!--                        <el-radio-button label="selected">已添加</el-radio-button>-->
+<!--                        <el-radio-button label="no_select">未添加</el-radio-button>-->
+<!--                    </el-radio-group>-->
+                    <span v-if="operationForm.type != 5">已添加({{addGoodsCount}})</span>
+                    <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick" v-else>
+                        <el-tab-pane :label="'主商品(' + addGoodsCount +')'" name="1"></el-tab-pane>
+                        <el-tab-pane :label="'换购品('+ promotionSkuCount +')'" name="2"></el-tab-pane>
+                    </el-tabs>
+                    <el-button style="margin-left: auto" type="success" :disabled="isShelf" @click="handleAddSelected">添加</el-button>
                 </div>
                 <div class="divider"></div>
                 <div class="form-content goods-table-padding head-container">
@@ -186,7 +181,7 @@
                         <el-form-item label="商品名称" prop="goods_name" class="">
                             <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入"></el-input>
                         </el-form-item>
-                        <el-form-item label="商品分类：" prop="cateArr">
+                        <el-form-item label="商品分类：" prop="cateArr" v-if="!(operationForm.type == 5 && activeTab==2)">
                             <el-cascader
                                     class="filter-item"
                                     filterable
@@ -201,21 +196,20 @@
                                 </template> -->
                             </el-cascader>
                         </el-form-item>
+                        <el-form-item label="SKU名称" prop="skuName" class="" v-if="operationForm.type == 5 && activeTab==2">
+                            <el-input class="filter-item" v-model="searchForm.skuName" placeholder="请输入"></el-input>
+                        </el-form-item>
+                        <el-form-item label="SKU编码" prop="skuCode" class="" v-if="operationForm.type == 5 && activeTab==2">
+                            <el-input class="filter-item" v-model="searchForm.skuCode" placeholder="请输入"></el-input>
+                        </el-form-item>
                         <el-form-item class="btn-box" label="">
                             <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                             <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                         </el-form-item>
-                        <el-form-item class="add-btn-box" v-show="tabPosition === 'no_select'">
-                            <el-button type="primary" @click="handleAddSelected">添加</el-button>
-                            <el-button type="success" @click="handleAddCate">添加该分类</el-button>
-                            <el-button type="primary" @click="handleAddAll">
-                                {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '添加搜索列表' : '添加全部商品' }}
-                            </el-button>
-                        </el-form-item>
-                        <el-form-item class="add-btn-box" v-show="tabPosition === 'selected'">
-                            <el-button type="warning" @click="handleDelSelected">移除</el-button>
-                            <el-button type="primary" @click="handleDelCate">移除该分类</el-button>
-                            <el-button type="warning" @click="handleDelAll">
+                        <el-form-item class="add-btn-box">
+                            <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">移除</el-button>
+                            <el-button type="primary" @click="handleDelCate" v-if="!(operationForm.type == 5 && activeTab==2)" :disabled="isShelf">移除该分类</el-button>
+                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf">
                                 {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '清空搜索列表' : '清空已添加' }}
                             </el-button>
                         </el-form-item>
@@ -245,12 +239,7 @@
                         </el-table-column>
                         <el-table-column label="操作" width="110">
                             <template slot-scope="scope">
-                                <div v-if="tabPosition === 'no_select'">
-                                    <el-button type="text" class="marginLeft0 marginRight15" @click="handleAddItem(scope.$index, scope.row)">添加</el-button>
-                                </div>
-                                <div v-if="tabPosition === 'selected'">
-                                    <el-button type="text" class="marginLeft0 delete-color marginRight15" @click="handleDelItem(scope.$index, scope.row)">移除</el-button>
-                                </div>
+                                <el-button type="text" class="marginLeft0 delete-color marginRight15" :disabled="isShelf" @click="handleDelItem(scope.$index, scope.row)">移除</el-button>
                             </template>
                         </el-table-column>
                         <template slot="empty">
@@ -271,12 +260,25 @@
             </template>
 
             <div class="operations">
-                <el-button type="primary" :disabled="saveIsClick" @click="handleSave('operationForm')">保存</el-button>
+                <el-button type="primary" :disabled="saveIsClick || isShelf" @click="handleSave('operationForm')">保存</el-button>
                 <el-button class="btn-cancel" type="danger" :disabled="saveIsClick" @click="handleCancel('operationForm')">取消</el-button>
             </div>
         </el-form>
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
+        <!-- 添加优惠券 -->
+        <coupon-list ref="couponList" @add-success="getCoupon" :couponId="couponId > 0 ? couponId : ''"></coupon-list>
+        <!-- 添加商品 -->
+        <addGoodsPop ref="goodsList"
+                     :categoryData="categoryData"
+                     :checked="selected_goods"
+                     :shopId="shopId"
+                     @handleAddGoods="handleAddGoods"
+                     @handleAddCateGoods="handleAddCateGoods"
+                     @handleAddAllGoods="handleAddAllGoods"
+        ></addGoodsPop>
+        <!-- 添加Sku -->
+        <addSkuPop ref="skuList" @check-sku="getAddSku" :checked="checked_sku_list" :shopId="shopId"></addSkuPop>
     </div>
 </template>
 <script>
@@ -292,7 +294,20 @@
         methods: {}
     }
 </script>
-
+<style lang="less" scoped>
+    .tabs {
+        margin-left: 30px;
+    & /deep/ .el-tabs__header {
+          margin: 0;
+      }
+    & /deep/ .el-tabs__nav {
+          height: 58px;
+      }
+    & /deep/ .el-tabs__item {
+          line-height: 58px;
+      }
+    }
+</style>
 <style lang="less">
     .el-cascader-node > .el-radio {
         // display: none;
@@ -303,5 +318,8 @@
     }
     .el-cascader__tags .el-tag {
         display: none;
+    }
+    .add-ladder,.del-ladder{
+        padding: 5px 10px !important;
     }
 </style>

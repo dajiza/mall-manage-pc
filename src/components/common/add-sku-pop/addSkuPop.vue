@@ -247,6 +247,7 @@
 
 <script>
 import { queryShopGoodsList, queryCheckedGoods } from '@/api/live'
+import { queryPromotionSkuList } from '@/api/promotion'
 import { queryCategoryListAll } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
@@ -385,6 +386,13 @@ export default {
     created() {},
     mounted() {},
     methods: {
+        formatMoney: formatMoney,
+        goodsTable(row) {
+            if (row.columnIndex == 2) {
+                return 'checkboxColumn'
+            }
+        },
+
         formatMoney: formatMoney,
         goodsTable(row) {
             if (row.columnIndex == 2) {
