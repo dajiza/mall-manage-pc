@@ -7,6 +7,7 @@ import bus from '@/components/common/bus'
 import commUtil from '@/utils/commUtil'
 import EmptyList from '../common/empty-list/EmptyList'
 import ElImageViewer from '@/components/common/image-viewer'
+import addGoodsPop from '@/components/common/add-goods-pop/addGoodsPop'
 import { construct } from '@/utils/json-tree'
 
 export const mixinsCoupons = {
@@ -177,7 +178,7 @@ export const mixinsCoupons = {
             goodsPage: 1,
             goodsLimit: 10,
             pageTotal: 0,
-            tabPosition: 'no_select',
+            tabPosition: 'selected',
             searchParams: {
                 goods_name: '',
                 cateArr: []
@@ -193,13 +194,15 @@ export const mixinsCoupons = {
             cateLimit: 0, // 分类下总条数
             allLimit: 0, // 全部商品数量
             cateIsAtLast: false, // 最终请求分类商品
-            loadingTip: {}
+            loadingTip: {},
+            addGoodsCount: 0,
         }
     },
     watch: {},
     computed: {},
     components: {
         ElImageViewer,
+        addGoodsPop,
         EmptyList
     },
     created() {
@@ -715,26 +718,9 @@ export const mixinsCoupons = {
             this.previewIndex = 0
         },
 
-        // 添加选中
-        handleAddSelected() {
-            if (this.checkedList.length > 0) {
-                this.loadingTip = this.uploadLoading('加载中')
-                this.addOrDelSuccess(this.checkedList, 'add')
-                this.goodsInit()
-                this.getListData()
-            } else {
-                this.$notify({
-                    title: '请勾选商品后再添加',
-                    message: '',
-                    type: 'error',
-                    duration: 3000
-                })
-            }
-        },
-
-        // 添加该分类
-        handleAddCate() {
-            this.addOrDelCate('add')
+        // 添加
+        handleAdd() {
+            this.$refs.goodsList.show()
         },
 
         // 输出 -- 分类id
@@ -762,7 +748,7 @@ export const mixinsCoupons = {
                 const cate_id = this.backCateId()
                 if (this.searchParams.goods_name) {
                     // 搜索中 有商品名称  重新请求 该分类下商品列表数量 先获取商品总数
-                    this.getGoodsListTotal(type, cate_id, 'cete')
+                    this.getGoodsListTotal(this.searchParams.goods_name,type, cate_id, 'cete')
                 } else {
                     // 搜索中 不含有商品名称  可以直接获取到商品总数
                     this.cateLimit = this.pageTotal
@@ -778,18 +764,13 @@ export const mixinsCoupons = {
             }
         },
 
-        // 添加全部商品
-        handleAddAll() {
-            this.addOrDelAll('add')
-        },
-
         // 添加或移除全部/搜索
         addOrDelAll(type) {
             this.searchForm = _.cloneDeep(this.searchParams)
             if (this.goodsData.length > 0) {
                 this.loadingTip = this.uploadLoading('加载中')
                 const cate_id = this.backCateId()
-                this.getGoodsListTotal(type, cate_id, 'all')
+                this.getGoodsListTotal(this.searchParams.goods_name,type, cate_id, 'all')
             } else {
                 this.$notify({
                     title: type === 'add' ? '无可添加商品' : '无可移除商品',
@@ -804,8 +785,6 @@ export const mixinsCoupons = {
         handleDelSelected() {
             if (this.checkedList.length > 0) {
                 this.addOrDelSuccess(this.checkedList, 'del')
-                this.goodsInit()
-                this.getListData()
             } else {
                 this.$notify({
                     title: '请勾选商品后再移除',
@@ -827,35 +806,27 @@ export const mixinsCoupons = {
             this.addOrDelAll('del')
         },
 
-        // 添加单个
-        handleAddItem(index, row) {
-            let _arr = []
-            _arr.push(row)
-            this.loadingTip = this.uploadLoading('加载中')
-            this.addOrDelSuccess(_arr, 'add')
-            this.goodsInit()
-            this.getListData()
-        },
-
         // 移除单个
         handleDelItem(index, row) {
             let _arr = []
             _arr.push(row)
-            this.loadingTip = this.uploadLoading('加载中')
             this.addOrDelSuccess(_arr, 'del')
-            this.goodsInit()
-            this.getListData()
         },
 
         // 获取分类下商品数量/全部商品数量
-        getGoodsListTotal(type, cate_id, str) {
+        getGoodsListTotal(goods_name,type, cate_id, str) {
             let params = {
                 page: 1,
                 limit: 10,
-                goods_name: str === 'cate' ? '' : this.searchParams.goods_name,
+                goods_name: goods_name,
                 category_id: cate_id,
-                goods_ids: this.tabPosition === 'selected' ? this.selected_goods : [],
-                not_goods_ids: this.tabPosition === 'selected' ? [] : this.selected_goods
+                goods_ids: [],
+                not_goods_ids: []
+            }
+            if(type == 'add') {
+                params['not_goods_ids'] = this.selected_goods
+            } else {
+                params['goods_ids'] = this.selected_goods
             }
             queryCouponGoodsList(params)
                 .then(res => {
@@ -871,6 +842,7 @@ export const mixinsCoupons = {
                             if (res.data.total > 10) {
                                 this.getAllOrCateGoods('', type, cate_id, str)
                             } else {
+                                this.loadingTip.close()
                                 this.addOrDelSuccess(res.data.lists || [], type)
                             }
                         }
@@ -890,7 +862,6 @@ export const mixinsCoupons = {
         },
         // 添加成功/移除成功
         addOrDelSuccess(list, type) {
-            this.loadingTip.close()
             if (list.length > 0) {
                 let new_goods_list = []
                 list.forEach(ev => {
@@ -919,6 +890,7 @@ export const mixinsCoupons = {
                                 type: 'success',
                                 duration: 3000
                             })
+                            this.$refs.goodsList.close()
                             this.goodsInit()
                             this.getListData()
                         })
@@ -969,13 +941,19 @@ export const mixinsCoupons = {
                 limit: str === 'all' ? this.allLimit : this.cateLimit,
                 goods_name: str === 'cate' ? '' : this.searchParams.goods_name,
                 category_id: cate_id,
-                goods_ids: this.tabPosition === 'selected' ? this.selected_goods : [],
-                not_goods_ids: this.tabPosition === 'selected' ? [] : this.selected_goods
+                goods_ids: [],
+                not_goods_ids: []
+            }
+            if(type == 'add') {
+                params['not_goods_ids'] = this.selected_goods
+            } else {
+                params['goods_ids'] = this.selected_goods
             }
             queryCouponGoodsList(params)
                 .then(res => {
                     this.imgList = []
                     this.previewIndex = 0
+                    this.loadingTip.close()
                     if (res.code === 200) {
                         if (res.data) {
                             if (str === 'all') {
@@ -986,7 +964,6 @@ export const mixinsCoupons = {
                             this.addOrDelSuccess(res.data.lists || [], type)
                         }
                     } else {
-                        this.loadingTip.close()
                         this.$notify({
                             title: res.msg,
                             message: '',
@@ -1008,18 +985,13 @@ export const mixinsCoupons = {
                 limit: this.goodsLimit,
                 goods_name: this.searchParams.goods_name,
                 category_id: cateId,
-                goods_ids: this.tabPosition === 'selected' ? this.selected_goods : []
+                goods_ids: []
             }
-            if (this.tabPosition === 'selected') {
-                if (this.selected_goods.length > 0) {
-                    params['goods_ids'] = this.selected_goods
-                } else {
-                    this.goodsInit()
-                    return
-                }
+            if (this.selected_goods.length > 0) {
+                params['goods_ids'] = this.selected_goods
             } else {
-                params['goods_ids'] = []
-                params['not_goods_ids'] = this.selected_goods
+                this.goodsInit()
+                return
             }
             const rLoading = this.openLoading()
             queryCouponGoodsList(params)
@@ -1031,6 +1003,7 @@ export const mixinsCoupons = {
                         if (res.data) {
                             this.goodsData = res.data.lists || []
                             this.pageTotal = res.data.total
+                            this.addGoodsCount = res.data.total
                             this.goodsData.forEach(item => {
                                 this.imgList.push(item.goods_img)
                             })
@@ -1127,6 +1100,24 @@ export const mixinsCoupons = {
             } else {
                 return '-1'
             }
-        }
+        },
+
+        // 单个添加、添加选中
+        handleAddGoods(data){
+            console.log('data', data)
+            this.addOrDelSuccess(data,'add')
+        },
+
+        // 添加分类
+        handleAddCateGoods(data) {
+            this.loadingTip = this.uploadLoading('加载中')
+            this.getGoodsListTotal(data.goods_name,'add', data.cate_id, 'cate')
+        },
+        // 添加全部、搜索商品
+        handleAddAllGoods(data){
+            this.loadingTip = this.uploadLoading('加载中')
+            console.log('data.cate_id', data.cate_id)
+            this.getGoodsListTotal(data.goods_name,'add', data.cate_id, 'all')
+        },
     }
 }

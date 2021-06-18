@@ -10,7 +10,7 @@
                     <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
                         <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
                             <el-form-item label="促销名称" prop="title" class="">
-                                <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入"></el-input>
+                                <el-input class="filter-item" v-model="searchForm.title" placeholder="请输入" @keyup.enter.native="handleSearch()"></el-input>
                             </el-form-item>
                             <el-form-item label="类型" prop="type" class="">
                                 <el-select class="filter-item" v-model="searchForm.type" placeholder="请选择" clearable>

@@ -1,50 +1,68 @@
 <template>
     <div class="dialog-container" @click="searchShow = false">
-        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened" @close="closed">
+        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened" :close-on-click-modal="false" @close="closed">
             <div slot="title">
                 <div class="table-title">
-                    <div class="text">挑选赠品</div>
+<!--                    <div class="text">挑选赠品</div>-->
+                    <el-tabs class="tabs" v-model="activeTab" @tab-click="onTabClick">
+                        <el-tab-pane :label="'未添加'" name="1"></el-tab-pane>
+                        <el-tab-pane :label="'已添加('+ addCount +')'" name="2"></el-tab-pane>
+                    </el-tabs>
                     <div class="grey-line"></div>
                     <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
                     <transition name="slide-fade">
                         <div class="head-container" v-show="searchShow" @click.stop="">
                             <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left">
-                                <el-form-item label="商品名称" prop="title" label-width="">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
-                                </el-form-item>
-                                <el-form-item label="商品ID" prop="id">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
-                                </el-form-item>
-                                <el-form-item label="商品分类" prop="typeCategory">
-                                    <el-cascader
-                                            class="filter-item"
-                                            :props="{ checkStrictly: true }"
-                                            v-model="searchForm.typeCategory"
-                                            placeholder="请选择"
-                                            :options="typeList"
-                                    ></el-cascader>
-                                </el-form-item>
-                                <el-form-item label="商品状态" prop="status">
-                                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
-                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="出售状态" prop="is_sale">
-                                    <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
-                                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="SKU名称" prop="sku_name" class="">
-                                    <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
-                                </el-form-item>
-                                <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                                    <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
-                                </el-form-item>
-                                <el-form-item label="会员折扣" prop="discount_condition">
-                                    <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
-                                        <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>
+                                <template v-if="activeTab=='2'">
+                                    <el-form-item label="商品名称" prop="title" label-width="">
+                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="SKU名称" prop="sku_name" class="">
+                                        <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                                        <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
+                                    </el-form-item>
+                                </template>
+                                <template v-if="activeTab=='1'">
+                                    <el-form-item label="商品名称" prop="title" label-width="">
+                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="商品ID" prop="id">
+                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="商品分类" prop="typeCategory">
+                                        <el-cascader
+                                                class="filter-item"
+                                                :props="{ checkStrictly: true }"
+                                                v-model="searchForm.typeCategory"
+                                                placeholder="请选择"
+                                                :options="typeList"
+                                        ></el-cascader>
+                                    </el-form-item>
+                                    <el-form-item label="商品状态" prop="status">
+                                        <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
+                                            <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="出售状态" prop="is_sale">
+                                        <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
+                                            <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <el-form-item label="SKU名称" prop="sku_name" class="">
+                                        <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                                        <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="会员折扣" prop="discount_condition">
+                                        <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
+                                            <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                </template>
+
                                 <el-form-item class="form-item-btn" label="">
                                     <el-button class="filter-btn" size="" type="" @click="resetForm('searchForm')">重置</el-button>
                                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -100,150 +118,200 @@
                 </div>
             </div>
             <div class="app-container" @click="searchShow = false">
-                <el-table
-                    ref="multipleTable"
-                    :height="$tableHeight"
-                    class="table"
-                    :data="list"
-                    v-loading.body="listLoading"
-                    :header-cell-style="$tableHeaderColor"
-                    element-loading-text="Loading"
-                    :default-expand-all="false"
-                    row-key="id"
-                    :cell-class-name="goodsTable"
-                    :cell-style="{ background: '#fff' }"
-                >
-                    <el-table-column label="-" type="expand" width="55">
-                        <template slot-scope="props">
-                            <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
-                                <el-table-column label="" width="50">
-                                    <template slot-scope="scope">
-                                        <el-checkbox
-                                            v-model="scope.row.skuIsChecked"
+
+                <template v-if="activeTab == '1' && !showAddList">
+                    <el-table
+                            ref="multipleTable"
+                            :height="tableHeight"
+                            class="table"
+                            :data="list"
+                            v-loading.body="listLoading"
+                            :header-cell-style="$tableHeaderColor"
+                            element-loading-text="Loading"
+                            :default-expand-all="false"
+                            row-key="id"
+                            :cell-class-name="goodsTable"
+                            :cell-style="{ background: '#fff' }"
+                            key="tableKey"
+                    >
+                        <template v-if="activeTab == '1' && !showAddList">
+                            <el-table-column label="-" type="expand" width="55">
+                                <template slot-scope="props">
+                                    <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
+                                        <el-table-column label="" width="50">
+                                            <template slot-scope="scope">
+                                                <el-checkbox
+                                                        v-model="scope.row.skuIsChecked"
+                                                        :disabled="scope.row.isDisabled"
+                                                        @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
+                                                ></el-checkbox>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="状态" width="90">
+                                            <template slot-scope="scope">
+                                                <span class="text-red" v-show="scope.row.status == 1">已下架</span>
+                                                <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU图片" width="120">
+                                            <template slot-scope="scope">
+                                                <img
+                                                        class="timg"
+                                                        :src="scope.row.sku_img + '!upyun520/fw/300'"
+                                                        alt=""
+                                                        @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
+                                                />
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU名称">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.title }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU编码">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.storehouse_code }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="实际销量" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.real_sales }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="售价(元)" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ formatMoney(scope.row.min_price) }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="总库存" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.stock_total }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="可用库存" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.stock_available }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="是否售罄" width="90">
+                                            <template slot-scope="scope">
+                                                <div class="type-tag type-yellow" v-if="scope.row.is_store_shortage == 2">售罄</div>
+                                                <div class="type-tag type-blue" v-else>否</div>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="会员折扣" width="90">
+                                            <template slot-scope="scope">
+                                                <span v-if="scope.row.user_discount == 0">是</span>
+                                                <span v-else-if="scope.row.user_discount == 1">否</span>
+                                                <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
+                                            </template>
+                                        </el-table-column>
+                                    </el-table>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="" width="70">
+                                <template slot-scope="scope">
+                                    <!--                            <span>({{ scope.row.checkNum }}/{{ scope.row.goods_sku.length }})</span>-->
+                                    <span>({{ scope.row.checkNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="" width="35">
+                                <template slot-scope="scope">
+                                    <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length" -->
+                                    <el-checkbox
+                                            v-model="scope.row.goodsIsChecked"
                                             :disabled="scope.row.isDisabled"
-                                            @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
-                                        ></el-checkbox>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="状态" width="90">
-                                    <template slot-scope="scope">
-                                        <span class="text-red" v-show="scope.row.status == 1">已下架</span>
-                                        <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU图片" width="120">
-                                    <template slot-scope="scope">
-                                        <img
-                                            class="timg"
-                                            :src="scope.row.sku_img + '!upyun520/fw/300'"
-                                            alt=""
-                                            @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
-                                        />
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU名称">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.title }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU编码">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.storehouse_code }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="实际销量" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.real_sales }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="售价(元)" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ formatMoney(scope.row.min_price) }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="总库存" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.stock_total }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="可用库存" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.stock_available }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="是否售罄" width="90">
-                                    <template slot-scope="scope">
-                                        <div class="type-tag type-yellow" v-if="scope.row.is_store_shortage == 2">售罄</div>
-                                        <div class="type-tag type-blue" v-else>否</div>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="会员折扣" width="90">
-                                    <template slot-scope="scope">
-                                        <span v-if="scope.row.user_discount == 0">是</span>
-                                        <span v-else-if="scope.row.user_discount == 1">否</span>
-                                        <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </template>
-                    </el-table-column>
+                                            :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length"
+                                            @change="value => goodsChecked(value, scope.row, scope.$index)"
+                                    ></el-checkbox>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品ID" width="80">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.id }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="主图" width="120">
+                                <template slot-scope="scope">
+                                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品名称">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.title }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品分类" width="180">
+                                <template slot-scope="scope">
+                                    <span v-if="scope.row.type == 1">布料</span>
+                                    <span v-if="scope.row.type == 2"> 其他{{ categoryGenerate(scope.row.category_id, 2) }} </span>
+                                    <span v-if="scope.row.type == 3"> 布组{{ categoryGenerate(scope.row.category_id, 3) }} </span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="状态" width="120">
+                                <template slot-scope="scope">
+                                    <div class="status">
+                                        <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
+                                        <span class="dot dot-green" v-if="scope.row.status == 2"></span>
 
-                    <el-table-column label="" width="70">
-                        <template slot-scope="scope">
-<!--                            <span>({{ scope.row.checkNum }}/{{ scope.row.goods_sku.length }})</span>-->
-                            <span>({{ scope.row.checkNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="" width="35">
-                        <template slot-scope="scope">
-                            <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length" -->
-                            <el-checkbox
-                                v-model="scope.row.goodsIsChecked"
-                                :disabled="scope.row.isDisabled"
-                                :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length"
-                                @change="value => goodsChecked(value, scope.row, scope.$index)"
-                            ></el-checkbox>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="商品ID" width="80">
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.id }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="主图" width="120">
-                        <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="商品名称">
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.title }}</span>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="商品分类" width="180">
-                        <template slot-scope="scope">
-                            <span v-if="scope.row.type == 1">布料</span>
-                            <span v-if="scope.row.type == 2"> 其他{{ categoryGenerate(scope.row.category_id, 2) }} </span>
-                            <span v-if="scope.row.type == 3"> 布组{{ categoryGenerate(scope.row.category_id, 3) }} </span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="状态" width="120">
-                        <template slot-scope="scope">
-                            <div class="status">
-                                <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
-                                <span class="dot dot-green" v-if="scope.row.status == 2"></span>
-
-                                <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
+                                        <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
                                     {{ scope.row.status == 1 ? '已下架' : '已上架' }}
                                 </span>
-                            </div>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="出售状态" width="110">
+                                <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
+                            </el-table-column>
                         </template>
-                    </el-table-column>
-                    <el-table-column label="出售状态" width="110">
-                        <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
-                    </el-table-column>
-                </el-table>
+                    </el-table>
+                </template>
+                <template v-if="activeTab == '2' && showAddList">
+                    <el-table
+                            :height="tableHeight"
+                            class="table"
+                            :data="addList"
+                            key="addListKey"
+                            element-loading-text="Loading"
+                    >
+                        <el-table-column label="" width="55">
+                            <template slot-scope="scope">
+                                <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length" -->
+                                <el-checkbox
+                                        v-model="scope.row.goodsIsChecked"
+                                        :disabled="scope.row.isDisabled"
+                                        @change="value => delSkuChecked(value, scope.row, scope.$index)"
+                                ></el-checkbox>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="商品主图" width="120">
+                            <template slot-scope="scope">
+                                <img class="timg" :src="scope.row.goodsImg + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goodsImg, 1, scope.$index)" />
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="商品名称" prop="goodsName">
+                            <template slot-scope="scope">{{scope.row.goodsName}}</template>
+                        </el-table-column>
+                        <el-table-column label="SKU图片" width="120">
+                            <template slot-scope="scope">
+                                <img class="timg" :src="scope.row.skuImg + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.skuImg, 1, scope.$index)" />
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="SKU名称" prop="skuName"></el-table-column>
+                        <el-table-column label="SKU编码" prop="shopSkuId"></el-table-column>
+                        <el-table-column label="售价(元)" width="100">
+                            <template slot-scope="scope">{{ (scope.row.price / 100) | rounding }}</template>
+                        </el-table-column>
+                        <el-table-column label="操作" width="110">
+                            <template slot-scope="scope">
+                                <el-button type="text" class="marginLeft0 marginRight15 delete-color" @click="handleDelItem(scope.$index, scope.row)">移除</el-button>
+                            </template>
+                        </el-table-column>
+                        <!--                        <template slot="empty">-->
+                        <!--                            <EmptyList></EmptyList>-->
+                        <!--                        </template>-->
+                    </el-table>
+                </template>
                 <div class="pagination-container">
                     <el-pagination
                         background
@@ -257,9 +325,11 @@
                     </el-pagination>
                 </div>
             </div>
+
             <div slot="footer" class="dialog-footer">
                 <!--<el-button @click="close">取 消</el-button>-->
-                <el-button type="primary" @click="save">确定</el-button>
+                <el-button type="primary" @click="handleOnAdd" v-if="activeTab=='1'">添加</el-button>
+                <el-button type="danger" @click="handleOnDel" v-if="activeTab=='2'">移除</el-button>
             </div>
         </el-dialog>
         <!--大图预览-->
@@ -284,10 +354,13 @@ export default {
         shopId: {
             type: Number,
             default: -1
-        }
+        },
+        tableKey: 0,
+        addTableKey: 1
     },
     data() {
         return {
+            tableHeight: 'calc(100vh - 264px)',
             list: [],
             total: 0,
             listLoading: false,
@@ -346,7 +419,31 @@ export default {
             searchList: [],
             showMaxIndex: 0,
             checkedList: [], // 选中商品列表
-            labelKey: 1
+            labelKey: 1,
+            activeTab: '0',
+            addCount: 0,
+            showAddList: false,
+            addList:[
+                {
+                    goodsId: 9,
+                    shopSkuId: 9,
+                    goodsName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
+                    skuName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
+                    goodsImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
+                    skuImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
+                    price: 1
+                },
+                {
+                    goodsId: 10,
+                    shopSkuId: 19,
+                    goodsName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
+                    skuName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
+                    goodsImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
+                    skuImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
+                    price: 1
+                },
+            ]
+
         }
     },
     components: {
@@ -440,6 +537,7 @@ export default {
             this.setSearchValue()
             this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
             this.queryDataAllInit()
+            this.activeTab = '1'
         },
         closed() {
             this.searchShow = false
@@ -937,7 +1035,7 @@ export default {
         close() {
             this.isShow = false
         },
-        async save() {
+        async handleOnAdd() {
             let sku_arr = []
             this.checkedList.forEach(goods_item => {
                 goods_item.goods_sku.forEach(sku_item => {
@@ -957,9 +1055,15 @@ export default {
                 })
                 return
             }
-            this.$emit('check-sku', _.cloneDeep(sku_arr))
+            console.log('sku_arr', sku_arr)
+            this.$emit('addSku', _.cloneDeep(sku_arr))
+            // this.$emit('delSku', _.cloneDeep(sku_arr))
             this.checkedList = []
-            this.isShow = false
+            // this.isShow = false
+        },
+
+        handleOnDel() {
+
         },
 
         closeAddGoods() {
@@ -1100,12 +1204,83 @@ export default {
                 this.$set(this.checkedList, index, goodsSku)
             }
             this.filterGoods()
+        },
+
+        // 已添加列表 sku中
+        delSkuChecked(bol, row, index) {
+            console.log('bol', bol)
+            console.log('row', row)
+            console.log('index', index)
+            row['goodsIsChecked'] = bol
+            let goodsSku = _.cloneDeep(row)
+            let checkedGoodsIds = [] // 选中商品id集合
+            console.log('this.checkedList', this.checkedList)
+            if (this.checkedList.length > 0) {
+                checkedGoodsIds = this.checkedList.map(item => {
+                    return item.goods_id
+                })
+            }
+            console.log('checkedGoodsIds', checkedGoodsIds)
+            // 判断 当前操作的商品 是否在 已选商品列表中
+
+            if (checkedGoodsIds.indexOf(goodsSku.goods_id) == -1) {
+                if(bol) {
+                    this.checkedList.push(goodsSku)
+                } else {
+
+                }
+
+            } else if (checkedGoodsIds.indexOf(goodsSku.goods_id) > -1) {
+                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
+                // 删除
+                if(bol) {
+                    // this.checkedList.push(goodsSku)
+                } else {
+                    this.checkedList.splice(index, 1)
+                }
+
+                // this.$set(this.checkedList, index, goodsSku)
+            }
+            console.log('this.checkedList======606', this.checkedList)
+            return
+        },
+
+        onTabClick() {
+            console.log('activeTab', this.activeTab)
+            if(this.activeTab == 2){
+               this.showAddList = true
+            } else {
+                this.showAddList = false
+            }
+        },
+        // 删除单条
+        handleDelItem() {
+
         }
     }
 }
 </script>
 
 <style scoped="scoped" lang="less">
+.app-container{
+    margin-top: 20px;
+}
+.tabs {
+    margin-left: 30px;
+    & /deep/ .el-tabs__header {
+        margin: 0;
+    }
+    & /deep/ .el-tabs__nav {
+        height: 56px;
+        z-index: 2003;
+    }
+    & /deep/ .el-tabs__item {
+        line-height: 56px;
+    }
+}
+.el-tabs__active-bar{
+    z-index: 2004;
+}
 /deep/.el-dialog {
     top: 50%;
     left: 50%;
@@ -1117,6 +1292,8 @@ export default {
 }
 /deep/.el-dialog__header {
     padding: 10px 0 !important;
+    box-sizing: border-box;
+    height: 57px;
 }
 /deep/.el-dialog__headerbtn {
     top: 21px;

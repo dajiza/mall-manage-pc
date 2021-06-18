@@ -211,11 +211,13 @@
                 </div>
             </template>
             <template v-if="operationForm.use_goods_type === 2">
-                <div class="tabs-wrap marginTop20">
-                    <el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
+                <div class="tabs-wrap marginTop20 flex-wrap">
+                    <!--<el-radio-group v-model="tabPosition" class="tabs-nav" @change="tabClick()">
                         <el-radio-button label="selected">已添加</el-radio-button>
                         <el-radio-button label="no_select">未添加</el-radio-button>
-                    </el-radio-group>
+                    </el-radio-group>-->
+                    <span>已添加({{addGoodsCount}})</span>
+                    <el-button style="margin-left: auto" type="success" @click="handleAdd">添加</el-button>
                 </div>
                 <div class="divider"></div>
                 <div class="form-content goods-table-padding head-container">
@@ -242,14 +244,7 @@
                             <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                             <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                         </el-form-item>
-                        <el-form-item class="add-btn-box" v-show="tabPosition === 'no_select'">
-                            <el-button type="primary" @click="handleAddSelected">添加</el-button>
-                            <el-button type="success" @click="handleAddCate">添加该分类</el-button>
-                            <el-button type="primary" @click="handleAddAll">
-                                {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '添加搜索列表' : '添加全部商品' }}
-                            </el-button>
-                        </el-form-item>
-                        <el-form-item class="add-btn-box" v-show="tabPosition === 'selected'">
+                        <el-form-item class="add-btn-box">
                             <el-button type="warning" @click="handleDelSelected">移除</el-button>
                             <el-button type="primary" @click="handleDelCate">移除该分类</el-button>
                             <el-button type="warning" @click="handleDelAll">
@@ -314,6 +309,14 @@
         </el-form>
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
+        <!-- 添加商品 -->
+        <addGoodsPop ref="goodsList"
+                     :categoryData="categoryData"
+                     :checked="selected_goods"
+                     @handleAddGoods="handleAddGoods"
+                     @handleAddCateGoods="handleAddCateGoods"
+                     @handleAddAllGoods="handleAddAllGoods"
+        ></addGoodsPop>
     </div>
 </template>
 <script>

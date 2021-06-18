@@ -543,7 +543,7 @@ export default {
         handleAddAll() {
             this.searchForm = _.cloneDeep(this.searchParams)
             let params = {
-                cate_id: 0,
+                cate_id: -1,
                 goods_name: this.searchParams.goods_name
             }
             if (this.list.length > 0) {
