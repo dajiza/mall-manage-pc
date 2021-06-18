@@ -588,7 +588,7 @@ export default {
                 this.typeList.forEach(ev => {
                     if (ev.value == this.searchParams['typeCategory'][0]) {
                         let obj = {
-                            label: 'goods_type',
+                            label: 'typeCategory',
                             val: ev.label
                         }
                         _search.push(obj)

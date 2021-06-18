@@ -13,56 +13,42 @@
                     <transition name="slide-fade">
                         <div class="head-container" v-show="searchShow" @click.stop="">
                             <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left">
-                                <template v-if="activeTab=='2'">
-                                    <el-form-item label="商品名称" prop="title" label-width="">
-                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="SKU名称" prop="sku_name" class="">
-                                        <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                                        <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
-                                    </el-form-item>
-                                </template>
-                                <template v-if="activeTab=='1'">
-                                    <el-form-item label="商品名称" prop="title" label-width="">
-                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="商品ID" prop="id">
-                                        <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="商品分类" prop="typeCategory">
-                                        <el-cascader
-                                                class="filter-item"
-                                                :props="{ checkStrictly: true }"
-                                                v-model="searchForm.typeCategory"
-                                                placeholder="请选择"
-                                                :options="typeList"
-                                        ></el-cascader>
-                                    </el-form-item>
-                                    <el-form-item label="商品状态" prop="status">
-                                        <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
-                                            <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="出售状态" prop="is_sale">
-                                        <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
-                                            <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                    <el-form-item label="SKU名称" prop="sku_name" class="">
-                                        <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                                        <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
-                                    </el-form-item>
-                                    <el-form-item label="会员折扣" prop="discount_condition">
-                                        <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
-                                            <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                        </el-select>
-                                    </el-form-item>
-                                </template>
-
+                                <el-form-item label="商品名称" prop="title" label-width="">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品ID" prop="id" v-show="activeTab == '1'">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品分类" prop="typeCategory" v-show="activeTab == '1'">
+                                    <el-cascader
+                                            class="filter-item"
+                                            :props="{ checkStrictly: true }"
+                                            v-model="searchForm.typeCategory"
+                                            placeholder="请选择"
+                                            :options="typeList"
+                                    ></el-cascader>
+                                </el-form-item>
+                                <el-form-item label="商品状态" prop="status" v-show="activeTab == '1'">
+                                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
+                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="出售状态" prop="is_sale" v-show="activeTab == '1'">
+                                    <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
+                                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="SKU名称" prop="sku_name" class="">
+                                    <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
+                                </el-form-item>
+                                <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                                    <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
+                                </el-form-item>
+                                <el-form-item label="会员折扣" prop="discount_condition" v-show="false">
+                                    <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
+                                        <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
                                 <el-form-item class="form-item-btn" label="">
                                     <el-button class="filter-btn" size="" type="" @click="resetForm('searchForm')">重置</el-button>
                                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -88,7 +74,7 @@
                             <span style="width: 20px;display: inline-block">...</span>
                         </div>
                     </div>
-                    <div class="selected-goods-btn">
+                    <div class="selected-goods-btn" v-if="activeTab=='1'">
                         <el-popover placement="bottom-end" width="300" trigger="click" popper-class="group-popper">
                             <div class="row-list">
                                 <div class="nodata" v-if="checkedList.length == 0">无数据</div>
@@ -118,8 +104,7 @@
                 </div>
             </div>
             <div class="app-container" @click="searchShow = false">
-
-                <template v-if="activeTab == '1' && !showAddList">
+                <template v-if="activeTab == '1'">
                     <el-table
                             ref="multipleTable"
                             :height="tableHeight"
@@ -134,7 +119,7 @@
                             :cell-style="{ background: '#fff' }"
                             key="tableKey"
                     >
-                        <template v-if="activeTab == '1' && !showAddList">
+                        <template v-if="activeTab == '1'">
                             <el-table-column label="-" type="expand" width="55">
                                 <template slot-scope="props">
                                     <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
@@ -266,7 +251,7 @@
                         </template>
                     </el-table>
                 </template>
-                <template v-if="activeTab == '2' && showAddList">
+                <template v-if="activeTab == '2'">
                     <el-table
                             :height="tableHeight"
                             class="table"
@@ -298,7 +283,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称" prop="skuName"></el-table-column>
-                        <el-table-column label="SKU编码" prop="shopSkuId"></el-table-column>
+                        <el-table-column label="SKU编码" prop="skuCode"></el-table-column>
                         <el-table-column label="售价(元)" width="100">
                             <template slot-scope="scope">{{ (scope.row.price / 100) | rounding }}</template>
                         </el-table-column>
@@ -313,23 +298,39 @@
                     </el-table>
                 </template>
                 <div class="pagination-container">
-                    <el-pagination
-                        background
-                        @size-change="handleSizeChange"
-                        @current-change="handleCurrentChange"
-                        :current-page="listQuery.page"
-                        :page-size="listQuery.limit"
-                        layout="total, prev, pager, next, jumper"
-                        :total="total"
-                    >
-                    </el-pagination>
+                    <template v-if="activeTab == '1'">
+                        <el-pagination
+                                background
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange"
+                                :current-page="listQuery.page"
+                                :page-size="listQuery.limit"
+                                layout="total, prev, pager, next, jumper"
+                                :total="total"
+                                key="tableKey"
+                        >
+                        </el-pagination>
+                    </template>
+                    <template v-else>
+                        <el-pagination
+                                background
+                                @size-change="handleSizeChange"
+                                @current-change="handleCurrentChange"
+                                :current-page="listQuery.addPage"
+                                :page-size="listQuery.limit"
+                                layout="total, prev, pager, next, jumper"
+                                :total="addCount"
+                                key="addPaginationKey"
+                        >
+                        </el-pagination>
+                    </template>
                 </div>
             </div>
 
             <div slot="footer" class="dialog-footer">
                 <!--<el-button @click="close">取 消</el-button>-->
-                <el-button type="primary" @click="handleOnAdd" v-if="activeTab=='1'">添加</el-button>
-                <el-button type="danger" @click="handleOnDel" v-if="activeTab=='2'">移除</el-button>
+                <el-button type="primary" @click="handleOnAdd" v-if="activeTab=='1'" :disabled="list < 1">添加</el-button>
+                <el-button type="danger" @click="handleOnDel" v-if="activeTab=='2'" :disabled="addList < 1">移除</el-button>
             </div>
         </el-dialog>
         <!--大图预览-->
@@ -339,15 +340,21 @@
 
 <script>
 import { queryGoodsListNew, queryShopList, queryCategoryListAll } from '@/api/goods'
+import { querySkuList } from '@/api/promotion'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 import { construct } from '@/utils/json-tree'
 import commUtil from '@/utils/commUtil'
+import { queryCouponGoodsList } from '@/api/coupons';
 export default {
     name: 'CheckList',
     props: {
         checked: {
+            type: Array,
+            default: []
+        },
+        addIds: {
             type: Array,
             default: []
         },
@@ -366,6 +373,7 @@ export default {
             listLoading: false,
             listQuery: {
                 page: 1,
+                addPage: 1,
                 limit: 10
             },
             isShow: false,
@@ -380,7 +388,8 @@ export default {
                 allow_agent: '',
                 storehouse_code: '',
                 typeCategory: [], //cache数据
-                discount_condition: ''
+                discount_condition: '',
+                sku_name: ''
             },
             searchParams: {},
             searchShow: false, //搜索表单显示
@@ -419,31 +428,13 @@ export default {
             searchList: [],
             showMaxIndex: 0,
             checkedList: [], // 选中商品列表
+            delSkuList: [], // 选中移除
             labelKey: 1,
             activeTab: '0',
             addCount: 0,
-            showAddList: false,
-            addList:[
-                {
-                    goodsId: 9,
-                    shopSkuId: 9,
-                    goodsName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
-                    skuName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
-                    goodsImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
-                    skuImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
-                    price: 1
-                },
-                {
-                    goodsId: 10,
-                    shopSkuId: 19,
-                    goodsName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
-                    skuName: "4号。彩虹色可裁布，共25条，每条6乘以105厘米，25色不重复，今天69元，仅限今天一天。",
-                    goodsImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
-                    skuImg: "https://storehouse-upyun.chuanshui.cn/2020-12-11/files/h37T4rvFo98Ej3nG.png",
-                    price: 1
-                },
-            ]
-
+            allAddList: [], // 全部已添加 不分页
+            addSkuIdsArr: [], // 已添加sku id集合
+            addList:[]
         }
     },
     components: {
@@ -478,17 +469,35 @@ export default {
                     }
                 }.bind(this)
             )
-        }
+        },
+        checked: {
+            handler(newValue, oldValue) {
+                this.checkedSkuIds = _.cloneDeep(newValue)
+                if(this.activeTab == '1' && this.isShow){
+                    this.listQuery.page = 1
+                    this.getList()
+                }
+            },
+            deep: true
+        },
+        addIds: {
+            handler(newValue, oldValue) {
+                console.log('newValue', newValue)
+                this.addSkuIdsArr = _.cloneDeep(newValue)
+                if(this.isShow) {
+                    this.listQuery.addPage = 1
+                    this.getPromotionGoods()
+                }
+            },
+            deep: true
+        },
     },
     computed: {
         backGoodsOtherName: function() {
             return data => {
-                console.log('data', data)
                 let _name = ''
                 this.categoryListOther.forEach(ev => {
-                    console.log('ev', ev.id)
                     if (ev.id == data) {
-                        console.log('ev', ev)
                         _name = ' > ' + ev.name
                     }
                 })
@@ -497,12 +506,9 @@ export default {
         },
         backGoodsCategoryName: function() {
             return data => {
-                console.log('data', data)
                 let _name = ''
                 this.categoryListClothGroup.forEach(ev => {
-                    console.log('ev', ev.id)
                     if (ev.id == data) {
-                        console.log('ev', ev)
                         _name = ' > ' + ev.name
                     }
                 })
@@ -519,25 +525,25 @@ export default {
                 return 'checkboxColumn'
             }
         },
-
-        formatMoney: formatMoney,
-        goodsTable(row) {
-            if (row.columnIndex == 2) {
-                return 'checkboxColumn'
-            }
-        },
         open() {},
         opened() {
             ++this.labelKey
             this.checkedList = []
+            this.addList = []
+            this.addCount = 0
+            this.listQuery.addPage = 1
             this.listQuery.page = 1
             this.searchShow = false
             this.$refs['searchForm'].resetFields()
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
             this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
+            this.addSkuIdsArr = _.cloneDeep(this.addIds)
             this.queryDataAllInit()
             this.activeTab = '1'
+            console.log('this.checkedSkuIds', this.checkedSkuIds)
+            console.log('this.addSkuIdsArr', this.addSkuIdsArr)
+            this.getPromotionGoods()
         },
         closed() {
             this.searchShow = false
@@ -616,93 +622,12 @@ export default {
                 return cate ? '> ' + cate.name : ''
             }
         },
-        /*getList() {
-            const rLoading = this.openLoading()
-            let params = _.cloneDeep(this.searchParams)
-            // params['sku_is_store_shortage'] = 1;
-            params['limit'] = this.listQuery.limit
-            params['page'] = this.listQuery.page
-            params['goods_id'] = Number(this.searchParams.goods_id)
-            if (params['typeCategory'].length == 1) {
-                params['goods_type'] = params['typeCategory'][0]
-                params['other_id'] = ''
-            } else if (params['typeCategory'].length == 2) {
-                params['goods_type'] = params['typeCategory'][0]
-                params['other_id'] = params['typeCategory'][1]
-            } else if (params['typeCategory'].length == 3) {
-                params['goods_type'] = params['typeCategory'][0]
-                params['other_id'] = params['typeCategory'][2]
-            }
-            if (params['goods_type'] == 1) {
-                params['other_id'] = 0
-            }
-            params['shop_id'] = this.shopId
-            queryShopGoodsList(params)
-                .then(res => {
-                    if (res.data.lists == null || res.data.lists.length == 0) {
-                        this.list = res.data.lists || []
-                        this.total = res.data.total || 0
-                        rLoading.close()
-                        return
-                    }
-                    // 生成主图 sku图预览列表
-                    this.timgList = []
-                    this.skuImgList = []
-                    let goods_list = []
-                    let new_sku_ids = [] // 新加sku id集合
-                    this.checkedList.forEach(goods_item => {
-                        goods_item.shop_skus.forEach(sku_item => {
-                            if (sku_item.skuIsChecked) {
-                                new_sku_ids.push(sku_item.sku_id)
-                            }
-                        })
-                    })
-                    if (res.data.lists && res.data.lists.length > 0) {
-                        _.cloneDeep(res.data.lists).forEach(ev => {
-                            let goods = _.cloneDeep(ev)
-                            this.timgList.push(goods.goods_img)
-                            goods.shop_skus.forEach((sku, sku_i) => {
-                                this.skuImgList.push(sku.sku_sku_img)
-                                sku['skuIsChecked'] = false
-                                if (this.checkedSkuIds.indexOf(sku.sku_id) > -1) {
-                                    sku['skuIsChecked'] = true
-                                    sku['isDisabled'] = true
-                                }
-                                if (new_sku_ids.indexOf(sku.sku_id) > -1) {
-                                    sku['skuIsChecked'] = true
-                                }
-                            })
-                            goods['goodsIsChecked'] = false
-                            goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
-                            goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length
-                            if (goods['checkNum'] > 0) {
-                                goods['goodsIsChecked'] = true
-                            }
-                            goods['isDisabled'] = false
-                            if (goods['skuDisabledNum'] > 0) {
-                                goods['isDisabled'] = true
-                                goods.shop_skus.forEach((sku, sku_i) => {
-                                    sku['isDisabled'] = true
-                                })
-                            }
 
-                            goods_list.push(goods)
-                        })
-                    }
-                    this.list = goods_list
-                    this.total = res.data.total
-                    rLoading.close()
-                })
-                .catch(err => {
-                    rLoading.close()
-                })
-        },*/
-
+        // 未添加
         getList() {
             const rLoading = this.openLoading()
             let params = _.cloneDeep(this.searchParams)
             // let params = _.cloneDeep(this.$refs['searchForm'].model)
-            console.log('GOOGLE: params', params)
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
             if (params['typeCategory'].length == 1) {
@@ -728,7 +653,6 @@ export default {
 
             queryGoodsListNew(params)
                 .then(async res => {
-                    console.log('输出 ~ res', res)
                     if (res.data.goods_list == null) {
                         this.list = []
                         this.total = 0
@@ -784,6 +708,7 @@ export default {
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
                         }
+                        product['goodsIsChecked'] = false
                         product['checkNum'] = product.goods_sku.filter(item => item.skuIsChecked).length
                         product['skuDisabledNum'] = product.goods_sku.filter(item => item.isDisabled).length
                         if (product['checkNum'] > 0) {
@@ -807,13 +732,69 @@ export default {
                 })
         },
 
+        // 换购-已添加SKU列表
+        getPromotionGoods() {
+            let delSkuIds = []
+            if (this.addSkuIdsArr.length < 1) {
+                this.imgList = []
+                this.allAddList = []
+                this.addCount = 0
+                this.addList = []
+                return
+            }
+            let params = {
+                goodsName: this.searchParams.title || '',
+                skuName: this.searchParams.sku_name || '',
+                skuCode: this.searchParams.storehouse_code || '',
+                skuIds: this.addSkuIdsArr
+            }
+            this.listQuery.page = 1
+            const rLoading = this.openLoading()
+            querySkuList(params)
+                .then(res => {
+                    rLoading.close()
+                    if (res.code === 200) {
+                        if (res.data) {
+                            this.allAddList = res.data || []
+                            this.addCount = res.data.length || 0
+                            this.addListPagination()
+                        }
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            message: '',
+                            type: 'error',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(() => {})
+        },
+
+        // 换购-已添加SKU列表 分页处理
+        addListPagination() {
+            this.imgList = []
+            this.previewIndex = 0
+            const startNum = (this.listQuery.addPage - 1) * this.listQuery.limit,
+                  endNum = this.listQuery.addPage * this.listQuery.limit
+            this.addList = this.allAddList.slice(startNum,endNum)
+            this.addList.forEach(item => {
+                this.imgList.push(item.goods_img)
+            })
+        },
+
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
+            this.listQuery.addPage = 1
             this.searchShow = false
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
-            this.getList()
+            if(this.activeTab == '1'){
+                this.getList()
+            } else {
+                this.getPromotionGoods()
+            }
         },
 
         // 重置
@@ -846,7 +827,7 @@ export default {
                 this.typeList.forEach(ev => {
                     if (ev.value == this.searchParams['typeCategory'][0]) {
                         let obj = {
-                            label: 'type',
+                            label: 'typeCategory',
                             val: ev.label
                         }
                         _search.push(obj)
@@ -895,6 +876,7 @@ export default {
                 })
             }
 
+            // 上下架状态 status
             if (this.searchParams['status']) {
                 this.statusList.forEach(ev => {
                     if (ev.value == this.searchParams['status']) {
@@ -963,7 +945,6 @@ export default {
                     }
                 })
             }
-            // console.log('_search', _search)
             this.searchList = _.cloneDeep(_search)
         },
 
@@ -1025,8 +1006,14 @@ export default {
             this.getList()
         },
         handleCurrentChange(val) {
-            this.listQuery.page = val
-            this.getList()
+            if (this.activeTab == '1') {
+                this.listQuery.page = val
+                this.getList()
+            } else {
+                this.listQuery.addPage = val
+                this.addListPagination()
+            }
+
         },
 
         show() {
@@ -1037,6 +1024,8 @@ export default {
         },
         async handleOnAdd() {
             let sku_arr = []
+            console.log('this.checkedList', this.checkedList)
+            console.log('this.checkedList.length', this.checkedList.length)
             this.checkedList.forEach(goods_item => {
                 goods_item.goods_sku.forEach(sku_item => {
                     if (sku_item.skuIsChecked && !sku_item.isDisabled) {
@@ -1047,6 +1036,8 @@ export default {
                     }
                 })
             })
+            console.log('sku_arr', sku_arr)
+            console.log('sku_arr', sku_arr)
             if (sku_arr.length < 1) {
                 this.$notify({
                     title: '请挑选商品',
@@ -1055,15 +1046,32 @@ export default {
                 })
                 return
             }
-            console.log('sku_arr', sku_arr)
             this.$emit('addSku', _.cloneDeep(sku_arr))
             // this.$emit('delSku', _.cloneDeep(sku_arr))
             this.checkedList = []
             // this.isShow = false
         },
 
+        // 移除单条
+        handleDelItem(i,row) {
+            console.log('row',row)
+            let goodsSku = _.cloneDeep(row)
+            let list = []
+            list.push(goodsSku)
+            console.log('1051======', list)
+            this.$emit('delSku', _.cloneDeep(list))
+        },
+        // 确定移除
         handleOnDel() {
-
+            if (this.delSkuList.length < 1) {
+                this.$notify({
+                    title: '请挑选商品',
+                    type: 'warning',
+                    duration: 3000
+                })
+                return
+            }
+            this.$emit('delSku', _.cloneDeep(this.delSkuList))
         },
 
         closeAddGoods() {
@@ -1156,7 +1164,6 @@ export default {
                 })
             }
             let goodsSku = _.cloneDeep(goods_detail)
-            console.log('goodsSku====1055', goodsSku)
             // 判断 当前操作的sku 所属商品 是否在 已选商品列表中
             if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
                 this.checkedList.push(goodsSku)
@@ -1195,7 +1202,6 @@ export default {
                 })
             }
             let goodsSku = _.cloneDeep(row)
-            console.log('goodsSku====1103', goodsSku)
             // 判断 当前操作的商品 是否在 已选商品列表中
             if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
                 this.checkedList.push(goodsSku)
@@ -1206,57 +1212,43 @@ export default {
             this.filterGoods()
         },
 
-        // 已添加列表 sku中
+        // 已添加列表 sku选中
         delSkuChecked(bol, row, index) {
-            console.log('bol', bol)
-            console.log('row', row)
-            console.log('index', index)
             row['goodsIsChecked'] = bol
             let goodsSku = _.cloneDeep(row)
-            let checkedGoodsIds = [] // 选中商品id集合
-            console.log('this.checkedList', this.checkedList)
-            if (this.checkedList.length > 0) {
-                checkedGoodsIds = this.checkedList.map(item => {
-                    return item.goods_id
+            let checkedSkuIds = [] // 选中商品id集合
+            if (this.delSkuList.length > 0) {
+                checkedSkuIds = this.delSkuList.map(item => {
+                    return item.skuId
                 })
             }
-            console.log('checkedGoodsIds', checkedGoodsIds)
             // 判断 当前操作的商品 是否在 已选商品列表中
-
-            if (checkedGoodsIds.indexOf(goodsSku.goods_id) == -1) {
+            if (checkedSkuIds.indexOf(row.skuId) == -1) {
                 if(bol) {
-                    this.checkedList.push(goodsSku)
-                } else {
-
+                    this.delSkuList.push(goodsSku)
                 }
-
-            } else if (checkedGoodsIds.indexOf(goodsSku.goods_id) > -1) {
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
+            } else if (checkedSkuIds.indexOf(row.skuId) > -1) {
+                let index = checkedSkuIds.indexOf(row.skuId)
                 // 删除
                 if(bol) {
                     // this.checkedList.push(goodsSku)
                 } else {
-                    this.checkedList.splice(index, 1)
+                    this.delSkuList.splice(index, 1)
                 }
-
-                // this.$set(this.checkedList, index, goodsSku)
             }
-            console.log('this.checkedList======606', this.checkedList)
-            return
         },
 
         onTabClick() {
-            console.log('activeTab', this.activeTab)
+            this.searchList = []
+            this.listQuery.addPage = 1
+            this.listQuery.page = 1
             if(this.activeTab == 2){
-               this.showAddList = true
+                this.delSkuList = []
+                this.resetForm('searchForm')
             } else {
-                this.showAddList = false
+                this.resetForm('searchForm')
             }
         },
-        // 删除单条
-        handleDelItem() {
-
-        }
     }
 }
 </script>

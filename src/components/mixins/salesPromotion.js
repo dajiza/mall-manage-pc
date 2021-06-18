@@ -76,9 +76,7 @@ export const mixinsPromotion = {
             },
             searchForm: {
                 goods_name: '',
-                cateArr: [],
-                skuName: '',
-                skuCode: ''
+                cateArr: []
             },
             rules: {
                 type: [{ required: true, message: '请选择类型', trigger: 'change' }],
@@ -173,7 +171,7 @@ export const mixinsPromotion = {
             previewUrlList: [],
             previewIndex: 0,
             imgList: [],
-            selected_goods: [], // 已选中商品id数组
+            selectedGoods: [], // 已选中商品id数组
             checkedList: [], // 表格当前选中列表
             couponsDetail: {},
             showTags: [],
@@ -187,12 +185,11 @@ export const mixinsPromotion = {
             couponInTitle: '', // 优惠券标题
             shopId: 1,
             checked_goods_list: [],
-            checked_sku_list: [],
+            checkedSkuList: [], // 全部阶梯使用的SKU ID集合
+            addIds: [], // 单个阶梯已添加sku ID集合
             addGoodsCount: 0,
             activeTab: '1',
-            promotionSkuCount: 0,
-            promotionGoodsAll: [], // 加购商品 总
-            promotionGoodsData: [] // 加购商品 当前页列表
+            originalRules: [] //  类型为加价购的促销编辑时存储 rules
         }
     },
     watch: {},
@@ -320,7 +317,6 @@ export const mixinsPromotion = {
                     }
                     this.labelOptions = labelAllArr
                     this.categoryData = cateAllArr
-                    console.log('输出 ~ cateAllArr', cateAllArr)
                     rLoading.close()
                     if (this.operationTitle !== '新增促销') {
                         // 请求促销详情
@@ -331,6 +327,7 @@ export const mixinsPromotion = {
         },
         // 详情回显
         setDetailInfo(info) {
+            this.checkedSkuList = []
             this.$set(this.operationForm, 'type', Number(info.type))
             this.$set(this.operationForm, 'title', info.title)
             this.$set(this.operationForm, 'shop_id', Number(info.shopId))
@@ -348,9 +345,6 @@ export const mixinsPromotion = {
 
             if(info.rules && info.rules.length > 0) {
                 if(info.type == 1) {
-                    this.$set(this.operationForm, 'amount1', info.rules[0].needNum / 100)
-                    this.$set(this.operationForm, 'discount1', info.rules[0].subNum / 100)
-                } else if(info.type == 5) {
                     this.$set(this.operationForm, 'amount1', info.rules[0].needNum / 100)
                     this.$set(this.operationForm, 'discount1', info.rules[0].subNum / 100)
                 } else {
@@ -372,14 +366,22 @@ export const mixinsPromotion = {
                             subNum: _subNum,
                             coupon_id: ev.objId,
                             coupon_title: ev.objName,
-                            exchGoodsList: ev.exchGoodsList || []
+                            exchGoodsList: ev.exchGoodsList || [],
+                            oldExchange: ev.exchGoodsList || [],
+                            showTipIcon: false
                         })
+                        if(info.type == 5){
+                            ev.exchGoodsList.forEach((sku_item)=>{
+                                if(this.checkedSkuList.indexOf(sku_item.skuId)){
+                                    this.checkedSkuList.push(sku_item.skuId)
+                                }
+                            })
+                        }
                     })
+                    this.originalRules = ladder_arr
                     this.$set(this.operationForm, 'ladderList', ladder_arr)
                 }
             }
-            // const use_start_time =  new Date(parseInt(info.startTime) * 1000);
-            // const use_end_time =  new Date(parseInt(info.endTime) * 1000);
             this.$set(this.operationForm, 'startTime', info.startTime)
             this.$set(this.operationForm, 'endTime', info.endTime)
             if (info.useGoodsType === 3) {
@@ -407,12 +409,8 @@ export const mixinsPromotion = {
                 this.setTagsSelect()
             } else if (info.useGoodsType === 2) {
                 this.tabPosition = 'selected'
-                this.selected_goods = info.goodsIds
+                this.selectedGoods = info.goodsIds
                 this.getListData()
-            }
-            if (this.operationTitle === '编辑促销') {
-            } else {
-                this.$set(this.operationForm, 'title', '')
             }
         },
 
@@ -431,7 +429,6 @@ export const mixinsPromotion = {
                         this.setDetailInfo(data)
                     })
                     .catch(err => {
-                        // console.log('err', err);
                         // reject(err.data)
                     })
             })
@@ -446,10 +443,11 @@ export const mixinsPromotion = {
                 coupon_title: '',
                 coupon_id: 0,
                 objId: 0,
-                exchGoodsList: []
+                exchGoodsList: [],
+                oldExchange:[],
+                showTipIcon: false
             }
             this.$set(this.operationForm, 'ladderList', [_obj])
-            console.log('this.operationForm.ladderList', this.operationForm.ladderList)
             this.$refs['operationForm'].clearValidate();
             this.$nextTick(() => {
                 this.$refs['operationForm'].clearValidate() // 清除优惠券面额的验证
@@ -472,7 +470,7 @@ export const mixinsPromotion = {
                         tagIds: []
                     }
                     let type_list = []
-                    if (this.operationForm.type == 1 || this.operationForm.type == 5) {
+                    if (this.operationForm.type == 1) {
                         let _obj = {
                             needNum: commUtil.numberMul(Number(this.operationForm.amount1), 100),
                             subNum: commUtil.numberMul(Number(this.operationForm.discount1), 100),
@@ -517,16 +515,17 @@ export const mixinsPromotion = {
                         })
                     }
                     if(type_list.length > 0){
-                        let _arr = []
+                        let need_arr = [],
+                            sub_arr = []
                         type_list.forEach((ev)=>{
-                            if(_arr.indexOf(ev.needNum) == -1) {
-                                _arr.push(ev.needNum)
+                            if(need_arr.indexOf(ev.needNum) == -1) {
+                                need_arr.push(ev.needNum)
+                            }
+                            if(sub_arr.indexOf(ev.subNum) == -1) {
+                                sub_arr.push(ev.subNum)
                             }
                         })
-                        console.log('_arr', _arr)
-                        console.log('type_list', type_list)
-                        console.log('_arr', _arr.length)
-                        if(type_list.length != _arr.length){
+                        if(type_list.length != need_arr.length && this.operationForm.type != 5){
                             this.$notify({
                                 title: '存在重复阶梯,请修改后再保存',
                                 message: '',
@@ -537,6 +536,18 @@ export const mixinsPromotion = {
                         } else {
                             type_list = type_list.sort((a, b) => a.needNum - b.needNum)
                         }
+
+                        if(this.operationForm.type == 5 && type_list.length != sub_arr.length){
+                            this.$notify({
+                                title: '存在重复阶梯,请修改后再保存',
+                                message: '',
+                                type: 'error',
+                                duration: 3000
+                            })
+                            return;
+                        } else if(this.operationForm.type == 5 && type_list.length == sub_arr.length){
+                            type_list = type_list.sort((a, b) => a.subNum - b.subNum)
+                        }
                     } else {
                         this.$notify({
                             title: '最少创建一个阶梯',
@@ -545,7 +556,23 @@ export const mixinsPromotion = {
                             duration: 3000
                         })
                     }
-
+                    if (this.operationForm.type == 5) {
+                        let err_num = 0
+                        type_list.forEach((ev)=>{
+                            if(ev.exchGoodsList.length < 1){
+                                err_num++
+                            }
+                        })
+                        if(err_num > 0){
+                            this.$notify({
+                                title: '每个阶梯最少添加一个换购品',
+                                message: '',
+                                type: 'error',
+                                duration: 3000
+                            })
+                            return
+                        }
+                    }
                     params['rules'] = type_list
                     if (this.operationForm.type == 3 || this.operationForm.type == 4) {
                         params['topMoney'] = commUtil.numberMul(Number(this.operationForm.topMoney), 100) // 封顶优惠
@@ -568,12 +595,11 @@ export const mixinsPromotion = {
                             })
                             return
                         }
-                        console.log('标签_list', _list)
                         params['tagIds'] = _list
                     }
                     if (this.operationForm.use_goods_type === 2) {
-                        if (this.selected_goods.length > 0) {
-                            params['goodsIds'] = this.selected_goods
+                        if (this.selectedGoods.length > 0) {
+                            params['goodsIds'] = this.selectedGoods
                         } else {
                             this.$notify({
                                 title: '请先指定商品',
@@ -667,9 +693,6 @@ export const mixinsPromotion = {
         handlePageChange(val) {
             this.goodsPage = val
             this.searchForm = _.cloneDeep(this.searchParams)
-            if(this.operationForm.type == 5 && this.activeTab==2){
-
-            }
             this.getListData()
         },
 
@@ -677,12 +700,7 @@ export const mixinsPromotion = {
         handleSearch(formName) {
             this.goodsPage = 1
             this.searchParams = _.cloneDeep(this.searchForm)
-            if (this.operationForm.type == 5 && this.activeTab == '2') {
-                // 换购商品列表
-                this.getPromotion()
-            } else {
-                this.getListData()
-            }
+            this.getListData()
         },
 
         // 重置
@@ -728,7 +746,6 @@ export const mixinsPromotion = {
                     cateId = 0
                 }
             }
-            console.log('输出 ~ cateId', cateId)
             return cateId
         },
 
@@ -820,9 +837,9 @@ export const mixinsPromotion = {
                 not_goods_ids: []
             }
             if(type == 'add') {
-               params['not_goods_ids'] = this.selected_goods
+               params['not_goods_ids'] = this.selectedGoods
             } else {
-                params['goods_ids'] = this.selected_goods
+                params['goods_ids'] = this.selectedGoods
             }
             queryCouponGoodsList(params)
                 .then(res => {
@@ -878,8 +895,8 @@ export const mixinsPromotion = {
                         type: 'warning'
                     })
                         .then(() => {
-                            let old_list = _.cloneDeep(this.selected_goods)
-                            this.selected_goods = [...old_list, ...new_goods_list]
+                            let old_list = _.cloneDeep(this.selectedGoods)
+                            this.selectedGoods = [...old_list, ...new_goods_list]
                             tipText = "已移入到'已添加'列表"
                             this.$notify({
                                 title: tipText,
@@ -904,11 +921,11 @@ export const mixinsPromotion = {
                         type: 'warning'
                     })
                         .then(() => {
-                            let new_arr = _.cloneDeep(this.selected_goods)
+                            let new_arr = _.cloneDeep(this.selectedGoods)
                             new_arr = new_arr.filter(function(item) {
                                 return new_goods_list.indexOf(item) == -1
                             })
-                            this.selected_goods = new_arr
+                            this.selectedGoods = new_arr
                             tipText = "已移除"
                             this.$notify({
                                 title: tipText,
@@ -933,7 +950,6 @@ export const mixinsPromotion = {
 
         // 获取 总商品 / 分类下商品
         getAllOrCateGoods(name, type, cate_id, str) {
-
             let params = {
                 page: 1,
                 limit: str === 'all' ? this.allLimit : this.cateLimit,
@@ -943,9 +959,9 @@ export const mixinsPromotion = {
                 not_goods_ids: []
             }
             if(type == 'add') {
-                params['not_goods_ids'] = this.selected_goods
+                params['not_goods_ids'] = this.selectedGoods
             } else {
-                params['goods_ids'] = this.selected_goods
+                params['goods_ids'] = this.selectedGoods
             }
             queryCouponGoodsList(params)
                 .then(res => {
@@ -983,10 +999,10 @@ export const mixinsPromotion = {
                 limit: this.goodsLimit,
                 goods_name: this.searchParams.goods_name,
                 category_id: cateId,
-                goods_ids: this.selected_goods
+                goods_ids: this.selectedGoods
             }
-            if (this.selected_goods.length > 0) {
-                params['goods_ids'] = this.selected_goods
+            if (this.selectedGoods.length > 0) {
+                params['goods_ids'] = this.selectedGoods
             } else {
                 this.goodsInit()
                 return
@@ -1002,7 +1018,6 @@ export const mixinsPromotion = {
                             this.goodsData = res.data.lists || []
                             this.pageTotal = res.data.total
                             this.addGoodsCount = res.data.total
-                            console.log('this.goodsData====973', this.goodsData)
                             this.goodsData.forEach(item => {
                                 this.imgList.push(item.goods_img)
                             })
@@ -1023,6 +1038,7 @@ export const mixinsPromotion = {
         tagsChange(val) {
             this.setTagsSelect()
         },
+
         setTagsSelect() {
             let show_tags = []
             // 标签(布)列表 labelCloth 标签(其它)列表 labelOther
@@ -1109,7 +1125,9 @@ export const mixinsPromotion = {
                 coupon_title: '',
                 coupon_id: 0,
                 objId: 0,
-                exchGoodsList: []
+                exchGoodsList: [],
+                oldExchange:[],
+                showTipIcon: false
             });
         },
 
@@ -1147,6 +1165,11 @@ export const mixinsPromotion = {
         // 添加换购品
         AddSwapGoods(item,index) {
             console.log('item', item)
+            if(item.exchGoodsList.length > 0){
+                this.addIds = item.exchGoodsList.map(item=>{return item.skuId})
+            } else {
+                this.addIds = []
+            }
             this.ladderIndex = index
             this.$refs.skuList.show()
         },
@@ -1155,87 +1178,90 @@ export const mixinsPromotion = {
         getAddSku(sku_arr){
             const sku_ids = sku_arr.map(item=>{return item.id})
             sku_ids.forEach((item)=>{
-                if(this.checked_sku_list.indexOf(item) == -1){
-                    this.checked_sku_list.push(item)
+                if(this.checkedSkuList.indexOf(item) == -1){
+                    this.checkedSkuList.push(item)
+                }
+                if(this.addIds.indexOf(item) == -1){
+                    this.addIds.push(item)
                 }
             })
-            const arr = new Set([1,2,3,4,1,2])
-            console.log('arr', [...arr])
-            console.log('this.operationForm.ladderList', this.operationForm.ladderList)
-            console.log('ladderIndex', this.ladderIndex)
 
-            const obj = this.operationForm.ladderList[this.ladderIndex]
             let ids = []
+            let _exchGoodsList = this.operationForm.ladderList[this.ladderIndex].exchGoodsList
             if(this.operationForm.ladderList[this.ladderIndex].exchGoodsList.length > 0){
                 ids = this.operationForm.ladderList[this.ladderIndex].exchGoodsList.map(item=>{return item.skuId})
             }
-            const new_arr = this.operationForm.ladderList[this.ladderIndex].exchGoodsList.c
-            sku_arr.forEach((ev)=>{
-                if(ids){
 
+            sku_arr.forEach((ev)=>{
+                if(ids.indexOf(ev.id) == -1){
+                    _exchGoodsList.push({
+                        skuId: ev.id,
+                        goodsId: ev.goods_id
+                    })
                 }
             })
-            // const _list = sku_arr.concat(this.promotionGoodsAll)
-            // this.promotionGoodsAll = [..._list]
-            console.log('this.checked_sku_list', this.checked_sku_list)
-            //  换购商品列表
-            // this.getPromotion()
-            // this.getPromotionGoods()
-        },
-        // 移除换购商品
-        getDelSku() {
+            this.$set(this.operationForm.ladderList[this.ladderIndex], 'exchGoodsList', _exchGoodsList)
 
+            this.setExchangeTipShow()
+            this.$notify({
+                title: '添加成功，可点击已添加列表查看',
+                message: '',
+                type: 'success',
+                duration: 3000
+            })
         },
-        getPromotion() {
-            this.goodsPage = 1
-        },
-        // 换购商品列表-已添加
-        getPromotionGoods() {
-            let cateId = this.backCateId()
-            let params = {
-                page: this.goodsPage,
-                limit: this.goodsLimit,
-                goodsName: this.searchParams.goods_name,
-                skuName: this.searchParams.skuName,
-                skuCode: this.searchParams.skuCode,
-                promotionId: 6
-            }
-            if (this.selected_goods.length > 0) {
-                params['goods_ids'] = this.selected_goods
-            } else {
-                this.goodsInit()
-                return
-            }
-            const rLoading = this.openLoading()
-            queryCouponGoodsList(params)
-                .then(res => {
-                    rLoading.close()
-                    this.imgList = []
-                    this.previewIndex = 0
-                    if (res.code === 200) {
-                        if (res.data) {
-                            this.goodsData = res.data.lists || []
-                            this.pageTotal = res.data.total
-                            this.promotionSkuCount = res.data.total
-                            this.goodsData.forEach(item => {
-                                this.imgList.push(item.goods_img)
-                            })
-                        }
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            message: '',
-                            type: 'error',
-                            duration: 5000
-                        })
+
+        // 移除换购商品
+        getDelSku(list) {
+            let _exchGoodsList = this.operationForm.ladderList[this.ladderIndex].exchGoodsList
+            _exchGoodsList.forEach((ev)=>{
+                list.forEach(item=>{
+                    if(ev.skuId == item.skuId){
+                        ev['goodsId'] = -1
                     }
                 })
-                .catch(() => {})
+            })
+            const new_exchGoodsList = _exchGoodsList.filter(item=>{return item.goodsId != -1})
+            this.$set(this.operationForm.ladderList[this.ladderIndex], 'exchGoodsList', new_exchGoodsList)
+            // 重新设置 checkedSkuList、
+            let _checkedSkuList = []
+            this.operationForm.ladderList.forEach((ev)=>{
+                _checkedSkuList = _checkedSkuList.concat(ev.exchGoodsList)
+            })
+            this.checkedSkuList = _checkedSkuList.map(item=>{return item.skuId})
+            this.addIds = this.operationForm.ladderList[this.ladderIndex].exchGoodsList.map(item=>{return item.skuId})
+
+            this.$notify({
+                title: '移除成功，可从未添加列表添加',
+                message: '',
+                type: 'success',
+                duration: 3000
+            })
+            this.setExchangeTipShow()
+        },
+
+        setExchangeTipShow() {
+            if(this.operationTitle === '编辑促销'){
+                this.operationForm.ladderList.forEach((ev)=>{
+                    let now_list = [],
+                        new_list = []
+                    if(ev.exchGoodsList.length > 0){
+                        now_list = ev.exchGoodsList.map(item=>{return item.skuId}).sort()
+                    }
+                    if(ev.oldExchange.length > 0){
+                        new_list = ev.oldExchange.map(item=>{return item.skuId}).sort()
+                    }
+                    if(JSON.stringify(now_list) == JSON.stringify(new_list)){
+                        ev['showTipIcon'] = false
+                    } else {
+                        ev['showTipIcon'] = true
+                    }
+                })
+            }
         },
 
         // 单个添加、添加选中
         handleAddGoods(data){
-            console.log('data', data)
             this.loadingTip = this.uploadLoading('加载中')
             this.addOrDelSuccess(data,'add')
         },
@@ -1250,10 +1276,5 @@ export const mixinsPromotion = {
             this.loadingTip = this.uploadLoading('加载中')
             this.getGoodsListTotal(data.goods_name,'add', data.cate_id, 'all')
         },
-
-        onTabClick(e) {
-            console.log('e', e)
-            console.log('activeTab', this.activeTab)
-        }
     }
 }
