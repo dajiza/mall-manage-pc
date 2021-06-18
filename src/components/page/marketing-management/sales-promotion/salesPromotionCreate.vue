@@ -47,12 +47,13 @@
                         <span style="padding:0 10px 0 90px" v-show="!(index > 0 && operationForm.type == 5)">满</span>
                         <!---->
                         <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
-                                      :rules="rules.needNum" v-if="operationForm.type != 4">
-                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf" v-show="!(index > 0 && operationForm.type == 5)"></el-input>
+                                      :rules="rules.needNum" v-if="operationForm.type < 5 || operationForm.type == 6 || (operationForm.type == 5 && index == 0)">
+                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf" v-if="!(index > 0 && operationForm.type == 5)"></el-input>
                             <span style="padding: 0 10px" v-if="operationForm.type != 5">{{operationForm.type == 2?'减':operationForm.type == 3?'元':'送券'}}</span>
-                            <span style="display:inline-block;width: 234px;height: 100%" v-if="(index > 0 && operationForm.type == 5)"></span>
-                            <span style="padding: 0 10px" v-if="operationForm.type == 5">加</span>
                         </el-form-item>
+
+                        <span style="display:inline-block;width: 234px;height: 100%" v-if="(index > 0 && operationForm.type == 5)"></span>
+                        <span style="padding: 0 10px" v-if="operationForm.type == 5">加</span>
                         <!--4满件折-->
                         <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
                                       :rules="rules.piecesValue" v-if="operationForm.type == 4">
@@ -88,10 +89,10 @@
                                     <div class="remark-content">换购商品有变动，别忘了保存哦~</div>
                                 </div>
 <!--                                <i class="remark-tip-img cursor-class"></i>-->
-                                <img class="cursor-class remark-tip-icon" src="../../../../assets/img/remark-red.png" alt="">
+                                <img class="cursor-class remark-tip-icon" v-if="item.showTipIcon" src="../../../../assets/img/remark-red.png" alt="">
                             </el-tooltip>
 
-                            <el-button class="del-ladder" :class="item.showTip?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{index}})</el-button>
+                            <el-button class="del-ladder" :class="item.showTipIcon?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{item.exchGoodsList.length}})</el-button>
                         </template>
                         <div class="inline-block" style="margin-left: 10px" v-if="operationForm.ladderList.length > 1">
                             <el-button class="del-ladder" type="danger" @click.prevent="removeSingleGood(item, index)" :disabled="isShelf">删除</el-button>
@@ -189,7 +190,7 @@
                         <el-form-item label="商品名称" prop="goods_name" class="">
                             <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入"></el-input>
                         </el-form-item>
-                        <el-form-item label="商品分类：" prop="cateArr" v-if="!(operationForm.type == 5 && activeTab==2)">
+                        <el-form-item label="商品分类：" prop="cateArr">
                             <el-cascader
                                     class="filter-item"
                                     filterable
@@ -201,23 +202,17 @@
                             >
                             </el-cascader>
                         </el-form-item>
-                        <el-form-item label="SKU名称" prop="skuName" class="" v-if="operationForm.type == 5 && activeTab==2">
-                            <el-input class="filter-item" v-model="searchForm.skuName" placeholder="请输入"></el-input>
-                        </el-form-item>
-                        <el-form-item label="SKU编码" prop="skuCode" class="" v-if="operationForm.type == 5 && activeTab==2">
-                            <el-input class="filter-item" v-model="searchForm.skuCode" placeholder="请输入"></el-input>
-                        </el-form-item>
                         <el-form-item class="btn-box" label="">
                             <el-button class="filter-btn" @click="resetForm('searchForm')">重置</el-button>
                             <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                         </el-form-item>
-                        <el-form-item class="add-btn-box" :class="{'add-btn-box-small':(operationForm.type == 5 && activeTab==2)}">
+                        <el-form-item class="add-btn-box">
                             <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">移除</el-button>
-                            <el-button type="primary" @click="handleDelCate" v-if="!(operationForm.type == 5 && activeTab==2)" :disabled="isShelf">移除该分类</el-button>
-                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf" v-if="!(operationForm.type == 5 && activeTab==2)">
+                            <el-button type="primary" @click="handleDelCate" :disabled="isShelf">移除该分类</el-button>
+                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf">
                                 {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '清空搜索列表' : '清空已添加' }}
                             </el-button>
-                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf" v-if="(operationForm.type == 5 && activeTab==2)">
+                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf">
                                 {{ searchParams.goods_name || searchParams.skuName || searchParams.skuCode ? '清空搜索列表' : '清空已添加' }}
                             </el-button>
                         </el-form-item>
@@ -279,7 +274,7 @@
         <!-- 添加商品 -->
         <addGoodsPop ref="goodsList"
                      :categoryData="categoryData"
-                     :checked="selected_goods"
+                     :checked="selectedGoods"
                      :shopId="shopId"
                      @handleAddGoods="handleAddGoods"
                      @handleAddCateGoods="handleAddCateGoods"
@@ -287,7 +282,8 @@
         ></addGoodsPop>
         <!-- 添加赠品、换购商品 -->
         <addSkuPop ref="skuList"
-                   :checked="checked_sku_list"
+                   :checked="checkedSkuList"
+                   :addIds="addIds"
                    :shopId="shopId"
                    @addSku="getAddSku"
                    @delSku="getDelSku"

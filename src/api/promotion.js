@@ -14,4 +14,7 @@ export const editPromotion = params => post('/backend/promotion-edit', params)
 export const queryPromotionDetail = params => post('/backend/promotion-detail', params)
 
 // 促销换购商品列表
-export const queryPromotionSkuList = params => post('/backend/promotion-sku-list', params)
+// export const queryPromotionSkuList = params => post('/backend/promotion-sku-list', params)
+
+// 换购商品列表-通过skuids获取
+export const querySkuList = params => post('/backend/promotion-skus-ids', params)
