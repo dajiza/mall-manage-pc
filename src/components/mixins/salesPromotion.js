@@ -62,7 +62,8 @@ export const mixinsPromotion = {
                         subNum: '',
                         coupon_title: '',
                         coupon_id: 0,
-                        objId: 0
+                        objId: 0,
+                        exchGoodsList: []
                     }
                 ], // 阶梯
                 topMoney: '', // 封顶优惠
@@ -333,7 +334,7 @@ export const mixinsPromotion = {
             this.$set(this.operationForm, 'type', Number(info.type))
             this.$set(this.operationForm, 'title', info.title)
             this.$set(this.operationForm, 'shop_id', Number(info.shopId))
-            this.$set(this.operationForm, 'use_goods_type', Number(info.UseGoodsType))
+            this.$set(this.operationForm, 'use_goods_type', Number(info.useGoodsType))
             if (info.status == 2) { // 上架
                 this.isShelf = true
             } else {
@@ -344,6 +345,7 @@ export const mixinsPromotion = {
                     this.$set(this.operationForm, 'topMoney', Number(info.topMoney / 100))
                 }
             }
+
             if(info.rules && info.rules.length > 0) {
                 if(info.type == 1) {
                     this.$set(this.operationForm, 'amount1', info.rules[0].needNum / 100)
@@ -369,7 +371,8 @@ export const mixinsPromotion = {
                             needNum: _needNum,
                             subNum: _subNum,
                             coupon_id: ev.objId,
-                            coupon_title: ev.objName
+                            coupon_title: ev.objName,
+                            exchGoodsList: ev.exchGoodsList || []
                         })
                     })
                     this.$set(this.operationForm, 'ladderList', ladder_arr)
@@ -442,7 +445,8 @@ export const mixinsPromotion = {
                 subNum: '',
                 coupon_title: '',
                 coupon_id: 0,
-                objId: 0
+                objId: 0,
+                exchGoodsList: []
             }
             this.$set(this.operationForm, 'ladderList', [_obj])
             console.log('this.operationForm.ladderList', this.operationForm.ladderList)
@@ -476,25 +480,36 @@ export const mixinsPromotion = {
                         }
                         type_list.push(_obj)
                     } else {
-                        this.operationForm.ladderList.forEach((item)=>{
-                            let _subNum = 0,
+                        this.operationForm.ladderList.forEach((item,i)=>{
+                            let _needNum = 0,
+                                _subNum = 0,
                                 _objId = 0,
-                                _objName = ''
+                                _objName = '',
+                                _exchangeGoodsList = []
+                            _needNum = commUtil.numberMul(Number(item.needNum), 100)
                             if (this.operationForm.type == 6){
                                 _objId = item.coupon_id
                                 _objName = item.coupon_title
                             } else if(this.operationForm.type == 3) {
                                 _subNum = commUtil.numberMul(Number(item.subNum), 10)
                             } else if(this.operationForm.type == 4) {
+                                _needNum = Number(item.needNum)
                                 _subNum = commUtil.numberMul(Number(item.subNum), 10)
                             } else {
                                 _subNum = commUtil.numberMul(Number(item.subNum), 100)
                             }
+                            if(this.operationForm.type == 5) {
+                                if(i > 0){
+                                    _needNum = commUtil.numberMul(Number(this.operationForm.ladderList[0].needNum ), 100)
+                                }
+                                _exchangeGoodsList = item.exchGoodsList
+                            }
                             let _obj = {
-                                needNum: this.operationForm.type == 4? Number(item.needNum) : commUtil.numberMul(Number(item.needNum), 100),
+                                needNum: _needNum,
                                 subNum: _subNum,
                                 objId: _objId,
-                                objName: _objName
+                                objName: _objName,
+                                exchGoodsList: _exchangeGoodsList
                             }
                             type_list.push(_obj)
                         })
@@ -955,6 +970,7 @@ export const mixinsPromotion = {
                             this.goodsData = res.data.lists || []
                             this.pageTotal = res.data.total
                             this.addGoodsCount = res.data.total
+                            console.log('this.goodsData====973', this.goodsData)
                             this.goodsData.forEach(item => {
                                 this.imgList.push(item.goods_img)
                             })
@@ -1060,7 +1076,8 @@ export const mixinsPromotion = {
                 subNum: '',
                 coupon_title: '',
                 coupon_id: 0,
-                objId: 0
+                objId: 0,
+                exchGoodsList: []
             });
         },
 
@@ -1097,6 +1114,7 @@ export const mixinsPromotion = {
         },
         // 添加换购品
         AddSwapGoods(item,index) {
+            console.log('item', item)
             this.ladderIndex = index
             this.$refs.skuList.show()
         },
@@ -1107,6 +1125,22 @@ export const mixinsPromotion = {
             sku_ids.forEach((item)=>{
                 if(this.checked_sku_list.indexOf(item) == -1){
                     this.checked_sku_list.push(item)
+                }
+            })
+            const arr = new Set([1,2,3,4,1,2])
+            console.log('arr', [...arr])
+            console.log('this.operationForm.ladderList', this.operationForm.ladderList)
+            console.log('ladderIndex', this.ladderIndex)
+
+            const obj = this.operationForm.ladderList[this.ladderIndex]
+            let ids = []
+            if(this.operationForm.ladderList[this.ladderIndex].exchGoodsList.length > 0){
+                ids = this.operationForm.ladderList[this.ladderIndex].exchGoodsList.map(item=>{return item.skuId})
+            }
+            const new_arr = this.operationForm.ladderList[this.ladderIndex].exchGoodsList.c
+            sku_arr.forEach((ev)=>{
+                if(ids){
+
                 }
             })
             // const _list = sku_arr.concat(this.promotionGoodsAll)

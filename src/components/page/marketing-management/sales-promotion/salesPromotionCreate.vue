@@ -212,7 +212,7 @@
                             <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                         </el-form-item>
                         <el-form-item class="add-btn-box" :class="{'add-btn-box-small':(operationForm.type == 5 && activeTab==2)}">
-                            <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">isShelf</el-button>
+                            <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">添加</el-button>
                             <el-button type="primary" @click="handleDelCate" v-if="!(operationForm.type == 5 && activeTab==2)" :disabled="isShelf">移除该分类</el-button>
                             <el-button type="warning" @click="handleDelAll" :disabled="isShelf" v-if="!(operationForm.type == 5 && activeTab==2)">
                                 {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '清空搜索列表' : '清空已添加' }}
@@ -229,7 +229,6 @@
                             class="order-list-table"
                             :height="tableHeight"
                             @selection-change="handleSelectionChange"
-                            v-if="operationForm.type == 5 && activeTab==2"
                     >
                         <el-table-column type="selection" width="55"></el-table-column>
                         <el-table-column label="主图" width="128">
@@ -243,41 +242,6 @@
                                 {{ scope.row.category_id === 0 ? '布料' : scope.row.category_name }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="channel_name" label="售价(元)" width="100">
-                            <template slot-scope="scope">{{ (scope.row.goods_price / 100) | rounding }}</template>
-                        </el-table-column>
-                        <el-table-column label="操作" width="110">
-                            <template slot-scope="scope">
-                                <el-button type="text" class="marginLeft0 delete-color marginRight15" :disabled="isShelf" @click="handleDelItem(scope.$index, scope.row)">移除</el-button>
-                            </template>
-                        </el-table-column>
-                        <template slot="empty">
-                            <EmptyList></EmptyList>
-                        </template>
-                    </el-table>
-                    <el-table
-                            v-loading="goods_loading"
-                            :data="promotionGoodsData"
-                            ref="multipleTable"
-                            class="order-list-table"
-                            :height="tableHeight"
-                            @selection-change="handleSelectionChange"
-                            v-else
-                    >
-                        <el-table-column type="selection" width="55"></el-table-column>
-                        <el-table-column label="商品主图" width="128">
-                            <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="goods_name" label="商品名称"></el-table-column>
-                        <el-table-column label="SKU图片" width="128">
-                            <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="goods_name" label="SKU名称"></el-table-column>
-                        <el-table-column prop="goods_name" label="SKU编码"></el-table-column>
                         <el-table-column prop="channel_name" label="售价(元)" width="100">
                             <template slot-scope="scope">{{ (scope.row.goods_price / 100) | rounding }}</template>
                         </el-table-column>
