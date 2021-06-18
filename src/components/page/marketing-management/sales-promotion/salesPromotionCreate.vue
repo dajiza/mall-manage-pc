@@ -93,7 +93,7 @@
 
                             <el-button class="del-ladder" :class="item.showTip?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{index}})</el-button>
                         </template>
-                        <div class="inline-block" style="margin-left: 10px" v-if="index > 0">
+                        <div class="inline-block" style="margin-left: 10px" v-if="operationForm.ladderList.length > 1">
                             <el-button class="del-ladder" type="danger" @click.prevent="removeSingleGood(item, index)" :disabled="isShelf">删除</el-button>
                         </div>
                     </div>
