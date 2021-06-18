@@ -93,7 +93,7 @@
 
                             <el-button class="del-ladder" :class="item.showTip?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{index}})</el-button>
                         </template>
-                        <div class="inline-block" style="margin-left: 10px" v-if="index > 0">
+                        <div class="inline-block" style="margin-left: 10px" v-if="operationForm.ladderList.length > 1">
                             <el-button class="del-ladder" type="danger" @click.prevent="removeSingleGood(item, index)" :disabled="isShelf">删除</el-button>
                         </div>
                     </div>
@@ -212,7 +212,7 @@
                             <el-button class="filter-btn" type="primary" @click="handleSearch('searchForm')">搜索</el-button>
                         </el-form-item>
                         <el-form-item class="add-btn-box" :class="{'add-btn-box-small':(operationForm.type == 5 && activeTab==2)}">
-                            <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">添加</el-button>
+                            <el-button type="warning" @click="handleDelSelected" :disabled="isShelf">移除</el-button>
                             <el-button type="primary" @click="handleDelCate" v-if="!(operationForm.type == 5 && activeTab==2)" :disabled="isShelf">移除该分类</el-button>
                             <el-button type="warning" @click="handleDelAll" :disabled="isShelf" v-if="!(operationForm.type == 5 && activeTab==2)">
                                 {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '清空搜索列表' : '清空已添加' }}

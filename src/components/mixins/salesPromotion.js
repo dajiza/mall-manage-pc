@@ -476,7 +476,9 @@ export const mixinsPromotion = {
                         let _obj = {
                             needNum: commUtil.numberMul(Number(this.operationForm.amount1), 100),
                             subNum: commUtil.numberMul(Number(this.operationForm.discount1), 100),
-                            objId: 0
+                            objId: 0,
+                            objName: '',
+                            exchGoodsList: []
                         }
                         type_list.push(_obj)
                     } else {
@@ -514,6 +516,36 @@ export const mixinsPromotion = {
                             type_list.push(_obj)
                         })
                     }
+                    if(type_list.length > 0){
+                        let _arr = []
+                        type_list.forEach((ev)=>{
+                            if(_arr.indexOf(ev.needNum) == -1) {
+                                _arr.push(ev.needNum)
+                            }
+                        })
+                        console.log('_arr', _arr)
+                        console.log('type_list', type_list)
+                        console.log('_arr', _arr.length)
+                        if(type_list.length != _arr.length){
+                            this.$notify({
+                                title: '存在重复阶梯,请修改后再保存',
+                                message: '',
+                                type: 'error',
+                                duration: 3000
+                            })
+                            return;
+                        } else {
+                            type_list = type_list.sort((a, b) => a.needNum - b.needNum)
+                        }
+                    } else {
+                        this.$notify({
+                            title: '最少创建一个阶梯',
+                            message: '',
+                            type: 'error',
+                            duration: 3000
+                        })
+                    }
+
                     params['rules'] = type_list
                     if (this.operationForm.type == 3 || this.operationForm.type == 4) {
                         params['topMoney'] = commUtil.numberMul(Number(this.operationForm.topMoney), 100) // 封顶优惠
