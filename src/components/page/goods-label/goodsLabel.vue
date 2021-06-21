@@ -3,7 +3,8 @@
         <div class="head-container" ref="searchBox">
             <el-form class="form-filter" :model="searchForm" :inline="true" ref="searchForm">
                 <el-form-item label="标签名称：">
-                    <el-input class="filter-item" v-model="searchForm.searchLabel" placeholder="请输入"> </el-input>
+                    <el-input class="filter-item" v-model="searchForm.searchLabel" placeholder="请输入"
+                              @keyup.enter.native="handleSearch()"></el-input>
                 </el-form-item>
                 <el-form-item label="分类属性：">
                     <el-select class="filter-item" v-model="searchForm.category_type" placeholder="请选择" @change="handleCategorySelect">
@@ -487,11 +488,13 @@ export default {
             this.getTagsList(category.display_platform)
         },
 
-        // 触发搜索按钮
-        handleSearchReset() {
+        // 触发重置按钮
+        handleSearchReset(category) {
             this.searchForm.category_type = '1'
             this.searchForm.label_type = '2'
             this.displayPlatform = 2
+            this.selectedType = 1
+            this.handleSearch()
         },
 
         // 分类-切换状态

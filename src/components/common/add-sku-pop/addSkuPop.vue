@@ -14,10 +14,10 @@
                         <div class="head-container" v-show="searchShow" @click.stop="">
                             <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left">
                                 <el-form-item label="商品名称" prop="title" label-width="">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title"></el-input>
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
                                 <el-form-item label="商品ID" prop="id" v-show="activeTab == '1'">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id"></el-input>
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
                                 <el-form-item label="商品分类" prop="typeCategory" v-show="activeTab == '1'">
                                     <el-cascader
@@ -39,10 +39,10 @@
                                     </el-select>
                                 </el-form-item>
                                 <el-form-item label="SKU名称" prop="sku_name" class="">
-                                    <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入"></el-input>
+                                    <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
                                 <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                                    <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入"></el-input>
+                                    <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
                                 <el-form-item label="会员折扣" prop="discount_condition" v-show="false">
                                     <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">

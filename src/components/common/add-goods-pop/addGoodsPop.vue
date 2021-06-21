@@ -8,7 +8,7 @@
             </div>
             <el-form class="search-form-box" :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
                 <el-form-item label="商品名称" prop="goods_name" class="">
-                    <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入"></el-input>
+                    <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入" @keyup.enter.native="handleFilter('searchForm')"></el-input>
                 </el-form-item>
                 <el-form-item label="商品分类：" prop="cateArr">
                     <el-cascader
@@ -301,6 +301,7 @@ export default {
                                         goods['goodsIsChecked'] = true
                                     }
                                 })
+                                this.timgList.push(ev.goods_img)
                                 goods_list.push(goods)
                             })
                         }

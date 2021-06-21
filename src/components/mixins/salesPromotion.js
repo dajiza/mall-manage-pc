@@ -221,7 +221,7 @@ export const mixinsPromotion = {
             Promise.all([
                 queryShopList({}),
                 getLabelAllList({ type: 1, display_platform: -1 }),
-                getLabelAllList({ type: 2, display_platform: -2 }),
+                getLabelAllList({ type: 2, display_platform: -1 }),
                 queryCategoryListAll({ type: 1 }),
                 queryCategoryListAll({ type: 2 })
             ])
@@ -648,7 +648,7 @@ export const mixinsPromotion = {
             const rLoading = this.openLoading()
             let that = this
             editPromotion(params)
-                .then(async res => {
+                .then(res => {
                     rLoading.close()
                     if (res.code === 200) {
                         that.$notify({
@@ -657,13 +657,11 @@ export const mixinsPromotion = {
                             type: 'success',
                             duration: 3000
                         })
-                        if(type == 'add') {
-                            bus.$emit('refreshPromotionList', 'add');
-                            bus.$emit('close_current_tags')
-                            that.$router.push({
-                                path: 'mall-backend-sales-promotion'
-                            })
-                        }
+                        bus.$emit('refreshPromotionList', 'add');
+                        bus.$emit('close_current_tags')
+                        that.$router.push({
+                            path: 'mall-backend-sales-promotion'
+                        }).then(r => {})
                     } else {
                         that.$notify({
                             title: res.msg,

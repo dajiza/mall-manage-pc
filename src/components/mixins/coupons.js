@@ -225,7 +225,7 @@ export const mixinsCoupons = {
             Promise.all([
                 queryShopList({}),
                 getLabelAllList({ type: 1, display_platform: -1 }),
-                getLabelAllList({ type: 2, display_platform: -2 }),
+                getLabelAllList({ type: 2, display_platform: -1 }),
                 queryCategoryListAll({ type: 1 }),
                 queryCategoryListAll({ type: 2 })
             ])

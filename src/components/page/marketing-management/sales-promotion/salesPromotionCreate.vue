@@ -188,7 +188,7 @@
                 <div class="form-content goods-table-padding head-container">
                     <el-form class="search-form-box" :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
                         <el-form-item label="商品名称" prop="goods_name" class="">
-                            <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入"></el-input>
+                            <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入" @keyup.enter.native="handleSearch('searchForm')"></el-input>
                         </el-form-item>
                         <el-form-item label="商品分类：" prop="cateArr">
                             <el-cascader
@@ -211,9 +211,6 @@
                             <el-button type="primary" @click="handleDelCate" :disabled="isShelf">移除该分类</el-button>
                             <el-button type="warning" @click="handleDelAll" :disabled="isShelf">
                                 {{ searchParams.goods_name || searchParams.cateArr.length > 0 ? '清空搜索列表' : '清空已添加' }}
-                            </el-button>
-                            <el-button type="warning" @click="handleDelAll" :disabled="isShelf">
-                                {{ searchParams.goods_name || searchParams.skuName || searchParams.skuCode ? '清空搜索列表' : '清空已添加' }}
                             </el-button>
                         </el-form-item>
                     </el-form>
