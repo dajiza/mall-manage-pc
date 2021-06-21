@@ -3,28 +3,22 @@
         <div class="table-title">
             <div class="line"></div>
             <div class="text">会员折扣配置</div>
-            <el-button class="add-btn" type="primary" size="mini"
-                       v-hasPermission="'mall-backend-discount-create'"
-                       @click="creatDiscount">新增</el-button>
+            <el-button class="add-btn" type="primary" size="mini" v-hasPermission="'mall-backend-discount-create'" @click="creatDiscount">新增</el-button>
         </div>
 
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
             <el-table-column label="会员折扣" width="">
                 <template slot-scope="scope">
-                    <span>{{ commUtil.numberMul(Number(scope.row.discount_value), 10) }}折</span>
+                    <span>{{ commUtil.numberMul(Number(scope.row.discount_value), 0.1) }}折</span>
                 </template>
             </el-table-column>
 
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
-                    <el-button class="text-blue btn-opt table-btn" type="text" size=""
-                               v-hasPermission="'mall-backend-discount-update'"
-                               @click="editDiscount(scope.row)">
+                    <el-button class="text-blue btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-discount-update'" @click="editDiscount(scope.row)">
                         编辑
                     </el-button>
-                    <el-button class="text-red btn-opt table-btn" type="text" size=""
-                               v-hasPermission="'mall-backend-discount-delete'"
-                               @click="deleteDiscount(scope.row)">
+                    <el-button class="text-red btn-opt table-btn" type="text" size="" v-hasPermission="'mall-backend-discount-delete'" @click="deleteDiscount(scope.row)">
                         删除
                     </el-button>
                 </template>
@@ -122,7 +116,7 @@ export default {
         },
         // 编辑折扣
         editDiscount(row) {
-            this.discountValue = commUtil.numberMul(Number(row.discount_value), 10)
+            this.discountValue = commUtil.numberMul(Number(row.discount_value), 0.1)
             this.discountId = row.id
             this.dialogTitle = '编辑'
             this.openDialog()
