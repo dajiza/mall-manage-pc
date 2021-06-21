@@ -961,9 +961,11 @@ export const mixinsCoupons = {
                             } else {
                                 // console.log('分类商品');
                             }
+                            this.loadingTip.close()
                             this.addOrDelSuccess(res.data.lists || [], type)
                         }
                     } else {
+                        this.loadingTip.close()
                         this.$notify({
                             title: res.msg,
                             message: '',
