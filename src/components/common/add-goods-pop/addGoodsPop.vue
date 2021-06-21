@@ -20,9 +20,6 @@
                             :options="categoryData"
                             :props="{ checkStrictly: false, label: 'name', value: 'id' }"
                     >
-                        <!-- <template slot-scope="{ node, data }">
-                            <span class="select-item" @click="handleSelectCate($event, data)">{{ data.name }}</span>
-                                </template> -->
                     </el-cascader>
                 </el-form-item>
                 <el-form-item class="btn-box" label="">
@@ -52,6 +49,12 @@
                     :cell-style="{ background: '#fff' }"
                 >
                     <el-table-column label="" width="55">
+                        <template slot="header" slot-scope="scope">
+                            <el-checkbox v-model="checkAll"
+                                         :indeterminate="0 < list.filter(item=>item.goodsIsChecked).length && list.filter(item=>item.goodsIsChecked).length < list.length"
+                                         @change="value => handleCheckCurrentPage(value)"
+                            ></el-checkbox>
+                        </template>
                         <template slot-scope="scope">
                             <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length" -->
                             <el-checkbox
@@ -174,6 +177,7 @@ export default {
             labelKey: 1,
             cateKey: 1,
             loadingTip: {},
+            checkAll: false
         }
     },
     components: {
@@ -196,8 +200,6 @@ export default {
         },
         open() {},
         opened() {
-            console.log('this.checked', this.checked)
-
             ++this.labelKey
             this.checkedList = []
             this.listQuery.page = 1
@@ -307,6 +309,7 @@ export default {
                         }
                         this.list =  goods_list
                         this.total = res.data.total
+                        this.setCheckAll()
                     } else {
                         this.$notify({
                             title: res.msg,
@@ -440,57 +443,46 @@ export default {
             this.dialogVisiblePic = true
         },
 
+        // 选中/取消 当前页 所有
+        handleCheckCurrentPage(bol) {
+            this.list.forEach((ev)=>{
+                ev['goodsIsChecked'] = bol
+            })
+            let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+            this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+        },
+        uniqueArr(arr1,arr2) {
+            //合并两个数组
+            let newArr = [...arr1,...arr2]
+            //去重
+            const res = new Map();
+            return newArr.filter((arr) => !res.has(arr.goods_id) && res.set(arr.goods_id, 1));
+        },
+        setCheckAll() {
+            const checkedLength = this.list.filter(item=>item.goodsIsChecked).length
+            if(checkedLength == this.list.length) {
+                this.checkAll = true
+            } else {
+                this.checkAll = false
+            }
+        },
         // 商品选中/取消
         goodsChecked(bol, row, index) {
-            console.log('bol', bol)
-            console.log('row', row)
-            console.log('index', index)
             row['goodsIsChecked'] = bol
-            let goodsSku = _.cloneDeep(row)
-            let checkedGoodsIds = [] // 选中商品id集合
-            console.log('this.checkedList', this.checkedList)
-            if (this.checkedList.length > 0) {
-                checkedGoodsIds = this.checkedList.map(item => {
-                    return item.goods_id
-                })
-            }
-            console.log('checkedGoodsIds', checkedGoodsIds)
-            // 判断 当前操作的商品 是否在 已选商品列表中
-
-            if (checkedGoodsIds.indexOf(goodsSku.goods_id) == -1) {
-                if(bol) {
-                    this.checkedList.push(goodsSku)
-                } else {
-
-                }
-
-            } else if (checkedGoodsIds.indexOf(goodsSku.goods_id) > -1) {
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                // 删除
-                if(bol) {
-                    // this.checkedList.push(goodsSku)
-                } else {
-                    this.checkedList.splice(index, 1)
-                }
-
-                // this.$set(this.checkedList, index, goodsSku)
-            }
-            console.log('this.checkedList======606', this.checkedList)
-            return
+            let checkedListCopy = this.uniqueArr(_.cloneDeep([row]),_.cloneDeep(this.checkedList))
+            this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+            this.setCheckAll()
         },
-
 
         // 添加单个
         handleAddItem(index, row) {
             let _arr = []
             _arr.push(row)
             this.$emit('handleAddGoods', this.checkedList);
-
         },
 
         // 添加选中
         handleAddSelected() {
-            console.log('checkedList', this.checkedList)
             if (this.checkedList.length > 0) {
                 this.$emit('handleAddGoods', this.checkedList);
             } else {
@@ -536,7 +528,6 @@ export default {
                     cateId = 0
                 }
             }
-            console.log('输出 ~ cateId', cateId)
             return cateId
         },
 
