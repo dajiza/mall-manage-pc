@@ -39,61 +39,69 @@
                 </template>
 
                 <!--阶梯 - 满减、满折、满件折、满券-->
-                <template v-if="operationForm.type == 2 || operationForm.type == 3 || operationForm.type == 4 || operationForm.type == 5  || operationForm.type == 6">
+                <template v-if="operationForm.type != 1">
                     <el-form-item style="margin-bottom: 20px" class="form-item inline-block" label="阶梯:">
                         <el-button class="add-ladder" type="primary" @click="handleAddLadder">添加阶梯</el-button>
                     </el-form-item>
                     <div class="ladder-wrap clearfix" v-for="(item, index) in operationForm.ladderList" :key="index">
                         <span style="padding:0 10px 0 90px" v-show="!(index > 0 && operationForm.type == 5)">满</span>
-                        <!---->
-                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
-                                      :rules="rules.needNum" v-if="operationForm.type < 5 || operationForm.type == 6 || (operationForm.type == 5 && index == 0)">
-                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf" v-if="!(index > 0 && operationForm.type == 5)"></el-input>
-                            <span style="padding: 0 10px" v-if="operationForm.type != 5">{{operationForm.type == 2?'减':operationForm.type == 3?'元':'送券'}}</span>
-                        </el-form-item>
-
-                        <span style="display:inline-block;width: 234px;height: 100%" v-if="(index > 0 && operationForm.type == 5)"></span>
-                        <span style="padding: 0 10px" v-if="operationForm.type == 5">加</span>
-                        <!--4满件折-->
-                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
-                                      :rules="rules.piecesValue" v-if="operationForm.type == 4">
-                            <el-input class="w120" v-model="item.needNum" placeholder="请输入" :disabled="isShelf"></el-input>
-                            <span style="padding: 0 10px" v-if="operationForm.type == 4">件</span>
-                        </el-form-item>
-                        <!--优惠金额 、加价-->
-                        <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.subNum'"
-                                      :rules="rules.discountAmount" v-if="operationForm.type == 2 || operationForm.type == 5">
-                            <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
-                        </el-form-item>
-                        <!--折扣-->
-                        <el-form-item class="form-item inline-block" label=""  label-width="0px" :prop="'ladderList.' + index + '.subNum'"
-                                      :rules="rules.discountValue" v-if="operationForm.type == 3 || operationForm.type == 4">
-                            <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
-                            <span style="padding-left: 10px">折</span>
-                        </el-form-item>
-                        <!--优惠券-->
-                        <template v-if="operationForm.type == 6">
-                            <router-link :to="{ path: '/mall-backend-coupon-update', query: { id: item.coupon_id, status:'edit' } }">
-                                <u style="color: rgba(0, 0, 0, 0.85);"><span v-if="item.coupon_title && item.coupon_id > 0">{{item.coupon_title}}</span></u>
-                            </router-link>
-                            <div class="inline-block" style="margin:0 10px">
-                                <!--v-hasPermission="'mall-backend-promotion-update'"-->
-                                <el-button type="text" class="marginLeft0" @click="selectCoupons(item, index)" :disabled="isShelf">{{item.coupon_id?'重新选择':'选择优惠券'}}</el-button>
-                            </div>
+                        <!--满减、加价购-->
+                        <template v-if="operationForm.type == 2 || operationForm.type == 5">
+                            <el-form-item class="form-item inline-block" label="" label-width="0px"
+                                          :prop="'ladderList.' + index + '.needNum'" :rules="rules.needNum"
+                                          v-if="!(index > 0 && operationForm.type == 5)">
+                                <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf"></el-input>
+                            </el-form-item>
+                            <span style="display:inline-block;width: 234px;height: 100%" v-if="(index > 0 && operationForm.type == 5)"></span>
+                            <span style="padding: 0 10px">{{operationForm.type == 2?'减':'加'}}</span>
+                            <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.subNum'"
+                                          :rules="rules.discountAmount" v-if="operationForm.type == 2 || operationForm.type == 5">
+                                <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1" @blur="discountBlur(item,index)"></el-input>
+                            </el-form-item>
+                            <!--加价换购-->
+                            <template v-if="operationForm.type == 5">
+                                <span style="padding: 0 10px">可换购赠品</span>
+                                <el-tooltip placement="top" effect="light" popper-class="tooltip-remark">
+                                    <div slot="content" class="remark-box">
+                                        <div class="remark-content">换购商品有变动，别忘了保存哦~</div>
+                                    </div>
+                                    <img class="cursor-class remark-tip-icon" v-show="item.showTipIcon" src="../../../../assets/img/remark-red.png" alt="">
+                                </el-tooltip>
+                                <el-button class="del-ladder" :class="item.showTipIcon?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{item.exchGoodsList.length}})</el-button>
+                            </template>
                         </template>
-                        <!--加价换购-->
-                        <template v-if="operationForm.type == 5">
-                            <span style="padding: 0 10px">可换购赠品</span>
-                            <el-tooltip placement="top" effect="light" popper-class="tooltip-remark">
-                                <div slot="content" class="remark-box">
-                                    <div class="remark-content">换购商品有变动，别忘了保存哦~</div>
+
+                        <!--满折、满件折、送券-->
+                        <template v-if="operationForm.type == 3 || operationForm.type == 4 || operationForm.type == 6">
+                            <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
+                                          :rules="rules.needNum" v-if="operationForm.type != 4">
+                                <el-input class="w120" v-model="item.needNum" placeholder="请输入" :precision="2" :disabled="isShelf"></el-input>
+                                <span style="padding: 0 10px">{{operationForm.type == 3?'元':'送券'}}</span>
+                            </el-form-item>
+                            <!--4满件折-->
+                            <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.needNum'"
+                                          :rules="rules.piecesValue" v-if="operationForm.type == 4">
+                                <el-input class="w120" v-model="item.needNum" placeholder="请输入" :disabled="isShelf"></el-input>
+                                <span style="padding: 0 10px" v-if="operationForm.type == 4">件</span>
+                            </el-form-item>
+                            <!--折扣-->
+                            <el-form-item class="form-item inline-block" label=""  label-width="0px" :prop="'ladderList.' + index + '.subNum'"
+                                          :rules="rules.discountValue" v-if="operationForm.type == 3 || operationForm.type == 4">
+                                <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
+                                <span style="padding-left: 10px">折</span>
+                            </el-form-item>
+                            <!--优惠券-->
+                            <template v-if="operationForm.type == 6">
+                                <router-link :to="{ path: '/mall-backend-coupon-update', query: { id: item.coupon_id, status:'edit' } }">
+                                    <u style="color: rgba(0, 0, 0, 0.85);"><span v-if="item.coupon_title && item.coupon_id > 0">{{item.coupon_title}}</span></u>
+                                </router-link>
+                                <div class="inline-block" style="margin:0 10px">
+                                    <!--v-hasPermission="'mall-backend-promotion-update'"-->
+                                    <el-button type="text" class="marginLeft0" @click="selectCoupons(item, index)" :disabled="isShelf">{{item.coupon_id?'重新选择':'选择优惠券'}}</el-button>
                                 </div>
-<!--                                <i class="remark-tip-img cursor-class"></i>-->
-                                <img class="cursor-class remark-tip-icon" v-if="item.showTipIcon" src="../../../../assets/img/remark-red.png" alt="">
-                            </el-tooltip>
-
-                            <el-button class="del-ladder" :class="item.showTipIcon?'marginLeft6':'marginLeft20'" type="primary" @click.prevent="AddSwapGoods(item, index)" :disabled="isShelf">换购品({{item.exchGoodsList.length}})</el-button>
+                            </template>
                         </template>
+
                         <div class="inline-block" style="margin-left: 10px" v-if="operationForm.ladderList.length > 1">
                             <el-button class="del-ladder" type="danger" @click.prevent="removeSingleGood(item, index)" :disabled="isShelf">删除</el-button>
                         </div>

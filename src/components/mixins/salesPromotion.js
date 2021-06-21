@@ -367,7 +367,7 @@ export const mixinsPromotion = {
                             coupon_id: ev.objId,
                             coupon_title: ev.objName,
                             exchGoodsList: ev.exchGoodsList || [],
-                            oldExchange: ev.exchGoodsList || [],
+                            oldExchange: ev.exchGoodsList && ev.exchGoodsList.length > 0 ? _.cloneDeep(ev.exchGoodsList) : [],
                             showTipIcon: false
                         })
                         if(info.type == 5){
@@ -1238,6 +1238,8 @@ export const mixinsPromotion = {
                 this.operationForm.ladderList.forEach((ev)=>{
                     let now_list = [],
                         new_list = []
+                    console.log('ev.oldExchange', ev.oldExchange)
+                    console.log('ev.exchGoodsList', ev.exchGoodsList)
                     if(ev.exchGoodsList.length > 0){
                         now_list = ev.exchGoodsList.map(item=>{return item.skuId}).sort()
                     }
@@ -1250,6 +1252,7 @@ export const mixinsPromotion = {
                         ev['showTipIcon'] = true
                     }
                 })
+                console.log('ladderList', this.operationForm.ladderList)
             }
         },
 
@@ -1267,6 +1270,12 @@ export const mixinsPromotion = {
         handleAddAllGoods(data){
             this.loadingTip = this.uploadLoading('加载中')
             this.getGoodsListTotal(data.goods_name,'add', data.cate_id, 'all')
+        },
+
+        // 优惠失去焦点
+        discountBlur(item, index) {
+            console.log('item', item)
+            console.log('index', index)
         },
     }
 }
