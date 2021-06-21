@@ -657,11 +657,13 @@ export const mixinsPromotion = {
                             type: 'success',
                             duration: 3000
                         })
-                        bus.$emit('refreshPromotionList', 'add');
-                        bus.$emit('close_current_tags')
-                        that.$router.push({
-                            path: 'mall-backend-sales-promotion'
-                        }).then(r => {})
+                        bus.$emit('refreshPromotionList', type);
+                        setTimeout(()=>{
+                            bus.$emit('close_current_tags')
+                            that.$router.push({
+                                path: 'mall-backend-sales-promotion'
+                            }).then(r => {})
+                        },1000)
                     } else {
                         that.$notify({
                             title: res.msg,
@@ -792,8 +794,6 @@ export const mixinsPromotion = {
         handleDelSelected() {
             if (this.checkedList.length > 0) {
                 this.addOrDelSuccess(this.checkedList, 'del')
-                this.goodsInit()
-                this.getListData()
             } else {
                 this.$notify({
                     title: '请勾选商品后再移除',
@@ -819,7 +819,6 @@ export const mixinsPromotion = {
         handleDelItem(index, row) {
             let _arr = []
             _arr.push(row)
-            this.loadingTip = this.uploadLoading('加载中')
             this.addOrDelSuccess(_arr, 'del')
         },
 
@@ -853,6 +852,7 @@ export const mixinsPromotion = {
                             if (res.data.total > 10) {
                                 this.getAllOrCateGoods(goods_name, type, cate_id, str)
                             } else {
+                                this.loadingTip.close()
                                 this.addOrDelSuccess(res.data.lists || [], type)
                             }
                         }
@@ -873,7 +873,6 @@ export const mixinsPromotion = {
 
         // 添加成功/移除成功
         addOrDelSuccess(list, type) {
-            this.loadingTip.close()
             if (list.length > 0) {
                 let new_goods_list = []
                 list.forEach(ev => {
@@ -967,11 +966,7 @@ export const mixinsPromotion = {
                     this.previewIndex = 0
                     if (res.code === 200) {
                         if (res.data) {
-                            if (str === 'all') {
-                                // console.log('全部商品/搜索');
-                            } else {
-                                // console.log('分类商品');
-                            }
+                            this.loadingTip.close()
                             this.addOrDelSuccess(res.data.lists || [], type)
                         }
                     } else {
@@ -1260,7 +1255,6 @@ export const mixinsPromotion = {
 
         // 单个添加、添加选中
         handleAddGoods(data){
-            this.loadingTip = this.uploadLoading('加载中')
             this.addOrDelSuccess(data,'add')
         },
 

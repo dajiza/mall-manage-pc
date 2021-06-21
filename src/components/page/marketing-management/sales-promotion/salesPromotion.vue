@@ -282,7 +282,7 @@ export default {
         }
     },
     created() {
-        bus.$on('refreshProductList', target => {
+        bus.$on('refreshPromotionList', target => {
             // console.log(target);
             if(target==='add'){
                 this.$set(this.pageInfo, 'pageIndex', 1);
