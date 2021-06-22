@@ -116,7 +116,7 @@
             </el-table-column>
             <el-table-column label="会员折扣" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.discount_value ? commUtil.numberMul(Number(scope.row.discount_value), 10) + '折' : '' }}</span>
+                    <span>{{ scope.row.discount_value ? Number(scope.row.discount_value/10).toFixed(1) + '折' : '' }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="会员时间" width="120">
@@ -213,7 +213,7 @@ export default {
             showMaxIndex: 0,
             // 设置会员弹框
             dialogVisibleMember: false,
-            discountList: '',
+            discountList: [],
             isEdit: '', //弹框状态 true编辑 false新建
             formMember: {
                 user_id: '',
@@ -362,7 +362,7 @@ export default {
                 .then(res => {
                     console.log('输出 ~ res', res)
                     this.discountList = res.data.list.map(item => {
-                        item.discount = commUtil.numberMul(Number(item.discount_value), 10) + '折'
+                        item.discount = Number(item.discount_value/10) + '折'
                         return item
                     })
                 })
