@@ -12,6 +12,7 @@ import { construct } from '@/utils/json-tree'
 import couponList from '@/components/common/coupon-list-pop/CouponListPop'
 import addGoodsPop from '@/components/common/add-goods-pop/addGoodsPop'
 import addSkuPop from '@/components/common/add-sku-pop/addSkuPop'
+
 export const mixinsPromotion = {
     data() {
         var checkAmount1 = (rule, value, callback) => {
@@ -63,7 +64,9 @@ export const mixinsPromotion = {
                         coupon_title: '',
                         coupon_id: 0,
                         objId: 0,
-                        exchGoodsList: []
+                        exchGoodsList: [],
+                        oldExchange:[],
+                        showTipIcon: false
                     }
                 ], // 阶梯
                 topMoney: '', // 封顶优惠
@@ -183,7 +186,7 @@ export const mixinsPromotion = {
             ladderIndex: 0, // 阶梯下标
             couponId: 0, // 优惠券id
             couponInTitle: '', // 优惠券标题
-            shopId: 1,
+            shopId: -1,
             checked_goods_list: [],
             checkedSkuList: [], // 全部阶梯使用的SKU ID集合
             addIds: [], // 单个阶梯已添加sku ID集合
@@ -332,6 +335,7 @@ export const mixinsPromotion = {
             this.$set(this.operationForm, 'title', info.title)
             this.$set(this.operationForm, 'shop_id', Number(info.shopId))
             this.$set(this.operationForm, 'use_goods_type', Number(info.useGoodsType))
+            this.shopId = Number(info.shopId)
             if (info.status == 2) { // 上架
                 this.isShelf = true
             } else {
@@ -372,6 +376,7 @@ export const mixinsPromotion = {
                         })
                         if(info.type == 5){
                             ev.exchGoodsList.forEach((sku_item)=>{
+                                console.log('sku_item', sku_item)
                                 if(this.checkedSkuList.indexOf(sku_item.skuId)){
                                     this.checkedSkuList.push(sku_item.skuId)
                                 }
@@ -448,9 +453,8 @@ export const mixinsPromotion = {
                 showTipIcon: false
             }
             this.$set(this.operationForm, 'ladderList', [_obj])
-            this.$refs['operationForm'].clearValidate();
             this.$nextTick(() => {
-                this.$refs['operationForm'].clearValidate() // 清除优惠券面额的验证
+                this.$refs['operationForm'].clearValidate() // 清除验证
             })
         },
 
@@ -1155,9 +1159,42 @@ export const mixinsPromotion = {
                 this.operationForm.ladderList[this.ladderIndex].coupon_id = coupon.id
             }
         },
+        // 选择店铺切换
+        chooseShop() {
+            console.log('店铺切换')
+            this.shopId = Number(this.operationForm.shop_id)
+            if (this.operationForm.ladderList && this.operationForm.ladderList.length > 0) {
+                const _obj = {
+                    needNum: '',
+                    subNum: '',
+                    coupon_title: '',
+                    coupon_id: 0,
+                    objId: 0,
+                    exchGoodsList: [],
+                    oldExchange:[],
+                    showTipIcon: false
+                }
+                this.$set(this.operationForm, 'ladderList', [_obj])
+                this.$nextTick(() => {
+                    this.$refs['operationForm'].clearValidate() // 清除验证
+                })
+            }
+        },
         // 添加换购品
         AddSwapGoods(item,index) {
             console.log('item', item)
+            //
+            if (this.operationForm.shop_id) {
+                console.log('this.operationForm.shop_id', this.operationForm.shop_id)
+            } else {
+                this.$notify({
+                    title: '请先选择店铺',
+                    message: '',
+                    type: 'warning',
+                    duration: 3000
+                })
+                return
+            }
             if(item.exchGoodsList.length > 0){
                 this.addIds = item.exchGoodsList.map(item=>{return item.skuId})
             } else {
@@ -1169,7 +1206,7 @@ export const mixinsPromotion = {
 
         // 确定添加换购商品
         getAddSku(sku_arr){
-            const sku_ids = sku_arr.map(item=>{return item.id})
+            const sku_ids = sku_arr.map(item=>{return item.sku_id})
             sku_ids.forEach((item)=>{
                 if(this.checkedSkuList.indexOf(item) == -1){
                     this.checkedSkuList.push(item)
@@ -1188,8 +1225,10 @@ export const mixinsPromotion = {
             sku_arr.forEach((ev)=>{
                 if(ids.indexOf(ev.id) == -1){
                     _exchGoodsList.push({
-                        skuId: ev.id,
-                        goodsId: ev.goods_id
+                        skuId: ev.sku_id,
+                        goodsId: ev.goods_id,
+                        shopSkuId: ev.id,
+                        shopGoodsId: ev.shop_goods_id
                     })
                 }
             })

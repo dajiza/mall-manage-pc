@@ -126,12 +126,12 @@
                             <span>{{ scope.row.goods_name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="price" label="类型" width="90">
+                    <el-table-column prop="price" label="类型" width="80">
                         <template slot-scope="scope">
                             <span>{{scope.row.detail_type == 1 ? '加价购':'普通'}}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="单价(元)">
+                    <el-table-column label="单价(元)" width="90">
                         <template slot-scope="scope">
                             <span>{{ formatMoney(scope.row.price) }}</span>
                         </template>
@@ -146,12 +146,12 @@
                             <span>{{ formatMoney(scope.row.price * scope.row.num) }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="活动优惠总额(元)" v-if="false">
+                    <el-table-column label="促销优惠(元)" width="110">
                         <template slot-scope="scope">
-                            <span>{{ (scope.row.off_2 / 100) | rounding }}</span>
+                            <span>{{ (scope.row.off_3 / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="off_1" label="优惠券(元)" width="120">
+                    <el-table-column prop="off_1" label="优惠券(元)" width="100">
                         <template slot-scope="scope">
                             <span>{{ (scope.row.off_1 / 100) | rounding }}</span>
                         </template>
@@ -161,7 +161,7 @@
                             <span>{{ (scope.row.price_sum_change / 100) | rounding }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="会员折扣元)">
+                    <el-table-column label="会员折扣(元)" width="110">
                         <template slot-scope="scope">
                             <span>{{ formatMoney(scope.row.off_2) }}</span>
                         </template>

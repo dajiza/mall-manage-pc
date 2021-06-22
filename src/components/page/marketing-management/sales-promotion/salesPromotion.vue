@@ -38,6 +38,7 @@
                                     end-placeholder="结束时间"
                                     value-format="yyyy-MM-dd HH:mm:ss"
                                     :default-time="['00:00:00', '23:59:59']"
+                                    :picker-options="pickerOptions"
                                 >
                                 </el-date-picker>
                             </el-form-item>
@@ -145,14 +146,14 @@ export default {
                 type: '', // 类型
                 status: '', // 状态
                 shop_id: '', // 店铺
-                adv_time: [] // 促销时间
+                adv_time: '' // 促销时间
             },
             searchParams: {
                 title: '', // 优惠券名称
                 type: '', // 位置
                 status: '', // 优惠券状态
                 shop_id: '', // 优惠券店铺
-                adv_time: [] // 广告时间
+                adv_time: '' // 广告时间
             },
             pageInfo: {
                 name: '',
@@ -182,7 +183,38 @@ export default {
             dialogVisible: false,
             searchShow: false,
             searchList: [],
-            showMaxIndex: 0
+            showMaxIndex: 0,
+            pickerOptions: {
+                shortcuts: [
+                    {
+                        text: '最近一周',
+                        onClick(picker) {
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+                            picker.$emit('pick', [start, end])
+                        }
+                    },
+                    {
+                        text: '最近一个月',
+                        onClick(picker) {
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+                            picker.$emit('pick', [start, end])
+                        }
+                    },
+                    {
+                        text: '最近三个月',
+                        onClick(picker) {
+                            const end = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1) // 当天23:59
+                            const start = new Date(new Date(new Date().getTime()).setHours(0, 0, 0, 0))
+                            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+                            picker.$emit('pick', [start, end])
+                        }
+                    }
+                ]
+            },
         }
     },
     components: {
@@ -304,7 +336,7 @@ export default {
                 time_end,
                 start_time = 0,
                 end_time = 0
-            if (this.searchParams.adv_time.length > 0) {
+            if (this.searchParams.adv_time && this.searchParams.adv_time.length > 0) {
                 time_start = this.getTime(this.searchParams.adv_time[0]).toString()
                 time_end = this.getTime(this.searchParams.adv_time[1]).toString()
                 time_start = new Date(time_start)

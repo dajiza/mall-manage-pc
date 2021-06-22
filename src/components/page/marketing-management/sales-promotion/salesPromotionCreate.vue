@@ -13,7 +13,7 @@
                     <el-input class="w300" placeholder="请输入促销名称" v-model="operationForm.title" :disabled="operationTitle === '编辑促销'" />
                 </el-form-item>
                 <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑促销'" @change="chooseShop">
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -290,6 +290,8 @@
                    :checked="checkedSkuList"
                    :addIds="addIds"
                    :shopId="shopId"
+                   :cateOtherList="cate_other_list"
+                   :cateGroupList="cate_group_list"
                    @addSku="getAddSku"
                    @delSku="getDelSku"
         ></addSkuPop>

@@ -13,11 +13,11 @@
                     <transition name="slide-fade">
                         <div class="head-container" v-show="searchShow" @click.stop="">
                             <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left">
-                                <el-form-item label="商品名称" prop="title" label-width="">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.title" @keyup.enter.native="handleFilter()"></el-input>
+                                <el-form-item label="商品名称" prop="goods_name" label-width="">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_name" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
-                                <el-form-item label="商品ID" prop="id" v-show="activeTab == '1'">
-                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.id" @keyup.enter.native="handleFilter()"></el-input>
+                                <el-form-item label="商品ID" prop="goods_id" v-show="activeTab == '1'">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_id" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
                                 <el-form-item label="商品分类" prop="typeCategory" v-show="activeTab == '1'">
                                     <el-cascader
@@ -28,27 +28,27 @@
                                             :options="typeList"
                                     ></el-cascader>
                                 </el-form-item>
-                                <el-form-item label="商品状态" prop="status" v-show="activeTab == '1'">
-                                    <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择">
-                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                                    </el-select>
-                                </el-form-item>
-                                <el-form-item label="出售状态" prop="is_sale" v-show="activeTab == '1'">
+                                <!--<el-form-item label="出售状态" prop="is_sale" v-show="activeTab == '1'">
                                     <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
                                         <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>-->
+                                <el-form-item label="是否售罄" prop="goods_is_store_shortage" v-show="activeTab == '1'">
+                                    <el-select class="filter-item" v-model="searchForm.goods_is_store_shortage" placeholder="请选择">
+                                        <el-option v-for="item in soldoutList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                                     </el-select>
                                 </el-form-item>
                                 <el-form-item label="SKU名称" prop="sku_name" class="">
                                     <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
-                                <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                                    <el-input class="filter-item" v-model="searchForm.storehouse_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
+                                <el-form-item label="SKU编码" prop="sku_code" class="">
+                                    <el-input class="filter-item" v-model="searchForm.sku_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
-                                <el-form-item label="会员折扣" prop="discount_condition" v-show="false">
+                                <!--<el-form-item label="会员折扣" prop="discount_condition" v-show="false">
                                     <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
                                         <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                                     </el-select>
-                                </el-form-item>
+                                </el-form-item>-->
                                 <el-form-item class="form-item-btn" label="">
                                     <el-button class="filter-btn" size="" type="" @click="resetForm('searchForm')">重置</el-button>
                                     <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -79,18 +79,18 @@
                             <div class="row-list">
                                 <div class="nodata" v-if="checkedList.length == 0">无数据</div>
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
-                                    <template v-if="item.goods_sku.length > 0">
+                                    <template v-if="item.shop_skus.length > 0">
                                         <div class="item-content">
                                             <span class="iconfont icon-plus" v-show="!item.open" @click="triggerImg(item)"></span>
                                             <span class="iconfont icon-minus" v-show="item.open" @click="triggerImg(item)"></span>
-                                            <div class="name">{{ item.title }}</div>
+                                            <div class="name">{{ item.goods_title }}</div>
                                             <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelection(item)"></i>
                                         </div>
                                         <div class="son" v-show="item.open">
-                                            <template v-for="(sku, sku_i) in item.goods_sku">
+                                            <template v-for="(sku, sku_i) in item.shop_skus">
                                                 <div class="son-item" v-if="sku.skuIsChecked">
-                                                    <img alt="" class="son-timg" :src="sku.sku_img + '!upyun520/fw/300'" @click="openPreview(item.goods_sku, 3, sku_i)" />
-                                                    <div class="name">{{ sku.title }}</div>
+                                                    <img alt="" class="son-timg" :src="sku.sku_sku_img + '!upyun520/fw/300'" @click="openPreview(item.sku_sku_img, 3, sku_i)" />
+                                                    <div class="name">{{ sku.sku_title }}</div>
                                                     <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelectionImg(item, sku)"></i>
                                                 </div>
                                             </template>
@@ -122,7 +122,7 @@
                         <template v-if="activeTab == '1'">
                             <el-table-column label="-" type="expand" width="55">
                                 <template slot-scope="props">
-                                    <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
+                                    <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
                                         <el-table-column label="" width="50">
                                             <template slot-scope="scope">
                                                 <el-checkbox
@@ -142,20 +142,20 @@
                                             <template slot-scope="scope">
                                                 <img
                                                         class="timg"
-                                                        :src="scope.row.sku_img + '!upyun520/fw/300'"
+                                                        :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
                                                         alt=""
-                                                        @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)"
+                                                        @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
                                                 />
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="SKU名称">
                                             <template slot-scope="scope">
-                                                <span>{{ scope.row.title }}</span>
+                                                <span>{{ scope.row.sku_title }}</span>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="SKU编码">
                                             <template slot-scope="scope">
-                                                <span>{{ scope.row.storehouse_code }}</span>
+                                                <span>{{ scope.row.sku_storehouse_code }}</span>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="实际销量" width="90">
@@ -165,30 +165,23 @@
                                         </el-table-column>
                                         <el-table-column label="售价(元)" width="90">
                                             <template slot-scope="scope">
-                                                <span>{{ formatMoney(scope.row.min_price) }}</span>
+                                                <span>{{ formatMoney(scope.row.price) }}</span>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="总库存" width="90">
                                             <template slot-scope="scope">
-                                                <span>{{ scope.row.stock_total }}</span>
+                                                <span>{{ scope.row.product_storage_data.stock_total }}</span>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="可用库存" width="90">
                                             <template slot-scope="scope">
-                                                <span>{{ scope.row.stock_available }}</span>
+                                                <span>{{ scope.row.product_storage_data.stock_available }}</span>
                                             </template>
                                         </el-table-column>
                                         <el-table-column label="是否售罄" width="90">
                                             <template slot-scope="scope">
-                                                <div class="type-tag type-yellow" v-if="scope.row.is_store_shortage == 2">售罄</div>
+                                                <div class="type-tag type-yellow" v-if="scope.row.sku_is_store_shortage == 2">售罄</div>
                                                 <div class="type-tag type-blue" v-else>否</div>
-                                            </template>
-                                        </el-table-column>
-                                        <el-table-column label="会员折扣" width="90">
-                                            <template slot-scope="scope">
-                                                <span v-if="scope.row.user_discount == 0">是</span>
-                                                <span v-else-if="scope.row.user_discount == 1">否</span>
-                                                <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
                                             </template>
                                         </el-table-column>
                                     </el-table>
@@ -196,17 +189,15 @@
                             </el-table-column>
                             <el-table-column label="" width="70">
                                 <template slot-scope="scope">
-                                    <!--                            <span>({{ scope.row.checkNum }}/{{ scope.row.goods_sku.length }})</span>-->
-                                    <span>({{ scope.row.checkNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
+                                    <span>({{ scope.row.checkNum || 0 }}/{{ scope.row.shop_skus.length }})</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="" width="35">
                                 <template slot-scope="scope">
-                                    <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length" -->
                                     <el-checkbox
                                             v-model="scope.row.goodsIsChecked"
                                             :disabled="scope.row.isDisabled"
-                                            :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.goods_sku.length"
+                                            :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length"
                                             @change="value => goodsChecked(value, scope.row, scope.$index)"
                                     ></el-checkbox>
                                 </template>
@@ -218,19 +209,19 @@
                             </el-table-column>
                             <el-table-column label="主图" width="120">
                                 <template slot-scope="scope">
-                                    <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                                    <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goods_img, 1, scope.$index)" />
                                 </template>
                             </el-table-column>
                             <el-table-column label="商品名称">
                                 <template slot-scope="scope">
-                                    <span>{{ scope.row.title }}</span>
+                                    <span>{{ scope.row.goods_title }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="商品分类" width="180">
                                 <template slot-scope="scope">
-                                    <span v-if="scope.row.type == 1">布料</span>
-                                    <span v-if="scope.row.type == 2"> 其他{{ categoryGenerate(scope.row.category_id, 2) }} </span>
-                                    <span v-if="scope.row.type == 3"> 布组{{ categoryGenerate(scope.row.category_id, 3) }} </span>
+                                    <span v-if="scope.row.goods_type == 1">布料</span>
+                                    <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
+                                    <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="状态" width="120">
@@ -245,9 +236,9 @@
                                     </div>
                                 </template>
                             </el-table-column>
-                            <el-table-column label="出售状态" width="110">
+                            <!--<el-table-column label="出售状态" width="110">
                                 <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
-                            </el-table-column>
+                            </el-table-column>-->
                         </template>
                     </el-table>
                 </template>
@@ -339,6 +330,7 @@
 </template>
 
 <script>
+import { queryShopGoodsList, queryCheckedGoods } from '@/api/live'
 import { queryGoodsListNew, queryShopList, queryCategoryListAll } from '@/api/goods'
 import { querySkuList } from '@/api/promotion'
 import { formatMoney } from '@/plugin/tool'
@@ -362,6 +354,14 @@ export default {
             type: Number,
             default: -1
         },
+        cateOtherList: {
+            type: Array,
+            default: []
+        },
+        cateGroupList: {
+            type: Array,
+            default: []
+        },
         tableKey: 0,
         addTableKey: 1
     },
@@ -378,18 +378,15 @@ export default {
             },
             isShow: false,
             searchForm: {
-                id: '',
-                title: '',
-                category_id: '',
-                type: '',
-                status: '',
-                is_sale: '',
-                is_store_shortage: '',
-                allow_agent: '',
-                storehouse_code: '',
-                typeCategory: [], //cache数据
-                discount_condition: '',
-                sku_name: ''
+                goods_id: '',
+                goods_name: '',
+                sku_name: '',
+                sku_code: '',
+                goods_is_store_shortage: '',
+                shop_goods_status: 2, //1下架；2上架；
+                other_id: '',
+                goods_type: '',
+                typeCategory: [] //cache数据
             },
             searchParams: {},
             searchShow: false, //搜索表单显示
@@ -399,8 +396,13 @@ export default {
                 { value: 2, label: '其他' },
                 { value: 3, label: '布组' }
             ],
+            // 售罄 1是 2不是
+            soldoutList: [
+                { value: 1, label: '否' },
+                { value: 2, label: '是' }
+            ],
             categoryList: [],
-            categoryListOther: [], //其他分类
+            categoryListOther: [], // 其他分类
             categoryListClothGroup: [], //布组分类
             // 是否上架：1下架；2上架
             statusList: [
@@ -472,6 +474,7 @@ export default {
         },
         checked: {
             handler(newValue, oldValue) {
+                console.log('newValue', newValue)
                 this.checkedSkuIds = _.cloneDeep(newValue)
                 if(this.activeTab == '1' && this.isShow){
                     this.listQuery.page = 1
@@ -527,6 +530,8 @@ export default {
         },
         open() {},
         opened() {
+            this.categoryListOther = _.cloneDeep(this.cateOtherList)
+            this.categoryListClothGroup = _.cloneDeep(this.cateGroupList)
             ++this.labelKey
             this.checkedList = []
             this.addList = []
@@ -539,10 +544,13 @@ export default {
             this.setSearchValue()
             this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
             this.addSkuIdsArr = _.cloneDeep(this.addIds)
-            this.queryDataAllInit()
             this.activeTab = '1'
+            this.creatCategoryData()
+            this.resetForm('searchForm')
             console.log('this.checkedSkuIds', this.checkedSkuIds)
             console.log('this.addSkuIdsArr', this.addSkuIdsArr)
+
+            // 获取已添加条数
             this.getPromotionGoods()
         },
         closed() {
@@ -551,12 +559,12 @@ export default {
         //  刷新显示列表的checkbox显示状态
         refreshSelection(ids) {
             this.list.forEach(goods_item => {
-                goods_item.goods_sku.forEach((sku_item, i) => {
+                goods_item.shop_skus.forEach((sku_item, i) => {
                     if (ids.indexOf(sku_item.id) > -1) {
                         sku_item.skuIsChecked = false
                     }
                 })
-                goods_item['checkNum'] = goods_item.goods_sku.filter(item => item.skuIsChecked).length
+                goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length
                 if (goods_item['checkNum'] < 1) {
                     goods_item['goodsIsChecked'] = false
                 }
@@ -627,103 +635,81 @@ export default {
         getList() {
             const rLoading = this.openLoading()
             let params = _.cloneDeep(this.searchParams)
-            // let params = _.cloneDeep(this.$refs['searchForm'].model)
+            // params['sku_is_store_shortage'] = 1;
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
+            params['goods_id'] = Number(this.searchParams.goods_id)
             if (params['typeCategory'].length == 1) {
-                params['type'] = params['typeCategory'][0]
-                params['category_id'] = ''
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = ''
             } else if (params['typeCategory'].length == 2) {
-                params['type'] = params['typeCategory'][0]
-                params['category_id'] = params['typeCategory'][1].toString()
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][1]
             } else if (params['typeCategory'].length == 3) {
-                params['type'] = params['typeCategory'][0]
-                params['category_id'] = params['typeCategory'][2].toString()
-            } else {
-                params['type'] = ''
-                params['category_id'] = ''
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][2]
             }
-            // params['category_id'] = params['category_id'].toString()
-            if (params['type'] == 1) {
-                params['category_id'] = 0
+            if (params['goods_type'] == 1) {
+                params['other_id'] = 0
             }
-            if (params['discount_condition'] == '') {
-                params['discount_condition'] = 0
-            }
-
-            queryGoodsListNew(params)
-                .then(async res => {
-                    if (res.data.goods_list == null) {
-                        this.list = []
-                        this.total = 0
+            params['shop_id'] = this.shopId
+            params['shop_goods_status'] = 2
+            queryShopGoodsList(params)
+                .then(res => {
+                    if (res.data.lists == null || res.data.lists.length == 0) {
+                        this.list = res.data.lists || []
+                        this.total = res.data.total || 0
                         rLoading.close()
                         return
                     }
-                    // 拼合goods和sku
-                    let goods = _.cloneDeep(res.data.goods_list)
-                    let sku = _.cloneDeep(res.data.goods_sku_list)
-                    for (let i = 0; i < goods.length; i++) {
-                        const goodsItem = goods[i]
-                        goodsItem.goods_sku = []
-                        for (let j = 0; j < sku.length; j++) {
-                            const skuItem = sku[j]
-                            if (goodsItem.id == skuItem.goods_id) {
-                                goodsItem.goods_sku.push(skuItem)
-                            }
-                        }
-                    }
-                    // 逐个获取库存信息 同时生成主图 sku图预览列表
-                    let skuImgIndex = 0
+                    // 生成主图 sku图预览列表
                     this.timgList = []
                     this.skuImgList = []
                     let goods_list = []
                     let new_sku_ids = [] // 新加sku id集合
                     this.checkedList.forEach(goods_item => {
-                        goods_item.goods_sku.forEach(sku_item => {
+                        goods_item.shop_skus.forEach(sku_item => {
                             if (sku_item.skuIsChecked) {
-                                new_sku_ids.push(sku_item.id)
+                                new_sku_ids.push(sku_item.sku_id)
                             }
                         })
                     })
-                    for (let i = 0; i < goods.length; i++) {
-                        const product = goods[i]
-
-                        this.timgList.push(product.img)
-                        if (!product.goods_sku) {
-                            product.goods_sku = []
-                            continue
-                        }
-                        product.onsaleNum = product.goods_sku.filter(item => item.status == 2).length
-                        for (let j = 0; j < product.goods_sku.length; j++) {
-                            const sku = product.goods_sku[j]
-                            sku['skuIsChecked'] = false
-                            if (this.checkedSkuIds.indexOf(sku.id) > -1) {
-                                sku['skuIsChecked'] = true
-                                sku['isDisabled'] = true
-                            }
-                            if (new_sku_ids.indexOf(sku.id) > -1) {
-                                sku['skuIsChecked'] = true
-                            }
-                            this.skuImgList.push(sku.sku_img)
-                            sku.skuImgIndex = skuImgIndex
-                            skuImgIndex++
-                        }
-                        product['goodsIsChecked'] = false
-                        product['checkNum'] = product.goods_sku.filter(item => item.skuIsChecked).length
-                        product['skuDisabledNum'] = product.goods_sku.filter(item => item.isDisabled).length
-                        if (product['checkNum'] > 0) {
-                            product['goodsIsChecked'] = true
-                        }
-                        product['isDisabled'] = false
-                        if (product['skuDisabledNum'] > 0) {
-                            product['isDisabled'] = true
-                            product.goods_sku.forEach((sku, sku_i) => {
-                                sku['isDisabled'] = true
+                    console.log('this.checkedList', this.checkedList)
+                    console.log('this.checkedSkuIds', this.checkedSkuIds)
+                    if (res.data.lists && res.data.lists.length > 0) {
+                        _.cloneDeep(res.data.lists).forEach(ev => {
+                            let goods = _.cloneDeep(ev)
+                            this.timgList.push(goods.goods_img)
+                            goods.shop_skus.forEach((sku, sku_i) => {
+                                this.skuImgList.push(sku.sku_sku_img)
+                                sku['skuIsChecked'] = false
+                                sku['isDisabled'] = false
+                                if (this.checkedSkuIds.indexOf(sku.sku_id) > -1) {
+                                    sku['skuIsChecked'] = true
+                                    sku['isDisabled'] = true
+                                }
+                                if (new_sku_ids.indexOf(sku.sku_id) > -1) {
+                                    sku['skuIsChecked'] = true
+                                }
                             })
-                        }
-                        goods_list.push(product)
+                            goods['goodsIsChecked'] = false
+                            goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
+                            goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length
+                            if (goods['checkNum'] > 0) {
+                                goods['goodsIsChecked'] = true
+                            }
+                            goods['isDisabled'] = false
+                            if (goods['skuDisabledNum'] > 0 && goods['skuDisabledNum'] == goods.shop_skus.length) {
+                                goods['isDisabled'] = true
+                                // goods.shop_skus.forEach((sku, sku_i) => {
+                                //     sku['isDisabled'] = true
+                                // })
+                            }
+
+                            goods_list.push(goods)
+                        })
                     }
-                    this.list = goods
+                    this.list = goods_list
                     this.total = res.data.total
                     rLoading.close()
                 })
@@ -743,10 +729,11 @@ export default {
                 return
             }
             let params = {
-                goodsName: this.searchParams.title || '',
+                goodsName: this.searchParams.goods_name || '',
                 skuName: this.searchParams.sku_name || '',
-                skuCode: this.searchParams.storehouse_code || '',
-                skuIds: this.addSkuIdsArr
+                skuCode: this.searchParams.sku_code || '',
+                skuIds: this.addSkuIdsArr,
+                shopId: this.shopId
             }
             this.listQuery.page = 1
             const rLoading = this.openLoading()
@@ -791,8 +778,10 @@ export default {
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
             if(this.activeTab == '1'){
+                console.log('1111111')
                 this.getList()
             } else {
+                console.log('222222')
                 this.getPromotionGoods()
             }
         },
@@ -806,26 +795,66 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = []
+            // id
+            // if (this.searchParams['id']) {
+            //     let obj = {
+            //         label: 'id',
+            //         val: this.searchParams['id']
+            //     }
+            //     _search.push(obj)
+            // }
+            // 上下架状态 status
+            // if (this.searchParams['status']) {
+            //     this.statusList.forEach(ev => {
+            //         if (ev.value == this.searchParams['status']) {
+            //             let obj = {
+            //                 label: 'status',
+            //                 val: ev.label
+            //             }
+            //             _search.push(obj)
+            //         }
+            //     })
+            // }
             // 商品名称
-            if (this.searchParams['title']) {
+            if (this.searchForm['goods_name']) {
                 let obj = {
-                    label: 'title',
-                    val: this.searchParams['title']
+                    label: 'goods_name',
+                    val: this.searchForm['goods_name']
                 }
                 _search.push(obj)
             }
-            // id
-            if (this.searchParams['id']) {
+            // sku名称
+            if (this.searchForm['sku_name']) {
                 let obj = {
-                    label: 'id',
-                    val: this.searchParams['id']
+                    label: 'sku_name',
+                    val: this.searchForm['sku_name']
                 }
                 _search.push(obj)
+            }
+            // sku编码
+            if (this.searchForm['sku_code']) {
+                let obj = {
+                    label: 'sku_code',
+                    val: this.searchForm['sku_code']
+                }
+                _search.push(obj)
+            }
+            // 是否售罄
+            if (this.searchForm['goods_is_store_shortage']) {
+                this.soldoutList.forEach(ev => {
+                    if (ev.value == this.searchForm['goods_is_store_shortage']) {
+                        let obj = {
+                            label: 'goods_is_store_shortage',
+                            val: '售罄:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
             }
             // 级联选择 商品类型+分类
-            if (this.searchParams['typeCategory'].length == 1) {
+            if (this.searchForm['typeCategory'].length == 1) {
                 this.typeList.forEach(ev => {
-                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
                         let obj = {
                             label: 'typeCategory',
                             val: ev.label
@@ -833,17 +862,17 @@ export default {
                         _search.push(obj)
                     }
                 })
-            } else if (this.searchParams['typeCategory'].length == 2) {
+            } else if (this.searchForm['typeCategory'].length == 2) {
                 let showValue = ''
                 this.typeList.forEach(ev => {
-                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
                         showValue = ev.label
                     }
                 })
 
                 let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
                 _arr.forEach(ev => {
-                    if (ev.id == this.searchParams['typeCategory'][1]) {
+                    if (ev.id == this.searchForm['typeCategory'][1]) {
                         showValue = showValue + '/' + ev.name
                     }
                 })
@@ -851,98 +880,28 @@ export default {
                     label: 'typeCategory',
                     val: showValue
                 })
-            } else if (this.searchParams['typeCategory'].length == 3) {
+            } else if (this.searchForm['typeCategory'].length == 3) {
                 let showValue = ''
                 this.typeList.forEach(ev => {
-                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
                         showValue = ev.label
                     }
                 })
 
                 let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
                 _arr.forEach(ev => {
-                    if (ev.id == this.searchParams['typeCategory'][1]) {
+                    if (ev.id == this.searchForm['typeCategory'][1]) {
                         showValue = showValue + '/' + ev.name
                     }
                 })
                 _arr.forEach(ev => {
-                    if (ev.id == this.searchParams['typeCategory'][2]) {
+                    if (ev.id == this.searchForm['typeCategory'][2]) {
                         showValue = showValue + '/' + ev.name
                     }
                 })
                 _search.push({
                     label: 'typeCategory',
                     val: showValue
-                })
-            }
-
-            // 上下架状态 status
-            if (this.searchParams['status']) {
-                this.statusList.forEach(ev => {
-                    if (ev.value == this.searchParams['status']) {
-                        let obj = {
-                            label: 'status',
-                            val: ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            }
-            // 出售状态 is_sale
-            if (this.searchParams['is_sale']) {
-                this.saleStatusList.forEach(ev => {
-                    if (ev.value == this.searchParams['is_sale']) {
-                        let obj = {
-                            label: 'is_sale',
-                            val: ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            }
-
-            // 是否售罄
-            if (this.searchParams['is_store_shortage']) {
-                this.shortageList.forEach(ev => {
-                    if (ev.value == this.searchParams['is_store_shortage']) {
-                        let obj = {
-                            label: 'is_store_shortage',
-                            val: '售罄:' + ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            }
-            // 是否指定店铺 allow_agent
-            if (this.searchParams['allow_agent']) {
-                this.agentList.forEach(ev => {
-                    if (ev.value == this.searchParams['allow_agent']) {
-                        let obj = {
-                            label: 'allow_agent',
-                            val: ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
-            }
-            // SKU编码
-            if (this.searchParams['storehouse_code']) {
-                let obj = {
-                    label: 'storehouse_code',
-                    val: this.searchParams['storehouse_code']
-                }
-                _search.push(obj)
-            }
-            // 会员折扣
-            if (this.searchParams['discount_condition']) {
-                this.discountList.forEach(ev => {
-                    if (ev.value == this.searchParams['discount_condition']) {
-                        let obj = {
-                            label: 'discount_condition',
-                            val: '折扣:' + ev.label
-                        }
-                        _search.push(obj)
-                    }
                 })
             }
             this.searchList = _.cloneDeep(_search)
@@ -965,7 +924,7 @@ export default {
                 const element = this.checkedList[i]
                 if (group.id == element.id) {
                     this.checkedList.splice(i, 1)
-                    const ids = element.goods_sku.map(item => {
+                    const ids = element.shop_skus.map(item => {
                         return item.id
                     })
                     this.refreshSelection(ids)
@@ -978,16 +937,16 @@ export default {
             for (let i = 0; i < this.checkedList.length; i++) {
                 const element = this.checkedList[i]
                 if (goods.id == element.id) {
-                    for (let j = 0; j < element.goods_sku.length; j++) {
-                        const skuElement = element.goods_sku[j]
+                    for (let j = 0; j < element.shop_skus.length; j++) {
+                        const skuElement = element.shop_skus[j]
                         if (sku.id == skuElement.id) {
-                            element.goods_sku.splice(j, 1)
+                            element.shop_skus.splice(j, 1)
                             const ids = [sku.id]
                             this.refreshSelection(ids)
                         }
                     }
                     // 没有选中图片时 删除组
-                    if (element.goods_sku.length == 0) {
+                    if (element.shop_skus.length == 0) {
                         this.checkedList.splice(i, 1)
                     }
                 }
@@ -1027,11 +986,10 @@ export default {
             console.log('this.checkedList', this.checkedList)
             console.log('this.checkedList.length', this.checkedList.length)
             this.checkedList.forEach(goods_item => {
-                goods_item.goods_sku.forEach(sku_item => {
+                goods_item.shop_skus.forEach(sku_item => {
                     if (sku_item.skuIsChecked && !sku_item.isDisabled) {
-                        sku_item['goods_title'] = goods_item.title
-                        sku_item['goods_img'] = goods_item.img
-                        // sku_item['new_title'] = ''
+                        sku_item['goods_title'] = goods_item.goods_title
+                        sku_item['goods_img'] = goods_item.goods_img
                         sku_arr.push(sku_item)
                     }
                 })
@@ -1088,31 +1046,6 @@ export default {
             })
         },
 
-        // 获取分类列表
-        queryDataAllInit() {
-            Promise.all([
-                // type 1其他 2布组
-                queryCategoryListAll({ type: 1 }),
-                queryCategoryListAll({ type: 2 })
-            ])
-                .then(res => {
-                    let options = {}
-                    if (res[0].code === 200) {
-                        if (res[0].data) {
-                            this.categoryListOther = res[0].data
-                        }
-                    }
-                    if (res[1].code === 200) {
-                        if (res[1].data) {
-                            this.categoryListClothGroup = res[1].data
-                        }
-                    }
-                    this.creatCategoryData()
-                    this.resetForm('searchForm')
-                })
-                .catch(() => {})
-        },
-
         // 关闭大图预览
         closePreview() {
             this.dialogVisiblePic = false
@@ -1144,13 +1077,13 @@ export default {
         },
         // sku选中/取消
         skuChecked(bol, row, index, goods_detail, goods_index) {
-            goods_detail.goods_sku.forEach((ev, i) => {
+            goods_detail.shop_skus.forEach((ev, i) => {
                 if (!ev.isDisabled) {
                     // ev['skuIsChecked'] = false
                 }
             })
             row['skuIsChecked'] = bol
-            goods_detail['checkNum'] = goods_detail.goods_sku.filter(item => item.skuIsChecked).length
+            goods_detail['checkNum'] = goods_detail.shop_skus.filter(item => item.skuIsChecked).length
             if (goods_detail['checkNum'] < 1) {
                 goods_detail['goodsIsChecked'] = false
             } else {
@@ -1176,24 +1109,24 @@ export default {
 
         // 商品选中/取消
         goodsChecked(bol, row, index) {
-            if (row.goods_sku && row.goods_sku.length > 1) {
+            if (row.shop_skus && row.shop_skus.length > 1) {
                 // row['goodsIsChecked'] = false
-                row.goods_sku.forEach((ev, i) => {
+                row.shop_skus.forEach((ev, i) => {
                     if (!ev['isDisabled']) {
                         ev['skuIsChecked'] = bol
                     }
                 })
-            } else if (row.goods_sku && row.goods_sku.length == 1) {
+            } else if (row.shop_skus && row.shop_skus.length == 1) {
                 if (!row.isDisabled) {
                     row['goodsIsChecked'] = bol
-                    row.goods_sku.forEach((ev, i) => {
+                    row.shop_skus.forEach((ev, i) => {
                         if (!ev['isDisabled']) {
                             ev['skuIsChecked'] = bol
                         }
                     })
                 }
             }
-            let sku_checked_num = row.goods_sku.filter(item => item.skuIsChecked).length
+            let sku_checked_num = row.shop_skus.filter(item => item.skuIsChecked).length
             row['checkNum'] = sku_checked_num
             let checkedGoodsIds = [] // 选中商品id集合
             if (this.checkedList.length > 0) {
