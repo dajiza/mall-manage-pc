@@ -192,6 +192,11 @@
                         >{{scope.row.status_name}}</span>
                     </template>
                 </el-table-column>
+                <el-table-column prop="price" label="类型" width="90" :resizable="true" v-if="back_field_show('类型')">
+                    <template slot-scope="scope">
+                        <span>{{scope.row.detail_type == 1 ? '加价购':'普通'}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="price" label="单价(元)" :resizable="true" v-if="back_field_show('单价(元)')">
                     <template slot-scope="scope">
                         <span>{{(scope.row.price/100) | rounding}}</span>
@@ -203,7 +208,7 @@
                         <span>{{((Number(scope.row.price) * Number(scope.row.num))/100) | rounding}}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_2" label="促销优惠金额(元)" width="140" :resizable="true" v-if="back_field_show('促销优惠金额(元)')">
+                <el-table-column prop="off_2" label="促销优惠(元)" width="140" :resizable="true" v-if="back_field_show('促销优惠(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_3/100 | rounding}}</span>
                     </template>
@@ -409,7 +414,7 @@
                         <div class="amount-value">¥ {{order_info.off_1/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item activity-discount">
-                        <div class="amount-name">促销优惠金额</div>
+                        <div class="amount-name">促销优惠</div>
                         <div class="amount-value">¥ {{order_info.off_3/100 | rounding}}</div>
                     </div>
                     <div class="order-amount-item activity-discount">
@@ -781,10 +786,11 @@
                     {name:'商品名称', is_show: true},
                     {name:'规格', is_show: true},
                     {name:'订单状态', is_show: true},
+                    {name:'类型', is_show: true},
                     {name:'单价(元)', is_show: true},
                     {name:'数量', is_show: true},
                     {name:'总价(元)', is_show: true},
-                    {name:'促销优惠金额(元)', is_show: true},
+                    {name:'促销优惠(元)', is_show: true},
                     {name:'优惠券(元)', is_show: true},
                     {name:'改价(元)', is_show: true},
                     {name:'会员折扣(元)', is_show: true, is_new: true},

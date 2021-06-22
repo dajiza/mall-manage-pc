@@ -126,6 +126,11 @@
                             <span>{{ scope.row.goods_name }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column prop="price" label="类型" width="90">
+                        <template slot-scope="scope">
+                            <span>{{scope.row.detail_type == 1 ? '加价购':'普通'}}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="单价(元)">
                         <template slot-scope="scope">
                             <span>{{ formatMoney(scope.row.price) }}</span>
