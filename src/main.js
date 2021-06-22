@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import ElementUI from 'element-ui'
+import ElementUI from 'element-ui-chuanshui'
+console.log('输出 ~ ElementUI', ElementUI)
 // import VueI18n from 'vue-i18n';
 // import { messages } from './components/common/i18n';
-import 'element-ui/lib/theme-chalk/index.css' // 默认主题
+import 'element-ui-chuanshui/lib/theme-chalk/index.css' // 默认主题
 import './assets/init.less' //全局样式
 import { setToken, getToken } from './utils/auth'
 import './assets/css/icon.css'
@@ -201,10 +202,10 @@ router.beforeEach((to, from, next) => {
 })
 Vue.filter('rounding', function(value) {
     //全局方法 Vue.filter() 注册一个自定义过滤器,必须放在Vue实例化前面
-    if(value){
-        if(typeof(value) === 'number'){
-            return value.toFixed(2);
-        }else {
+    if (value) {
+        if (typeof value === 'number') {
+            return value.toFixed(2)
+        } else {
             return value
         }
     } else {

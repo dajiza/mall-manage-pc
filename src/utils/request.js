@@ -1,7 +1,7 @@
 import axios from 'axios';
 import qs from "qs";
 import {getToken} from './auth';
-import { Message, notify } from 'element-ui';
+import { Message, notify } from 'element-ui-chuanshui';
 import router from './../router';
 
 const service = axios.create({

@@ -186,7 +186,7 @@ import commUtil from '@/utils/commUtil'
 import goodsDiscountList from '@/components/common/goods-discount-list/GoodsDiscountList.vue'
 
 import { Component, Vue } from 'vue-property-decorator'
-import { ElForm } from 'element-ui/types/form'
+import { ElForm } from 'element-ui-chuanshui/types/form'
 
 export default Vue.extend({
     name: 'customer-list',
