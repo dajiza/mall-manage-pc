@@ -691,7 +691,6 @@ export const mixinsPromotion = {
                     params['startTime'] = grant_start.getTime() / 1000
                     params['endTime'] = grant_end.getTime() / 1000
                     params['rules'] = type_list
-                    return;
                     if(this.$route.query.id) {
                         params['id'] = Number(this.$route.query.id)
                         this.queryAddOrEdit(params, 'edit')
