@@ -67,11 +67,11 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-promotion-create'">新增</el-button>
+                <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-sales-promotion-create'">新增</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column prop="title" label="促销名称"></el-table-column>
-                <el-table-column prop="type" label="促销类型" width="120">
+                <el-table-column prop="type" label="促销类型" width="100">
                     <template slot-scope="scope">
                         <span>{{ backType(scope.row.type) }}</span>
                     </template>
@@ -79,7 +79,7 @@
                 <el-table-column label="促销时间" width="350">
                     <template slot-scope="scope"> {{$moment(scope.row.startTime).format('YYYY-MM-DD HH:mm:ss')}} 至 {{ $moment(scope.row.endTime).format('YYYY-MM-DD HH:mm:ss') }} </template>
                 </el-table-column>
-                <el-table-column label="可用店铺" width="140">
+                <el-table-column label="可用店铺" width="130">
                     <template slot-scope="scope">
                         <span>{{ backShopName(scope.row.shopId) }}</span>
                     </template>
@@ -95,11 +95,11 @@
                                 type="text"
                                 class="marginLeft0 marginRight15"
                                 :class="{ 'delete-color': scope.row.status > 1 }"
-                                v-hasPermission="'mall-backend-promotion-change-status'"
+                                v-hasPermission="'mall-backend-promotion-statu'"
                                 @click="handleChangeStatus(scope.$index, scope.row)"
                         >{{ scope.row.status > 1 ? '下架' : '上架' }}</el-button
                         >
-                        <el-button type="text" class="marginLeft0" v-hasPermission="'mall-backend-promotion-update'" @click="handleEditOrCopy(scope.$index, scope.row, 'edit')"
+                        <el-button type="text" class="marginLeft0" v-hasPermission="'mall-backend-sales-promotion-update'" @click="handleEditOrCopy(scope.$index, scope.row, 'edit')"
                         >编辑</el-button
                         >
                     </template>
