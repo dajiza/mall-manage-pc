@@ -383,9 +383,10 @@ export const mixinsCoupons = {
                                 tags_arr.push([2, ev.tag_category_id, ev.id])
                             }
                         })
+                        console.log('this.label_other_list', this.label_other_list)
                         this.label_other_list.forEach((ev, i) => {
                             if (event === ev.id) {
-                                tags_arr.push([1, ev.category_id, ev.id])
+                                tags_arr.push([1, ev.tag_category_id, ev.id])
                             }
                         })
                     })

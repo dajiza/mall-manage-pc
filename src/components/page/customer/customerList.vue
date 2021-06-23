@@ -362,7 +362,7 @@ export default {
                 .then(res => {
                     console.log('输出 ~ res', res)
                     this.discountList = res.data.list.map(item => {
-                        item.discount = Number(item.discount_value/10) + '折'
+                        item.discount = commUtil.numberMul(Number(item.discount_value), 0.1) + '折'
                         return item
                     })
                 })

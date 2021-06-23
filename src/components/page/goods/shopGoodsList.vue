@@ -97,7 +97,7 @@
                         </el-table-column>
                         <el-table-column label="SKU图片" width="120">
                             <template slot-scope="scope">
-                                <img class="timg" :src="scope.row.sku_sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
+                                <img class="timg" :src="scope.row.sku_sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)" />
                             </template>
                         </el-table-column>
                         <el-table-column label="SKU名称">
@@ -186,7 +186,7 @@
 
             <el-table-column label="主图" width="120">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                    <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goods_img, 1, scope.$index)" />
                 </template>
             </el-table-column>
             <el-table-column label="商品名称" width="">
@@ -466,13 +466,13 @@ export default {
                     this.skuImgList = []
                     for (let i = 0; i < res.data.lists.length; i++) {
                         const product = res.data.lists[i]
-                        this.timgList.push(product.img)
+                        this.timgList.push(product.goods_img)
 
                         product.onsaleNum = product.shop_skus.filter(item => item.status == 2).length
 
                         for (let j = 0; j < product.shop_skus.length; j++) {
                             const sku = product.shop_skus[j]
-                            this.skuImgList.push(sku.sku_img)
+                            this.skuImgList.push(sku.sku_sku_img)
                             sku.skuImgIndex = skuImgIndex
                             skuImgIndex++
                         }

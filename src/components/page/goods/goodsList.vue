@@ -577,7 +577,6 @@ export default {
             }
         })
     },
-
     mounted() {
         this.queryCategoryListAllInit()
         this.queryShopList()

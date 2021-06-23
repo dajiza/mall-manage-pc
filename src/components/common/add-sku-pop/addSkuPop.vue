@@ -79,7 +79,7 @@
                             <div class="row-list">
                                 <div class="nodata" v-if="checkedList.length == 0">无数据</div>
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
-                                    <template v-if="item.shop_skus.length > 0">
+                                    <template v-if="item.shop_skus.length > 0 && !item.isDisabled">
                                         <div class="item-content">
                                             <span class="iconfont icon-plus" v-show="!item.open" @click="triggerImg(item)"></span>
                                             <span class="iconfont icon-minus" v-show="item.open" @click="triggerImg(item)"></span>
@@ -88,7 +88,7 @@
                                         </div>
                                         <div class="son" v-show="item.open">
                                             <template v-for="(sku, sku_i) in item.shop_skus">
-                                                <div class="son-item" v-if="sku.skuIsChecked">
+                                                <div class="son-item" v-if="sku.skuIsChecked && !sku.isDisabled">
                                                     <img alt="" class="son-timg" :src="sku.sku_sku_img + '!upyun520/fw/300'" @click="openPreview(item.sku_sku_img, 3, sku_i)" />
                                                     <div class="name">{{ sku.sku_title }}</div>
                                                     <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelectionImg(item, sku)"></i>
@@ -193,6 +193,12 @@
                                 </template>
                             </el-table-column>
                             <el-table-column label="" width="35">
+                                <template slot="header" slot-scope="scope">
+                                    <el-checkbox v-model="checkAll"
+                                                 :indeterminate="0 < pageCheckSkuCount && pageCheckSkuCount < pageSkuCount"
+                                                 @change="value => handleCheckCurrentPage(value)"
+                                    ></el-checkbox>
+                                </template>
                                 <template slot-scope="scope">
                                     <el-checkbox
                                             v-model="scope.row.goodsIsChecked"
@@ -436,7 +442,10 @@ export default {
             addCount: 0,
             allAddList: [], // 全部已添加 不分页
             addSkuIdsArr: [], // 已添加sku id集合
-            addList:[]
+            addList:[],
+            checkAll: false,
+            pageSkuCount: 0,
+            pageCheckSkuCount: 0
         }
     },
     components: {
@@ -676,11 +685,13 @@ export default {
                     })
                     console.log('this.checkedList', this.checkedList)
                     console.log('this.checkedSkuIds', this.checkedSkuIds)
+                    this.pageSkuCount = 0
                     if (res.data.lists && res.data.lists.length > 0) {
                         _.cloneDeep(res.data.lists).forEach(ev => {
                             let goods = _.cloneDeep(ev)
                             this.timgList.push(goods.goods_img)
                             goods.shop_skus.forEach((sku, sku_i) => {
+                                this.pageSkuCount++
                                 this.skuImgList.push(sku.sku_sku_img)
                                 sku['skuIsChecked'] = false
                                 sku['isDisabled'] = false
@@ -711,6 +722,7 @@ export default {
                     }
                     this.list = goods_list
                     this.total = res.data.total
+                    this.setCheckAll()
                     rLoading.close()
                 })
                 .catch(err => {
@@ -1069,7 +1081,8 @@ export default {
         },
 
         filterGoods() {
-            this.checkedList.forEach((goods, i) => {
+            this.checkedList.forEach((goods)=>{
+                goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
                 if (goods['checkNum'] < 1) {
                     this.checkedList.splice(i, 1)
                 }
@@ -1104,9 +1117,55 @@ export default {
                 let index = checkedGoodsIds.indexOf(goodsSku.id)
                 this.$set(this.checkedList, index, goodsSku)
             }
+            this.setCheckAll()
+
+        },
+        // 选中/取消 当前页 所有
+        handleCheckCurrentPage(bol) {
+            this.list.forEach((ev)=>{
+                if(!ev.isDisabled){
+                    ev['goodsIsChecked'] = bol
+                    ev.shop_skus.forEach((sku)=>{
+                        if(!ev.isDisabled){
+                            sku['skuIsChecked'] = bol
+                        }
+                    })
+                }
+            })
+            let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+            console.log('checkedListCopy', checkedListCopy)
+            this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+            console.log('checkedList', this.checkedList)
+            this.setCheckAll()
+        },
+        uniqueArr(arr1,arr2) {
+            console.log('arr1', arr1)
+            console.log('arr2', arr2)
+            //合并两个数组
+            let newArr = [...arr1,...arr2]
+            //去重
+            const res = new Map();
+            return newArr.filter((arr) => !res.has(arr.goods_id) && res.set(arr.goods_id, 1));
+        },
+        setCheckAll() {
+            this.pageCheckSkuCount = 0
+            console.log('this.pageSkuCount', this.pageSkuCount)
+            let pageCheckSku = 0
+            this.list.forEach((goods)=>{
+                goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
+                pageCheckSku = pageCheckSku + goods['checkNum']
+            })
+            this.pageCheckSkuCount = pageCheckSku
+            console.log('pageCheckSku', pageCheckSku)
+            if(pageCheckSku == this.pageSkuCount) {
+                this.checkAll = true
+            } else {
+                this.checkAll = false
+            }
+            console.log('checkedList', this.checkedList)
+
             this.filterGoods()
         },
-
         // 商品选中/取消
         goodsChecked(bol, row, index) {
             if (row.shop_skus && row.shop_skus.length > 1) {
@@ -1142,7 +1201,7 @@ export default {
                 let index = checkedGoodsIds.indexOf(goodsSku.id)
                 this.$set(this.checkedList, index, goodsSku)
             }
-            this.filterGoods()
+            this.setCheckAll()
         },
 
         // 已添加列表 sku选中

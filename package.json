@@ -15,7 +15,7 @@
         "babel-polyfill": "^6.26.0",
         "default-passive-events": "^2.0.0",
         "echarts": "^5.0.2",
-        "element-ui-chuanshui": "^1.0.2",
+        "element-ui-chuanshui": "^1.0.3",
         "html2canvas": "^1.0.0-rc.7",
         "jodit": "^3.3.24",
         "jsbarcode": "^3.11.0",
