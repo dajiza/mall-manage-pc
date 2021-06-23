@@ -340,8 +340,8 @@ export default {
                 params['discount_end_start'] = ''
                 params['discount_end_end'] = ''
             }
-            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 100)
-            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 100)
+            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 1)
+            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 1)
             params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
 
             params['limit'] = this.listQuery.limit
@@ -362,7 +362,7 @@ export default {
                 .then(res => {
                     console.log('输出 ~ res', res)
                     this.discountList = res.data.list.map(item => {
-                        item.discount = Number(item.discount_value/10) + '折'
+                        item.discount = commUtil.numberMul(Number(item.discount_value), 0.1) + '折'
                         return item
                     })
                 })
@@ -542,7 +542,7 @@ export default {
                     if (ev.id == this.formFilter['discount_id']) {
                         let obj = {
                             label: 'discount_id',
-                            val: commUtil.numberMul(Number(ev.discount_value), 10) + '折'
+                            val: commUtil.numberMul(Number(ev.discount_value), 0.1) + '折'
                         }
                         _search.push(obj)
                     }
