@@ -2,7 +2,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import ElementUI from 'element-ui-chuanshui'
-console.log('输出 ~ ElementUI', ElementUI)
 // import VueI18n from 'vue-i18n';
 // import { messages } from './components/common/i18n';
 import 'element-ui-chuanshui/lib/theme-chalk/index.css' // 默认主题
