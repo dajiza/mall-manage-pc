@@ -7,7 +7,7 @@
             <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
             <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
-                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                         <el-form-item label="店铺名称" prop="name">
                             <el-select class="filter-item" v-model="formFilter.name" placeholder="请选择" filterable>
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.shop_name"> </el-option>

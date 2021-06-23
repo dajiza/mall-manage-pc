@@ -9,7 +9,7 @@
             <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
             <transition name="slide-fade">
                 <div class="head-container" v-show="searchShow" @click.stop="">
-                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                    <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                         <el-form-item label="优惠券名称" prop="couponTitle" label-width="" v-if="activeTab == 2">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.couponTitle"></el-input>
                         </el-form-item>

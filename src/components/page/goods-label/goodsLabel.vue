@@ -1,7 +1,7 @@
 <template>
     <div class="product-label-page">
         <div class="head-container" ref="searchBox">
-            <el-form class="form-filter" :model="searchForm" :inline="true" ref="searchForm">
+            <el-form class="form-filter" :model="searchForm" :inline="true" ref="searchForm" @keydown.enter.native="handleSearch('searchForm')">
                 <el-form-item label="标签名称：">
                     <el-input class="filter-item" v-model="searchForm.searchLabel" placeholder="请输入"
                               @keyup.enter.native="handleSearch()"></el-input>

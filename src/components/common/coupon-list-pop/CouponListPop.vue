@@ -3,7 +3,7 @@
     <el-dialog title="选择优惠券" :visible.sync="isShow" width="90%" @open="open" @opened="opened" @closed="close">
         <div class="app-container goods-list">
             <div class="head-container">
-                <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left">
+                <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                     <el-form-item label="优惠券名称" prop="title" class="">
                         <el-input class="filter-item" v-model="formFilter.title" placeholder="请输入"></el-input>
                     </el-form-item>
