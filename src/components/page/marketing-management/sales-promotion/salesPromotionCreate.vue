@@ -55,8 +55,27 @@
                             <span style="display:inline-block;width: 234px;height: 100%" v-if="(index > 0 && operationForm.type == 5)"></span>
                             <span style="padding: 0 10px">{{operationForm.type == 2?'减':'加'}}</span>
                             <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.subNum'"
-                                          :rules="rules.discountAmount" v-if="operationForm.type == 2 || operationForm.type == 5">
-                                <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1" @blur="discountBlur(item,index)"></el-input>
+                                          :rules="[
+                                            { required: true, message: '请输入' },
+                                            { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' },
+                                            {
+                                                type: 'number',
+                                                message: '优惠金额应小于前者',
+                                                transform(value) {
+                                                    return Number(value)
+                                                },
+                                                max: Number(item.needNum)
+                                            }
+                                          ]"
+                                          v-if="operationForm.type == 2">
+                                <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
+                            </el-form-item>
+                            <el-form-item class="form-item inline-block" label="" label-width="0px" :prop="'ladderList.' + index + '.subNum'"
+                                          :rules="[
+                                            { required: true, message: '请输入' },
+                                            { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' }]"
+                                          v-if="operationForm.type == 5">
+                                <el-input class="w120" v-model="item.subNum" :disabled="isShelf" placeholder="请输入" :precision="1"></el-input>
                             </el-form-item>
                             <!--加价换购-->
                             <template v-if="operationForm.type == 5">
@@ -108,8 +127,8 @@
                     </div>
                 </template>
                 <!--封顶优惠-->
-                <el-form-item class="form-item" label="封顶优惠:" prop="topMoney" required v-if="operationForm.type == 3 || operationForm.type == 4">
-                    <el-input class="w300" placeholder="" v-model.number="operationForm.topMoney" :disabled="isShelf"></el-input>
+                <el-form-item class="form-item" label="封顶优惠:" prop="topMoney" v-if="operationForm.type == 3 || operationForm.type == 4">
+                    <el-input class="w300" placeholder="" v-model="operationForm.topMoney" :disabled="isShelf"></el-input>
                     元
                 </el-form-item>
                 <div>
@@ -337,5 +356,8 @@
     }
     .add-ladder,.del-ladder{
         padding: 5px 10px !important;
+    }
+    .el-form-item--small .el-form-item__error {
+        min-width: 132px;
     }
 </style>

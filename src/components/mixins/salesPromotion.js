@@ -121,7 +121,8 @@ export const mixinsPromotion = {
                     { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' }
                 ],
                 topMoney: [
-                    { required: true, message: '请输入封顶优惠', trigger: 'blur' }
+                    { required: true, message: '请输入封顶优惠', trigger: 'blur' },
+                    { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' }
                 ],
                 shop_id: [{ required: true, message: '请选择' }],
 
@@ -328,6 +329,7 @@ export const mixinsPromotion = {
                 })
                 .catch(() => {})
         },
+
         // 详情回显
         setDetailInfo(info) {
             this.checkedSkuList = []
@@ -403,13 +405,16 @@ export const mixinsPromotion = {
                                 tags_arr.push([2, ev.tag_category_id, ev.id])
                             }
                         })
+                        console.log('this.label_other_list', this.label_other_list)
                         this.label_other_list.forEach((ev, i) => {
+                            console.log('ev', ev)
                             if (event === ev.id) {
-                                tags_arr.push([1, ev.category_id, ev.id])
+                                tags_arr.push([1, ev.tag_category_id, ev.id])
                             }
                         })
                     })
                 }
+                console.log('tags_arr', tags_arr)
                 this.$set(this.operationForm, 'tag_ids', tags_arr)
                 this.setTagsSelect()
             } else if (info.useGoodsType === 2) {
@@ -463,8 +468,9 @@ export const mixinsPromotion = {
             this.$refs['operationForm'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
+                    const Type = Number(this.operationForm.type)
                     let params = {
-                        type: Number(this.operationForm.type),
+                        type: Type,
                         title: this.operationForm.title,
                         shopId: Number(this.operationForm.shop_id),
                         topMoney: 0,
@@ -474,7 +480,7 @@ export const mixinsPromotion = {
                         tagIds: []
                     }
                     let type_list = []
-                    if (this.operationForm.type == 1) {
+                    if (Type == 1) {
                         let _obj = {
                             needNum: commUtil.numberMul(Number(this.operationForm.amount1), 100),
                             subNum: commUtil.numberMul(Number(this.operationForm.discount1), 100),
@@ -491,18 +497,18 @@ export const mixinsPromotion = {
                                 _objName = '',
                                 _exchangeGoodsList = []
                             _needNum = commUtil.numberMul(Number(item.needNum), 100)
-                            if (this.operationForm.type == 6){
+                            if (Type == 6){
                                 _objId = item.coupon_id
                                 _objName = item.coupon_title
-                            } else if(this.operationForm.type == 3) {
+                            } else if(Type == 3) {
                                 _subNum = commUtil.numberMul(Number(item.subNum), 10)
-                            } else if(this.operationForm.type == 4) {
+                            } else if(Type == 4) {
                                 _needNum = Number(item.needNum)
                                 _subNum = commUtil.numberMul(Number(item.subNum), 10)
                             } else {
                                 _subNum = commUtil.numberMul(Number(item.subNum), 100)
                             }
-                            if(this.operationForm.type == 5) {
+                            if(Type == 5) {
                                 if(i > 0){
                                     _needNum = commUtil.numberMul(Number(this.operationForm.ladderList[0].needNum ), 100)
                                 }
@@ -518,49 +524,43 @@ export const mixinsPromotion = {
                             type_list.push(_obj)
                         })
                     }
-                    if(type_list.length > 0){
-                        let need_arr = [],
-                            sub_arr = []
-                        type_list.forEach((ev)=>{
-                            if(need_arr.indexOf(ev.needNum) == -1) {
-                                need_arr.push(ev.needNum)
-                            }
-                            if(sub_arr.indexOf(ev.subNum) == -1) {
-                                sub_arr.push(ev.subNum)
-                            }
-                        })
-                        if(type_list.length != need_arr.length && this.operationForm.type != 5){
-                            this.$notify({
-                                title: '存在重复阶梯,请修改后再保存',
-                                message: '',
-                                type: 'error',
-                                duration: 3000
-                            })
-                            return;
-                        } else {
-                            type_list = type_list.sort((a, b) => a.needNum - b.needNum)
-                        }
-
-                        if(this.operationForm.type == 5 && type_list.length != sub_arr.length){
-                            this.$notify({
-                                title: '存在重复阶梯,请修改后再保存',
-                                message: '',
-                                type: 'error',
-                                duration: 3000
-                            })
-                            return;
-                        } else if(this.operationForm.type == 5 && type_list.length == sub_arr.length){
-                            type_list = type_list.sort((a, b) => a.subNum - b.subNum)
-                        }
-                    } else {
+                    if(type_list.length < 1) {
                         this.$notify({
                             title: '最少创建一个阶梯',
                             message: '',
                             type: 'error',
                             duration: 3000
                         })
+                        return;
                     }
-                    if (this.operationForm.type == 5) {
+                    let need_arr = [],
+                        sub_arr = []
+                    type_list.forEach((ev)=>{
+                        if(need_arr.indexOf(ev.needNum) == -1) {
+                            need_arr.push(ev.needNum)
+                        }
+                        if(sub_arr.indexOf(ev.subNum) == -1) {
+                            sub_arr.push(ev.subNum)
+                        }
+                    })
+                    if(type_list.length != need_arr.length && Type != 5){
+                        this.$notify({
+                            title: '存在重复阶梯,请修改后再保存',
+                            message: '',
+                            type: 'error',
+                            duration: 3000
+                        })
+                        return;
+                    } else {
+                        type_list = type_list.sort((a, b) => a.needNum - b.needNum)
+                    }
+
+                    if(Type == 5 && type_list.length != sub_arr.length){
+                        // 下方统一报错
+                    } else if(Type == 5 && type_list.length == sub_arr.length){
+                        type_list = type_list.sort((a, b) => a.subNum - b.subNum)
+                    }
+                    if (Type == 5) {
                         let err_num = 0
                         type_list.forEach((ev)=>{
                             if(ev.exchGoodsList.length < 1){
@@ -577,8 +577,77 @@ export const mixinsPromotion = {
                             return
                         }
                     }
-                    params['rules'] = type_list
-                    if (this.operationForm.type == 3 || this.operationForm.type == 4) {
+
+                    console.log('type_list', type_list)
+                    if(Type > 1) {
+                        let _list = []
+                        type_list.forEach((ev)=>{
+                            const _obj = {
+                                needNum: Type == 4 ? ev.needNum : Number(ev.needNum/100),
+                                subNum: (Type == 3 || Type == 4) ? Number(ev.subNum/10) : Number(ev.subNum/100),
+                                coupon_id: ev.objId,
+                                coupon_title: ev.objName,
+                                exchGoodsList: ev.exchGoodsList
+                            }
+                            console.log('_obj', _obj)
+                            _list.push(_obj)
+                        })
+                        console.log('_list', _list)
+                        this.$set(this.operationForm,'ladderList',_list)
+                        // 优惠额度、折扣金额、加价金额重复
+                        if((type_list.length != sub_arr.length) && Type < 6) {
+                            let msg = ''
+                            if (Type == 3 || Type == 4) {
+                                msg = '折扣额度重复,请修改后再保存'
+                            } else if (Type == 2) {
+                                msg = '优惠金额重复,请修改后再保存'
+                            } else if (Type == 5) {
+                                msg = '加价金额重复,请修改后再保存'
+                            }
+                            this.$notify({
+                                title: msg,
+                                message: '',
+                                type: 'error',
+                                duration: 3000
+                            })
+                            return;
+                        }
+
+                        let subNumArr = [],
+                            sortSubNumArr = []
+                        type_list.forEach((ev)=>{
+                            subNumArr.push(ev.subNum)
+                        })
+
+                        console.log('subNumArr', subNumArr)
+                        if(Type == 3 || Type == 4) {
+                            sortSubNumArr = _.cloneDeep(subNumArr).sort((a, b) => b - a)
+                        } else {
+                            sortSubNumArr = _.cloneDeep(subNumArr).sort((a, b) => a - b)
+                        }
+                        console.log('sortSubNumArr', sortSubNumArr)
+                        // 优惠额度、折扣金额、加价金额重复 大小顺序不正确
+                        if ((JSON.stringify(subNumArr) != JSON.stringify(sortSubNumArr)) && Type < 6) {
+                            let msg = ''
+                            if (Type == 3 || Type == 4) {
+                                msg = '折扣额度应逐阶梯减小,请修改后再保存'
+                            } else if (Type == 2) {
+                                msg = '优惠金额应逐阶梯增加,请修改后再保存'
+                            } else if (Type == 5) {
+                                msg = '加价金额应逐阶梯增加,请修改后再保存'
+                            }
+                            this.$notify({
+                                title: msg,
+                                message: '',
+                                type: 'error',
+                                duration: 3000
+                            })
+                            return;
+                        }
+
+                    }
+
+                    if (Type == 3 || Type == 4) { // 折扣
                         params['topMoney'] = commUtil.numberMul(Number(this.operationForm.topMoney), 100) // 封顶优惠
                     }
 
@@ -621,6 +690,8 @@ export const mixinsPromotion = {
                     grant_end = new Date(grant_end)
                     params['startTime'] = grant_start.getTime() / 1000
                     params['endTime'] = grant_end.getTime() / 1000
+                    params['rules'] = type_list
+                    return;
                     if(this.$route.query.id) {
                         params['id'] = Number(this.$route.query.id)
                         this.queryAddOrEdit(params, 'edit')
@@ -1163,7 +1234,7 @@ export const mixinsPromotion = {
         chooseShop() {
             console.log('店铺切换')
             this.shopId = Number(this.operationForm.shop_id)
-            if (this.operationForm.ladderList && this.operationForm.ladderList.length > 0) {
+            if (this.operationForm.type == 5 && this.operationForm.ladderList && this.operationForm.ladderList.length > 0) {
                 const _obj = {
                     needNum: '',
                     subNum: '',
@@ -1309,12 +1380,6 @@ export const mixinsPromotion = {
         handleAddAllGoods(data){
             this.loadingTip = this.uploadLoading('加载中')
             this.getGoodsListTotal(data.goods_name,'add', data.cate_id, 'all')
-        },
-
-        // 优惠失去焦点
-        discountBlur(item, index) {
-            console.log('item', item)
-            console.log('index', index)
         },
     }
 }
