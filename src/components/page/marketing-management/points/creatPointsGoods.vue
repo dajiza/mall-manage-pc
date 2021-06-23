@@ -154,8 +154,7 @@ export default {
                     { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
                 ],
                 redeemQty: [
-                    { required: true, message: '请输入', trigger: 'blur' },
-                    { pattern: /(^[1-9]\d*$)/, message: '请输入大于零的整数', trigger: 'blur' }
+                    { pattern: /(^[0-9]\d*$)/, message: '请输入整数', trigger: 'blur' }
                 ],
                 require: [{ required: true, message: '请输入', trigger: 'blur' }]
             },
@@ -206,6 +205,9 @@ export default {
                     res.data.attrList = JSON.parse(res.data.attrs)
                     res.data.price = res.data.price / 100
                     this.goods = _.cloneDeep(res.data)
+                    if(!res.data.redeemQty) {
+                        this.$set(this.goods,'redeemQty', '')
+                    }
                 })
                 .catch(err => {})
         },
@@ -473,7 +475,7 @@ export default {
                     params['price'] = commUtil.numberMul(Number(params['price']), 100)
                     params['id'] = this.id || 0
                     params['shopId'] = this.shopId
-
+                    params['redeemQty'] = Number(this.goods.redeemQty)
                     creatPointsGoods(params)
                         .then(res => {
                             console.log('GOOGLE: res', res)

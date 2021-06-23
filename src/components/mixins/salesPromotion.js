@@ -545,7 +545,7 @@ export const mixinsPromotion = {
                     })
                     if(type_list.length != need_arr.length && Type != 5){
                         this.$notify({
-                            title: '存在重复阶梯,请修改后再保存',
+                            title: '存在重复阶梯,请修改之后再保存',
                             message: '',
                             type: 'error',
                             duration: 3000
@@ -598,11 +598,11 @@ export const mixinsPromotion = {
                         if((type_list.length != sub_arr.length) && Type < 6) {
                             let msg = ''
                             if (Type == 3 || Type == 4) {
-                                msg = '折扣额度重复,请修改后再保存'
+                                msg = '折扣额度存在重复,请修改后再保存'
                             } else if (Type == 2) {
-                                msg = '优惠金额重复,请修改后再保存'
+                                msg = '优惠金额存在重复,请修改后再保存'
                             } else if (Type == 5) {
-                                msg = '加价金额重复,请修改后再保存'
+                                msg = '加价金额存在重复,请修改后再保存'
                             }
                             this.$notify({
                                 title: msg,
