@@ -70,12 +70,12 @@
                     <span>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="店铺logo" width="100">
+            <el-table-column label="店铺logo" width="90">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.shop_icon" alt="" @click="openPreview(scope.row.img)" />
                 </template>
             </el-table-column>
-            <el-table-column label="开店时间">
+            <el-table-column label="开店时间" width="176">
                 <template slot-scope="scope">
                     <span>{{ scope.row.created_at }}</span>
                 </template>
@@ -85,17 +85,17 @@
                     <span>{{ scope.row.agent_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="代理手机号" width="140">
+            <el-table-column label="代理手机号" width="110">
                 <template slot-scope="scope">
                     <span>{{ scope.row.agent_phone }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="管理员微信昵称" width="140">
+            <el-table-column label="管理员微信昵称" width="130">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_wx_nick_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="可提现金额" width="120">
+            <el-table-column label="可提现金额" width="110">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.withdrawal_amount) }}</span>
                 </template>
