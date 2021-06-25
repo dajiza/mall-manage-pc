@@ -8,7 +8,7 @@
                     <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
                     <transition name="slide-fade">
                         <div class="head-container" v-show="searchShow" @click.stop="">
-                            <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left">
+                            <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                                 <el-form-item label="商品名称" prop="goods_name" label-width="">
                                     <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_name"></el-input>
                                 </el-form-item>

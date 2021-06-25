@@ -545,7 +545,7 @@ export const mixinsPromotion = {
                     })
                     if(type_list.length != need_arr.length && Type != 5){
                         this.$notify({
-                            title: '存在重复阶梯,请修改之后再保存',
+                            title: '存在重复阶梯,请修改后再保存',
                             message: '',
                             type: 'error',
                             duration: 3000

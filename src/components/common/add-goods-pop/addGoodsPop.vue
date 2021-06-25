@@ -6,7 +6,7 @@
                     <div class="text">挑选商品</div>
                 </div>
             </div>
-            <el-form class="search-form-box" :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left">
+            <el-form class="search-form-box" :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left" @keydown.enter.native="handleFilter('searchForm')">
                 <el-form-item label="商品名称" prop="goods_name" class="">
                     <el-input class="filter-item" v-model="searchForm.goods_name" placeholder="请输入" @keyup.enter.native="handleFilter('searchForm')"></el-input>
                 </el-form-item>

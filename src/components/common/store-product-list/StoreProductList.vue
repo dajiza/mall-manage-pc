@@ -3,7 +3,7 @@
     <el-dialog title="挑选仓库商品" :visible.sync="isShow" width="90%" @open="open" @opened="opened">
         <div class="app-container">
             <div class="head-container">
-                <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left">
+                <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                     <el-form-item label="名称" prop="name">
                         <el-input class="filter-item" placeholder="请输入" v-model="formFilter.name"></el-input>
                     </el-form-item>
