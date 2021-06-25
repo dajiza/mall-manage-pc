@@ -454,7 +454,7 @@ export const mixinsGoods = {
                             skuItem['storehouse_code'] = skuItem['store_house_code']
                             skuItem['title'] = skuItem['sku_title']
                             skuItem['status'] = skuItem['sku_status']
-                            skuItem['user_discount'] = commUtil.numberMul(Number(skuItem['user_discount']), 10) || 0
+                            skuItem['user_discount'] = commUtil.numberMul(Number(skuItem['user_discount']), 0.1) || 0
                             const attrList = skuItem['sku_attr_list']
                             let diyAttrIndex = 0
                             for (let j = 0; j < attrList.length; j++) {
@@ -1291,23 +1291,25 @@ export const mixinsGoods = {
         },
         onImportTemplate() {
             console.log('content', this.content)
-            if(this.content){
-                const str = '导入模板会覆盖当前已编辑的信息，'+'\n'+ '是否继续？'
+            if (this.content) {
+                const str = '导入模板会覆盖当前已编辑的信息，' + '\n' + '是否继续？'
                 this.$confirm(str, '', {
                     confirmButtonText: '继续',
                     cancelButtonText: '取消',
                     type: 'warning',
                     center: true
-                }).then(() => {
-                    this.queryTemplateList()
-                }).catch(() => {
-                    console.log('取消')
                 })
-            }else {
+                    .then(() => {
+                        this.queryTemplateList()
+                    })
+                    .catch(() => {
+                        console.log('取消')
+                    })
+            } else {
                 this.queryTemplateList()
             }
         },
-        queryTemplateList(){
+        queryTemplateList() {
             const rLoading = this.openLoading()
             queryDetailTemplateList({})
                 .then(res => {
@@ -1326,19 +1328,21 @@ export const mixinsGoods = {
             this.detailTemplateId = null
             this.importDialogShow = false
         },
-        saveTemplate(){
-            if(this.detailTemplateId){
+        saveTemplate() {
+            if (this.detailTemplateId) {
                 console.log('this.detailTemplateId', this.detailTemplateId)
-                const obj = this.templateList.filter(item=>{return item.detailId == this.detailTemplateId})[0]
+                const obj = this.templateList.filter(item => {
+                    return item.detailId == this.detailTemplateId
+                })[0]
                 console.log('obj', obj)
                 this.content = ''
                 this.editContent = ''
-                this.$nextTick(()=>{
+                this.$nextTick(() => {
                     this.editContent = obj.detail
                     this.content = this.editContent
                 })
-                console.log('this.editContent', this.editContent )
-                console.log('this.content', this.content )
+                console.log('this.editContent', this.editContent)
+                console.log('this.content', this.content)
                 this.importDialogShow = false
             } else {
                 this.$notify({

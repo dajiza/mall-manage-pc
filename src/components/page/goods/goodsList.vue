@@ -178,7 +178,7 @@
                             <template slot-scope="scope">
                                 <span v-if="scope.row.user_discount == 0">是</span>
                                 <span v-else-if="scope.row.user_discount == 1">否</span>
-                                <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
+                                <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 0.1) }}折</span>
                             </template>
                         </el-table-column>
                     </el-table>
