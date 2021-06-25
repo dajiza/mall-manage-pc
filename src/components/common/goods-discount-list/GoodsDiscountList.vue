@@ -175,14 +175,14 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column label="商品分类" width="80">
+                <el-table-column label="商品分类" width="150">
                     <template slot-scope="scope">
                         <span v-if="scope.row.type == 1">布料</span>
                         <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
                         <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
                     </template>
                 </el-table-column>
-                <el-table-column label="状态">
+                <el-table-column label="状态" width="150">
                     <template slot-scope="scope">
                         <div class="status">
                             <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
@@ -223,12 +223,15 @@ import { queryGoodsListNew, queryShopList, queryCategoryListAll } from '@/api/go
 import { updateSkuDiscountBatch } from '@/api/discount'
 import { formatMoney } from '@/plugin/tool'
 import { construct } from '@/utils/json-tree'
+import commUtil from '@/utils/commUtil'
+
 import Vue from 'vue'
 export default Vue.extend({
     name: 'CheckList',
     props: {},
     data() {
         return {
+            commUtil,
             list: [],
             total: 0,
             listLoading: false,

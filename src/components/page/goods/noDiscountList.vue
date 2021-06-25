@@ -89,7 +89,7 @@
             <!-- 折扣值：0正常折扣，1无折扣，(0,1)为其他折扣 -->
             <el-table-column label="会员折扣" width="90">
                 <template slot-scope="scope">
-                    <span v-if="scope.row.user_discount == 1">否</span>
+                    <span v-if="scope.row.user_discount == 100">否</span>
                     <span v-else-if="scope.row.user_discount == 0">是</span>
                     <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 0.1) }}折</span>
                 </template>
@@ -268,8 +268,8 @@ export default {
         setDiscount(row) {
             console.log('输出 ~ row', row)
             this.discountId = row.id
-            this.discountType = row.user_discount == 1 ? 1 : 2
-            this.discountValue = row.user_discount == 1 ? '' : commUtil.numberMul(Number(row.user_discount), 0.1)
+            this.discountType = row.user_discount == 100 ? 1 : 2
+            this.discountValue = row.user_discount == 100 ? '' : commUtil.numberMul(Number(row.user_discount), 0.1)
             this.openDialogDiscount()
         },
         // 移出
