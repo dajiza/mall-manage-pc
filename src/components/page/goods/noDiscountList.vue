@@ -91,12 +91,14 @@
                 <template slot-scope="scope">
                     <span v-if="scope.row.user_discount == 1">否</span>
                     <span v-else-if="scope.row.user_discount == 0">是</span>
-                    <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
+                    <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 0.1) }}折</span>
                 </template>
             </el-table-column>
             <el-table-column label="操作" width="150">
                 <template slot-scope="scope">
-                    <el-button class="text-blue" type="text" size="small" v-hasPermission="'mall-backend-goods-set-discount'" @click.native="setDiscount(scope.row)">设置折扣</el-button>
+                    <el-button class="text-blue" type="text" size="small" v-hasPermission="'mall-backend-goods-set-discount'" @click.native="setDiscount(scope.row)"
+                        >设置折扣</el-button
+                    >
                     <el-button class="text-red" type="text" size="small" v-hasPermission="'mall-backend-goods-move-out'" @click.native="moveoutDiscount(scope.row)">移出</el-button>
                 </template>
             </el-table-column>
@@ -267,7 +269,7 @@ export default {
             console.log('输出 ~ row', row)
             this.discountId = row.id
             this.discountType = row.user_discount == 1 ? 1 : 2
-            this.discountValue = row.user_discount == 1 ? '' : commUtil.numberMul(Number(row.user_discount), 10)
+            this.discountValue = row.user_discount == 1 ? '' : commUtil.numberMul(Number(row.user_discount), 0.1)
             this.openDialogDiscount()
         },
         // 移出
