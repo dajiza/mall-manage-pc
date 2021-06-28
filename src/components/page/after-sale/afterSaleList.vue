@@ -10,7 +10,7 @@
                     <el-form ref="formFilter" :model="formFilter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
                         <!-- <el-form :model="zt" :rules="rules" ref="formPic" :inline="true" size="small" label-position="right" label-width="110px"> -->
                         <el-form-item label="订单号" prop="order_no">
-                            <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_no"></el-input>
+                            <el-input class="filter-item" placeholder="请输入" v-model.number="formFilter.order_no"></el-input>
                         </el-form-item>
                         <el-form-item label="子订单号" prop="order_detail_no">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.order_detail_no"></el-input>
@@ -265,6 +265,7 @@ export default {
         formatMoney: formatMoney,
         getList() {
             let params = this.$refs['formFilter'].model
+            params['order_no'] = params['order_no'].toString() || ''
             if (params.createdTime.length == 2) {
                 params['created_time_ge'] = params.createdTime[0]
                 params['created_time_le'] = params.createdTime[1]
@@ -343,6 +344,21 @@ export default {
 
         // 搜索
         handleFilter() {
+            if(this.formFilter.order_no) {
+                if(Number(this.formFilter.order_no)) {
+                    console.log('true')
+                } else {
+                    console.log('false')
+                    this.formFilter.order_no = ''
+                    this.$notify({
+                        title: '请输入数字订单号',
+                        message: '',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+            }
             this.listQuery.page = 1
             this.searchShow = false;
             this.setSearchValue();

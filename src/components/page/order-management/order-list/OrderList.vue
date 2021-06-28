@@ -11,7 +11,7 @@
                     <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
                         <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left" @keydown.enter.native="handleSearch('searchForm')">
                             <el-form-item label="订单号" prop="order_no" class="">
-                                <el-input class="filter-item" v-model="searchForm.order_no" placeholder="请输入"></el-input>
+                                <el-input class="filter-item" v-model.number="searchForm.order_no" placeholder="请输入"></el-input>
                             </el-form-item>
                             <el-form-item label="订单状态" prop="status" class="">
                                 <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
@@ -413,7 +413,7 @@ export default {
                 page: this.pageInfo.pageIndex,
                 limit: this.pageInfo.pageSize,
                 id: -1,
-                order_no: this.searchParams.order_no ? this.searchParams.order_no : '',
+                order_no: this.searchParams.order_no ? this.searchParams.order_no.toString() : '',
                 status: this.searchParams.status !== '' ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? Number(this.searchParams.shop_id) : -1,
                 channel_id: this.searchParams.channel_id ? Number(this.searchParams.channel_id) : -1,
@@ -475,6 +475,21 @@ export default {
 
         // 按钮-触发搜索按钮
         handleSearch(formName) {
+            if(this.searchForm.order_no) {
+                if(Number(this.searchForm.order_no)) {
+                    console.log('true')
+                } else {
+                    console.log('false')
+                    this.searchForm.order_no = ''
+                    this.$notify({
+                        title: '请输入数字订单号',
+                        message: '',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+            }
             this.$set(this.pageInfo, 'pageIndex', 1)
             //  存储搜索条件
             this.searchParams = _.cloneDeep(this.searchForm)
