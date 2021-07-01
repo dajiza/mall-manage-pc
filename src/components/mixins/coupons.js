@@ -56,7 +56,8 @@ export const mixinsCoupons = {
                 grant_end_time: '', // 领用结束时间
                 receive_user: 1, // 领用用户
                 use_goods_type: 1, // 可用商品 0 全场通用 1 指定商品 2 指定标签
-                tag_ids: [] // 选择标签
+                tag_ids: [], // 选择标签
+                get_way: '' // 来源
             },
             searchForm: {
                 goods_name: '',
@@ -111,6 +112,7 @@ export const mixinsCoupons = {
                 quota: [{ required: true, message: '请输入发放数量', trigger: 'blur' }],
                 valid_type: [{ required: true, message: '请选择', trigger: 'change' }],
                 shop_id: [{ required: true, message: '请选择' }],
+                get_way: [{ required: true, message: '请选择' }],
                 with_amount: [],
                 valid_days: [
                     { required: true, message: '请输入', trigger: 'blur' },
@@ -196,6 +198,13 @@ export const mixinsCoupons = {
             cateIsAtLast: false, // 最终请求分类商品
             loadingTip: {},
             addGoodsCount: 0,
+            sourceOptions:[
+                {id: 1,name:'页面可领取'},
+                {id: 2,name:'新人优惠卷'},
+                {id: 3,name:'积分商城'},
+                {id: 4,name:'满券赠送'},
+                {id: 5,name:'后台导入'}
+            ]
         }
     },
     watch: {},
@@ -336,6 +345,7 @@ export const mixinsCoupons = {
             this.$set(this.operationForm, 'title', info.title)
             this.$set(this.operationForm, 'valid_type', Number(info.valid_type))
             this.$set(this.operationForm, 'shop_id', Number(info.shop_id))
+            this.$set(this.operationForm, 'get_way', Number(info.get_way) || '')
             this.$set(this.operationForm, 'use_goods_type', Number(info.use_goods_type))
             this.$set(this.operationForm, 'quota', Number(info.quota))
             if (info.type > 1) {
@@ -453,6 +463,7 @@ export const mixinsCoupons = {
                         title: this.operationForm.title,
                         valid_type: Number(this.operationForm.valid_type),
                         valid_days: 0,
+                        get_way: Number(this.operationForm.get_way),
                         shop_id: Number(this.operationForm.shop_id),
                         quota: Number(this.operationForm.quota),
                         with_amount: 0,

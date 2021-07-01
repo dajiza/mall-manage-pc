@@ -165,6 +165,9 @@
                 <el-table-column label="可用商品" width="100">
                     <template slot-scope="scope">{{ useGoods(scope.row.use_goods_type) }}</template>
                 </el-table-column>
+                <el-table-column label="来源" width="100">
+                    <template slot-scope="scope">{{ backSourceText(scope.row.get_way) }}</template>
+                </el-table-column>
                 <el-table-column prop="status_invalid_reason" label="停用理由" width="110"></el-table-column>
                 <el-table-column prop="status_valid_reason" label="重新启用理由" width="110"></el-table-column>
                 <template slot="empty">
@@ -404,7 +407,24 @@ export default {
                 }
                 return str
             }
-        }
+        },
+        backSourceText: function() {
+            let str = ''
+            return data => {
+                if (data === 1) {
+                    str = '页面可领取'
+                } else if (data === 2) {
+                    str = '新人优惠卷'
+                } else if (data === 3) {
+                    str = '积分商城'
+                } else if (data === 4) {
+                    str = '满券赠送'
+                } else if (data === 5) {
+                    str = '后台导入'
+                }
+                return str
+            }
+        },
     },
     created() {
         // 图片上传地址

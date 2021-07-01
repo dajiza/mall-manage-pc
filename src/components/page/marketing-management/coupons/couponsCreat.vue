@@ -111,7 +111,11 @@
                         </el-date-picker>
                     </el-form-item>
                 </template>
-
+                <el-form-item class="form-item" label="来源:" prop="get_way">
+                    <el-select class="w300" filterable placeholder="请选择来源" v-model="operationForm.get_way" :disabled="operationTitle === '编辑优惠券'">
+                        <el-option v-for="item in sourceOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
                     <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle === '编辑优惠券'">
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
