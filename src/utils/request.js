@@ -70,14 +70,12 @@ service.interceptors.response.use(
         return res
     },
     error => {
-        if (response.status != 200) {
-            Notification({
-                title: '服务器异常',
-                message: '请联系管理员或稍后再尝试',
-                type: 'error',
-                duration: 5000
-            })
-        }
+        Notification({
+            title: '服务器异常',
+            message: '请联系管理员或稍后再尝试',
+            type: 'error',
+            duration: 5000
+        })
         // token 过期
         if (error.message.includes('timeout')) {
             // 判断请求异常信息中是否含有超时timeout字符串
