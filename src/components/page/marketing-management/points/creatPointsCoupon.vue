@@ -69,7 +69,7 @@
             </div>
         </div>
         <!-- 商品添加 -->
-        <coupon-list ref="couponList" @add-success="getCoupon" :couponId="activeCoupon.length > 0 ? activeCoupon[0].id : ''"></coupon-list>
+        <coupon-list ref="couponList" getWay="3" @add-success="getCoupon" :couponId="activeCoupon.length > 0 ? activeCoupon[0].id : ''"></coupon-list>
     </div>
 </template>
 <script>

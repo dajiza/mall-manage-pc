@@ -104,7 +104,7 @@ import commUtil from '@/utils/commUtil'
 import { formatMoney } from '@/plugin/tool'
 export default {
     name: 'CheckList',
-    props: ['couponId'],
+    props: ['couponId','getWay'],
 
     data() {
         return {
@@ -138,7 +138,8 @@ export default {
             loading: false,
             tableHeight: 'calc(100vh - 334px)',
             shopOptions: [], // 代理店铺下拉列表
-            activeCoupon: '' //选中的优惠券
+            activeCoupon: '', //选中的优惠券
+            get_way: 0
         }
     },
     computed: {
@@ -174,6 +175,7 @@ export default {
         open() {},
         opened() {
             this.checkedId = Number(this.couponId)
+            this.get_way = Number(this.getWay)
             this.queryShopList()
 
             this.getList()
@@ -194,6 +196,7 @@ export default {
             } else {
                 params['coupon_amount'] = -1
             }
+            params['get_way'] = this.get_way
             queryList(params)
                 .then(res => {
                     rLoading.close()

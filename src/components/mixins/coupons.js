@@ -200,9 +200,9 @@ export const mixinsCoupons = {
             addGoodsCount: 0,
             sourceOptions:[
                 {id: 1,name:'页面可领取'},
-                {id: 2,name:'新人优惠卷'},
+                {id: 2,name:'新人优惠券'},
                 {id: 3,name:'积分商城'},
-                {id: 4,name:'满券赠送'},
+                {id: 4,name:'促销满券赠送'},
                 {id: 5,name:'后台导入'}
             ]
         }

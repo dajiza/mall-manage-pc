@@ -294,7 +294,7 @@
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
         <!-- 添加优惠券 -->
-        <coupon-list ref="couponList" @add-success="getCoupon" :couponId="couponId > 0 ? couponId : ''"></coupon-list>
+        <coupon-list ref="couponList" getWay="4" @add-success="getCoupon" :couponId="couponId > 0 ? couponId : ''"></coupon-list>
         <!-- 添加商品 -->
         <addGoodsPop ref="goodsList"
                      :categoryData="categoryData"

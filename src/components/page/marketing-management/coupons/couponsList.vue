@@ -27,6 +27,11 @@
                                     <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                                 </el-select>
                             </el-form-item>
+                            <el-form-item label="来源" prop="get_way" class="">
+                                <el-select class="filter-item" v-model="searchForm.get_way" placeholder="请选择" clearable>
+                                    <el-option v-for="state in wayOptions" :key="state.id" :value="state.id" :label="state.name" />
+                                </el-select>
+                            </el-form-item>
                             <el-form-item label="优惠券面额" prop="coupon_amount" class="">
                                 <el-input class="filter-item" v-model="searchForm.coupon_amount" placeholder="请输入"></el-input>
                             </el-form-item>
@@ -165,7 +170,7 @@
                 <el-table-column label="可用商品" width="100">
                     <template slot-scope="scope">{{ useGoods(scope.row.use_goods_type) }}</template>
                 </el-table-column>
-                <el-table-column label="来源" width="100">
+                <el-table-column label="来源" width="110">
                     <template slot-scope="scope">{{ backSourceText(scope.row.get_way) }}</template>
                 </el-table-column>
                 <el-table-column prop="status_invalid_reason" label="停用理由" width="110"></el-table-column>
@@ -348,7 +353,14 @@ export default {
             uploadParams: {},
             searchShow: false,
             searchList: [],
-            showMaxIndex: 0
+            showMaxIndex: 0,
+            wayOptions:[
+                {id:1, name: '页面可领取'},
+                {id:2, name: '新人优惠券'},
+                {id:3, name: '积分商城'},
+                {id:4, name: '促销满券赠送'},
+                {id:5, name: '后台导入'}
+            ]
         }
     },
     components: {
@@ -414,11 +426,11 @@ export default {
                 if (data === 1) {
                     str = '页面可领取'
                 } else if (data === 2) {
-                    str = '新人优惠卷'
+                    str = '新人优惠券'
                 } else if (data === 3) {
                     str = '积分商城'
                 } else if (data === 4) {
-                    str = '满券赠送'
+                    str = '促销满券赠送'
                 } else if (data === 5) {
                     str = '后台导入'
                 }
@@ -446,6 +458,7 @@ export default {
                 type: this.searchParams.type ? this.searchParams.type : -1,
                 status: this.searchParams.status > 0 ? this.searchParams.status : -1,
                 shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
+                get_way: this.searchParams.get_way || 0,
                 coupon_amount: -1
             }
             if (this.searchParams.coupon_amount) {
@@ -551,6 +564,18 @@ export default {
                     }
                 })
             }
+            // 来源 get_way
+            if (this.searchParams['get_way']) {
+                this.wayOptions.forEach(ev => {
+                    if (ev.id == this.searchParams['get_way']) {
+                        let obj = {
+                            label: 'get_way',
+                            val: ev.name
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
 
             // 优惠券面额 user_phone
             if (this.searchParams['coupon_amount']) {
@@ -565,6 +590,7 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
+            console.log('item',item)
             this.$set(this.searchForm, item.label, '')
             this.$set(this.searchParams, item.label, '')
             this.handleSearch()

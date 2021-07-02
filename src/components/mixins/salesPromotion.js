@@ -121,7 +121,6 @@ export const mixinsPromotion = {
                     { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' }
                 ],
                 topMoney: [
-                    { required: true, message: '请输入封顶优惠', trigger: 'blur' },
                     { pattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/, message: '可保留两位小数' }
                 ],
                 shop_id: [{ required: true, message: '请选择' }],
@@ -346,6 +345,8 @@ export const mixinsPromotion = {
             if (info.type == 3 || info.type == 4) {
                 if (info.topMoney > 0) {  // 封顶优惠
                     this.$set(this.operationForm, 'topMoney', Number(info.topMoney / 100))
+                } else {
+                    this.$set(this.operationForm, 'topMoney', '')
                 }
             }
 
@@ -648,7 +649,9 @@ export const mixinsPromotion = {
                     }
 
                     if (Type == 3 || Type == 4) { // 折扣
-                        params['topMoney'] = commUtil.numberMul(Number(this.operationForm.topMoney), 100) // 封顶优惠
+                        if(this.operationForm.topMoney) {
+                            params['topMoney'] = commUtil.numberMul(Number(this.operationForm.topMoney), 100) // 封顶优惠
+                        }
                     }
 
                     if (this.operationForm.use_goods_type === 3) {
