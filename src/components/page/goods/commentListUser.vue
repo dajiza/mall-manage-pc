@@ -153,7 +153,7 @@
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreviewPic" :url-list="previewUrlListPic" :initial-index="previewIndexPic" />
         <!-- 视频预览 -->
-        <el-dialog :visible.sync="dialogVisibleVideo" title="预览">
+        <el-dialog :visible.sync="dialogVisibleVideo" title="预览" @closed="videoClose">
             <video-player class="video-player vjs-custom-skin" ref="videoPlayer" :playsinline="true" :options="playerOptions"></video-player>
         </el-dialog>
         <!-- 商品 评论 -->
@@ -503,6 +503,10 @@ export default {
         openPreviewVideo(url) {
             this.playerOptions['sources'][0]['src'] = url
             this.dialogVisibleVideo = true
+        },
+        videoClose() {
+            this.$refs.videoPlayer.player.pause();
+            this.dialogVisibleVideo = false
         },
         gotoDetail(id, order_id) {
             this.$router.push({
