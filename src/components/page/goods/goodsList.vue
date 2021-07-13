@@ -63,6 +63,7 @@
                                 <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                             </el-select>
                         </el-form-item>
+
                         <el-form-item class="form-item-btn" label="">
                             <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
                             <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
@@ -179,6 +180,12 @@
                                 <span v-if="scope.row.user_discount == 0">是</span>
                                 <span v-else-if="scope.row.user_discount == 1">否</span>
                                 <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 0.1) }}折</span>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column label="预售/正常" width="90">
+                            <template slot-scope="scope">
+                                <span>预售/正常</span>
                             </template>
                         </el-table-column>
                     </el-table>

@@ -260,6 +260,11 @@ export default new Router({
                     meta: { title: '编辑促销' }
                 },
                 {
+                    path: '/mall-backend-sales-index-admin',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/index-admin/indexAdmin.vue'),
+                    meta: { title: '模块管理', name: 'indexAdmin' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
@@ -330,6 +335,7 @@ export default new Router({
                     component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/system-settings/parameter-configuration/parameterConfiguration.vue'),
                     meta: { title: '参数配置', name: 'parameterSetting' }
                 },
+
                 {
                     path: '/404',
                     component: () => import(/* webpackChunkName: "404" */ '../components/page/404.vue'),

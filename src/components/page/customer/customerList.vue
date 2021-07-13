@@ -116,7 +116,7 @@
             </el-table-column>
             <el-table-column label="会员折扣" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.discount_value ? Number(scope.row.discount_value/10).toFixed(1) + '折' : '' }}</span>
+                    <span>{{ scope.row.discount_value ? Number(scope.row.discount_value / 10).toFixed(1) + '折' : '' }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="会员时间" width="120">
@@ -124,11 +124,19 @@
                     <span>{{ $moment(scope.row.discount_start_at).format('YYYY-MM-DD') }}至{{ $moment(scope.row.discount_end_at).format('YYYY-MM-DD') }}</span>
                 </template>
             </el-table-column>
+            <el-table-column label="现有积分" width="120">
+                <template slot-scope="scope">
+                    <span></span>
+                </template>
+            </el-table-column>
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
-                    <el-button class="text-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)"
-                        >{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button
-                    >
+                    <el-button class="text-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)">
+                        {{ scope.row.discount_end_at ? '修改' : '设置' }}会员
+                    </el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="openLog(scope.row)">
+                        积分记录
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -173,18 +181,59 @@
                 <el-button type="primary" @click="updateMember">{{ this.isEdit ? '保存修改' : '确 定' }}</el-button>
             </span>
         </el-dialog>
+        <!-- 积分记录 -->
+        <el-dialog class="dialog-log" :visible.sync="dialogVisibleLog" title="积分记录" width="500px">
+            <div class="tabs-and-add">
+                <el-tabs v-model="activeLog" @tab-click="handleTabClick">
+                    <el-tab-pane label="收入" name="1"></el-tab-pane>
+                    <el-tab-pane label="支出" name="2"></el-tab-pane>
+                </el-tabs>
+                <span class="iconfont icon-close" @click="dialogVisibleLog = false"></span>
+            </div>
+            <el-table :height="tableHeight" :data="listLog" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                <el-table-column label="原因" width="120">
+                    <template slot-scope="scope">
+                        <span>{{ POINTS_LOG_TYPE[scope.row.type] }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="时间" width="">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.created_at_txt }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="积分" width="80">
+                    <template slot-scope="scope">
+                        <span>{{ activeLog == 1 ? '+' : '' }}{{ scope.row.points }}</span>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="pagination-container">
+                <el-pagination
+                    background
+                    @size-change="handleSizeChangeLog"
+                    @current-change="handleCurrentChangeLog"
+                    :current-page="listQueryLog.page"
+                    :page-size="listQueryLog.limit"
+                    layout="total, prev, pager, next, jumper"
+                    :total="totalLog"
+                >
+                </el-pagination>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <script>
 import { queryDiscountList, updateUserDiscount } from '@/api/discount'
-import { queryCustomerList } from '@/api/customer'
+import { queryCustomerList, queryPointsLogList } from '@/api/customer'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
 import commUtil from '@/utils/commUtil'
+import { POINTS_LOG_TYPE } from '@/plugin/constant'
 export default {
     name: 'customer-list',
     data() {
         return {
+            POINTS_LOG_TYPE,
             commUtil,
             avatar: require('@/assets/img/wx.jpeg'),
             list: null,
@@ -224,6 +273,16 @@ export default {
                 discount_id: [{ required: true, message: '请选择折扣', trigger: 'blur' }],
                 discount_end_at: [{ required: true, message: '请选择时间', trigger: 'blur' }]
             },
+            // 积分记录
+            listLog: [],
+            dialogVisibleLog: false,
+            activeLog: '1',
+            listQueryLog: {
+                page: 1,
+                limit: 10
+            },
+            totalLog: 0,
+            userIdLog: '', //搜索log的用户id
             // 搜索-到期时间-时间区间
             pickerOptionsSearch: {
                 shortcuts: [
@@ -455,7 +514,32 @@ export default {
                 }
             })
         },
-
+        // 查看记录
+        openLog(row) {
+            this.listLog = []
+            this.listQueryLog.page = 1
+            this.activeLog = '1'
+            this.userIdLog = row.user_id
+            this.dialogVisibleLog = true
+            this.queryPointsList()
+        },
+        queryPointsList() {
+            let params = {
+                limit: this.listQueryLog.limit,
+                page: this.listQueryLog.page,
+                search_type: Number(this.activeLog),
+                user_id: this.userIdLog
+            }
+            queryPointsLogList(params).then(res => {
+                this.listLog = res.data.lists
+                this.totalLog = res.data.total
+            })
+        },
+        // 按钮-切换列表
+        handleTabClick(tab, event) {
+            this.listQueryLog.page = 1
+            this.queryPointsList()
+        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
@@ -584,6 +668,15 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
+        },
+        // 分页方法 log
+        handleSizeChangeLog(val) {
+            this.listQueryLog.limit = val
+            this.queryPointsList()
+        },
+        handleCurrentChangeLog(val) {
+            this.listQueryLog.page = val
+            this.queryPointsList()
         }
     }
 }
@@ -625,6 +718,38 @@ export default {
         width: 8px;
         height: 8px;
         border-radius: 4px;
+    }
+}
+</style>
+<style lang="less">
+.dialog-log {
+    .el-dialog__header {
+        display: none;
+    }
+    .el-dialog__body {
+        padding: 0 !important;
+    }
+    .tabs-and-add {
+        position: relative;
+        .icon-close {
+            position: absolute;
+            top: 18px;
+            right: 24px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .el-tabs__nav {
+            height: 60px;
+            line-height: 60px;
+        }
+        .el-tabs--top .el-tabs__item.is-top {
+            padding: 0 40px;
+        }
+        .el-tabs--top .el-tabs__item.is-top:nth-child(2) {
+            padding-right: 40px;
+            padding-left: 24px;
+        }
     }
 }
 </style>

@@ -31,6 +31,7 @@
         "vue-print-nb": "^1.5.0",
         "vue-router": "^3.0.3",
         "vue-video-player": "^5.0.2",
+        "vuedraggable": "^2.24.3",
         "vxe-table": "^3.2.2",
         "xe-utils": "^3.1.11"
     },

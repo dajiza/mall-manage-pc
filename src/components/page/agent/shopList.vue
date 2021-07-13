@@ -178,64 +178,80 @@
             </span>
         </el-dialog>
         <!-- 订单配置 -->
-        <el-dialog :visible.sync="dialogVisibleOrder" :before-close="handleCloseOrder" title="订单配置" width="493px">
-            <el-form ref="formOrder" :model="formOrder" :inline="true" size="small" label-position="left">
-                <el-form-item label="订单未付款失效时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_timeout"></el-input>
-                    <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
-                </el-form-item>
-                <el-form-item label="发货后自动收货时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
-                    <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')">保 存</el-button>
-                </el-form-item>
-                <el-form-item label="收货后允许售后时间" prop="shop_domain">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:178px" v-model.number="formOrder.order_apply_stop_time"></el-input>
-                    <span class="order-unit">分</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')">
-                        保 存
-                    </el-button>
-                </el-form-item>
-                <el-form-item label="允许单人未付款sku数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:170px" v-model.number="formOrder.bad_sku_count"></el-input>
-                    <span class="order-unit">个</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_sku_count, 'bad_sku_count')">保 存</el-button>
-                </el-form-item>
-                <el-form-item label="允许单人未付款订单数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:164px" v-model.number="formOrder.bad_order_count"></el-input>
-                    <span class="order-unit">个</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_order_count, 'bad_order_count')">保 存</el-button>
-                </el-form-item>
-                <el-form-item label="允许单人未付款商品总数">
-                    <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_num_count"></el-input>
-                    <span class="order-unit">个</span>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
-                </el-form-item>
-                <el-form-item label="" label-width="120px">
-                    <span slot="label">绑定管理员<br />(输入手机号搜索)</span>
-                    <el-select
-                        class="dialog-item"
-                        v-model="formOrder.shop_admin_ids"
-                        style="width:220px;margin-top:12px"
-                        filterable
-                        remote
-                        placeholder="请输入手机搜索"
-                        :loading="loadingSelect"
-                        :remote-method="queryUserList"
-                        multiple
-                    >
-                        <el-option v-for="item in userList" :key="item.user_id" :label="item.phone + ' (' + item.nick_name + ')'" :value="item.user_id"> </el-option>
-                    </el-select>
-                    <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_ids, 'shop_admin_ids')">保 存</el-button>
-                </el-form-item>
-                <!-- <template v-for="user in formOrder.adminList">
-                    <div class="user-item" :key="user.id">
-                        <div class="name">{{ user.phone + ' (' + user.name + ')' }}</div>
-                        <el-button class="text-red" size="" type="text" @click="deleteAdminuser(user.id)">删除</el-button>
+        <el-dialog :visible.sync="dialogVisibleOrder" :before-close="handleCloseOrder" title="订单配置" width="940px">
+            <el-form class="form-wrap" ref="formOrder" :model="formOrder" :inline="true" size="small" label-position="left">
+                <div class="form-item form-left">
+                    <el-form-item label="订单未付款失效时间" prop="shop_domain">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_timeout"></el-input>
+                        <span class="order-unit">分</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_timeout, 'order_timeout')">保 存</el-button>
+                    </el-form-item>
+                    <el-form-item label="发货后自动收货时间" prop="shop_domain">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_sand_to_success_time"></el-input>
+                        <span class="order-unit">分</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_sand_to_success_time, 'order_sand_to_success_time')"
+                            >保 存</el-button
+                        >
+                    </el-form-item>
+                    <el-form-item label="收货后允许售后时间" prop="shop_domain">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:158px" v-model.number="formOrder.order_apply_stop_time"></el-input>
+                        <span class="order-unit">分</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.order_apply_stop_time, 'order_apply_stop_time')">
+                            保 存
+                        </el-button>
+                    </el-form-item>
+                    <el-form-item label="允许单人未付款sku数">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:150px" v-model.number="formOrder.bad_sku_count"></el-input>
+                        <span class="order-unit">个</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_sku_count, 'bad_sku_count')">保 存</el-button>
+                    </el-form-item>
+                    <el-form-item label="允许单人未付款订单数">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:144px" v-model.number="formOrder.bad_order_count"></el-input>
+                        <span class="order-unit">个</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_order_count, 'bad_order_count')">保 存</el-button>
+                    </el-form-item>
+                    <el-form-item label="允许单人未付款商品总数">
+                        <el-input class="dialog-item" placeholder="请输入" style="width:130px" v-model.number="formOrder.bad_num_count"></el-input>
+                        <span class="order-unit">个</span>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.bad_num_count, 'bad_num_count')">保 存</el-button>
+                    </el-form-item>
+                </div>
+                <div class="form-item form-right">
+                    <el-form-item label="" label-width="120px">
+                        <span slot="label">绑定管理员<br />(输入手机号搜索)</span>
+                        <el-select
+                            class="dialog-item"
+                            v-model="adminSelected"
+                            style="width:190px;margin-top:12px"
+                            filterable
+                            remote
+                            placeholder="请输入手机搜索"
+                            :loading="loadingSelect"
+                            :remote-method="queryUserList"
+                        >
+                            <el-option v-for="item in userList" :key="item.user_id" :label="item.phone + ' (' + item.nick_name + ')'" :value="item.user_id"> </el-option>
+                        </el-select>
+                        <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.adminList, 'shop_admin_ids_add')">添 加</el-button>
+                        <!-- <el-button class="order-btn" size="" type="primary" @click="submitOrder(formOrder.shop_admin_ids, 'shop_admin_ids')">保 存</el-button> -->
+                    </el-form-item>
+                    <div class="admin-wrap">
+                        <template v-for="user in formOrder.adminList">
+                            <div class="user-item" :key="user.id">
+                                <div class="name">
+                                    {{ (user.name || user.nick_name) + ' (' + user.phone + ')' }}
+                                    <span class="tag-blue">可提现</span>
+                                </div>
+                                <div class="btn">
+                                    <el-button class="text-red" size="" type="text" @click="submitOrder(formOrder.adminList, 'shop_admin_ids_delete', user.id)">
+                                        删除
+                                    </el-button>
+                                    <el-button class="text-blue" size="" type="text" @click="deleteAdminuser(user.id)">可提现</el-button>
+                                </div>
+                            </div>
+                            <div class="divider"></div>
+                        </template>
                     </div>
-                    <div class="divider"></div>
-                </template> -->
+                </div>
             </el-form>
             <!-- <span slot="footer" class="dialog-footer">
                 <el-button @click="handleCloseConfig">取 消</el-button>
@@ -342,6 +358,7 @@ export default {
             formOrderSubmit: {},
             dialogVisibleOrder: false,
             formOrder: {},
+            adminSelected: '', //选中待添加的管理员
 
             formCommission: {},
             dialogVisibleCommission: false,
@@ -799,8 +816,37 @@ export default {
             this.dialogVisibleConfig = false
         },
 
-        submitOrder(value, argument) {
-            console.log('输出 ~ value, argument', value, argument)
+        submitOrder(sendValue, argument, deleteUserId) {
+            console.log('输出 ~ this.userList', this.userList)
+            console.log('输出 ~  this.formOrder', this.formOrder)
+
+            let value = _.cloneDeep(sendValue)
+            console.log('输出 ~ deleteUserId', deleteUserId)
+            let adminType = 0 // 管理员编辑状态 0非管理员编辑 1添加 2删除
+            // 管理员设置
+            if (argument == 'shop_admin_ids_add') {
+                value = value.map(item => item.id)
+                if (value.indexOf(this.adminSelected) == -1) {
+                    value.push(this.adminSelected)
+                    argument = 'shop_admin_ids'
+                    adminType = 1
+                } else {
+                    this.$notify({
+                        title: '已存在该管理员',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                    return
+                }
+            }
+            if (argument == 'shop_admin_ids_delete') {
+                value = value.map(item => item.id)
+                let index = value.indexOf(deleteUserId)
+                value.splice(index, 1)
+                argument = 'shop_admin_ids'
+                adminType = 2
+            }
             if (!value) {
                 this.$notify({
                     title: '请输入参数',
@@ -822,7 +868,26 @@ export default {
                         type: 'success',
                         duration: 5000
                     })
-                    // this.handleCloseOrder();
+                    if (adminType == 1) {
+                        // 添加
+                        let addItem = this.userList.find(item => item.user_id == this.adminSelected)
+                        console.log('输出 ~ addItem', addItem)
+                        this.formOrder.adminList.push({
+                            id: addItem.user_id,
+                            name: addItem.nick_name,
+                            phone: addItem.phone
+                        })
+                    } else if (adminType == 2) {
+                        console.log('输出 ~ this.formOrder.adminList.', this.formOrder.adminList)
+                        for (let i = 0; i < this.formOrder.adminList.length; i++) {
+                            const element = this.formOrder.adminList[i]
+                            if (element.id == deleteUserId) {
+                                console.log('输出 ~ deleteUserId', deleteUserId)
+                                console.log('输出 ~ element.user_id', element.user_id)
+                                this.formOrder.adminList.splice(i, 1)
+                            }
+                        }
+                    }
                     this.getList()
                 } else {
                     this.formOrderSubmit[argument] = oldValue
@@ -833,6 +898,14 @@ export default {
                     })
                 }
             })
+        },
+
+        // 删除订单配置 绑定管理员
+        deleteAdminuser(id) {
+            let adminIndex = this.formOrder.adminList.findIndex(item => item.id == id)
+            this.formOrder.adminList.splice(adminIndex, 1)
+            let adminShopIndex = this.formOrder.shop_admin_ids.findIndex(item => item.id == id)
+            this.formOrder.shop_admin_ids.splice(adminShopIndex, 1)
         },
         async updateOrder(row) {
             row.shop_admin_ids = row.admins.map(item => item.id)
@@ -914,13 +987,6 @@ export default {
         handleCurrentChange(val) {
             this.listQuery.page = val
             this.getList()
-        },
-        // 删除订单配置 绑定管理员
-        deleteAdminuser(id) {
-            let adminIndex = this.formOrder.adminList.findIndex(item => item.id == id)
-            this.formOrder.adminList.splice(adminIndex, 1)
-            let adminShopIndex = this.formOrder.shop_admin_ids.findIndex(item => item.id == id)
-            this.formOrder.shop_admin_ids.splice(adminShopIndex, 1)
         }
     }
 }
@@ -936,6 +1002,20 @@ export default {
 }
 .dialog-item {
     width: 250px;
+}
+.form-wrap {
+    display: flex;
+    .form-item {
+        width: 50%;
+        box-sizing: border-box;
+        &.form-left {
+            border-right: 1px solid #dddddd;
+            padding-right: 17px;
+        }
+        &.form-right {
+            padding-left: 27px;
+        }
+    }
 }
 .preview {
     position: relative;
@@ -1007,10 +1087,25 @@ export default {
         border-radius: 4px;
     }
 }
-.user-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 16px auto;
-    width: 90%;
+.admin-wrap {
+    .tag-blue {
+        margin-left: 10px;
+        padding: 0 7px;
+        width: fit-content;
+        height: 22px;
+        border-radius: 15px;
+        color: rgba(255, 255, 255, 0.85);
+        word-break: keep-all;
+        font-weight: 400;
+        line-height: 22px;
+        background-color: #1890ff;
+        font-size: 10px;
+    }
+    .user-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 16px auto;
+        width: 90%;
+    }
 }
 </style>

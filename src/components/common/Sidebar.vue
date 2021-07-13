@@ -214,7 +214,10 @@ export default {
                             name: 'mall-backend-sales-promotion',
                             display_name: '促销管理'
                         },
-
+                        {
+                            name: '/mall-backend-sales-index-admin',
+                            display_name: '模块管理'
+                        }
                     ]
                 },
                 {
