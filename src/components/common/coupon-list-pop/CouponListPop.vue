@@ -97,7 +97,7 @@
 
 <script>
 import { queryList } from '@/api/coupons'
-// import './coupons.less'
+// import './series.less'
 import { queryShopList } from '@/api/goods'
 import commUtil from '@/utils/commUtil'
 

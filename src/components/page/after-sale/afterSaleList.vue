@@ -256,7 +256,7 @@ export default {
     },
     created() {},
     mounted() {
-        let status = this.$route.query.status ? this.$route.query.status : '0'
+        let status = this.$route.query.status ? this.$route.query.status : '11'
         this.$set(this.formFilter, 'statusCache', status)
         this.setSearchValue();
         this.getList()

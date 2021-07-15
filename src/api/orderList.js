@@ -35,3 +35,6 @@ export const updateRebatesFreight = params => post('/backend/order-apply-freight
 
 // 子订单退款金额记录
 export const queryDetailReturnMoneyRecord = params => post('/backend/order-apply-freight', params)
+
+// 修改收货信息
+export const updateOrderAddress = params => post('/backend/order-change-address', params)
