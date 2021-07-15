@@ -30,14 +30,14 @@
                 </div>
                 <div class="title">Banner</div>
             </div>
-            <div class="item" @click="">
+            <div :class="['item', activePlate == item.customId ? 'active' : '']" v-for="item in plate.layoutList" @click="plateChoose(item.customId)" :key="item.customId">
                 <div class="icon">
-                    <img class="icon-img" :src="iconAdd" alt="" />
+                    <img class="icon-img" :src="iconList[item.kind]" alt="" />
                 </div>
-                <div class="title">添加板块</div>
+                <div class="title">{{ item.layoutName }}</div>
                 <div class="visible">
-                    <span class="iconfont icon-yincang"></span>
-                    <span class="iconfont icon-a-yincang1"></span>
+                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="item.status = 1"></span>
+                    <span class="iconfont icon-a-yincang1" v-else @click="item.status = 2"></span>
                 </div>
                 <div class="handle">
                     <span class="iconfont icon-tuozhuai"></span>
@@ -51,23 +51,36 @@
             </div>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="primary" @click="">发 布</el-button>
+            <el-button class="bottom-btn" type="" @click="edit" v-if="activePlate">编辑</el-button>
+            <el-button class="bottom-btn" type="primary" @click="save">发 布</el-button>
         </div>
     </div>
 </template>
 
 <script>
+import { queryLayoutDetail, cacheData, saveLayout } from '@/api/plate'
+
 import { queryShopList } from '@/api/goods'
 
 export default {
     name: 'Index-Init',
+
     props: {
-        content: {
-            type: String
+        init: {
+            type: Boolean
         }
+        // plate: {
+        //     type: Object
+        // }
     },
+    // watch: {
+    //     plate(val, oldVal) {
+
+    //     }
+    // },
     data() {
         return {
+            plate: {},
             shopList: [],
             shopActive: '',
             revokeShow: true,
@@ -103,29 +116,72 @@ export default {
                 3: '三竖图',
                 4: '滑动横图'
             },
-            // 选中的添加类型
-            addActiveType: ''
+            // 选中的板块
+            activePlate: ''
         }
     },
 
-    watch: {},
     created() {},
-    mounted() {
-        this.queryShopList()
+    async mounted() {
+        await this.queryShopList()
+        console.log('输出 ~ this.init', this.init)
+        if (this.init) {
+            this.getList()
+        } else {
+            this.plate = cacheData.plate
+            console.log('输出 ~ this.plate init', this.plate)
+        }
+        this.$emit('initLoaded')
     },
     methods: {
+        // 跳转
+        navigatePlate(index) {
+            this.$emit('navigatePlate', index)
+        },
+        getList() {
+            let params = {
+                shopId: this.shopActive.id
+            }
+            queryLayoutDetail(params).then(res => {
+                cacheData.plate = res.data || {
+                    layoutList: [],
+                    version: {
+                        id: 0,
+                        shopId: this.shopActive.id,
+                        status: 2
+                    }
+                }
+                cacheData.plate.layoutList = cacheData.plate.layoutList.map((item, index) => {
+                    item.customId = 'old' + index
+                    return item
+                })
+                this.plate = cacheData.plate
+            })
+        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
-                .then(res => {
-                    this.shopList = res.data
-                    this.shopActive = res.data[0]
-                })
+                .then(res => {})
                 .catch(err => {})
+        },
+        // 代理店铺列表
+        queryShopList() {
+            return new Promise((resolve, reject) => {
+                queryShopList()
+                    .then(res => {
+                        this.shopList = res.data
+                        this.shopActive = res.data[0]
+                        resolve(res)
+                    })
+                    .catch(err => {
+                        reject(err)
+                    })
+            })
         },
         // 选择店铺
         handleCommandShop(shop) {
             this.shopActive = shop
+            this.getList()
         },
         // 还原
         revoke() {
@@ -133,7 +189,63 @@ export default {
         },
         // 跳转添加选择模块
         gotoPlatePick() {
-            this.$emit('gotoPlatePick')
+            cacheData.addPlate = {
+                id: 0, //0新增 大于0修改
+                kind: '', //1.有边距横图，2.无边距横图，3.三竖图，4.滑动图
+                shopId: this.shopActive.id,
+                showSubtitle: 2, //副标题，1不显示 2显示
+                showTitle: 2, //标题，1不显示 2显示
+                status: 2, //模块显示状态：1 不显示 2显示
+                subtitle: '', //副标题
+                title: '', //标题
+                layoutName: '', //板块名称
+                ContentList: []
+            }
+            this.navigatePlate(2)
+        },
+
+        plateChoose(id) {
+            this.activePlate = id
+        },
+        edit() {
+            for (let i = 0; i < this.plate.layoutList.length; i++) {
+                const element = this.plate.layoutList[i]
+                if (element.customId == this.activePlate) {
+                    cacheData.addPlate = _.cloneDeep(element)
+                    this.navigatePlate(3)
+                    break
+                }
+            }
+        },
+        save() {
+            const rLoading = this.openLoading()
+
+            console.log('输出 ~ cacheData.plate', cacheData.plate)
+
+            // cacheData.plate.version = {
+            //     id: 0,
+            //     shopId: this.shopActive.id
+            // }
+            cacheData.plate.version.status = 2
+            saveLayout(cacheData.plate).then(res => {
+                console.log('输出 ~ res', res)
+                if (res.code === 200) {
+                    this.$notify({
+                        title: '发布成功',
+                        message: '',
+                        type: 'success',
+                        duration: 3000
+                    })
+                } else {
+                    this.$notify({
+                        title: res.msg,
+                        message: '',
+                        type: 'error',
+                        duration: 5000
+                    })
+                }
+                rLoading.close()
+            })
         }
     }
 }

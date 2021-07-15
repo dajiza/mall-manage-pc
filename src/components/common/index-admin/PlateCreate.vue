@@ -1,46 +1,52 @@
 <template>
     <div class="module">
         <div class="caption">
-            <div class="title" @click="backPrevious">
+            <div class="title" @click="navigatePlate(1)">
                 <span class="iconfont icon-fanhui"></span>
-                {{ TYPE[addActiveType] }}
+                {{ TYPE[this.createPlate.kind] }}
             </div>
         </div>
+
         <div class="plate">
-            <el-form class="create-plate" label-position="top" :model="createPlate" :rules="createPlateRules" ref="formRef">
-                <el-form-item label="" prop="title">
-                    <el-checkbox v-model="createPlate.title">显示大标题</el-checkbox>
+            <el-form class="create-plate" label-position="top" :model="createPlate" :rules="rules" ref="formRef">
+                <el-form-item label="">
+                    <el-checkbox v-model="createPlate.showTitle" :true-label="2" :false-label="1">显示大标题</el-checkbox>
                 </el-form-item>
-                <el-form-item label="" prop="title">
-                    <el-checkbox v-model="createPlate.title">显示小标题</el-checkbox>
+                <el-form-item label="">
+                    <el-checkbox v-model="createPlate.showSubtitle" :true-label="2" :false-label="1">显示小标题</el-checkbox>
                 </el-form-item>
-                <el-form-item label="板块名称" prop="title">
-                    <el-input style="width:280px" placeholder="板块名称" v-model="createPlate.title"></el-input>
+                <el-form-item label="板块名称" prop="layoutName">
+                    <el-input style="width:280px" placeholder="板块名称" v-model="createPlate.layoutName"></el-input>
                 </el-form-item>
-                <el-form-item label="大标题" prop="title">
+                <el-form-item label="大标题" prop="title" v-if="createPlate.showTitle == 2">
                     <el-input style="width:280px" placeholder="大标题" v-model="createPlate.title"></el-input>
                 </el-form-item>
-                <el-form-item label="小标题" prop="title">
-                    <el-input style="width:280px" placeholder="小标题" v-model="createPlate.title"></el-input>
+                <el-form-item label="小标题" prop="subtitle" v-if="createPlate.showSubtitle == 2">
+                    <el-input style="width:280px" placeholder="小标题" v-model="createPlate.subtitle"></el-input>
                 </el-form-item>
-                <el-form-item label="内容" prop="title">
+                <el-form-item label="内容">
                     <div class="img-list">
-                        <draggable @start="start" @end="end">
-                            <div :class="['item', activeImg == index ? 'active' : '']" v-for="(item, index) in plateType" :key="index" @click="imgChoose(index)">
+                        <draggable @end="end" animation="300">
+                            <div
+                                :class="['item', activeImg == item.customId ? 'active' : '']"
+                                v-for="(item, index) in createPlate.ContentList"
+                                :key="item.customId"
+                                @click="imgChoose(item.customId)"
+                            >
                                 <div class="icon">
-                                    <img class="icon-img" :src="iconList[index]" alt="" />
+                                    <img class="icon-img" :src="item.img" alt="" />
                                 </div>
-                                <div class="title">{{ item.name }}</div>
+                                <div class="title">{{ item.title }}</div>
                                 <div class="visible">
-                                    <span class="iconfont icon-yincang"></span>
-                                    <span class="iconfont icon-a-yincang1"></span>
+                                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="item.status = 1"></span>
+                                    <span class="iconfont icon-a-yincang1" v-else @click="item.status = 2"></span>
                                 </div>
                                 <div class="handle">
                                     <span class="iconfont icon-tuozhuai"></span>
                                 </div>
                             </div>
                         </draggable>
-                        <div class="item add" @click="gotoCreateImg">
+                        <div class="item add" @click="addImg">
                             <div class="icon">
                                 <img class="icon-img" :src="iconAdd" alt="" />
                             </div>
@@ -51,30 +57,43 @@
             </el-form>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="backPrevious">取 消</el-button>
-            <el-button class="bottom-btn" type="primary" @click="">确 认</el-button>
+            <el-button class="bottom-btn" type="" @click="navigatePlate(1)">取 消</el-button>
+            <el-button class="bottom-btn" type="" @click="edit" v-if="activeImg">编辑</el-button>
+            <el-button class="bottom-btn" type="primary" @click="save">确 认</el-button>
         </div>
     </div>
 </template>
 
 <script>
+import { cacheData, saveLayout } from '@/api/plate'
 import draggable from 'vuedraggable'
 
 export default {
     name: 'Index-Init',
-    props: {
-        addActiveType: {
-            type: Number
-        }
-    },
+    // props: {
+    //     addActiveType: {
+    //         type: Number
+    //     }
+    // },
     data() {
         return {
             activeImg: '',
             // 创建模块
             createPlate: {
-                title: ''
+                // id: 0, //0新增 大于0修改
+                // shopId: this.shopActive.id,
+                // showSubtitle: 2, //副标题，1不显示 2显示
+                // showTitle: 2, //标题，1不显示 2显示
+                // status: 2, //模块显示状态：1 不显示 2显示
+                // subtitle: '', //副标题
+                // title: '', //标题
+                // ContentList: []
             },
-            createPlateRules: {},
+            rules: {
+                layoutName: [{ required: true, trigger: 'blur', message: '请输入名称' }],
+                title: [{ required: true, trigger: 'blur', message: '请输入大标题' }],
+                subtitle: [{ required: true, trigger: 'blur', message: '请输入小标题' }]
+            },
             iconBanner: require('@/assets/img/plate-banner.png'),
             iconAdd: require('@/assets/img/plate-add.png'),
             iconList: [
@@ -86,19 +105,19 @@ export default {
             plateType: [
                 {
                     type: 1,
-                    name: '有边距横图'
+                    name: '1有边距横图'
                 },
                 {
                     type: 2,
-                    name: '无边距横图'
+                    name: '2无边距横图'
                 },
                 {
                     type: 3,
-                    name: '三竖图'
+                    name: '3三竖图'
                 },
                 {
                     type: 4,
-                    name: '滑动横图'
+                    name: '4滑动横图'
                 }
             ],
             TYPE: {
@@ -114,36 +133,124 @@ export default {
     },
     watch: {},
     created() {},
-    mounted() {},
+    mounted() {
+        this.createPlate = cacheData.addPlate
+        this.createPlate.ContentList = this.createPlate.ContentList.map((item, index) => {
+            item.customId = 'old' + index
+            return item
+        })
+    },
     methods: {
-        // 返回
-        backPrevious() {},
-        // 跳转创建模块
-        gotoCreatPlate() {
-            if (!this.addActiveType) {
-                this.$notify({
-                    title: '请选择一个类型',
-                    type: 'warning',
-                    duration: 3000
-                })
-                return
-            }
-            this.stepAddPlateShow = false
-            this.stepCreatPlateShow = true
+        // 跳转
+        navigatePlate(index) {
+            this.$emit('navigatePlate', index)
         },
+
         // 添加模块 选择模块
-        imgChoose(index) {
-            this.activeImg = index
+        imgChoose(customId) {
+            this.activeImg = customId
         },
-        // 新建推按
-        gotoCreateImg() {
-            this.$emit('gotoCreateImg')
-        },
-        start(e) {
-            console.log(e)
-        },
+
         end(e) {
-            console.log(e)
+            let oldIndex = e.oldIndex
+            let newIndex = e.newIndex
+            let currRow = this.plateType[oldIndex]
+
+            let newItems = [...this.plateType]
+            // 删除老的节点
+            newItems.splice(oldIndex, 1)
+            // 增加新的节点
+            newItems.splice(newIndex, 0, currRow)
+            // items结构发生变化触发transition-group的动画
+            this.plateType = []
+
+            this.$nextTick(() => {
+                this.plateType = [...newItems]
+                this.activeImg = ''
+            })
+
+            console.log(this.plateType)
+        },
+        addImg() {
+            cacheData.addImg = false
+            this.navigatePlate(4)
+        },
+        edit() {
+            for (let i = 0; i < this.createPlate.ContentList.length; i++) {
+                const element = this.createPlate.ContentList[i]
+                if (element.customId == this.activeImg) {
+                    cacheData.addImg = _.cloneDeep(element)
+                    this.navigatePlate(4)
+                    break
+                }
+            }
+        },
+        save() {
+            const rLoading = this.openLoading()
+
+            this.$refs['formRef'].validate(valid => {
+                // 验证表单内容
+                if (valid) {
+                    if (this.createPlate.ContentList.length == 0) {
+                        rLoading.close()
+                        this.$notify({
+                            title: '请至少添加一条图片内容',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        return
+                    }
+
+                    if (this.createPlate.id == 0) {
+                        // 新增
+                        this.createPlate.customId = 'new' + new Date().getTime()
+                        cacheData.plate.layoutList.push(_.cloneDeep(this.createPlate))
+                    } else {
+                        // 编辑
+                        console.log('输出 ~ 编辑')
+                        console.log('输出 ~ this.createPlate', this.createPlate)
+
+                        for (let i = 0; i < cacheData.plate.layoutList.length; i++) {
+                            const element = cacheData.plate.layoutList[i]
+                            if (element.customId == this.createPlate.customId) {
+                                cacheData.plate.layoutList[i] = _.cloneDeep(this.createPlate)
+                                console.log('输出 ~  cacheData.plate', cacheData.plate)
+                            }
+                            break
+                        }
+                    }
+                    cacheData.plate.version.status = 1
+                    saveLayout(cacheData.plate).then(res => {
+                        if (res.code === 200) {
+                            this.$notify({
+                                title: '保存草稿成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            })
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            })
+                        }
+                        rLoading.close()
+                    })
+                    this.navigatePlate(1)
+                    rLoading.close()
+                } else {
+                    rLoading.close()
+                    this.$notify({
+                        title: '请填写完成数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
+            })
         }
     }
 }
@@ -189,6 +296,7 @@ export default {
         flex-direction: column;
         flex-grow: 1;
         padding-top: 15px;
+
         .item {
             display: flex;
             align-items: center;

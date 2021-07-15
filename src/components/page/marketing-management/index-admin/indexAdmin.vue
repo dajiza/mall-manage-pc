@@ -2,19 +2,20 @@
     <div class="app-container">
         <div class="edit">
             <!-- 初始页 -->
-            <init v-if="stepInitShow" @gotoPlatePick="gotoPlatePick"></init>
+            <init v-if="showIndex == 1" @navigatePlate="navigatePlate" :init="init" @initLoaded="initLoaded"></init>
             <!-- 选择添加模块 -->
-            <plate-pick v-if="stepAddPlateShow" @gotoPlateCreat="gotoPlateCreat"></plate-pick>
+            <plate-pick v-if="showIndex == 2" @navigatePlate="navigatePlate"></plate-pick>
             <!-- 创建模块 -->
-            <plate-create v-if="stepCreatPlateShow" :addActiveType="addActiveType" @gotoCreateImg="gotoCreateImg"></plate-create>
+            <plate-create v-if="showIndex == 3" @navigatePlate="navigatePlate"></plate-create>
             <!-- 创建模块图片 -->
-            <img-create v-if="stepCreatImgShow"></img-create>
+            <img-create v-if="showIndex == 4" @navigatePlate="navigatePlate"></img-create>
         </div>
         <div class="preview"></div>
     </div>
 </template>
 <script>
-import { queryShopList } from '@/api/goods'
+import { queryLayoutDetail, cacheData } from '@/api/plate'
+
 import Init from '@/components/common/index-admin/Init.vue'
 import PlatePick from '@/components/common/index-admin/PlatePick.vue'
 import PlateCreate from '@/components/common/index-admin/PlateCreate.vue'
@@ -23,12 +24,14 @@ export default {
     name: 'index-admin',
     data() {
         return {
+            init: true,
             addActiveType: '', //选择要添加的模块
             // 模块显示
-            stepInitShow: true, //初始模块
-            stepAddPlateShow: false, //选择添加模块
-            stepCreatPlateShow: false, //创建模块
-            stepCreatImgShow: false //创建模块图片
+            showIndex: 1
+            // stepInitShow: true, //初始模块 1
+            // stepAddPlateShow: false, //选择添加模块 2
+            // stepCreatPlateShow: false, //创建模块 3
+            // stepCreatImgShow: false //创建模块图片 4
         }
     },
     components: {
@@ -41,19 +44,14 @@ export default {
     created() {},
     mounted() {},
     methods: {
-        gotoPlatePick() {
-            this.stepInitShow = false
-            this.stepAddPlateShow = true
+        initLoaded() {
+            this.init = false
         },
-        gotoPlateCreat(addActiveType) {
-            this.stepAddPlateShow = false
-            this.stepCreatPlateShow = true
-            this.addActiveType = addActiveType
+        handleCommandShop(shopId) {
+            this.shopId = shopId
         },
-        gotoCreateImg(addActiveType) {
-            this.stepCreatPlateShow = false
-            this.stepCreatImgShow = true
-            // this.addActiveType = addActiveType
+        navigatePlate(index) {
+            this.showIndex = index
         }
     }
 }

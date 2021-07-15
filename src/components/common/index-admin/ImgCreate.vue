@@ -1,9 +1,9 @@
 <template>
     <div class="module">
         <div class="caption">
-            <div class="title" @click="backPrevious">
+            <div class="title" @click="navigatePlate(3)">
                 <span class="iconfont icon-fanhui"></span>
-                {{ TYPE[addActiveType] }}
+                {{ operationForm.id ? '编辑图片' : '添加图片' }}
             </div>
         </div>
         <div class="plate">
@@ -11,7 +11,7 @@
                 <el-form-item label="内容名称" prop="title">
                     <el-input style="width:280px" placeholder="请输入" v-model="operationForm.title"></el-input>
                 </el-form-item>
-                <el-form-item label="上传图片" prop="title">
+                <el-form-item label="上传图片" prop="img">
                     <el-upload
                         list-type="picture-card"
                         :class="timg.length > 0 ? 'hide-upload' : ''"
@@ -29,8 +29,8 @@
                         <div class="tips">670*240px</div>
                     </el-upload>
                 </el-form-item>
-                <el-form-item class="form-item" label="板块类型" prop="adv_type">
-                    <el-radio-group v-model="operationForm.adv_type" @change="chooseLinkType">
+                <el-form-item class="form-item" label="板块类型" prop="type">
+                    <el-radio-group v-model="operationForm.type" @change="chooseLinkType">
                         <el-radio class="type-radio" :label="1">商品列表页</el-radio>
                         <el-radio class="type-radio" :label="2">商品详情页</el-radio>
                         <el-radio class="type-radio" :label="3">直播页</el-radio>
@@ -40,41 +40,41 @@
                         <el-radio class="type-radio" :label="7">产品系列</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item class="form-item" :label="back_link_label(operationForm.adv_type)" prop="link">
+                <el-form-item class="form-item" :label="back_link_label(operationForm.type)" prop="link">
                     <el-input type="textarea" :rows="3" placeholder="请输入" v-model="operationForm.link" style="width:280px" />
-                    <template v-if="operationForm.adv_type == 1">
+                    <template v-if="operationForm.type == 1">
                         <div class="tip-text">
                             <div>示例：name=布组&brand=川水&color=红色||灰色&material=棉&origin=中国&pattern=&other_id=-1&tag_id=34||3 。</div>
                             <div>其中other_id最多只能有一个值,属性和标签可以有多个值。</div>
                         </div>
                     </template>
-                    <template v-if="operationForm.adv_type == 2">
+                    <template v-if="operationForm.type == 2">
                         <div class="tip-text">商品id可以在商品列表页中查看。</div>
                     </template>
-                    <template v-if="operationForm.adv_type == 3">
+                    <template v-if="operationForm.type == 3">
                         <div class="tip-text">房间号可以通过在微信后台查看。</div>
                     </template>
-                    <template v-if="operationForm.adv_type == 4">
+                    <template v-if="operationForm.type == 4">
                         <div class="tip-text">请填写完整路径，如果您不知道如何填写，请勿使用该选项。</div>
                     </template>
-                    <template v-if="operationForm.adv_type == 5">
+                    <template v-if="operationForm.type == 5">
                         <div class="tip-text">页面id可以在页面列表页中查看。</div>
                     </template>
-                    <template v-if="operationForm.adv_type == 6">
+                    <template v-if="operationForm.type == 6">
                         <div class="tip-text">优惠券id可以在优惠券列表页中查看。</div>
                     </template>
-                    <template v-if="operationForm.adv_type == 7">
+                    <template v-if="operationForm.type == 7">
                         <div class="tip-text">产品系列id可以在产品系列列表页中查看。</div>
                     </template>
                 </el-form-item>
-                <el-form-item label="描述备注" prop="title">
-                    <el-input style="width:280px" placeholder="请输入" v-model="operationForm.title"></el-input>
+                <el-form-item label="描述备注">
+                    <el-input style="width:280px" placeholder="请输入" v-model="operationForm.remarks"></el-input>
                 </el-form-item>
             </el-form>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="backPrevious">取 消</el-button>
-            <el-button class="bottom-btn" type="primary" @click="">选 择</el-button>
+            <el-button class="bottom-btn" type="" @click="navigatePlate(3)">取 消</el-button>
+            <el-button class="bottom-btn" type="primary" @click="save">保 存</el-button>
         </div>
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" />
@@ -83,27 +83,35 @@
 
 <script>
 import ElImageViewer from '@/components/common/image-viewer'
+import { cacheData } from '@/api/plate'
+
 import { getToken } from '@/utils/auth'
 export default {
     name: 'Index-Init',
-    props: {
-        addActiveType: {
-            type: Number
-        }
-    },
+    props: {},
     data() {
         return {
-            activeImg: '',
             // 创建模块
             operationForm: {
-                title: '',
-                adv_type: '', // 广告类型 1 商品列表  2 商品详情 3 直播间 4 自定义 5 页面 6优惠券 7系列
-                link: ''
+                link: '',
+                id: 0, //0新增 大于0修改
+                img: '', //
+                parameter: '', //
+                remarks: '', //
+                title: '', //
+                type: '', //类型：1.商品列表，2.商品详情，3.直播间，4.页面，5.自定义，6.优惠券领取，7.产品系列
+                status: 2 //内容显示状态：1不显示，2显示
             },
+
             header: {},
             dialogVisiblePic: false,
             previewUrlList: [],
-            rules: { goodsName: [{ required: true, validator: validateNum, trigger: 'change', message: '' }] },
+            rules: {
+                title: [{ required: true, trigger: 'blur', message: '请输入名称' }],
+                link: [{ required: true, trigger: 'blur', message: '请输入参数' }],
+                type: [{ required: true, trigger: 'blur', message: '请选择类型' }],
+                img: [{ required: true, trigger: 'blur', message: '请上传图片' }]
+            },
             iconBanner: require('@/assets/img/plate-banner.png'),
             iconAdd: require('@/assets/img/plate-add.png'),
             iconList: [
@@ -172,29 +180,46 @@ export default {
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
         this.header['token'] = getToken()
     },
-    mounted() {},
-    methods: {
-        // 返回
-        backPrevious() {},
-        // 跳转创建模块
-        gotoCreatPlate() {
-            if (!this.addActiveType) {
-                this.$notify({
-                    title: '请选择一个类型',
-                    type: 'warning',
-                    duration: 3000
-                })
-                return
+    mounted() {
+        if (cacheData.addImg) {
+            this.operationForm = _.cloneDeep(cacheData.addImg)
+            console.log('输出 ~ cacheData.addImg', cacheData.addImg)
+            this.timg = [{ id: this.operationForm.id, url: this.operationForm.img }]
+
+            let advType = this.operationForm.type,
+                link = '',
+                parameter = this.operationForm.parameter
+            if (parameter.indexOf('/pages/goodsSearchResult/goodsSearchResult?') > -1) {
+                // 商品列表
+                advType = 1
+                link = parameter.split('/pages/goodsSearchResult/goodsSearchResult?')[1]
+            } else if (parameter.indexOf('/pages/goodsDetail/goodsDetail?goodsId=') > -1) {
+                // 商品详情
+                advType = 2
+                link = parameter.split('/pages/goodsDetail/goodsDetail?goodsId=')[1]
+            } else if (parameter.indexOf('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=') > -1) {
+                // 直播间
+                advType = 3
+                link = parameter.split('plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=')[1]
+            } else if (parameter.indexOf('/packageAgent/article/article?id=') > -1) {
+                // 商品详情
+                advType = 5
+                link = parameter.split('/packageAgent/article/article?id=')[1]
+            } else {
+                // 自定义
+                advType = 4
+                link = parameter
             }
-            this.stepAddPlateShow = false
-            this.stepCreatPlateShow = true
+            console.log('_link', link)
+            this.$set(this.operationForm, 'link', link)
+        }
+    },
+    methods: {
+        // 跳转
+        navigatePlate(index) {
+            this.$emit('navigatePlate', index)
         },
-        // 添加模块 选择模块
-        imgChoose(index) {
-            this.activeImg = index
-        },
-        // 新建推按
-        gotoCreateImg() {},
+
         // 图片上传前检测 首图
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
@@ -271,6 +296,65 @@ export default {
         chooseLinkType() {
             this.$nextTick(() => {
                 this.$set(this.operationForm, 'link', '') // 清除link内容
+            })
+        },
+        save() {
+            const rLoading = this.openLoading()
+            // format
+            this.operationForm.img = this.timg.length > 0 ? (this.timg[0].id ? this.timg[0].url : this.timg[0].response.data.file_url) : ''
+            console.log('输出 ~ this.timg', this.timg)
+            let new_link = ''
+            if (this.operationForm.type === 1) {
+                // 商品列表
+                new_link = '/pages/goodsSearchResult/goodsSearchResult?' + this.operationForm.link
+            } else if (this.operationForm.type === 2) {
+                // 商品详情
+                new_link = '/pages/goodsDetail/goodsDetail?goodsId=' + this.operationForm.link
+            } else if (this.operationForm.type === 3) {
+                // 直播间
+                new_link = 'plugin-private://wx2b03c6e691cd7370/pages/live-player-plugin?room_id=' + this.operationForm.link
+            } else if (this.operationForm.type === 4) {
+                // 自定义
+                new_link = this.operationForm.link
+            } else if (this.operationForm.type === 5) {
+                // 页面
+                new_link = '/packageAgent/article/article?id=' + this.operationForm.link
+            } else if (this.operationForm.type === 6) {
+                // 优惠券
+                new_link = '/packageMainSecondary/couponReceive/couponReceive?id=' + this.operationForm.link
+            } else if (this.operationForm.type === 7) {
+                // 产品系列
+                new_link = '/packageMainSecondary/series/series?id=' + this.operationForm.link
+            }
+            this.operationForm.parameter = new_link
+            this.$refs['formRef'].validate(valid => {
+                // 验证表单内容
+                if (valid) {
+                    if (cacheData.addImg) {
+                        console.log('输出 ~ cacheData', cacheData)
+                        for (let i = 0; i < cacheData.plate.ContentList.length; i++) {
+                            const element = cacheData.plate.ContentList[i]
+                            if (element.customId == this.operationForm.customId) {
+                                element = _.cloneDeep(this.operationForm)
+                                this.navigatePlate(4)
+                                break
+                            }
+                        }
+                    } else {
+                        cacheData.addPlate.ContentList.push(_.cloneDeep(this.operationForm))
+                    }
+
+                    this.navigatePlate(3)
+                    rLoading.close()
+                } else {
+                    rLoading.close()
+                    this.$notify({
+                        title: '请填写完成数据后提交',
+                        message: '',
+                        type: 'warning',
+                        duration: 5000
+                    })
+                }
             })
         }
     }

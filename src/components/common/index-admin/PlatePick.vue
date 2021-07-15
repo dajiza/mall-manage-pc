@@ -1,7 +1,7 @@
 <template>
     <div class="module">
         <div class="caption">
-            <div class="title" @click="backPrevious">
+            <div class="title" @click="navigatePlate(1)">
                 <span class="iconfont icon-fanhui"></span>
                 添加板块
             </div>
@@ -15,13 +15,15 @@
             </div>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="backPrevious">取 消</el-button>
+            <el-button class="bottom-btn" type="" @click="navigatePlate(1)">取 消</el-button>
             <el-button class="bottom-btn" type="primary" @click="gotoPlateCreat">选 择</el-button>
         </div>
     </div>
 </template>
 
 <script>
+import { cacheData } from '@/api/plate'
+
 export default {
     name: 'Index-Init',
     props: {
@@ -60,6 +62,7 @@ export default {
                     name: '滑动横图'
                 }
             ],
+            // 板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图
             TYPE: {
                 1: '有边距横图',
                 2: '无边距横图',
@@ -75,8 +78,11 @@ export default {
     created() {},
     mounted() {},
     methods: {
-        // 返回
-        backPrevious() {},
+        // 跳转
+        navigatePlate(index) {
+            this.$emit('navigatePlate', index)
+        },
+
         // 跳转创建模块
         gotoPlateCreat() {
             if (!this.addActiveType) {
@@ -87,7 +93,8 @@ export default {
                 })
                 return
             }
-            this.$emit('gotoPlateCreat', this.addActiveType)
+            cacheData.addPlate.kind = this.addActiveType
+            this.navigatePlate(3)
         },
         // 添加模块 选择模块
         addChoose(type) {
