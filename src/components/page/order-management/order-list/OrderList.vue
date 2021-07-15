@@ -120,20 +120,14 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="user_id" label="用户id" width="80"></el-table-column>
-                <el-table-column prop="order_no" label="订单号" width="220"></el-table-column>
-                <el-table-column prop="status" label="订单状态" width="150">
+                <el-table-column prop="order_no" label="订单号" width="180"></el-table-column>
+                <el-table-column prop="status" label="订单状态" width="120">
                     <template slot-scope="scope">
                         <span class="order-status" :class="orderStatusClass(scope.row.status)">{{ orderStatus(scope.row.status) }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="err_type" label="异常类型" width="140">
-                    <template slot-scope="scope">
-                        {{ order_err(scope.row.err_type) }}
-                    </template>
-                </el-table-column>
                 <el-table-column prop="user_name" label="用户昵称" width="180"></el-table-column>
                 <el-table-column prop="user_phone" label="用户手机号" width="120"></el-table-column>
-                <el-table-column prop="shop_name" label="代理店铺" width="200"></el-table-column>
                 <el-table-column prop="price_total_detail_end" label="订单总计(元)" width="120">
                     <template slot-scope="scope">
                         {{ (scope.row.price_total / 100) | rounding }}
@@ -144,6 +138,9 @@
                         <span v-if="scope.row.logistics_money > 0">{{ (scope.row.logistics_money / 100) | rounding }}</span>
                         <span v-else>无运费</span>
                     </template>
+                </el-table-column>
+                <el-table-column prop="off_1" label="促销优惠(元)" width="120">
+                    <template slot-scope="scope"> {{ (scope.row.off_3 / 100) | rounding }}</template>
                 </el-table-column>
                 <el-table-column prop="off_1" label="优惠券(元)" width="120">
                     <template slot-scope="scope"> {{ (scope.row.off_1 / 100) | rounding }}</template>
@@ -172,6 +169,12 @@
                 </el-table-column>
                 <el-table-column prop="created_time" label="下单时间" width="180"></el-table-column>
                 <el-table-column prop="paid_time" label="付款时间" width="180"></el-table-column>
+                <el-table-column prop="err_type" label="异常类型" width="140">
+                    <template slot-scope="scope">
+                        {{ order_err(scope.row.err_type) }}
+                    </template>
+                </el-table-column>
+                <el-table-column prop="shop_name" label="代理店铺" width="150"></el-table-column>
                 <el-table-column prop="logistics_name" label="收货人姓名" width="140"></el-table-column>
                 <el-table-column prop="logistics_phone" label="收货人手机号" width="140"></el-table-column>
                 <el-table-column prop="channel_name" label="购买渠道" width="140">

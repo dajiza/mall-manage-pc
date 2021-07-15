@@ -134,13 +134,14 @@
                         </div>
                     </template>
                 </el-table-column>
+                <el-table-column prop="id" label="ID" width="50"></el-table-column>
+                <el-table-column prop="title" label="优惠券名称" width="170"></el-table-column>
+                <el-table-column prop="shop_name" label="可用店铺"></el-table-column>
                 <el-table-column prop="status" label="状态" width="85">
                     <template slot-scope="scope">
                         <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已停用' : '已启用' }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="title" label="优惠券名称" width="170"></el-table-column>
-                <el-table-column prop="shop_name" label="可用店铺"></el-table-column>
                 <el-table-column prop="type" label="优惠券类型" width="100">
                     <template slot-scope="scope">
                         {{ scope.row.type > 1 ? '折扣' : '满减' }}
