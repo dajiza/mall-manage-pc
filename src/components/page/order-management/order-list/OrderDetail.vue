@@ -155,14 +155,14 @@
                         v-if="order_info.status !== 9 && back_field_show('操作')"
                 >
                     <template slot-scope="scope">
-                        <div v-show="scope.row.status > 0 && scope.row.status < 4">
+                        <div style="padding: 3px 0" v-show="scope.row.status > 0 && scope.row.status < 4">
                             <el-button
                                     type="danger"
                                     v-hasPermission="'mall-backend-order-apply'"
                                     @click="handleRebates(scope.$index,scope.row)"
                             >部分退款</el-button>
                         </div>
-                        <div v-show="order_info.status === 0">
+                        <div style="padding: 3px 0" v-show="order_info.status === 0">
                             <el-button
                                     type="primary"
                                     v-hasPermission="'mall-backend-order-detail-update'"
@@ -170,7 +170,7 @@
                             >修改价格</el-button>
                         </div>
                         <!--                        v-if="order_info.status === 0 || order_info.logistics_no"-->
-                        <div v-show="order_info.logistics_no" v-hasPermission="'mall-backend-order-sd-info'">
+                        <div style="padding: 3px 0" v-show="order_info.logistics_no" v-hasPermission="'mall-backend-order-sd-info'">
                             <el-button
                                     type="primary"
                                     :disabled="!(scope.row.status === 3 || scope.row.status === 10)"
@@ -467,6 +467,109 @@
                 </div>
             </div>
         </div>
+        <!--修改日志-->
+        <div class="container-box m-t-16 p-t-0">
+            <div class="info-title">
+                <div class="global-table-title">
+                    <div class="title">
+                        <i class="line"></i>
+                        <span class="title-span">修改日志</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-content">
+                <el-main class="log-wrap" v-if="query_end">
+                    <template v-if="show_log_list.length > 0 && query_end">
+                        <div class="item-box" v-for="(item,i) in show_log_list" :key="i">
+                            <template>
+                                <div class="left-box">
+                                    <!--                                    <div class="date">{{(returnDate(item.created_at))[0] || ''}}</div>-->
+                                    <div class="time">{{$moment(item.created_time).format('MM-DD HH:mm:ss') }}</div>
+                                </div>
+                                <div class="center-box">
+                                    <div class="point-wrap"></div>
+                                    <div class="top-line" v-show="i>0"></div>
+                                    <div class="bottom-line" v-show="i< show_log_list.length -1 && show_log_list.length > 1"></div>
+                                </div>
+                                <div class="right-box">
+                                    <div class="operator padding-14 font-class">操作人：{{item.user_name}}</div>
+                                    <div class="line-box"></div>
+                                    <div class="right-content">
+                                        <!--type 0:修改订单金额，1:修改邮费 2修改订单地址 3修改发货单号  4添加后台留言 5售后-->
+                                        <!--修改订单金额-->
+                                        <template v-if="item.type == 0">
+                                            <div class="goods-img-title" v-for="(goods,goods_i) in item.goods_list">
+                                                <div class="goods-img" @click="viewLogBigImg(item.goods_list, goods_i)">
+                                                    <img :src="getImg(goods.goods_img)" alt="" >
+                                                </div>
+                                                <div class="goods-title">{{goods.goods_name}}</div>
+                                            </div>
+                                            <div class="marginTop20">改价：{{formatMoney(item.change_price)}}元</div>
+                                            <div class="marginTop20">改价原因：{{item.reason_name}}</div>
+                                        </template>
+                                        <!--修改邮费-->
+                                        <template v-if="item.type == 1">
+                                            <div>运费改价：{{formatMoney(item.change_price)}}元</div>
+                                            <div class="marginTop20">改价原因：{{item.reason_name}}</div>
+                                        </template>
+                                        <!--2修改订单地址-->
+                                        <template v-if="item.type == 2">
+                                            <div>修改收货信息：</div>
+                                            <div class="marginTop20">原信息：</div>
+                                            <div>收货人姓名：{{item.old_value.logistics_name || ''}} </div>
+                                            <div>收货人手机号：{{item.old_value.logistics_phone || ''}}  </div>
+                                            <div>收货地址：{{item.old_value.logistics_province || ''}}{{item.old_value.logistics_city || ''}}{{item.old_value.logistics_area || ''}}{{item.old_value.logistics_address || ''}}</div>
+                                            <div class="marginTop20">更改为：</div>
+                                            <div>收货人姓名：{{item.new_value.logistics_name || ''}} </div>
+                                            <div>收货人手机号：{{item.new_value.logistics_phone || ''}}  </div>
+                                            <div>收货地址：{{item.new_value.logistics_province || ''}}{{item.new_value.logistics_city || ''}}{{item.new_value.logistics_area || ''}}{{item.new_value.logistics_address || ''}}</div>
+                                        </template>
+                                        <!--3修改发货单号-->
+                                        <template v-if="item.type == 3">
+                                            <div class="goods-img-title" v-for="(goods,goods_i) in item.goods_list">
+                                                <div class="goods-img">
+                                                    <img :src="getImg(goods.goods_img)" alt="" @click="viewLogBigImg(item.goods_list, goods_i)">
+                                                </div>
+                                                <div class="goods-title">{{goods.goods_name}}</div>
+                                            </div>
+                                            <div class="marginTop20">原：</div>
+                                            <div class="marginTop20">快递公司：{{item.old_value.logistics_company_name}}</div>
+                                            <div class="marginTop20">快递单号：{{item.old_value.logistics_no}}</div>
+                                            <div class="marginTop20">改为：</div>
+                                            <div class="marginTop20">快递公司：{{item.new_value.logistics_company_name}}</div>
+                                            <div class="marginTop20">快递单号：{{item.new_value.logistics_no}}</div>
+                                        </template>
+                                        <!--添加留言-->
+                                        <template v-if="item.type == 4">
+                                            <div>添加留言：</div>
+                                            <div>{{item.new_value}}</div>
+                                        </template>
+                                        <!--售后-->
+                                        <template v-if="item.type == 5">
+                                            <div class="goods-img-title" v-for="(goods,goods_i) in item.goods_list">
+                                                <div class="goods-img">
+                                                    <img :src="getImg(goods.goods_img)" alt="" @click="viewLogBigImg(item.goods_list, goods_i)">
+                                                </div>
+                                                <div class="goods-title">{{goods.goods_name}}</div>
+                                            </div>
+                                            <div>{{item.new_value}}</div>
+                                            <div class="marginTop20">退款金额：{{formatMoney(item.change_price)}}元</div>
+                                            <!--<div class="marginTop20">类型：</div>
+                                            <div class="marginTop20">状态：</div>
+                                            <div class="marginTop20">原因：</div>-->
+                                        </template>
+                                    </div>
+
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <div v-if="show_log_list.length < 1 && query_end">
+                        <EmptyList></EmptyList>
+                    </div>
+                </el-main>
+            </div>
+        </div>
         <!--添加留言-->
         <el-dialog
                 title="添加留言"
@@ -639,7 +742,7 @@
     import './OrderList.less';
     import { queryConfigList, queryProvince } from '../../../../api/configManagement';
     import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight,
-        updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord, updateOrderAddress } from '../../../../api/orderList';
+        updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord, updateOrderAddress, queryOrderChangeLog } from '../../../../api/orderList';
     import { queryAfterSaleList } from '../../../../api/afterSale';
     import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
@@ -649,6 +752,7 @@
     import ListFieldShow from '../../../common/list-field-show/listFieldShow';
     import updateLogistics from '../../../common/update-logistics/UpdateLogistics';
     import { querySDList } from '@/api/afterSale'
+    import { formatMoney } from '@/plugin/tool'
     export default {
         name: 'OrderDetail',
         data() {
@@ -812,6 +916,8 @@
                 is_all_select: true,
                 previewIndex: 0,
                 imgSrcList:[],
+                orderImgList: [],
+                logImgList: [],
                 dialogVisible: false,
                 updateLogisticsInfo:{
                     visible: false,
@@ -819,7 +925,9 @@
                 },
                 provinceList: [],
                 cityList: [],
-                areaList: []
+                areaList: [],
+                show_log_list: [],
+                query_end: false
             }
         },
         components: {
@@ -964,6 +1072,85 @@
             this.getFreightUpdateList(); // 请求运费修改列表
         },
         methods:{
+            formatMoney: formatMoney,
+            // 请求 - 修改日志
+            getLog() {
+                const params = {
+                    order_id: Number(this.$route.query.order_id)
+                }
+                // const rLoading = this.openLoading();
+                queryOrderChangeLog(params)
+                    .then((res) => {
+                        // rLoading.close();
+                        this.query_end = true
+                        if (res.code === 200) {
+                            if (res.data) {
+                                this.show_log_list = []
+                                let new_arr = res.data || []
+                                let change_code_arr = [] // type为3 change_code 不重复数组
+                                const type_3_arr = new_arr.filter((item)=>{return item.type == 3})
+                                type_3_arr.forEach((item)=>{
+                                    if (!change_code_arr.includes(item.change_code)) {
+                                        change_code_arr.push(item.change_code)
+                                    }
+                                })
+                                new_arr.forEach((ev)=>{
+                                    ev['goods_list'] = []
+                                    this.order_info.detail.forEach((goods)=>{
+                                        let list = []
+                                        if (ev.order_detail_id == goods.id) {
+                                            list.push(goods)
+                                            ev['goods_list'] = list
+                                        }
+                                    })
+                                    if (ev.type == 2 || ev.type == 3) {
+                                        console.log('1111', JSON.parse(ev.new_value))
+                                        ev['old_value'] = JSON.parse(ev.old_value)
+                                        ev['new_value'] = JSON.parse(ev.new_value)
+                                    }
+
+                                })
+
+                                let tempArr = [];
+                                let afterData = []
+                                for (let i = 0; i < new_arr.length; i++) {
+                                    if (new_arr[i].type == 3) {
+                                        if (tempArr.indexOf(new_arr[i].change_code) === -1) {
+                                            afterData.push(new_arr[i]);
+                                            tempArr.push(new_arr[i].change_code);
+                                        } else {
+                                            for (let j = 0; j < afterData.length; j++) {
+                                                if (afterData[j].change_code == new_arr[i].change_code) {
+                                                    console.log('goods_list=====afterData', afterData[j].goods_list)
+                                                    console.log('goods_list-----new_arr', new_arr[i].goods_list)
+                                                    if (new_arr[i].goods_list.length > 0) {
+                                                        afterData[j].goods_list.push(new_arr[i].goods_list[0]);
+                                                    }
+                                                    // afterData[j].origin.push(new_arr[i]);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        afterData.push(new_arr[i])
+                                    }
+
+                                }
+                                console.log('afterData', afterData)
+                                this.show_log_list = afterData
+                            } else {
+                            }
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
             getProvince() {
                 queryProvince()
                     .then(res => {
@@ -1062,15 +1249,15 @@
                                     this.returnMoneyList.push({money:res.data.refund_freight,type:'运费退款'})
                                 }
                                 this.refund_money_all = Number(res.data.refund_money) + Number(res.data.refund_freight)
-                                this.imgSrcList = [];
+                                this.orderImgList = [];
                                 this.num_total_all = 0
                                 let all_commission = 0
                                 if(this.order_info.detail) {
                                     this.order_info.detail.forEach((ev,i)=>{
                                         if(this.order_info.channel_id === 1){
-                                            this.imgSrcList.push(ev.goods_img + '!/fw/640');
+                                            this.orderImgList.push(ev.goods_img + '!/fw/640');
                                         }else {
-                                            this.imgSrcList.push(ev.product_img + '!/fw/640');
+                                            this.orderImgList.push(ev.product_img + '!/fw/640');
                                         }
                                         this.num_total_all += Number(ev.num)
                                         if(ev.commission && ev.commission_status != 3){
@@ -1079,6 +1266,7 @@
                                     })
                                 }
                                 this.order_info['all_commission'] = all_commission
+                                this.getLog()
                             } else {
                                 this.order_info = {};
                             }
@@ -1241,6 +1429,7 @@
             // 查看大图
             viewBigImg(pic_url, index){
                 if (pic_url) {
+                    this.imgSrcList = this.orderImgList
                     this.previewIndex = index;
                     this.dialogVisible = true;
                 }
@@ -1248,6 +1437,26 @@
             // 关闭大图
             closeViewer() {
                 this.dialogVisible = false;
+            },
+            // 日志查看大图
+            viewLogBigImg(list, index){
+                console.log('日志查看大图')
+                console.log('list', list)
+                this.logImgList = []
+                if (list && list.length > 0) {
+                    list.forEach((ev)=>{
+                        if(this.order_info.channel_id === 1){ // 淘宝
+                            this.logImgList.push(ev.goods_img + '!/fw/640');
+                        }else {
+                            this.logImgList.push(ev.product_img + '!/fw/640');
+                        }
+                    })
+
+                    this.imgSrcList = this.logImgList
+                    console.log('this.imgSrcList', this.imgSrcList)
+                    this.previewIndex = index;
+                    this.dialogVisible = true;
+                }
             },
             // 查看物流
             handleViewLogistics(index,row){
@@ -1684,5 +1893,197 @@
     }
     .update-price-form .el-input{
         width: 300px;
+    }
+</style>
+<style lang="less" scoped>
+    .log-wrap{
+        width: 100%;
+        padding: 24px 0 0;
+        /*height: 420px;*/
+        min-height: 420px;
+        overflow-y: scroll;
+        .item-box{
+            width: 100%;
+            //padding: 15px 0;
+            padding-right: 24px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+        }
+        .left-box{
+            width: 90px;
+            font-size: 14px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: #333333;
+            line-height: 20px;
+            //padding: 0 10px;
+            text-align: right;
+            .date{
+
+            }
+            .time{
+
+            }
+        }
+        .center-box{
+            position: relative;
+            padding: 0 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            .point-wrap{
+                position: absolute;
+                top: 14px;
+                left: 50%;
+                transform: translateX(-50%);
+                -webkit-transform: translateX(-50%);
+                width: 10px;
+                height: 10px;
+                background: #DCDEE3;
+                border-radius: 100%;
+            }
+
+            .top-line{
+                position: absolute;
+                top: 0;
+                width: 2px;
+                height: 12px;
+                background: #DCDEE3;
+                //border-radius: 1px;
+            }
+            .bottom-line{
+                position: absolute;
+                top: 26px;
+                bottom: 0;
+                width: 2px;
+                flex: 1;
+                background: #DCDEE3;
+                //border-radius: 1px;
+            }
+        }
+        .right-box{
+            width: 270px;
+            //height: 239px;
+            background: #F4F5F8;
+            border-radius: 5px;
+            margin: 0 0 30px;
+            .line-box{
+                width: 100%;
+                height: 1px;
+                background: #E6E7EB;
+            }
+            .right-content{
+                padding:20px 14px;
+                box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #333333;
+                line-height: 17px;
+                .marginTop20{
+                    margin-top: 20px;
+                }
+                .goods-img-title{
+                    display: flex;
+                    margin-top: 10px;
+                    .goods-img{
+                        width: 60px;
+                        height: 45px;
+                        img{
+                            width: 100%;
+                            height: 100%;
+                            display: inline-block;
+                            vertical-align: bottom;
+                            cursor: pointer;
+                            -o-object-fit: cover;
+                            object-fit: cover;
+                        }
+                    }
+                    .goods-title{
+                        margin-left: 10px;
+                        flex: 1;
+                    }
+                }
+                .goods-img-title:first-child{
+                    margin-top: 0;
+                }
+            }
+            .padding-14{
+                padding-left: 14px;
+                padding-rigt: 14px;
+                box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+            }
+            .font-class{
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #333333;
+                line-height: 17px;
+                word-break: break-all;
+            }
+            .operator{
+                width: 100%;
+                height: 32px;
+                line-height: 32px;
+                font-size: 12px;
+                font-family: PingFangSC-Regular, PingFang SC;
+                font-weight: 400;
+                color: #333333;
+            }
+            .content-text{
+                padding: 12px 10px 15px 14px;
+                line-height: 17px;
+            }
+            .add-del-img-box{
+                padding-top: 6px;
+                border-bottom: 1px solid #E6E7EB;
+            }
+            .Leaflet-img{
+                display: flex;
+                padding: 6px 14px 12px;
+                .Leaflet-text{
+                    width: 194px;
+                    margin-left: 10px;
+                    word-break: break-all;
+                }
+            }
+            .padding-0{
+                padding: 0;
+            }
+            .img-wrap{
+                padding: 12px 14px 15px;
+                .rest-text{
+
+                }
+                .existing-img-box{
+                    margin-top: 4px;
+                }
+            }
+            .img-item{
+                width: 40px;
+                height: 40px;
+                border-radius: 2px;
+                cursor: pointer;
+                display: inline-block;
+                vertical-align: bottom;
+            }
+            .existing-img{
+                margin: 6px 8px 0 0;
+            }
+            .replace-img-box{
+
+                .replace-img{
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    display: inline-block;
+                    vertical-align: bottom;
+                }
+            }
+        }
     }
 </style>
