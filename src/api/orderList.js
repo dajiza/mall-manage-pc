@@ -38,3 +38,6 @@ export const queryDetailReturnMoneyRecord = params => post('/backend/order-apply
 
 // 修改收货信息
 export const updateOrderAddress = params => post('/backend/order-change-address', params)
+
+// 订单修改日志
+export const queryOrderChangeLog = params => post('/backend/order-change-log-list', params)
