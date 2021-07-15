@@ -87,6 +87,24 @@ export default new Router({
                     meta: { title: '评论管理-用户', name: 'commentListUser' }
                 },
                 {
+                    path: '/mall-backend-goods-series',
+                    name: 'goods-series',
+                    component: () => import(/* webpackChunkName: "series" */ '../components/page/goods/series/seriesList.vue'),
+                    meta: { title: '商品系列', name: 'goodsSeries' }
+                },
+                {
+                    path: '/mall-backend-goods-series-create',
+                    name: 'goods-series-create',
+                    component: () => import(/* webpackChunkName: "series" */ '../components/page/goods/series/seriesCreat.vue'),
+                    meta: { title: '新增商品系列', name: 'goodsSeriesCreate' }
+                },
+                {
+                    path: '/mall-backend-goods-series-update',
+                    name: 'goods-series-update',
+                    component: () => import(/* webpackChunkName: "series" */ '../components/page/goods/series/seriesCreat.vue'),
+                    meta: { title: '编辑商品系列', name: 'goodsSeriesUpdate' }
+                },
+                {
                     path: '/mall-backend-freight',
                     component: () => import(/* webpackChunkName: "freight" */ '../components/page/goods/freight.vue'),
                     meta: { title: '运费模板', name: 'freightList' }

@@ -30,6 +30,12 @@
                         <i></i>
                         <span>收货信息</span>
                     </div>
+                    <el-button
+                            type="primary"
+                            v-if="order_info.status < 3"
+                            v-hasPermission="'mall-backend-update-logistics'"
+                            @click="handleUpdateLogistics"
+                    >修改</el-button>
                 </div>
             </div>
             <div class="info-content">
@@ -624,14 +630,16 @@
         <!--大图预览-->
         <el-image-viewer v-if="dialogVisible" :on-close="closeViewer" :url-list="imgSrcList" :initial-index="previewIndex"/>
         <!--<ListFieldShow :local="'orderDetailField'" :allList="allList"></ListFieldShow>-->
+        <!--修改收货信息-->
+        <updateLogistics :provinceList="provinceList" :updateLogisticsInfo="updateLogisticsInfo" @update="handleSureUpdateLogistics" @handleClose="handleCloseUpdateLogistics"></updateLogistics>
     </div>
 </template>
 
 <script>
     import './OrderList.less';
-    import { queryConfigList } from '../../../../api/configManagement';
+    import { queryConfigList, queryProvince } from '../../../../api/configManagement';
     import { getOrderDetail, getAddRemarks, queryFreightChangeList, queryOrderDetailChangeList, updateFreight,
-        updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord } from '../../../../api/orderList';
+        updateOrderDetail, queryOrderSdInfo, updateRebatesMoney, updateRebatesFreight, queryDetailReturnMoneyRecord, updateOrderAddress } from '../../../../api/orderList';
     import { queryAfterSaleList } from '../../../../api/afterSale';
     import ElImageViewer from '@/components/common/image-viewer';
     import EmptyList from '../../../common/empty-list/EmptyList';
@@ -639,6 +647,8 @@
     import commUtil from '../../../../utils/commUtil';
     import { REFUND_STATUS } from '@/plugin/constant'
     import ListFieldShow from '../../../common/list-field-show/listFieldShow';
+    import updateLogistics from '../../../common/update-logistics/UpdateLogistics';
+    import { querySDList } from '@/api/afterSale'
     export default {
         name: 'OrderDetail',
         data() {
@@ -803,12 +813,20 @@
                 previewIndex: 0,
                 imgSrcList:[],
                 dialogVisible: false,
+                updateLogisticsInfo:{
+                    visible: false,
+                    info: {}
+                },
+                provinceList: [],
+                cityList: [],
+                areaList: []
             }
         },
         components: {
             ElImageViewer,
             EmptyList,
-            ListFieldShow
+            ListFieldShow,
+            updateLogistics
         },
         computed: {
             //  拼接图片地址
@@ -828,7 +846,7 @@
                     } else if (data === 2) {
                         return '处理中';
                     } else if (data === 3) {
-                        return '已发货';
+                        return '待收货';
                     } else if (data === 9) {
                         return '交易关闭';
                     } else if (data === 10) {
@@ -941,10 +959,20 @@
             }
         },
         mounted() {
+            this.getProvince() // 省
             this.getOrderInfo();
             this.getFreightUpdateList(); // 请求运费修改列表
         },
         methods:{
+            getProvince() {
+                queryProvince()
+                    .then(res => {
+                       console.log('res', res)
+                        this.provinceList = res.data || []
+                    })
+                    .catch(err => {})
+            },
+
             // 请求 - 获取配置
             getConfig(){
                 queryConfigList({})
@@ -1158,6 +1186,58 @@
                 this.$refs['remarksFormBox'].clearValidate();
                 this.remarksVisible = false;
             },
+
+            // 修改收货信息
+            handleUpdateLogistics() {
+                // updateLogisticsInfo
+                const logistics_info = {
+                    logistics_address: this.order_info.logistics_address,
+                    logistics_area: this.order_info.logistics_area,
+                    logistics_city: this.order_info.logistics_city,
+                    logistics_province: this.order_info.logistics_province,
+                    logistics_name: this.order_info.logistics_name,
+                    logistics_phone: this.order_info.logistics_phone
+                }
+                this.$set(this.updateLogisticsInfo,'visible', true)
+                this.updateLogisticsInfo = Object.assign({}, this.updateLogisticsInfo, { info: logistics_info, visible: true });
+            },
+            handleCloseUpdateLogistics() {
+                this.$set(this.updateLogisticsInfo,'visible', false)
+            },
+            handleSureUpdateLogistics(data) {
+                console.log('data', data)
+                const params = {
+                    order_id: Number(this.$route.query.order_id),
+                    logistics_address: data.address,
+                    logistics_area: data.area,
+                    logistics_city: data.city,
+                    logistics_province: data.province,
+                    logistics_name: data.name,
+                    logistics_phone: data.phone
+                }
+                updateOrderAddress(params)
+                    .then((res) => {
+                        if (res.code === 200) {
+                            this.$notify({
+                                title: '修改成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            });
+                            this.$set(this.updateLogisticsInfo,'visible', false)
+                            this.getOrderInfo()
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            });
+                        }
+                    })
+                    .catch(() => {});
+            },
+
             // 查看大图
             viewBigImg(pic_url, index){
                 if (pic_url) {

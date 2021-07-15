@@ -333,7 +333,7 @@ export default {
                 } else if (data === 2) {
                     return '处理中'
                 } else if (data === 3) {
-                    return '已发货'
+                    return '待收货'
                 } else if (data === 9) {
                     return '交易关闭'
                 } else if (data === 10) {
