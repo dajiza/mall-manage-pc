@@ -552,9 +552,9 @@
                                                 </div>
                                                 <div class="goods-title">{{goods.goods_name}}</div>
                                             </div>
-                                            <div>{{item.new_value}}</div>
-                                            <div class="marginTop20">退款金额：{{formatMoney(item.change_price)}}元</div>
-                                            <!--<div class="marginTop20">类型：</div>
+                                            <div :class="{'marginTop20' : item.goods_list.length > 0}">{{item.new_value}}</div>
+                                            <!--<div class="marginTop20">退款金额：{{formatMoney(item.change_price)}}元</div>
+                                            <div class="marginTop20">类型：</div>
                                             <div class="marginTop20">状态：</div>
                                             <div class="marginTop20">原因：</div>-->
                                         </template>

@@ -6,6 +6,7 @@
         width="490px"
         :destroy-on-close="true"
         :before-close="handleClose"
+        :close-on-click-modal="false"
         append-to-body
         @opened="opened"
     >

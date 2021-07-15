@@ -152,10 +152,10 @@ export default {
                             name: 'mall-backend-goods-comment-list',
                             display_name: '评论管理'
                         },
-                        // {
-                        //     name: 'mall-backend-goods-series',
-                        //     display_name: '商品系列'
-                        // }
+                        {
+                            name: 'mall-backend-goods-series',
+                            display_name: '商品系列'
+                        }
                     ]
                 },
                 {

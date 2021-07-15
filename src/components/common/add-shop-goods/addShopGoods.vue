@@ -515,6 +515,7 @@ export default {
                     // 生成主图 sku图预览列表
                     this.timgList = []
                     this.skuImgList = []
+                    let skuImgIndex = 0
                     let goods_list = []
                     let new_sku_ids = [] // 新加sku id集合
                     this.checkedList.forEach(goods_item => {
@@ -539,6 +540,11 @@ export default {
                                     sku['skuIsChecked'] = true
                                 }
                             })
+                            for (let j = 0; j < goods.shop_skus.length; j++) {
+                                const sku = goods.shop_skus[j]
+                                sku.skuImgIndex = skuImgIndex
+                                skuImgIndex++
+                            }
                             goods['goodsIsChecked'] = false
                             goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
                             goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length
