@@ -185,7 +185,7 @@
 
                         <el-table-column label="预售/正常" width="90">
                             <template slot-scope="scope">
-                                <span>预售/正常</span>
+                                <span>{{ scope.row.is_pro_sale == 2 ? '正常' : '预售' }}</span>
                             </template>
                         </el-table-column>
                     </el-table>

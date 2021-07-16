@@ -239,13 +239,15 @@
                             <div class="user-item" :key="user.id">
                                 <div class="name">
                                     {{ (user.name || user.nick_name) + ' (' + user.phone + ')' }}
-                                    <span class="tag-blue">可提现</span>
+                                    <span class="tag-blue" v-if="user.id == formOrder.shop_admin_id">可提现</span>
                                 </div>
                                 <div class="btn">
                                     <el-button class="text-red" size="" type="text" @click="submitOrder(formOrder.adminList, 'shop_admin_ids_delete', user.id)">
                                         删除
                                     </el-button>
-                                    <el-button class="text-blue" size="" type="text" @click="deleteAdminuser(user.id)">可提现</el-button>
+                                    <el-button class="text-blue" size="" type="text" @click="submitOrder(user.id, 'shop_admin_id')" v-if="user.id != formOrder.shop_admin_id"
+                                        >可提现</el-button
+                                    >
                                 </div>
                             </div>
                             <div class="divider"></div>
@@ -817,11 +819,7 @@ export default {
         },
 
         submitOrder(sendValue, argument, deleteUserId) {
-            console.log('输出 ~ this.userList', this.userList)
-            console.log('输出 ~  this.formOrder', this.formOrder)
-
             let value = _.cloneDeep(sendValue)
-            console.log('输出 ~ deleteUserId', deleteUserId)
             let adminType = 0 // 管理员编辑状态 0非管理员编辑 1添加 2删除
             // 管理员设置
             if (argument == 'shop_admin_ids_add') {
@@ -871,22 +869,21 @@ export default {
                     if (adminType == 1) {
                         // 添加
                         let addItem = this.userList.find(item => item.user_id == this.adminSelected)
-                        console.log('输出 ~ addItem', addItem)
                         this.formOrder.adminList.push({
                             id: addItem.user_id,
                             name: addItem.nick_name,
                             phone: addItem.phone
                         })
                     } else if (adminType == 2) {
-                        console.log('输出 ~ this.formOrder.adminList.', this.formOrder.adminList)
                         for (let i = 0; i < this.formOrder.adminList.length; i++) {
                             const element = this.formOrder.adminList[i]
                             if (element.id == deleteUserId) {
-                                console.log('输出 ~ deleteUserId', deleteUserId)
-                                console.log('输出 ~ element.user_id', element.user_id)
                                 this.formOrder.adminList.splice(i, 1)
                             }
                         }
+                    }
+                    if (argument == 'shop_admin_id') {
+                        this.formOrder['shop_admin_id'] = value
                     }
                     this.getList()
                 } else {
@@ -1006,11 +1003,11 @@ export default {
 .form-wrap {
     display: flex;
     .form-item {
-        width: 50%;
         box-sizing: border-box;
+        width: 50%;
         &.form-left {
-            border-right: 1px solid #dddddd;
             padding-right: 17px;
+            border-right: 1px solid #dddddd;
         }
         &.form-right {
             padding-left: 27px;
@@ -1094,12 +1091,12 @@ export default {
         width: fit-content;
         height: 22px;
         border-radius: 15px;
+        background-color: #1890ff;
         color: rgba(255, 255, 255, 0.85);
         word-break: keep-all;
         font-weight: 400;
-        line-height: 22px;
-        background-color: #1890ff;
         font-size: 10px;
+        line-height: 22px;
     }
     .user-item {
         display: flex;

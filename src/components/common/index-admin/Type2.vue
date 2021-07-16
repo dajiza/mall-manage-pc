@@ -31,18 +31,22 @@ export default {
                 currentPage: 0, //当前页码
                 thresholdDistance: 50, //滑动判定距离
                 thresholdTime: 1000, //滑动判定时间
-                autoplay: 0, //自动滚动[ms]
-                loop: true, //循环滚动
-                renderPagination: (h, index) => {
-                    return h(
-                        'div',
-                        {
-                            class: 'swiper-pagination'
-                        },
-                        [index]
-                    )
-                }
+                autoplay: 3000, //自动滚动[ms]
+                loop: true //循环滚动
             }
+            // swiperOption: {
+            //     autoplay: false,
+            //     loop: true,
+            //     delay: 3000,
+            //     pagination: {
+            //         el: '.swiper-pagination',
+            //         clickable: true,
+            //         type: 'bullets',
+            //         renderBullet: function(index, className) {
+            //             return '<span class="' + className + '">' + '</span>'
+            //         }
+            //     }
+            // }
         }
     },
     components: {

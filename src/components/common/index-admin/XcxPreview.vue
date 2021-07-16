@@ -1,7 +1,9 @@
 <template>
     <div class="preview">
         <div class="box">
-            <index-component></index-component>
+            <index-component :type="5"></index-component>
+            <!-- <index-component :type="5"></index-component> -->
+            <index-component :type="2"></index-component>
             <div class="sort-wrap">
                 <div class="sort-box">
                     <div class="sort-item active">
@@ -20,6 +22,16 @@
                 </div>
                 <div class="slider-wrap">
                     <div class="slider"></div>
+                </div>
+            </div>
+            <div class="goods-list">
+                <div class="goods" v-for="item in 10">
+                    <img class="timg" src="../../../assets/img/img.jpg" alt="" />
+                    <div class="name">日本进口布料 QG玛…</div>
+                    <div class="info">
+                        <div class="price">¥ 56</div>
+                        <div class="sales">236人付款</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,14 +67,20 @@ export default {
     margin-left: 200px;
     height: 700px;
     background: url('../../../assets/img/ipx.png') no-repeat center center;
-    background-color: #fff;
+    background-color: #f5f5f5;
     background-size: contain;
 
     .box {
+        overflow: hidden;
+        overflow-y: scroll;
         box-sizing: border-box;
-        padding: 45px 23px 40px;
+        margin-top: 45px;
+        padding: 0 23px 0px;
         width: 100%;
-        height: 100%;
+        height: 605px;
+        &::-webkit-scrollbar {
+            width: 0 !important;
+        }
     }
 }
 
@@ -107,6 +125,48 @@ export default {
             height: 6px;
             border-radius: 6px;
             background: linear-gradient(90deg, #fb749f 0%, #ffe9e9 100%);
+        }
+    }
+}
+.goods-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    width: 100%;
+    color: #564b4e;
+    .goods {
+        overflow: hidden;
+        flex: 0 0 130px;
+        margin-bottom: 10px;
+        width: 130px;
+        height: 184px;
+        border-radius: 10px;
+        background: #ffffff;
+        .timg {
+            width: 130px;
+            height: 130px;
+        }
+        .name {
+            overflow: hidden;
+            padding: 6px 6px 4px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+        .info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0px 6px 0px;
+
+            .price {
+                font-weight: 500;
+                font-size: 14px;
+            }
+            .sales {
+                color: #c3c3c3;
+                font-size: 11px;
+            }
         }
     }
 }

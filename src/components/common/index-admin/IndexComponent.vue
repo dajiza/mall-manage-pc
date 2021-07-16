@@ -1,24 +1,27 @@
 <template>
     <div class="element">
-        <banner></banner>
+        <banner v-if="type == 5"></banner>
+        <type2 v-if="type == 2"></type2>
     </div>
 </template>
 
 <script>
 import Banner from '@/components/common/index-admin/Banner.vue'
+import Type2 from '@/components/common/index-admin/Type2.vue'
 
 export default {
     name: 'Index-Component',
-    // props: {
-    //     addActiveType: {
-    //         type: Number
-    //     }
-    // },
+    props: {
+        type: {
+            type: Number
+        }
+    },
     data() {
         return {}
     },
     components: {
-        Banner
+        Banner,
+        Type2
     },
 
     watch: {},
