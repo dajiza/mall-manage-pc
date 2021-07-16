@@ -1,13 +1,12 @@
 <template>
     <div class="app-container">
-        <div class="edit" v-if="false">
+        <div class="edit">
             <!-- 初始页 -->
             <init v-if="showIndex == 1" @navigatePlate="navigatePlate"></init>
             <!-- 选择添加模块 -->
             <plate-pick v-if="showIndex == 2" @navigatePlate="navigatePlate"></plate-pick>
             <!-- 创建普通模块 -->
             <plate-create v-if="showIndex == 3" @navigatePlate="navigatePlate"></plate-create>
-
             <!-- 创建模块图片 -->
             <img-create v-if="showIndex == 4" @navigatePlate="navigatePlate"></img-create>
         </div>

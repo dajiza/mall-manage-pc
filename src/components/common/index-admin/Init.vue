@@ -68,6 +68,7 @@
 
 <script>
 import { queryLayoutDetail, cacheData, saveLayout, recoverLayout } from '@/api/plate'
+import bus from '@/components/common/bus'
 
 import { queryShopList } from '@/api/goods'
 import draggable from 'vuedraggable'
@@ -170,6 +171,7 @@ export default {
                         return a.sort - b.sort
                     })
                 this.plate = cacheData.plate
+                bus.$emit('change-plate', cacheData.plate)
             })
         },
         // 代理店铺列表

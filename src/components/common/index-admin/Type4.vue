@@ -1,5 +1,5 @@
 <template>
-    <!-- 2.无边距横图， -->
+    <!-- 4.滑动图 -->
 
     <div class="wrap">
         <div class="title" v-if="list.showTitle == 2">
@@ -8,10 +8,9 @@
         </div>
         <div class="item">
             <slider class="swiper" ref="slider" :options="options">
-                <slideritem v-for="item in list.ContentList" :key="item.customId">
+                <slideritem v-for="item in list.ContentList" :key="item.customId" :style="item.style">
                     <img class="banner" :src="item.img" alt="" />
                 </slideritem>
-
                 <!-- 设置loading,可自定义 -->
                 <div slot="loading">loading...</div>
             </slider>
@@ -36,13 +35,7 @@ export default {
                 thresholdTime: 1000, //滑动判定时间
                 autoplay: 0, //自动滚动[ms]
                 loop: true, //循环滚动
-                renderPagination: (h, index) => {
-                    if (1) {
-                        return h('div', {
-                            class: 'swiper-pagination-bullet'
-                        })
-                    }
-                }
+                pagination: false
             }
         }
     },
@@ -53,7 +46,15 @@ export default {
 
     watch: {},
     created() {},
-    mounted() {},
+    mounted() {
+        this.list.ContentList = this.list.ContentList.map(item => {
+            item.style = {
+                width: '244px',
+                'margin-right': '8px'
+            }
+            return item
+        })
+    },
     methods: {}
 }
 </script>
@@ -75,17 +76,21 @@ export default {
 }
 .item {
     position: relative;
-    width: 100%;
-    height: 142px;
+    margin-left: 15px;
+    width: calc(100% - 15px);
+    height: 114px;
     .swiper {
         width: 100%;
-        height: 142px;
+        height: 114px;
         .banner {
-            width: 100%;
-            height: 230px;
+            width: 244px;
+            height: 114px;
         }
     }
 
+    /deep/ .slider-item {
+        justify-content: flex-start;
+    }
     /deep/ .slider-pagination {
         position: absolute;
         right: 0;

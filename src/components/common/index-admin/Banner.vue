@@ -1,9 +1,10 @@
 <template>
     <div class="item">
         <slider class="swiper" ref="slider" :options="options">
-            <slideritem> <img class="banner" src="../../../assets/img/img.jpg" alt=""/></slideritem>
-            <slideritem> <img class="banner" src="../../../assets/img/wx.jpeg" alt=""/></slideritem>
-            <slideritem> <img class="banner" src="../../../assets/img/plate-add.png" alt=""/></slideritem>
+            <slideritem v-for="item in list.ContentList" :key="item.customId">
+                <img class="banner" :src="item.img" alt="" />
+            </slideritem>
+
             <!-- 设置loading,可自定义 -->
             <div slot="loading">loading...</div>
         </slider>
@@ -20,27 +21,25 @@
 import { slider, slideritem } from 'vue-concise-slider' // 引入slider组件
 export default {
     name: 'Banner',
-    // props: {
-    //     addActiveType: {
-    //         type: Number
-    //     }
-    // },
+    props: {
+        list: {
+            type: Object
+        }
+    },
     data() {
         return {
             options: {
                 currentPage: 0, //当前页码
-                thresholdDistance: 50, //滑动判定距离
+                thresholdDistance: 30, //滑动判定距离
                 thresholdTime: 1000, //滑动判定时间
                 autoplay: 0, //自动滚动[ms]
                 loop: true, //循环滚动
                 renderPagination: (h, index) => {
-                    return h(
-                        'div',
-                        {
-                            class: 'swiper-pagination'
-                        },
-                        [index]
-                    )
+                    if (1) {
+                        return h('div', {
+                            class: 'swiper-pagination-bullet'
+                        })
+                    }
                 }
             }
         }
@@ -95,20 +94,22 @@ export default {
             margin-left: 12px;
         }
     }
-    .swiper-pagination {
+    /deep/ .slider-pagination {
         position: absolute;
         right: 0;
         bottom: 15px;
         left: 0;
+        display: flex;
+        justify-content: center;
         margin: auto;
-        /deep/ .swiper-pagination-bullet {
+        .swiper-pagination-bullet {
             margin: 0 2px;
             width: 8px;
             height: 3px;
             border-radius: 3px;
             background: #efefef;
             opacity: 1;
-            &.swiper-pagination-bullet-active {
+            &.slider-pagination-bullet-active-render {
                 width: 11px;
                 height: 3px;
                 border-radius: 3px;

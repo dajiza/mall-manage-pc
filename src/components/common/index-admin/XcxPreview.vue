@@ -1,9 +1,9 @@
 <template>
     <div class="preview">
         <div class="box">
-            <index-component :type="5"></index-component>
+            <index-component :type="5" :list="banner"></index-component>
             <!-- <index-component :type="5"></index-component> -->
-            <index-component :type="2"></index-component>
+            <index-component v-for="item in plate" :list="item" :key="item.customId"></index-component>
             <div class="sort-wrap">
                 <div class="sort-box">
                     <div class="sort-item active">
@@ -39,7 +39,9 @@
 </template>
 
 <script>
-// import { cacheData, saveLayout } from '@/api/plate'
+import { cacheData } from '@/api/plate'
+import bus from '@/components/common/bus'
+
 import IndexComponent from '@/components/common/index-admin/IndexComponent.vue'
 export default {
     name: 'Xcx-Preview',
@@ -48,14 +50,35 @@ export default {
     //         type: Number
     //     }
     // },
-    data() {},
+    data() {
+        return {
+            plate: '',
+            banner: ''
+        }
+    },
     components: {
         IndexComponent
     },
 
-    watch: {},
+    computed: {},
+
     created() {},
-    mounted() {},
+    mounted() {
+        bus.$on('change-plate', plate => {
+            console.log('输出 ~ plate change', plate)
+            let banner = plate.layoutList.find(item => item.kind == 5) || {
+                id: 0, //0新增 大于0修改
+                kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
+                ContentList: []
+            }
+            let newList = plate.layoutList.filter(item => item.kind != 5)
+            this.plate = newList
+            this.banner = banner
+        })
+    },
+    destroyed() {
+        bus.$off('change-plate')
+    },
     methods: {}
 }
 </script>
@@ -86,7 +109,7 @@ export default {
 
 .sort-wrap {
     position: relative;
-    padding: 30px 15px 0;
+    padding: 0px 15px 0;
     .sort-box {
         position: relative;
         z-index: 2;

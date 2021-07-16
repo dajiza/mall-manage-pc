@@ -85,6 +85,7 @@
 <script>
 import ElImageViewer from '@/components/common/image-viewer'
 import { cacheData, deleteLayoutContent } from '@/api/plate'
+import bus from '@/components/common/bus'
 
 import { getToken } from '@/utils/auth'
 export default {

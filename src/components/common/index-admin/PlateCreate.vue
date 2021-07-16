@@ -70,6 +70,7 @@
 <script>
 import { cacheData, saveLayout, deleteLayout } from '@/api/plate'
 import draggable from 'vuedraggable'
+import bus from '@/components/common/bus'
 
 export default {
     name: 'Index-Init',
@@ -276,6 +277,7 @@ export default {
                                 duration: 5000
                             })
                         }
+                        bus.$emit('change-plate', cacheData.plate)
                         rLoading.close()
                         this.navigatePlate(1)
                     })
