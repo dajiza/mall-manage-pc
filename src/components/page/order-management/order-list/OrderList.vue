@@ -121,7 +121,7 @@
                 </el-table-column>
                 <el-table-column prop="user_id" label="用户id" width="80"></el-table-column>
                 <el-table-column prop="order_no" label="订单号" width="180"></el-table-column>
-                <el-table-column prop="status" label="订单状态" width="120">
+                <el-table-column prop="status" label="订单状态" width="150">
                     <template slot-scope="scope">
                         <span class="order-status" :class="orderStatusClass(scope.row.status)">{{ orderStatus(scope.row.status) }}</span>
                     </template>

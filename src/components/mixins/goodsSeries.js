@@ -1,7 +1,7 @@
 import { updateCoupons, creatCoupons, queryCouponsDetail, queryCouponGoodsList } from '@/api/coupons'
 import { queryShopList, queryCategoryListAll } from '@/api/goods'
 import { updateGoodsSeries } from '@/api/goodSeries'
-
+import { queryShopGoodsList } from '@/api/live'
 import { formatMoney } from '@/plugin/tool'
 import { ATTR, ATTR_NAME } from '@/plugin/constant'
 import bus from '@/components/common/bus'
@@ -36,6 +36,7 @@ export const mixinsGoodsSeries = {
                 sku_code: '',
                 typeCategory: []
             },
+            searchParams: {},
             // 是否上架：1下架；2上架
             statusList: [
                 { value: 1, label: '下架' },
@@ -56,22 +57,20 @@ export const mixinsGoodsSeries = {
             listLoading: false,
             saveIsClick: false,
             shopId: -1,
-            checked_sku_list: [],
+            checked_goods_ids: [159, 238],
+            checked_goods_list: [],
             cate_other_list: [], // 其它分类
             cate_group_list: [], // 布组分类
             cateKey: 1,
             categoryData: [],
             goodsData: [],
-            tableHeight: 'calc(100vh - 374px)',
+            tableHeight: 'calc(100vh - 254px)',
             goods_loading: false,
             goodsPage: 1,
-            goodsLimit: 10,
+            limit: 10,
             pageTotal: 0,
             tabPosition: 'selected',
-            searchParams: {
-                goods_name: '',
-                cateArr: []
-            },
+
             dialogVisiblePic: false,
             previewUrlList: [],
             previewIndex: 0,
@@ -90,11 +89,14 @@ export const mixinsGoodsSeries = {
             showMaxIndex: 0,
             sortValue: '',
             sortOptions: [
-                {id: 1, name: '销量'},
-                {id: 2, name: '最高价格'},
-                {id: 3, name: '最低价格'},
-                {id: 4, name: '时间'},
-            ]
+                {id: 0, name: '销量'},
+                {id: 1, name: '价格倒序'},
+                {id: 2, name: '价格顺序'},
+                {id: 3, name: '上架时间倒序'},
+                {id: 4, name: '上架时间顺序'},
+                {id: 5, name: '手动'}
+            ],
+            is_all: true
         }
     },
     watch: {
@@ -125,7 +127,31 @@ export const mixinsGoodsSeries = {
             )
         }
     },
-    computed: {},
+    computed: {
+        backGoodsOtherName: function() {
+            return data => {
+                let _name = ''
+                this.cate_other_list.forEach(ev => {
+                    if (ev.id == data) {
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        },
+        backGoodsCategoryName: function() {
+            return data => {
+                // console.log('data', data)
+                let _name = ''
+                this.cate_group_list.forEach(ev => {
+                    if (ev.id == data) {
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        }
+    },
     components: {
         ElImageViewer,
         EmptyList,
@@ -141,9 +167,16 @@ export const mixinsGoodsSeries = {
         }
         this.initData()
     },
-    mounted() {},
+    mounted() {
+        this.searchParams = _.cloneDeep(this.searchForm)
+    },
     methods: {
         formatMoney: formatMoney,
+        goodsTable(row) {
+            if (row.columnIndex == 2) {
+                return 'checkboxColumn'
+            }
+        },
         async initData() {
             const rLoading = this.openLoading()
             Promise.all([
@@ -235,7 +268,6 @@ export const mixinsGoodsSeries = {
             this.$set(this.operationForm, 'remark', info.remark)
             this.$set(this.operationForm, 'shop_id', Number(info.shop_id))
 
-            // this.getListData()
             if (this.operationTitle === '编辑系列') {
             } else {
                 this.$set(this.operationForm, 'title', '')
@@ -385,31 +417,26 @@ export const mixinsGoodsSeries = {
                 })
         },
 
-        // 按钮-切换 选中未选中
-        tabClick() {
-            this.goodsPage = 1
-            this.getListData()
-        },
 
         // 按钮-分页导航
         handlePageChange(val) {
             this.goodsPage = val
             this.searchForm = _.cloneDeep(this.searchParams)
-            this.getListData()
+            this.getShopGoodsList()
         },
 
         // 按钮-触发搜索 -- 存储搜索条件
         handleSearch(formName) {
             this.goodsPage = 1
             this.searchParams = _.cloneDeep(this.searchForm)
-            this.getListData()
+            this.getShopGoodsList()
         },
 
         // 重置
         resetForm(formName) {
             this.$refs['searchForm'].resetFields()
             this.searchParams = _.cloneDeep(this.searchForm)
-            this.getListData()
+            this.getShopGoodsList()
         },
 
         // 勾选
@@ -459,29 +486,7 @@ export const mixinsGoodsSeries = {
             return cateId
         },
 
-        // 添加/删除分类
-        addOrDelCate(type) {
-            this.searchForm = _.cloneDeep(this.searchParams)
-            if (this.searchParams.cateArr.length > 0) {
-                this.loadingTip = this.uploadLoading('加载中')
-                const cate_id = this.backCateId()
-                if (this.searchParams.goods_name) {
-                    // 搜索中 有商品名称  重新请求 该分类下商品列表数量 先获取商品总数
-                    this.getGoodsListTotal(this.searchParams.goods_name,type, cate_id, 'cete')
-                } else {
-                    // 搜索中 不含有商品名称  可以直接获取到商品总数
-                    this.cateLimit = this.pageTotal
-                    this.getAllOrCateGoods('', type, cate_id, 'cate')
-                }
-            } else {
-                this.$notify({
-                    title: '请选择分类并搜索后再添加该分类',
-                    message: '',
-                    type: 'error',
-                    duration: 3000
-                })
-            }
-        },
+
 
         // 添加或移除全部/搜索
         addOrDelAll(type) {
@@ -500,10 +505,12 @@ export const mixinsGoodsSeries = {
             }
         },
 
-        // 移除选中
-        handleDelSelected() {
-            if (this.checkedList.length > 0) {
-                this.addOrDelSuccess(this.checkedList, 'del')
+
+        // 批量移除
+        handleDelCate() {
+            const select_list = this.goodsData.filter(item=>{return item.goodsIsChecked})
+            if (select_list.length > 0) {
+                // this.addOrDelSuccess(this.checkedList, 'del')
             } else {
                 this.$notify({
                     title: '请勾选商品后再移除',
@@ -514,16 +521,6 @@ export const mixinsGoodsSeries = {
             }
         },
 
-        // 移除该分类
-        handleDelCate() {
-            // 请选择分类并搜索后再移除该分类
-            this.addOrDelCate('del')
-        },
-
-        // 清空已添加
-        handleDelAll() {
-            this.addOrDelAll('del')
-        },
 
         // 移除单个
         handleDelItem(index, row) {
@@ -611,7 +608,7 @@ export const mixinsGoodsSeries = {
                             })
                             this.$refs.goodsList.close()
                             this.goodsInit()
-                            this.getListData()
+                            this.getShopGoodsList()
                         })
                         .catch(() => {})
                 } else if (type === 'del') {
@@ -639,7 +636,7 @@ export const mixinsGoodsSeries = {
                                 duration: 3000
                             })
                             this.goodsInit()
-                            this.getListData()
+                            this.getShopGoodsList()
                         })
                         .catch(() => {})
                 }
@@ -653,93 +650,6 @@ export const mixinsGoodsSeries = {
             }
         },
 
-        // 获取 总商品 / 分类下商品
-        getAllOrCateGoods(name, type, cate_id, str) {
-            let params = {
-                page: 1,
-                limit: str === 'all' ? this.allLimit : this.cateLimit,
-                goods_name: str === 'cate' ? '' : this.searchParams.goods_name,
-                category_id: cate_id,
-                goods_ids: [],
-                not_goods_ids: []
-            }
-            if(type == 'add') {
-                params['not_goods_ids'] = this.selected_goods
-            } else {
-                params['goods_ids'] = this.selected_goods
-            }
-            queryCouponGoodsList(params)
-                .then(res => {
-                    this.imgList = []
-                    this.previewIndex = 0
-                    this.loadingTip.close()
-                    if (res.code === 200) {
-                        if (res.data) {
-                            if (str === 'all') {
-                                // console.log('全部商品/搜索');
-                            } else {
-                                // console.log('分类商品');
-                            }
-                            this.loadingTip.close()
-                            this.addOrDelSuccess(res.data.lists || [], type)
-                        }
-                    } else {
-                        this.loadingTip.close()
-                        this.$notify({
-                            title: res.msg,
-                            message: '',
-                            type: 'error',
-                            duration: 5000
-                        })
-                    }
-                })
-                .catch(() => {
-                    this.loadingTip.close()
-                })
-        },
-
-        // 商品列表
-        getListData() {
-            let cateId = this.backCateId()
-            let params = {
-                page: this.goodsPage,
-                limit: this.goodsLimit,
-                goods_name: this.searchParams.goods_name,
-                category_id: cateId,
-                goods_ids: []
-            }
-            if (this.selected_goods.length > 0) {
-                params['goods_ids'] = this.selected_goods
-            } else {
-                this.goodsInit()
-                return
-            }
-            const rLoading = this.openLoading()
-            queryCouponGoodsList(params)
-                .then(res => {
-                    rLoading.close()
-                    this.imgList = []
-                    this.previewIndex = 0
-                    if (res.code === 200) {
-                        if (res.data) {
-                            this.goodsData = res.data.lists || []
-                            this.pageTotal = res.data.total
-                            this.addGoodsCount = res.data.total
-                            this.goodsData.forEach(item => {
-                                this.imgList.push(item.goods_img)
-                            })
-                        }
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            message: '',
-                            type: 'error',
-                            duration: 5000
-                        })
-                    }
-                })
-                .catch(() => {})
-        },
 
         // 打开大图预览
         openPreview(img, type, index) {
@@ -796,8 +706,84 @@ export const mixinsGoodsSeries = {
         },
 
         // 确定添加 商品
-        getAddSku(sku_arr){
+        getAddSku(data){
+            console.log('data', data)
+            // 请求 店铺商品列表
+            // this.checked_goods_list = [].concat()
+            this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
+            this.getShopGoodsList()
+        },
 
+        // 请求店铺商品列表
+        getShopGoodsList() {
+            if(!this.shopId) {
+                console.log('请先选择店铺')
+                return
+            }
+            const rLoading = this.openLoading()
+            let params = _.cloneDeep(this.searchParams)
+            params['limit'] = this.limit
+            params['page'] = this.goodsPage
+            params['goods_id'] = Number(this.searchParams.goods_id)
+            if (params['typeCategory'].length == 1) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = ''
+            } else if (params['typeCategory'].length == 2) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][1]
+            } else if (params['typeCategory'].length == 3) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][2]
+            }
+            if (params['goods_type'] == 1) {
+                params['other_id'] = 0
+            }
+            if(this.checked_goods_list.length > 0) {
+                params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
+            }
+            params['shop_id'] = this.shopId
+            queryShopGoodsList(params)
+                .then((res)=>{
+                    rLoading.close()
+                    if (res.code == 200) {
+
+                        this.pageTotal = res.data.total || 0
+                        const new_list = res.data.lists || []
+                        this.goodsData = this.goodsData.concat(new_list)
+                        if (this.goodsData.length == this.pageTotal) {
+                            this.is_all = true
+                        }
+                        if (res.data.total == 0) {
+                            this.is_all = true
+                            this.goodsData = []
+                        }
+                        this.goodsData.forEach((goods)=>{
+                            goods['goodsIsChecked'] = false
+                            goods['onShelfNum'] = goods.shop_skus.filter(item=>{return item.status == 2}).length
+                        })
+                        console.log('goodsData', this.goodsData)
+                    } else {
+                        this.$notify({
+                            title: res.message,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch()
+        },
+
+        // 商品选中/取消
+        goodsChecked(bol, row, index) {
+            console.log('bol', bol)
+            if (row.shop_skus && row.shop_skus.length > 0) {
+                row['goodsIsChecked'] = bol
+            }
+        },
+        // 对象数组去重
+        unique(arr) {
+            const res = new Map();
+            return arr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1))
         },
     }
 }

@@ -89,48 +89,131 @@
             <div class="divider"></div>
             <div class="form-content goods-table-padding head-container">
                 <el-table
-                        v-loading="goods_loading"
-                        :data="goodsData"
                         ref="multipleTable"
-                        class="order-list-table"
                         :height="tableHeight"
-                        @selection-change="handleSelectionChange"
+                        class="order-list-table table"
+                        :data="goodsData"
+                        element-loading-text="Loading"
+                        :default-expand-all="false"
+                        row-key="id"
+                        :header-cell-style="$tableHeaderColor"
+                        :cell-class-name="goodsTable"
+                        :cell-style="{ background: '#fff' }"
                 >
-                    <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column label="主图" width="128">
-                        <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                    <el-table-column label="-" type="expand" width="55">
+                        <template slot-scope="props">
+                            <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
+                                <el-table-column label="状态" width="90">
+                                    <template slot-scope="scope">
+                                        <span class="text-red" v-show="scope.row.status == 1">已下架</span>
+                                        <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU图片" width="120">
+                                    <template slot-scope="scope">
+                                        <img
+                                                class="timg"
+                                                :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
+                                                alt=""
+                                                @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
+                                        />
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU名称">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.sku_title }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU编码">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.sku_storehouse_code }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="实际销量" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.sku_real_sales }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="售价(元)" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ formatMoney(scope.row.sku_min_price) }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="总库存" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.product_storage_data.stock_total }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="可用库存" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.product_storage_data.stock_available }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="是否售罄" width="90">
+                                    <template slot-scope="scope">
+                                        {{ scope.row.sku_is_store_shortage == 2 ? '是' : '否' }}
+                                    </template>
+                                </el-table-column>
+                            </el-table>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="goods_name" label="商品名称"></el-table-column>
-                    <el-table-column prop="category_name" label="商品分类">
+
+                    <el-table-column label="" width="70">
                         <template slot-scope="scope">
-                            {{ scope.row.category_id === 0 ? '布料' : scope.row.category_name }}
+                            <span>({{ scope.row.onShelfNum }}/{{ scope.row.shop_skus.length }})</span>
                         </template>
                     </el-table-column>
-                    <el-table-column prop="channel_name" label="售价(元)" width="100">
-                        <template slot-scope="scope">{{ (scope.row.goods_price / 100) | rounding }}</template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="110">
+                    <el-table-column label="" width="35">
                         <template slot-scope="scope">
-                            <div v-if="tabPosition === 'no_select'">
-                                <el-button type="text" class="marginLeft0 marginRight15" @click="handleAddItem(scope.$index, scope.row)">添加</el-button>
+                            <el-checkbox
+                                    v-model="scope.row.goodsIsChecked"
+                                    :disabled="scope.row.isDisabled"
+                                    @change="value => goodsChecked(value, scope.row, scope.$index)"
+                            ></el-checkbox>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="商品ID" width="80">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.goods_id }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="主图" width="120">
+                        <template slot-scope="scope">
+                            <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goods_img, 1, scope.$index)" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="商品名称">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.goods_title }}</span>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="商品分类" width="180">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.goods_type == 1">布料</span>
+                            <span v-if="scope.row.goods_type == 2"> 其他{{ backGoodsOtherName(scope.row.goods_category_id) }} </span>
+                            <span v-if="scope.row.goods_type == 3"> 布组{{ backGoodsCategoryName(scope.row.goods_category_id) }} </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="状态" width="120">
+                        <template slot-scope="scope">
+                            <div class="status">
+                                <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
+                                <span class="dot dot-green" v-if="scope.row.status == 2"></span>
+
+                                <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
+                                    {{ scope.row.status == 1 ? '已下架' : '已上架' }}
+                                </span>
                             </div>
-                            <div v-if="tabPosition === 'selected'">
-                                <el-button type="text" class="marginLeft0 delete-color marginRight15" @click="handleDelItem(scope.$index, scope.row)">移除</el-button>
-                            </div>
                         </template>
                     </el-table-column>
-                    <template slot="empty">
-                        <EmptyList></EmptyList>
-                    </template>
                 </el-table>
                 <div class="pagination-container">
                     <el-pagination
                             background
                             layout="total, prev, pager, next"
                             :current-page="goodsPage"
-                            :page-size="goodsLimit"
+                            :page-size="limit"
                             :total="pageTotal"
                             @current-change="handlePageChange"
                     ></el-pagination>
@@ -150,7 +233,7 @@
                 title="挑选商品"
                 :categoryListOther="cate_other_list"
                 :categoryListClothGroup="cate_group_list"
-                :checked="checked_sku_list"
+                :checked="checked_goods_ids"
                 :shopId="shopId"
                 @check-sku="getAddSku"
         ></addShopGoods>
@@ -185,4 +268,43 @@ export default {
 .el-cascader__tags .el-tag {
     display: none;
 }
+</style>
+<style lang="less" scoped>
+    .table /deep/ .el-table__expand-icon > .el-icon {
+        margin-top: -10px;
+    }
+    .table /deep/ .el-table__expand-icon--expanded {
+        transform: rotate(0deg);
+    }
+    .table /deep/ .el-icon-arrow-right:before {
+        color: #1890ff;
+        content: '\e61a';
+        font-size: 19px;
+        font-family: 'iconfont';
+    }
+    .table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+        color: #6d7278;
+        content: '\e617';
+    }
+    .table /deep/ .el-table__expanded-cell {
+        padding: 0 !important;
+    }
+    /deep/ .el-table-column--selection .cell {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+    .sku-table {
+        box-sizing: border-box;
+        margin-left: 120px;
+        max-width: calc(100% - 120px);
+    }
+    .table .sku-table /deep/ .el-table__body tr:hover > td {
+        background-color: #f6faff !important;
+    }
+    .cursor {
+        cursor: pointer;
+    }
+    .table /deep/ .el-table__body tr:hover > td {
+        background-color: #fff !important;
+    }
 </style>

@@ -75,10 +75,9 @@
                                         </div>
                                         <div class="son" v-show="item.open">
                                             <template v-for="(sku, sku_i) in item.shop_skus">
-                                                <div class="son-item" v-if="sku.skuIsChecked">
+                                                <div class="son-item">
                                                     <img alt="" class="son-timg" :src="sku.sku_sku_img + '!upyun520/fw/300'" @click="openPreview(item.shop_skus, 3, sku_i)" />
                                                     <div class="name">{{ sku.sku_title }}</div>
-                                                    <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelectionImg(item, sku)"></i>
                                                 </div>
                                             </template>
                                         </div>
@@ -107,15 +106,6 @@
                     <el-table-column label="-" type="expand" width="55">
                         <template slot-scope="props">
                             <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
-                                <el-table-column label="" width="50">
-                                    <template slot-scope="scope">
-                                        <el-checkbox
-                                            v-model="scope.row.skuIsChecked"
-                                            :disabled="scope.row.isDisabled"
-                                            @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
-                                        ></el-checkbox>
-                                    </template>
-                                </el-table-column>
                                 <el-table-column label="状态" width="90">
                                     <template slot-scope="scope">
                                         <span class="text-red" v-show="scope.row.status == 1">已下架</span>
@@ -173,12 +163,11 @@
 
                     <el-table-column label="" width="70">
                         <template slot-scope="scope">
-                            <span>({{ scope.row.checkNum }}/{{ scope.row.shop_skus.length }})</span>
+                            <span>({{ scope.row.onShelfNum }}/{{ scope.row.shop_skus.length }})</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="" width="35">
                         <template slot-scope="scope">
-                            <!-- :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length" -->
                             <el-checkbox
                                 v-model="scope.row.goodsIsChecked"
                                 :disabled="scope.row.isDisabled"
@@ -246,7 +235,7 @@
 </template>
 
 <script>
-import { queryShopGoodsList, queryCheckedGoods } from '@/api/live'
+import { queryShopGoodsList } from '@/api/live'
 import { queryCategoryListAll } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
@@ -323,7 +312,7 @@ export default {
             timgList: [], //主图预览列表
             skuImgList: [], //sku图预览列表
             checkImgList: [], // 选中图片列表
-            checkedSkuIds: [], // 初始选中的sku id集合
+            checkedGoodsIds: [], // 初始选中的goods id集合
             searchList: [],
             showMaxIndex: 0,
             checkedList: [], // 选中商品列表
@@ -367,12 +356,9 @@ export default {
     computed: {
         backGoodsOtherName: function() {
             return data => {
-                console.log('data', data)
                 let _name = ''
                 this.categoryListOther.forEach(ev => {
-                    console.log('ev', ev.id)
                     if (ev.id == data) {
-                        console.log('ev', ev)
                         _name = ' > ' + ev.name
                     }
                 })
@@ -381,12 +367,10 @@ export default {
         },
         backGoodsCategoryName: function() {
             return data => {
-                console.log('data', data)
+                // console.log('data', data)
                 let _name = ''
                 this.categoryListClothGroup.forEach(ev => {
-                    console.log('ev', ev.id)
                     if (ev.id == data) {
-                        console.log('ev', ev)
                         _name = ' > ' + ev.name
                     }
                 })
@@ -405,8 +389,7 @@ export default {
         },
         open() {},
         opened() {
-            console.log('categoryListOther', this.categoryListOther)
-            console.log('categoryListClothGroup', this.categoryListClothGroup)
+            console.log('checked', this.checked)
             ++this.labelKey
             this.checkedList = []
             this.listQuery.page = 1
@@ -414,28 +397,13 @@ export default {
             this.$refs['searchForm'].resetFields()
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
-            this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
+            this.checkedGoodsIds = _.cloneDeep(this.checked) // 已选sku ID集合
 
             this.creatCategoryData()
             this.resetForm('searchForm')
         },
         closed() {
             this.searchShow = false
-        },
-        //  刷新显示列表的checkbox显示状态
-        refreshSelection(ids) {
-            this.list.forEach(goods_item => {
-                goods_item.shop_skus.forEach((sku_item, i) => {
-                    if (ids.indexOf(sku_item.sku_id) > -1) {
-                        sku_item.skuIsChecked = false
-                    }
-                })
-                goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length
-                if (goods_item['checkNum'] < 1) {
-                    goods_item['goodsIsChecked'] = false
-                }
-            })
-            this.$nextTick(() => {})
         },
 
         // 生成类型 分类 级联列表
@@ -531,14 +499,6 @@ export default {
                             this.timgList.push(goods.goods_img)
                             goods.shop_skus.forEach((sku, sku_i) => {
                                 this.skuImgList.push(sku.sku_sku_img)
-                                sku['skuIsChecked'] = false
-                                if (this.checkedSkuIds.indexOf(sku.sku_id) > -1) {
-                                    sku['skuIsChecked'] = true
-                                    sku['isDisabled'] = true
-                                }
-                                if (new_sku_ids.indexOf(sku.sku_id) > -1) {
-                                    sku['skuIsChecked'] = true
-                                }
                             })
                             for (let j = 0; j < goods.shop_skus.length; j++) {
                                 const sku = goods.shop_skus[j]
@@ -546,19 +506,19 @@ export default {
                                 skuImgIndex++
                             }
                             goods['goodsIsChecked'] = false
-                            goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
-                            goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length
-                            if (goods['checkNum'] > 0) {
+                            goods['isDisabled'] = false
+                            if (this.checkedGoodsIds.includes(goods.id)) {
+                                goods['goodsIsChecked'] = true
+                                goods['isDisabled'] = true
+                            }
+                            let checkedListIds = []
+                            if (this.checkedList.length > 0) {
+                                checkedListIds = this.checkedList.map((item)=>{return item.id})
+                            }
+                            if (checkedListIds.includes(goods.id)) {
                                 goods['goodsIsChecked'] = true
                             }
-                            goods['isDisabled'] = false
-                            if (goods['skuDisabledNum'] > 0) {
-                                goods['isDisabled'] = true
-                                goods.shop_skus.forEach((sku, sku_i) => {
-                                    sku['isDisabled'] = true
-                                })
-                            }
-
+                            goods['onShelfNum'] = goods.shop_skus.filter(item=>{return item.status == 2}).length
                             goods_list.push(goods)
                         })
                     }
@@ -706,30 +666,11 @@ export default {
                 const element = this.checkedList[i]
                 if (group.goods_id == element.goods_id) {
                     this.checkedList.splice(i, 1)
-                    const ids = element.shop_skus.map(item => {
-                        return item.sku_id
-                    })
-                    this.refreshSelection(ids)
-                }
-            }
-        },
-        // 已选商品删除sku
-        cancelSelectionImg(goods, sku) {
-            for (let i = 0; i < this.checkedList.length; i++) {
-                const element = this.checkedList[i]
-                if (goods.goods_id == element.goods_id) {
-                    for (let j = 0; j < element.shop_skus.length; j++) {
-                        const skuElement = element.shop_skus[j]
-                        if (sku.sku_id == skuElement.sku_id) {
-                            element.shop_skus.splice(j, 1)
-                            const ids = [sku.sku_id]
-                            this.refreshSelection(ids)
+                    this.list.forEach(goods_item => {
+                        if(group.id == goods_item.id) {
+                            goods_item['goodsIsChecked'] = false
                         }
-                    }
-                    // 没有选中图片时 删除组
-                    if (element.shop_skus.length == 0) {
-                        this.checkedList.splice(i, 1)
-                    }
+                    })
                 }
             }
         },
@@ -757,17 +698,8 @@ export default {
             this.isShow = false
         },
         async save() {
-            let sku_arr = []
-            this.checkedList.forEach(goods_item => {
-                goods_item.shop_skus.forEach(sku_item => {
-                    if (sku_item.skuIsChecked && !sku_item.isDisabled) {
-                        sku_item['goods_name'] = goods_item.goods_title
-                        sku_item['new_title'] = ''
-                        sku_arr.push(sku_item)
-                    }
-                })
-            })
-            if (sku_arr.length < 1) {
+            console.log('this.checkedList', this.checkedList)
+            if (this.checkedList.length < 1) {
                 this.$notify({
                     title: '请挑选商品',
                     type: 'warning',
@@ -775,8 +707,7 @@ export default {
                 })
                 return
             }
-            this.$emit('check-sku', _.cloneDeep(sku_arr))
-            this.checkedList = []
+            this.$emit('check-sku', _.cloneDeep(this.checkedList))
             this.isShow = false
         },
 
@@ -816,90 +747,26 @@ export default {
             this.dialogVisiblePic = true
         },
 
-        filterGoods() {
-            this.checkedList.forEach((goods, i) => {
-                if (goods['checkNum'] < 1) {
-                    this.checkedList.splice(i, 1)
-                }
-            })
-        },
-        // sku选中/取消
-        skuChecked(bol, row, index, goods_detail, goods_index) {
-            goods_detail.shop_skus.forEach((ev, i) => {
-                if (!ev.isDisabled) {
-                    ev['skuIsChecked'] = false
-                }
-            })
-            row['skuIsChecked'] = bol
-            goods_detail['checkNum'] = goods_detail.shop_skus.filter(item => item.skuIsChecked).length
-            if (goods_detail['checkNum'] < 1) {
-                goods_detail['goodsIsChecked'] = false
-            } else {
-                goods_detail['goodsIsChecked'] = true
-            }
-
-            let checkedGoodsIds = [] // 选中商品id集合
-            if (this.checkedList.length > 0) {
-                checkedGoodsIds = this.checkedList.map(item => {
-                    return item.goods_id
-                })
-            }
-            let goodsSku = _.cloneDeep(goods_detail)
-            // 判断 当前操作的sku 所属商品 是否在 已选商品列表中
-            if (checkedGoodsIds.indexOf(goodsSku.goods_id) == -1) {
-                this.checkedList.push(goodsSku)
-            } else if (checkedGoodsIds.indexOf(goodsSku.goods_id) > -1) {
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                this.$set(this.checkedList, index, goodsSku)
-            }
-            this.filterGoods()
-        },
-
         // 商品选中/取消
         goodsChecked(bol, row, index) {
-            if (row.shop_skus && row.shop_skus.length > 1) {
-                row['goodsIsChecked'] = false
-                if (bol) {
-                    this.$notify({
-                        title: '请选择sku',
-                        type: 'warning',
-                        duration: 5000
-                    })
-                    // row['goodsIsChecked'] = !bol;
-                } else {
-                    row.shop_skus.forEach((ev, i) => {
-                        if (!ev['isDisabled']) {
-                            ev['skuIsChecked'] = false
-                        }
-                    })
-                }
-            } else if (row.shop_skus && row.shop_skus.length == 1) {
-                if (!row.isDisabled) {
+            console.log('bol', bol)
+            if (!row.isDisabled) {
+                if (row.shop_skus && row.shop_skus.length > 0) {
                     row['goodsIsChecked'] = bol
-                    row.shop_skus.forEach((ev, i) => {
-                        if (!ev['isDisabled']) {
-                            ev['skuIsChecked'] = bol
-                        }
-                    })
+                }
+                let checkedGoodsIds = [] // 选中商品id集合
+                if (this.checkedList.length > 0) {
+                    checkedGoodsIds = this.checkedList.map(item => {return item.id})
+                }
+                let goodsSku = _.cloneDeep(row)
+                // 判断 当前操作的商品 是否在 已选商品列表中
+                if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
+                    this.checkedList.push(goodsSku)
+                } else if (checkedGoodsIds.indexOf(goodsSku.id) > -1) {
+                    let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
+                    this.$set(this.checkedList, index, goodsSku)
                 }
             }
-            let sku_checked_num = row.shop_skus.filter(item => item.skuIsChecked).length
-            row['checkNum'] = sku_checked_num
-            let checkedGoodsIds = [] // 选中商品id集合
-            if (this.checkedList.length > 0) {
-                checkedGoodsIds = this.checkedList.map(item => {
-                    return item.goods_id
-                })
-            }
-            let goodsSku = _.cloneDeep(row)
-            // 判断 当前操作的商品 是否在 已选商品列表中
-            if (checkedGoodsIds.indexOf(goodsSku.goods_id) == -1) {
-                this.checkedList.push(goodsSku)
-            } else if (checkedGoodsIds.indexOf(goodsSku.goods_id) > -1) {
-                let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                this.$set(this.checkedList, index, goodsSku)
-            }
-            this.filterGoods()
         }
     }
 }
