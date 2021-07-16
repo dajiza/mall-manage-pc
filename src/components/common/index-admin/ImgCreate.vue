@@ -74,6 +74,7 @@
         </div>
         <div class="bottom">
             <el-button class="bottom-btn" type="" @click="navigatePlate(3)">取 消</el-button>
+            <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="operationForm.customId">删 除</el-button>
             <el-button class="bottom-btn" type="primary" @click="save">保 存</el-button>
         </div>
         <!--大图预览-->
@@ -83,7 +84,7 @@
 
 <script>
 import ElImageViewer from '@/components/common/image-viewer'
-import { cacheData } from '@/api/plate'
+import { cacheData, deleteLayoutContent } from '@/api/plate'
 
 import { getToken } from '@/utils/auth'
 export default {
@@ -219,7 +220,43 @@ export default {
         navigatePlate(index) {
             this.$emit('navigatePlate', index)
         },
-
+        // 删除图片
+        deleteImg() {
+            this.$confirm('确认删除该图片', '', {
+                confirmButtonText: '确认',
+                cancelButtonText: '取消',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                if (this.operationForm.id) {
+                    // 已保存过
+                    deleteLayoutContent({ contentId: this.operationForm.id })
+                        .then(res => {
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '删除成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(() => {
+                            console.log('取消')
+                        })
+                }
+                let index = cacheData.addPlate.ContentList.findIndex(item => item.customId == this.operationForm.customId)
+                cacheData.addPlate.ContentList.splice(index, 1)
+                this.navigatePlate(3)
+            })
+        },
         // 图片上传前检测 首图
         beforeUpload(file) {
             if ((file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') && file.size <= 1024 * 1024 * 5) {
@@ -331,15 +368,16 @@ export default {
                 // 验证表单内容
                 if (valid) {
                     if (cacheData.addImg) {
-                        console.log('输出 ~ cacheData', cacheData)
-                        for (let i = 0; i < cacheData.plate.ContentList.length; i++) {
-                            const element = cacheData.plate.ContentList[i]
+                        for (let i = 0; i < cacheData.addPlate.ContentList.length; i++) {
+                            const element = cacheData.addPlate.ContentList[i]
                             if (element.customId == this.operationForm.customId) {
-                                element = _.cloneDeep(this.operationForm)
+                                cacheData.addPlate.ContentList[i] = _.cloneDeep(this.operationForm)
+                                console.log('输出 ~ element', element)
                                 this.navigatePlate(4)
                                 break
                             }
                         }
+                        console.log('输出 ~ cacheData', cacheData.addPlate)
                     } else {
                         cacheData.addPlate.ContentList.push(_.cloneDeep(this.operationForm))
                     }

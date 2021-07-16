@@ -2,7 +2,8 @@
     <div class="module">
         <div class="caption">
             <!-- 还原 -->
-            <el-popover placement="right" trigger="click" class="revoke-popover" width="40" v-if="revokeShow">
+
+            <el-popover placement="right" trigger="click" class="revoke-popover" width="40" v-if="status == 1">
                 <div class="operate" style="cursor: pointer;" @click="revoke">
                     还原
                 </div>
@@ -24,25 +25,33 @@
             </el-dropdown>
         </div>
         <div class="plate">
-            <div class="item">
+            <div class="item" :class="['item', activePlate == 'banner' ? 'active' : '']" @click="plateChoose('banner')">
                 <div class="icon">
                     <img class="icon-img" :src="iconBanner" alt="" />
                 </div>
                 <div class="title">Banner</div>
             </div>
-            <div :class="['item', activePlate == item.customId ? 'active' : '']" v-for="item in plate.layoutList" @click="plateChoose(item.customId)" :key="item.customId">
-                <div class="icon">
-                    <img class="icon-img" :src="iconList[item.kind]" alt="" />
+            <draggable @end="end" animation="300">
+                <div
+                    :class="['item', activePlate == item.customId ? 'active' : '']"
+                    v-for="item in plate.layoutList"
+                    @click="plateChoose(item.customId)"
+                    :key="item.customId"
+                    v-if="item.kind != 5"
+                >
+                    <div class="icon">
+                        <img class="icon-img" :src="iconList[item.kind]" alt="" />
+                    </div>
+                    <div class="title">{{ item.layoutName }}</div>
+                    <div class="visible">
+                        <span class="iconfont icon-yincang" v-if="item.status == 2" @click="setVisible(item, 1)"></span>
+                        <span class="iconfont icon-a-yincang1" v-else @click="setVisible(item, 2)"></span>
+                    </div>
+                    <div class="handle">
+                        <span class="iconfont icon-tuozhuai"></span>
+                    </div>
                 </div>
-                <div class="title">{{ item.layoutName }}</div>
-                <div class="visible">
-                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="item.status = 1"></span>
-                    <span class="iconfont icon-a-yincang1" v-else @click="item.status = 2"></span>
-                </div>
-                <div class="handle">
-                    <span class="iconfont icon-tuozhuai"></span>
-                </div>
-            </div>
+            </draggable>
             <div class="item add" @click="gotoPlatePick">
                 <div class="icon">
                     <img class="icon-img" :src="iconAdd" alt="" />
@@ -52,23 +61,24 @@
         </div>
         <div class="bottom">
             <el-button class="bottom-btn" type="" @click="edit" v-if="activePlate">编辑</el-button>
-            <el-button class="bottom-btn" type="primary" @click="save">发 布</el-button>
+            <el-button class="bottom-btn" type="primary" @click="save(2)">发 布</el-button>
         </div>
     </div>
 </template>
 
 <script>
-import { queryLayoutDetail, cacheData, saveLayout } from '@/api/plate'
+import { queryLayoutDetail, cacheData, saveLayout, recoverLayout } from '@/api/plate'
 
 import { queryShopList } from '@/api/goods'
+import draggable from 'vuedraggable'
 
 export default {
     name: 'Index-Init',
 
     props: {
-        init: {
-            type: Boolean
-        }
+        // init: {
+        //     type: Boolean
+        // }
         // plate: {
         //     type: Object
         // }
@@ -80,13 +90,15 @@ export default {
     // },
     data() {
         return {
+            versionId: '',
+            status: '', //1.草稿/有改动 2.发布版本 3.废弃版(前端目前暂时忽略);上传参数时根据该字段的值进行草稿存储或者发布
             plate: {},
             shopList: [],
             shopActive: '',
-            revokeShow: true,
             iconBanner: require('@/assets/img/plate-banner.png'),
             iconAdd: require('@/assets/img/plate-add.png'),
             iconList: [
+                '',
                 require('@/assets/img/plate-icon1.png'),
                 require('@/assets/img/plate-icon2.png'),
                 require('@/assets/img/plate-icon3.png'),
@@ -120,18 +132,13 @@ export default {
             activePlate: ''
         }
     },
-
+    components: {
+        draggable
+    },
     created() {},
     async mounted() {
         await this.queryShopList()
-        console.log('输出 ~ this.init', this.init)
-        if (this.init) {
-            this.getList()
-        } else {
-            this.plate = cacheData.plate
-            console.log('输出 ~ this.plate init', this.plate)
-        }
-        this.$emit('initLoaded')
+        this.getList()
     },
     methods: {
         // 跳转
@@ -143,6 +150,7 @@ export default {
                 shopId: this.shopActive.id
             }
             queryLayoutDetail(params).then(res => {
+                console.log('输出 ~ res', res)
                 cacheData.plate = res.data || {
                     layoutList: [],
                     version: {
@@ -151,10 +159,16 @@ export default {
                         status: 2
                     }
                 }
-                cacheData.plate.layoutList = cacheData.plate.layoutList.map((item, index) => {
-                    item.customId = 'old' + index
-                    return item
-                })
+                this.status = cacheData.plate.version.status
+                this.versionId = cacheData.plate.version.id
+                cacheData.plate.layoutList = cacheData.plate.layoutList
+                    .map((item, index) => {
+                        item.customId = 'old' + index
+                        return item
+                    })
+                    .sort((a, b) => {
+                        return a.sort - b.sort
+                    })
                 this.plate = cacheData.plate
             })
         },
@@ -178,6 +192,35 @@ export default {
                     })
             })
         },
+        // 排序
+        end(e) {
+            let bannerItem = this.plate.layoutList.find(item => item.kind == 5)
+            let newList = this.plate.layoutList.filter(item => item.kind != 5)
+            let oldIndex = e.oldIndex
+            let newIndex = e.newIndex
+            let currRow = newList[oldIndex]
+            let newItems = [...newList]
+            // 删除老的节点
+            newItems.splice(oldIndex, 1)
+            // 增加新的节点
+            newItems.splice(newIndex, 0, currRow)
+            // items结构发生变化触发transition-group的动画
+            if (bannerItem) {
+                newItems.push(bannerItem)
+            }
+            this.plate.layoutList = []
+            this.$nextTick(() => {
+                this.plate.layoutList = [...newItems]
+                this.activePlate = ''
+                cacheData.plate = this.plate
+                this.save(1)
+            })
+        },
+        // 设置可见
+        setVisible(item, value) {
+            item.status = value
+            this.save(1)
+        },
         // 选择店铺
         handleCommandShop(shop) {
             this.shopActive = shop
@@ -185,13 +228,34 @@ export default {
         },
         // 还原
         revoke() {
-            this.revokeShow = false
+            let params = {
+                shopId: this.shopActive.id,
+                versionId: this.versionId
+            }
+            recoverLayout(params).then(res => {
+                if (res.code === 200) {
+                    this.$notify({
+                        title: '还原成功',
+                        message: '',
+                        type: 'success',
+                        duration: 3000
+                    })
+                } else {
+                    this.$notify({
+                        title: res.msg,
+                        message: '',
+                        type: 'error',
+                        duration: 5000
+                    })
+                }
+                this.getList()
+            })
         },
         // 跳转添加选择模块
         gotoPlatePick() {
             cacheData.addPlate = {
                 id: 0, //0新增 大于0修改
-                kind: '', //1.有边距横图，2.无边距横图，3.三竖图，4.滑动图
+                kind: '', //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
                 shopId: this.shopActive.id,
                 showSubtitle: 2, //副标题，1不显示 2显示
                 showTitle: 2, //标题，1不显示 2显示
@@ -201,6 +265,7 @@ export default {
                 layoutName: '', //板块名称
                 ContentList: []
             }
+            cacheData.isBanner = false
             this.navigatePlate(2)
         },
 
@@ -208,34 +273,58 @@ export default {
             this.activePlate = id
         },
         edit() {
-            for (let i = 0; i < this.plate.layoutList.length; i++) {
-                const element = this.plate.layoutList[i]
-                if (element.customId == this.activePlate) {
-                    cacheData.addPlate = _.cloneDeep(element)
-                    this.navigatePlate(3)
-                    break
+            if (this.activePlate == 'banner') {
+                cacheData.addPlate = {
+                    id: 0, //0新增 大于0修改
+                    kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
+                    shopId: this.shopActive.id,
+                    showSubtitle: 1, //副标题，1不显示 2显示
+                    showTitle: 1, //标题，1不显示 2显示
+                    status: 2, //模块显示状态：1 不显示 2显示
+                    subtitle: '', //副标题
+                    title: '', //标题
+                    layoutName: '', //板块名称
+                    ContentList: []
+                }
+                for (let i = 0; i < this.plate.layoutList.length; i++) {
+                    const element = this.plate.layoutList[i]
+                    if (element.kind == 5) {
+                        cacheData.addPlate = _.cloneDeep(element)
+                        break
+                    }
+                }
+                cacheData.isBanner = true
+                this.navigatePlate(3)
+            } else {
+                for (let i = 0; i < this.plate.layoutList.length; i++) {
+                    const element = this.plate.layoutList[i]
+                    if (element.customId == this.activePlate) {
+                        cacheData.addPlate = _.cloneDeep(element)
+                        cacheData.isBanner = false
+                        this.navigatePlate(3)
+                        break
+                    }
                 }
             }
         },
-        save() {
+        save(status = 2) {
+            console.log('输出 ~ status', status)
             const rLoading = this.openLoading()
-
-            console.log('输出 ~ cacheData.plate', cacheData.plate)
-
-            // cacheData.plate.version = {
-            //     id: 0,
-            //     shopId: this.shopActive.id
-            // }
-            cacheData.plate.version.status = 2
+            // 排序
+            cacheData.plate.layoutList = cacheData.plate.layoutList.map((item, index) => {
+                item.sort = index
+                return item
+            })
+            cacheData.plate.version.status = status
             saveLayout(cacheData.plate).then(res => {
-                console.log('输出 ~ res', res)
                 if (res.code === 200) {
                     this.$notify({
-                        title: '发布成功',
+                        title: status == 2 ? '发布成功' : '保存草稿成功',
                         message: '',
                         type: 'success',
                         duration: 3000
                     })
+                    this.getList()
                 } else {
                     this.$notify({
                         title: res.msg,

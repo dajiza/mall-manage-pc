@@ -1,16 +1,17 @@
 <template>
     <div class="app-container">
-        <div class="edit">
+        <div class="edit" v-if="false">
             <!-- 初始页 -->
-            <init v-if="showIndex == 1" @navigatePlate="navigatePlate" :init="init" @initLoaded="initLoaded"></init>
+            <init v-if="showIndex == 1" @navigatePlate="navigatePlate"></init>
             <!-- 选择添加模块 -->
             <plate-pick v-if="showIndex == 2" @navigatePlate="navigatePlate"></plate-pick>
-            <!-- 创建模块 -->
+            <!-- 创建普通模块 -->
             <plate-create v-if="showIndex == 3" @navigatePlate="navigatePlate"></plate-create>
+
             <!-- 创建模块图片 -->
             <img-create v-if="showIndex == 4" @navigatePlate="navigatePlate"></img-create>
         </div>
-        <div class="preview"></div>
+        <xcx-preview></xcx-preview>
     </div>
 </template>
 <script>
@@ -20,11 +21,11 @@ import Init from '@/components/common/index-admin/Init.vue'
 import PlatePick from '@/components/common/index-admin/PlatePick.vue'
 import PlateCreate from '@/components/common/index-admin/PlateCreate.vue'
 import ImgCreate from '@/components/common/index-admin/ImgCreate.vue'
+import XcxPreview from '@/components/common/index-admin/XcxPreview.vue'
 export default {
     name: 'index-admin',
     data() {
         return {
-            init: true,
             addActiveType: '', //选择要添加的模块
             // 模块显示
             showIndex: 1
@@ -38,15 +39,13 @@ export default {
         Init,
         PlatePick,
         PlateCreate,
-        ImgCreate
+        ImgCreate,
+        XcxPreview
     },
     watch: {},
     created() {},
     mounted() {},
     methods: {
-        initLoaded() {
-            this.init = false
-        },
         handleCommandShop(shopId) {
             this.shopId = shopId
         },
@@ -103,12 +102,5 @@ export default {
     flex: 0 0 320px;
     height: 100%;
     background: #fff;
-}
-.preview {
-    flex: 0 0 341px;
-    margin-left: 200px;
-    height: 700px;
-    background: url('../../../../assets/img/ipx.png') no-repeat center center;
-    background-size: contain;
 }
 </style>

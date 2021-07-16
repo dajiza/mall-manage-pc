@@ -25,6 +25,8 @@
         "qrcodejs2": "0.0.2",
         "qs": "^6.9.4",
         "sortablejs": "^1.13.0",
+        "swiper": "^5.2.0",
+        "vue-awesome-swiper": "^4.1.1",
         "uglifyjs-webpack-plugin": "^2.2.0",
         "vue": "^2.6.12",
         "vue-cropperjs": "^3.0.0",

@@ -3,27 +3,29 @@
         <div class="caption">
             <div class="title" @click="navigatePlate(1)">
                 <span class="iconfont icon-fanhui"></span>
-                {{ TYPE[this.createPlate.kind] }}
+                {{ isBanner ? 'Banner' : TYPE[createPlate.kind] }}
             </div>
         </div>
 
         <div class="plate">
             <el-form class="create-plate" label-position="top" :model="createPlate" :rules="rules" ref="formRef">
-                <el-form-item label="">
-                    <el-checkbox v-model="createPlate.showTitle" :true-label="2" :false-label="1">显示大标题</el-checkbox>
-                </el-form-item>
-                <el-form-item label="">
-                    <el-checkbox v-model="createPlate.showSubtitle" :true-label="2" :false-label="1">显示小标题</el-checkbox>
-                </el-form-item>
-                <el-form-item label="板块名称" prop="layoutName">
-                    <el-input style="width:280px" placeholder="板块名称" v-model="createPlate.layoutName"></el-input>
-                </el-form-item>
-                <el-form-item label="大标题" prop="title" v-if="createPlate.showTitle == 2">
-                    <el-input style="width:280px" placeholder="大标题" v-model="createPlate.title"></el-input>
-                </el-form-item>
-                <el-form-item label="小标题" prop="subtitle" v-if="createPlate.showSubtitle == 2">
-                    <el-input style="width:280px" placeholder="小标题" v-model="createPlate.subtitle"></el-input>
-                </el-form-item>
+                <template v-if="!isBanner">
+                    <el-form-item label="">
+                        <el-checkbox v-model="createPlate.showTitle" :true-label="2" :false-label="1">显示大标题</el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="">
+                        <el-checkbox v-model="createPlate.showSubtitle" :true-label="2" :false-label="1">显示小标题</el-checkbox>
+                    </el-form-item>
+                    <el-form-item label="板块名称" prop="layoutName">
+                        <el-input style="width:280px" placeholder="板块名称" v-model="createPlate.layoutName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="大标题" prop="title" v-if="createPlate.showTitle == 2">
+                        <el-input style="width:280px" placeholder="大标题" v-model="createPlate.title"></el-input>
+                    </el-form-item>
+                    <el-form-item label="小标题" prop="subtitle" v-if="createPlate.showSubtitle == 2">
+                        <el-input style="width:280px" placeholder="小标题" v-model="createPlate.subtitle"></el-input>
+                    </el-form-item>
+                </template>
                 <el-form-item label="内容">
                     <div class="img-list">
                         <draggable @end="end" animation="300">
@@ -58,14 +60,15 @@
         </div>
         <div class="bottom">
             <el-button class="bottom-btn" type="" @click="navigatePlate(1)">取 消</el-button>
-            <el-button class="bottom-btn" type="" @click="edit" v-if="activeImg">编辑</el-button>
+            <el-button class="bottom-btn" type="danger" @click="deletePlate" v-if="!isBanner && createPlate.id">删 除</el-button>
+            <el-button class="bottom-btn" type="" @click="edit" v-if="activeImg">编 辑</el-button>
             <el-button class="bottom-btn" type="primary" @click="save">确 认</el-button>
         </div>
     </div>
 </template>
 
 <script>
-import { cacheData, saveLayout } from '@/api/plate'
+import { cacheData, saveLayout, deleteLayout } from '@/api/plate'
 import draggable from 'vuedraggable'
 
 export default {
@@ -77,6 +80,7 @@ export default {
     // },
     data() {
         return {
+            isBanner: false,
             activeImg: '',
             // 创建模块
             createPlate: {
@@ -135,9 +139,13 @@ export default {
     created() {},
     mounted() {
         this.createPlate = cacheData.addPlate
+        this.isBanner = cacheData.isBanner
+
         this.createPlate.ContentList = this.createPlate.ContentList.map((item, index) => {
             item.customId = 'old' + index
             return item
+        }).sort((a, b) => {
+            return a.sort - b.sort
         })
     },
     methods: {
@@ -154,22 +162,21 @@ export default {
         end(e) {
             let oldIndex = e.oldIndex
             let newIndex = e.newIndex
-            let currRow = this.plateType[oldIndex]
+            let currRow = this.createPlate.ContentList[oldIndex]
 
-            let newItems = [...this.plateType]
+            let newItems = [...this.createPlate.ContentList]
             // 删除老的节点
             newItems.splice(oldIndex, 1)
             // 增加新的节点
             newItems.splice(newIndex, 0, currRow)
             // items结构发生变化触发transition-group的动画
-            this.plateType = []
+            this.createPlate.ContentList = []
 
             this.$nextTick(() => {
-                this.plateType = [...newItems]
+                this.createPlate.ContentList = [...newItems]
                 this.activeImg = ''
+                console.log(this.createPlate.ContentList)
             })
-
-            console.log(this.plateType)
         },
         addImg() {
             cacheData.addImg = false
@@ -184,6 +191,38 @@ export default {
                     break
                 }
             }
+        },
+        // 删除板块
+        deletePlate() {
+            this.$confirm('确认删除该板块', '', {
+                confirmButtonText: '确认',
+                cancelButtonText: '取消',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                deleteLayout({ layoutId: this.createPlate.id })
+                    .then(res => {
+                        if (res.code === 200) {
+                            this.$notify({
+                                title: '删除成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            })
+                            this.navigatePlate(1)
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            })
+                        }
+                    })
+                    .catch(() => {
+                        console.log('取消')
+                    })
+            })
         },
         save() {
             const rLoading = this.openLoading()
@@ -201,23 +240,23 @@ export default {
                         })
                         return
                     }
-
+                    this.createPlate.ContentList = this.createPlate.ContentList.map((item, index) => {
+                        item.sort = index
+                        return item
+                    })
                     if (this.createPlate.id == 0) {
                         // 新增
                         this.createPlate.customId = 'new' + new Date().getTime()
                         cacheData.plate.layoutList.push(_.cloneDeep(this.createPlate))
                     } else {
                         // 编辑
-                        console.log('输出 ~ 编辑')
-                        console.log('输出 ~ this.createPlate', this.createPlate)
 
                         for (let i = 0; i < cacheData.plate.layoutList.length; i++) {
                             const element = cacheData.plate.layoutList[i]
                             if (element.customId == this.createPlate.customId) {
                                 cacheData.plate.layoutList[i] = _.cloneDeep(this.createPlate)
-                                console.log('输出 ~  cacheData.plate', cacheData.plate)
+                                break
                             }
-                            break
                         }
                     }
                     cacheData.plate.version.status = 1
@@ -238,9 +277,8 @@ export default {
                             })
                         }
                         rLoading.close()
+                        this.navigatePlate(1)
                     })
-                    this.navigatePlate(1)
-                    rLoading.close()
                 } else {
                     rLoading.close()
                     this.$notify({
