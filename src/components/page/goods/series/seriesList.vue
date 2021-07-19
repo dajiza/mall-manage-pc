@@ -46,8 +46,10 @@
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column prop="title" label="系列名称"></el-table-column>
-                <el-table-column prop="shop_name" label="可用店铺" width="180"></el-table-column>
-                <el-table-column prop="quota" label="包含商品数" width="180"></el-table-column>
+                <el-table-column prop="shop_name" label="可用店铺" width="180">
+                    <template slot-scope="scope">{{backShopName(scope.row.shop_id)}}</template>
+                </el-table-column>
+                <el-table-column prop="goods_count" label="包含商品数" width="180"></el-table-column>
                 <el-table-column label="操作" width="190">
                     <template slot-scope="scope">
                         <el-button
@@ -59,9 +61,9 @@
                         <el-button
                                 type="text"
                                 class="marginLeft0 delete-color marginRight15"
-                                v-hasPermission="'mall-backend-coupon-update-status'"
+                                v-hasPermission="'mall-backend-goods-series-delete'"
                                 @click="handleDelete(scope.$index, scope.row)"
-                        >停用</el-button>
+                        >删除</el-button>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -83,14 +85,13 @@
 </template>
 
 <script>
-import { queryGoodsSeriesList, deleteGoodsSeries } from '../../../../api/goodSeries'
+import { queryGoodsSeriesList, deleteGoodsSeries } from '../../../../api/goodsSeries'
 import EmptyList from '../../../common/empty-list/EmptyList'
 import './series.less'
 import { queryShopList } from '@/api/goods'
-import IssueRecord from '../../../common/issue-record/IssueRecord.vue'
 import commUtil from '@/utils/commUtil'
 import { getToken } from '@/utils/auth'
-import { deleteReason } from '../../../../api/afterSaleReason';
+import bus from '@/components/common/bus'
 
 export default {
     name: 'OrderList',
@@ -121,8 +122,7 @@ export default {
         }
     },
     components: {
-        EmptyList,
-        IssueRecord
+        EmptyList
     },
     watch: {
         searchList: function() {
@@ -152,12 +152,35 @@ export default {
             )
         }
     },
-    computed: {},
-    created() {},
+    computed: {
+        backShopName: function () {
+            let shop_name = ''
+            return (data) => {
+                if(data){
+                    this.shopOptions.forEach((ev)=>{
+                        if(ev.id == data) {
+                            shop_name = ev.shop_name
+                        }
+                    })
+                    return shop_name
+                }
+            }
+        }
+    },
+    created() {
+        bus.$on('refreshGoodsSeriesList', target => {
+            // console.log(target);
+            if(target==='add'){
+                this.$set(this.pageInfo, 'pageIndex', 1);
+                this.resetForm('searchForm')
+            } else {
+                this.getListData();
+            }
+
+        });
+    },
     mounted() {
         this.queryShopList() // 获取代理店铺列表
-        // 获取订单列表数据
-        this.getListData()
     },
     methods: {
         // 请求-获取订单列表数据
@@ -173,8 +196,8 @@ export default {
                 .then(res => {
                     rLoading.close()
                     if (res.code === 200) {
-                        if (res.data.lists) {
-                            this.tableData = res.data.lists
+                        if (res.data.list) {
+                            this.tableData = res.data.list
                             this.pageTotal = res.data.total
                         } else {
                             this.tableData = []
@@ -197,6 +220,8 @@ export default {
             queryShopList()
                 .then(res => {
                     this.shopOptions = res.data || []
+                    // 获取列表数据
+                    this.getListData()
                 })
                 .catch(err => {})
         },
@@ -301,8 +326,12 @@ export default {
                             type: 'success',
                             duration: 3000
                         })
+                        // 如果当前页大于1 且 当前页只有1条时  删除后 页码-1
+                        if(this.pageInfo.pageIndex > 1 && this.tableData.length < 2){
+                            this.$set(this.pageInfo, 'pageIndex', this.pageInfo.pageIndex - 1);
+                        }
                         // 获取原因列表
-                        this.getDataList()
+                        this.getListData()
                     } else {
                         this.$notify({
                             title: res.msg,
