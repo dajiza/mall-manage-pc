@@ -144,12 +144,12 @@
                                 </el-table-column>
                                 <el-table-column label="总库存" width="90">
                                     <template slot-scope="scope">
-                                        <span>{{ scope.row.product_storage_data.stock_total }}</span>
+                                        <span>{{ scope.row.product_storage_data.stock_total }}{{scope.row.sku_attr_unit}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="可用库存" width="90">
                                     <template slot-scope="scope">
-                                        <span>{{ scope.row.product_storage_data.stock_available }}</span>
+                                        <span>{{ scope.row.product_storage_data.stock_available }}{{scope.row.sku_attr_unit}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column label="是否售罄" width="90">
@@ -177,7 +177,7 @@
                     </el-table-column>
                     <el-table-column label="商品ID" width="80">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.goods_id }}</span>
+                            <span>{{ scope.row.id }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="主图" width="120">
@@ -707,7 +707,7 @@ export default {
                 })
                 return
             }
-            this.$emit('check-sku', _.cloneDeep(this.checkedList))
+            this.$emit('check-goods', _.cloneDeep(this.checkedList))
             this.isShow = false
         },
 

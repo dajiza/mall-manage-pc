@@ -14,7 +14,7 @@
                     <el-input class="w300" type="textarea" :rows="5" placeholder="请输入名称" v-model="operationForm.remark" />
                 </el-form-item>
                 <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" @change="shopChange">
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -27,7 +27,6 @@
                 <transition name="slide-fade">
                     <div class="container clearfix head-container" ref="searchBox" v-show="searchShow" @click.stop="">
                         <el-form :model="searchForm" :inline="true" ref="searchForm" size="small" label-position="left" @keydown.enter.native="handleSearch()">
-
                             <el-form-item label="商品名称" prop="goods_name" label-width="">
                                 <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_name"></el-input>
                             </el-form-item>
@@ -80,143 +79,117 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-select class="sort-select" v-model="sortValue" placeholder="请选择" clearable>
+                <el-select class="sort-select" v-model="sortValue" placeholder="请选择" clearable @change="sortTypeChange">
                     <el-option v-for="state in sortOptions" :key="state.id" :value="state.id" :label="state.name" />
                 </el-select>
                 <el-button type="primary" style="margin-left: auto;" @click="handleDelCate">批量移除</el-button>
                 <el-button style="margin-right: 30px" type="success" @click="handleAdd">添加</el-button>
             </div>
             <div class="divider"></div>
-            <div class="form-content goods-table-padding head-container">
-                <el-table
-                        ref="multipleTable"
-                        :height="tableHeight"
-                        class="order-list-table table"
-                        :data="goodsData"
-                        element-loading-text="Loading"
-                        :default-expand-all="false"
-                        row-key="id"
-                        :header-cell-style="$tableHeaderColor"
-                        :cell-class-name="goodsTable"
-                        :cell-style="{ background: '#fff' }"
-                >
-                    <el-table-column label="-" type="expand" width="55">
-                        <template slot-scope="props">
-                            <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
-                                <el-table-column label="状态" width="90">
-                                    <template slot-scope="scope">
-                                        <span class="text-red" v-show="scope.row.status == 1">已下架</span>
-                                        <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU图片" width="120">
-                                    <template slot-scope="scope">
-                                        <img
-                                                class="timg"
-                                                :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
-                                                alt=""
-                                                @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
-                                        />
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU名称">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.sku_title }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="SKU编码">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.sku_storehouse_code }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="实际销量" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.sku_real_sales }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="售价(元)" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ formatMoney(scope.row.sku_min_price) }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="总库存" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.product_storage_data.stock_total }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="可用库存" width="90">
-                                    <template slot-scope="scope">
-                                        <span>{{ scope.row.product_storage_data.stock_available }}</span>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="是否售罄" width="90">
-                                    <template slot-scope="scope">
-                                        {{ scope.row.sku_is_store_shortage == 2 ? '是' : '否' }}
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="" width="70">
-                        <template slot-scope="scope">
-                            <span>({{ scope.row.onShelfNum }}/{{ scope.row.shop_skus.length }})</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="" width="35">
-                        <template slot-scope="scope">
-                            <el-checkbox
-                                    v-model="scope.row.goodsIsChecked"
-                                    :disabled="scope.row.isDisabled"
-                                    @change="value => goodsChecked(value, scope.row, scope.$index)"
-                            ></el-checkbox>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="商品ID" width="80">
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.goods_id }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="主图" width="120">
-                        <template slot-scope="scope">
-                            <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goods_img, 1, scope.$index)" />
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="商品名称">
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.goods_title }}</span>
-                        </template>
-                    </el-table-column>
-
-                    <el-table-column label="商品分类" width="180">
-                        <template slot-scope="scope">
-                            <span v-if="scope.row.goods_type == 1">布料</span>
-                            <span v-if="scope.row.goods_type == 2"> 其他{{ backGoodsOtherName(scope.row.goods_category_id) }} </span>
-                            <span v-if="scope.row.goods_type == 3"> 布组{{ backGoodsCategoryName(scope.row.goods_category_id) }} </span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column label="状态" width="120">
-                        <template slot-scope="scope">
-                            <div class="status">
-                                <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
-                                <span class="dot dot-green" v-if="scope.row.status == 2"></span>
-
-                                <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
-                                    {{ scope.row.status == 1 ? '已下架' : '已上架' }}
+            <div class="goods-table-padding head-container table-content">
+                <div class="th-box">
+                    <div class="sort-box" v-show="isSort"></div>
+                    <div class="check-box-all">
+                        <el-checkbox :indeterminate="isIndeterminate" v-model="allChecked" @change="value => goodsAllChecked(value)"></el-checkbox>
+                    </div>
+                    <div class="goods-id">商品ID</div>
+                    <div class="goods-img">主图</div>
+                    <div class="goods-name">商品名称</div>
+                    <div class="real-sale">实际销量</div>
+                    <div class="goods-cate">商品分类</div>
+                    <div class="goods-status">状态</div>
+                    <div class="sales-status">出售状态</div>
+                    <div class="operation-box">操作</div>
+                </div>
+                <div class="goods-list table" ref="listUl" @scroll="handleScroll">
+                    <draggable :disabled="!isSort" @start="dragStart" @end="end" animation="300">
+                        <div class="goods-item-wrap" v-for="(goods, i) in goodsData" :key="goods.id + '_'+ goods.goodsIsChecked">
+                            <div class="goods-item">
+                                <div class="sort-box" v-show="isSort">
+                                    <div class="tuozhuai-wrap">
+                                        <span class="iconfont icon-tuozhuai"></span>
+                                    </div>
+                                </div>
+                                <div class="check-box">
+                                    <i class="iconfont icon-plus" v-show="!goods.open" style="color: #1890ff" @click="goodsOpenSKU(i, true)"></i>
+                                    <i class="iconfont icon-minus" v-show="goods.open" style="color: #6d7278" @click="goodsOpenSKU(i, false)"></i>
+                                    <span style="margin-left: 10px">({{ goods.onShelfNum }}/{{ goods.shop_skus.length }})</span>
+                                </div>
+                                <div class="goods-id">
+                                    <el-checkbox :key="goods.id" v-model="goods.goodsIsChecked" @change="value => goodsChecked(value, goods, i)"></el-checkbox>
+                                    <span style="margin-left: 8px">{{goods.id}}</span>
+                                </div>
+                                <div class="goods-img">
+                                    <img class="timg" :src="goods.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(goods.goods_img, 1, i)" />
+                                </div>
+                                <div class="goods-name">{{goods.goods_title}}</div>
+                                <div class="real-sale">{{goods.real_sales}}</div>
+                                <div class="goods-cate">
+                                    <span v-if="goods.goods_type == 1">布料</span>
+                                    <span v-if="goods.goods_type == 2"> 其他{{ backGoodsOtherName(goods.goods_category_id) }} </span>
+                                    <span v-if="goods.goods_type == 3"> 布组{{ backGoodsCategoryName(goods.goods_category_id) }} </span>
+                                </div>
+                                <div class="goods-status">
+                                    <span class="dot dot-grey" v-if="goods.status == 1"></span>
+                                    <span class="dot dot-green" v-if="goods.status == 2"></span>
+                                    <span :class="[goods.status == 1 ? 'text-grey' : '', 'status-text']">
+                                    {{ goods.status == 1 ? '已下架' : '已上架' }}
                                 </span>
+                                </div>
+                                <div class="sales-status">出售状态</div>
+                                <div class="operation-box">
+                                    <el-button type="text" class="marginLeft0 marginRight15 delete-color" @click="handleDelItem(i, goods)">移除</el-button>
+                                </div>
                             </div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <div class="pagination-container">
-                    <el-pagination
-                            background
-                            layout="total, prev, pager, next"
-                            :current-page="goodsPage"
-                            :page-size="limit"
-                            :total="pageTotal"
-                            @current-change="handlePageChange"
-                    ></el-pagination>
+                            <div class="sku-wrap" v-show="goods.open">
+                                <div class="sku-th-box">
+                                    <div class="sku-col-item sku-status">状态</div>
+                                    <div class="sku-col-item sku-img">SKU图片</div>
+                                    <div class="sku-name">SKU名称</div>
+                                    <div class="sku-col-item sku-code">SKU编码</div>
+                                    <div class="sku-col-item sku-real-sales">实际销量</div>
+                                    <div class="sku-col-item sku-price">售价(元)</div>
+                                    <div class="sku-col-item sku-price">总库存</div>
+                                    <div class="sku-col-item sku-price">可用库存</div>
+                                    <div class="sku-col-item sku-price">是否售罄</div>
+                                    <!--<div class="sku-col-item sku-price">会员折扣</div>-->
+                                    <div class="sku-col-item sku-price">预售/正常</div>
+                                </div>
+                                <div class="sku-item-wrap" v-for="(sku, sku_i) in goods.shop_skus" :key="sku.id + '_'+ goods.goodsIsChecked">
+                                    <div class="sku-item">
+                                        <div class="sku-col-item sku-status">
+                                            <span class="text-red" v-show="sku.status == 1">已下架</span>
+                                            <span class="text-blue" v-show="sku.status == 2">已上架</span>
+                                        </div>
+                                        <div class="sku-col-item sku-img">
+                                            <img
+                                                    class="timg"
+                                                    :src="sku.sku_sku_img + '!upyun520/fw/300'"
+                                                    alt=""
+                                                    @click="openPreview(sku.sku_sku_img, 2, sku.skuImgIndex)"
+                                            />
+                                        </div>
+                                        <div class="sku-name">{{sku.sku_title}}</div>
+                                        <div class="sku-col-item sku-code">{{sku.sku_storehouse_code}}</div>
+                                        <div class="sku-col-item sku-real-sales">{{sku.sku_real_sales}}</div>
+                                        <div class="sku-col-item sku-price">{{ formatMoney(sku.sku_min_price) }}</div>
+                                        <div class="sku-col-item sku-price">{{sku.product_storage_data.stock_total}}{{sku.sku_attr_unit}}</div>
+                                        <div class="sku-col-item sku-price">{{sku.product_storage_data.stock_available}}{{sku.sku_attr_unit}}</div>
+                                        <div class="sku-col-item sku-price">{{sku.sku_is_store_shortage == 2 ? '是' : '否'}}</div>
+                                        <!--<div class="sku-col-item sku-price">
+                                            <span v-if="sku.user_discount == 0">是</span>
+                                            <span v-else-if="sku.user_discount == 1">否</span>
+                                            <span v-else>{{ commUtil.numberMul(Number(sku.user_discount), 0.1) }}折</span>
+                                        </div>-->
+                                        <div class="sku-col-item sku-price">预售/正常</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </draggable>
+                    <div class="is-all" v-if="goodsData.length > 0 && is_all">没有更多了</div>
+                    <div class="empty-list" v-if="goodsData.length < 1">暂无商品</div>
                 </div>
             </div>
 
@@ -235,7 +208,7 @@
                 :categoryListClothGroup="cate_group_list"
                 :checked="checked_goods_ids"
                 :shopId="shopId"
-                @check-sku="getAddSku"
+                @check-goods="sureAddGoods"
         ></addShopGoods>
 
     </div>
