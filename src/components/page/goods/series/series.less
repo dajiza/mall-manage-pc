@@ -272,6 +272,9 @@
         width: 100%;
         padding: 0!important;
         overflow: scroll;
+        .goods-detail-ino{
+            min-width: 1060px;
+        }
         .th-box{
             font-size: 14px;
             font-family: PingFangSC-Medium, PingFang SC;
@@ -317,8 +320,17 @@
             }
         }
         .goods-name{
-            min-width: 200px;
+            min-width: 180px;
             flex: 1;
+        }
+        .w100{
+            width: 100px;
+        }
+        .w88{
+            width: 88px;
+        }
+        .w80{
+            width: 80px;
         }
         .real-sale{
             width: 88px;
@@ -355,6 +367,10 @@
             }
             .sku-wrap{
                 width: 100%;
+                overflow-x: scroll;
+                .sku-detail-info{
+                    min-width: 1060px;
+                }
                 .sku-th-box{
                     font-size: 14px;
                     font-family: PingFangSC-Medium, PingFang SC;
@@ -389,7 +405,7 @@
                     }
                 }
                 .sku-name{
-                    min-width: 200px;
+                    min-width: 160px;
                     flex: 1;
                 }
                 .sku-code{
@@ -430,6 +446,12 @@
             height: 64px;
         }
     }
-
+    .dot {
+        display: inline-block;
+        margin-right: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+    }
 }
 

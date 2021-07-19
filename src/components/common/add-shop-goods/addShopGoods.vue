@@ -157,6 +157,19 @@
                                         {{ scope.row.sku_is_store_shortage == 2 ? '是' : '否' }}
                                     </template>
                                 </el-table-column>
+                                <el-table-column label="会员折扣" width="90">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.sku_user_discount == 0">是</span>
+                                        <span v-else-if="scope.row.sku_user_discount == 1">否</span>
+                                        <span v-else>{{ commUtil.numberMul(Number(scope.row.sku_user_discount), 0.1) }}折</span>
+                                    </template>
+                                </el-table-column>
+
+                                <el-table-column label="预售/正常" width="100">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.sku_is_pro_sale == 2 ? '正常' : '预售' }}</span>
+                                    </template>
+                                </el-table-column>
                             </el-table>
                         </template>
                     </el-table-column>
@@ -190,7 +203,11 @@
                             <span>{{ scope.row.goods_title }}</span>
                         </template>
                     </el-table-column>
-
+                    <el-table-column label="实际销量" width="90">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.goods_real_sales }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column label="商品分类" width="180">
                         <template slot-scope="scope">
                             <span v-if="scope.row.goods_type == 1">布料</span>
@@ -773,6 +790,13 @@ export default {
 </script>
 
 <style scoped="scoped" lang="less">
+    .dot {
+        display: inline-block;
+        margin-right: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 4px;
+    }
 /deep/.el-dialog {
     top: 50%;
     left: 50%;
@@ -896,8 +920,9 @@ export default {
 }
 .sku-table {
     box-sizing: border-box;
-    margin-left: 120px;
-    max-width: calc(100% - 120px);
+    width: 100%;
+    /*margin-left: 120px;*/
+    /*max-width: calc(100% - 120px);*/
 }
 .table /deep/ .el-table__expand-icon > .el-icon {
     margin-top: -10px;
