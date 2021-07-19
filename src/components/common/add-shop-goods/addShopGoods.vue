@@ -258,6 +258,7 @@ import { formatMoney } from '@/plugin/tool'
 import ElImageViewer from '@/components/common/image-viewer'
 import EmptyList from '@/components/common/empty-list/EmptyList'
 import { construct } from '@/utils/json-tree'
+import commUtil from '@/utils/commUtil'
 export default {
     name: 'CheckList',
     props: {
@@ -284,6 +285,7 @@ export default {
     },
     data() {
         return {
+            commUtil,
             list: [],
             total: 0,
             listLoading: false,
