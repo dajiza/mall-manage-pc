@@ -32,7 +32,7 @@ export default new Router({
                     path: '/mall-backend-no-discount-list',
                     name: 'no-discount-list',
                     component: () => import(/* webpackChunkName: "goods" */ '../components/page/goods/noDiscountList.vue'),
-                    meta: { title: '不享折扣商品', name: 'noDiscountList' }
+                    meta: { title: '其它折扣商品', name: 'noDiscountList' }
                 },
                 {
                     path: '/mall-backend-shop-goods-list',

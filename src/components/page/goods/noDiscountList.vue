@@ -2,7 +2,7 @@
     <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">不享折扣商品</div>
+            <div class="text">其它折扣商品</div>
             <div class="grey-line"></div>
             <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
             <transition name="slide-fade">
@@ -38,10 +38,19 @@
             </div>
             <el-button class="add-btn" size="" type="primary" v-hasPermission="'mall-backend-goods-sku-discount-batch-remove'" @click="addSku">添加商品</el-button>
         </div>
+        <div class="batch-operation-box">
+            <el-button class="batch-btn" size="" :disabled="checkedSkuIds.length < 1" type="warning" v-hasPermission="'mall-backend-goods-move-out'" @click="handleBatchDel">批量移除</el-button>
+            <el-button class="batch-btn" size="" :disabled="checkedSkuIds.length < 1" type="primary" v-hasPermission="'mall-backend-goods-set-discount'" @click="handleBatchSetDis">批量设置折扣</el-button>
+        </div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table-column label="-" width="60">
+                <template slot-scope="scope">
+                    <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => skuChecked(value, scope.row, scope.$index)"></el-checkbox>
+                </template>
+            </el-table-column>
             <el-table-column label="SKU图片" width="120">
                 <template slot-scope="scope">
-                    <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
+                    <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.$index)" />
                 </template>
             </el-table-column>
             <el-table-column label="SKU名称" min-width="150">
@@ -132,18 +141,20 @@
                 <el-button type="primary" @click="updateDiscount">确 定</el-button>
             </span>
         </el-dialog>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
         <!-- 商品添加 -->
-        <goods-discount-list ref="productList" @add-success="getList"></goods-discount-list>
+        <goods-discount-list ref="productList" @add-success="SureAdd"></goods-discount-list>
     </div>
 </template>
 <script>
 import { goodsDiscountlist } from '@/api/goods'
-import { updateSkuDiscount } from '@/api/discount'
+import { updateSkuDiscount, updateSkuDiscountBatch } from '@/api/discount'
 import { REFUND_TYPE, REFUND_STATUS } from '@/plugin/constant'
 import { formatMoney } from '@/plugin/tool'
 import commUtil from '@/utils/commUtil'
 import goodsDiscountList from '@/components/common/goods-discount-list/GoodsDiscountList'
-
+import ElImageViewer from '@/components/common/image-viewer'
 export default {
     data() {
         return {
@@ -187,7 +198,7 @@ export default {
             },
             orderType: '', //订单筛选
             totalProcessed: 0, //待处理数量
-            tableHeight: 'calc(100vh - 194px)',
+            tableHeight: 'calc(100vh - 254px)',
             searchShow: false,
             searchList: [],
             showMaxIndex: 0,
@@ -195,11 +206,18 @@ export default {
             dialogVisibleDiscount: false,
             discountType: 1, //1.无折扣 2.有折扣 折扣值为0时为移出
             discountId: '', //设置折扣的id
-            discountValue: ''
+            discountValue: '',
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: 0,
+            checkedSkuIds: [],
+            isBatch: false, // 批量操作
+            isDel: false
         }
     },
     components: {
-        goodsDiscountList
+        goodsDiscountList,
+        ElImageViewer
     },
     watch: {
         searchList: function() {
@@ -242,17 +260,37 @@ export default {
             params['page_index'] = this.listQuery.page
             params['type'] = 1 //// 1.无折扣 2.有折扣
 
-            console.log('params', params)
+            // console.log('params', params)
             goodsDiscountlist(params)
                 .then(res => {
-                    console.log('GOOGLE: res', res)
-                    this.list = res.data.list
+                    this.previewUrlList = []
+                    // console.log('GOOGLE: res', res)
+                    let sku_list = res.data.list || []
                     this.total = res.data.total
+                    this.list = []
+                    if(sku_list.length > 0) {
+                        sku_list.forEach((ev)=>{
+                            ev['checked'] = false
+                            if (this.checkedSkuIds.includes(ev.id)) {
+                                ev['checked'] = true
+                            }
+                            this.list.push(ev)
+                        })
+                        this.previewUrlList = sku_list.map(item=>{return item.sku_img})
+                    }
+                    if (this.list.length == 0 && this.total > 0 && this.listQuery.page > 0 && this.isDel) {
+
+                        const newPage = this.listQuery.page - 1
+                        console.log('newPage', newPage)
+                        this.$set(this.listQuery,'page', newPage)
+                        this.getList()
+                    }
                 })
                 .catch(err => {})
         },
 
         gotoDetail(id, order_id) {
+            this.isDel = false
             this.$router.push({
                 name: 'afterSaleDetail',
                 query: {
@@ -266,6 +304,8 @@ export default {
         },
         // 设置折扣
         setDiscount(row) {
+            this.isBatch = false
+            this.isDel = false
             console.log('输出 ~ row', row)
             this.discountId = row.id
             this.discountType = row.user_discount == 100 ? 1 : 2
@@ -274,6 +314,7 @@ export default {
         },
         // 移出
         moveoutDiscount(row) {
+            this.isBatch = false
             this.$confirm('确认移出该商品', '', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -281,30 +322,15 @@ export default {
             })
                 .then(() => {
                     let params = {
-                        type: 2,
-                        goods_sku_id: row.id,
-                        value: 0 // type为1 该字段可以忽略
-                    }
-                    updateSkuDiscount(params)
-                        .then(res => {
-                            console.log('GOOGLE: res', res)
-                            if (res.code == 200) {
-                                this.$notify({
-                                    title: '移出成功',
-                                    type: 'success',
-                                    duration: 3000
-                                })
-                                this.closeDialogDiscount()
-                                this.getList()
-                            } else {
-                                this.$notify({
-                                    title: res.msg,
-                                    type: 'warning',
-                                    duration: 5000
-                                })
+                        goods_skus: [
+                            {
+                                type: 2,
+                                goods_sku_id: row.id,
+                                value: 0 // type为1 该字段可以忽略
                             }
-                        })
-                        .catch(err => {})
+                        ]
+                    }
+                    this.queryUpdate(params,'移出成功')
                 })
                 .catch(() => {})
         },
@@ -323,37 +349,33 @@ export default {
                     return
                 }
             }
+
             let params = {
-                type: this.discountType,
-                goods_sku_id: this.discountId,
-                value: Number(this.discountValue) // type为1 该字段可以忽略
+                goods_skus: []
             }
-            updateSkuDiscount(params)
-                .then(res => {
-                    console.log('GOOGLE: res', res)
-                    if (res.code == 200) {
-                        this.$notify({
-                            title: '折扣设置成功',
-                            type: 'success',
-                            duration: 3000
-                        })
-                        this.closeDialogDiscount()
-                        this.getList()
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            type: 'warning',
-                            duration: 5000
-                        })
-                    }
+            if (this.isBatch) {
+                this.checkedSkuIds.forEach((ev)=>{
+                    params['goods_skus'].push({
+                        type: this.discountType,
+                        goods_sku_id: ev,
+                        value: Number(this.discountValue)
+                    })
                 })
-                .catch(err => {})
+            }else {
+                params['goods_skus'].push({
+                    type: this.discountType,
+                    goods_sku_id: this.discountId,
+                    value: Number(this.discountValue)
+                })
+            }
+            this.queryUpdate(params,'折扣设置成功')
         },
 
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
             this.searchShow = false
+            this.isDel = false
             this.setSearchValue()
             this.getList()
         },
@@ -379,6 +401,7 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
+            this.isDel = false
             this.$set(this.formFilter, item.label, '')
             if (item.label == 'createdTime') {
                 this.$set(this.formFilter, 'created_time_ge', '')
@@ -388,10 +411,12 @@ export default {
         },
         // 分页方法
         handleSizeChange(val) {
+            this.isDel = false
             this.listQuery.limit = val
             this.getList()
         },
         handleCurrentChange(val) {
+            this.isDel = false
             this.listQuery.page = val
             this.getList()
         },
@@ -404,6 +429,124 @@ export default {
         // 打开弹窗
         openDialogDiscount() {
             this.dialogVisibleDiscount = true
+        },
+        skuChecked(bol, row, i) {
+            this.list[i].checked = bol
+            if (bol) {
+                if (this.checkedSkuIds.indexOf(row.id) > -1) {
+
+                } else {
+                    this.checkedSkuIds.push(row.id)
+                }
+            } else {
+                if (this.checkedSkuIds.indexOf(row.id) > -1) {
+                    const index = this.checkedSkuIds.indexOf(row.id)
+                    this.checkedSkuIds.splice(index, 1)
+                }
+            }
+            // console.log('this.checkedSkuIds', this.checkedSkuIds)
+        },
+        // 批量删除
+        handleBatchDel() {
+            this.isBatch = true
+            this.isDel = false
+            const num = this.checkedSkuIds.length
+            this.$confirm('确认移出'+ num +'件商品？', '', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            })
+                .then(() => {
+                    let params = {
+                        goods_skus: []
+                    }
+                    this.checkedSkuIds.forEach((ev)=>{
+                        params['goods_skus'].push({
+                            type: 2,
+                            goods_sku_id: ev,
+                            value: 0
+                        })
+                    })
+                    this.queryUpdate(params,'移出成功')
+                })
+                .catch(() => {})
+        },
+
+        queryUpdate(params, str) {
+            updateSkuDiscount(params)
+                .then(res => {
+                    // console.log('GOOGLE: res', res)
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: str,
+                            type: 'success',
+                            duration: 3000
+                        })
+                        if (str == '移出成功') {
+                            this.isDel = true
+                        }
+                        if (this.isBatch) {
+                            this.checkedSkuIds = []
+                        }
+                        this.closeDialogDiscount()
+                        this.getList()
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(err => {})
+        },
+        // 批量设置折扣
+        handleBatchSetDis() {
+            this.isBatch = true
+            this.discountType = 1
+            this.discountValue = ''
+            this.dialogVisibleDiscount = true
+        },
+        SureAdd(data) {
+            if(data.length < 1) {
+                return false
+            }
+            console.log('data', data)
+            const params = {
+                goods_sku_ids: data
+            }
+            updateSkuDiscountBatch(params)
+                .then(res => {
+                    console.log('GOOGLE: res', res)
+                    if (res.code == 200) {
+                        this.$notify({
+                            title: '添加成功',
+                            type: 'success',
+                            duration: 3000
+                        })
+                        this.$refs.productList.close()
+                        this.checkedSkuIds = []
+                        this.getList()
+                        data.forEach((ev)=>{
+                            this.checkedSkuIds.push(ev)
+                        })
+                        this.handleBatchSetDis()
+                    } else {
+                        this.$notify({
+                            title: res.msg,
+                            type: 'warning',
+                            duration: 5000
+                        })
+                    }
+                })
+                .catch(err => {})
+        },
+        openPreview(index) {
+            this.previewIndex = index
+            this.dialogVisiblePic = true
+        },
+        closePreview() {
+            this.dialogVisiblePic = false
         }
     }
 }
@@ -458,4 +601,15 @@ export default {
     width: 80px;
     height: 60px;
 }
+    .batch-operation-box{
+        width: 100%;
+        padding: 10px 24px;
+        background: #fff;
+        border-top:1px solid rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        .batch-btn{
+            /*margin-right: 10px;*/
+        }
+    }
 </style>

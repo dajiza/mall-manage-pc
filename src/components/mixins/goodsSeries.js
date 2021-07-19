@@ -591,6 +591,8 @@ export const mixinsGoodsSeries = {
             console.log('data', data)
             // 请求 店铺商品列表
             this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
+            this.isAdd = true
+            this.goodsPage = 1
             this.getShopGoodsList()
         },
 
@@ -632,6 +634,9 @@ export const mixinsGoodsSeries = {
                 .then((res)=>{
                     rLoading.close()
                     if (res.code == 200) {
+                        if (this.isAdd) {
+                            this.goodsData = []
+                        }
                         this.pageTotal = res.data.total || 0
                         const new_list = res.data.lists || []
                         this.goodsData = this.goodsData.concat(new_list)

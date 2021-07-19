@@ -89,7 +89,7 @@
                     <span style="width: 20px;display: inline-block">...</span>
                 </div>
             </div>
-            <el-button size="mini" class="dicount-btn" @click="gotoDiscountGoods">不享折扣商品</el-button>
+            <el-button size="mini" class="dicount-btn" @click="gotoDiscountGoods">其它折扣商品</el-button>
         </div>
         <div class="divider"></div>
         <div class="operate">

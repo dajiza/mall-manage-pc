@@ -1,47 +1,76 @@
 <template>
     <!-- dialog 城市列表 -->
-    <el-dialog title="挑选商品" :visible.sync="isShow" width="90%" @open="open" @opened="opened" @closed="close">
-        <div class="app-container goods-list">
-            <div class="head-container">
-                <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
-                    <el-form-item label="商品名称" prop="title" label-width="">
-                        <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
-                    </el-form-item>
-                    <el-form-item label="商品ID" prop="id">
-                        <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
-                    </el-form-item>
-                    <el-form-item label="商品分类" prop="typeCategory">
-                        <el-cascader class="filter-item" :props="{ checkStrictly: true }" v-model="formFilter.typeCategory" placeholder="请选择" :options="typeList"></el-cascader>
-                    </el-form-item>
+    <div class="dialog-container" @click="searchShow = false">
+        <el-dialog :visible.sync="isShow" :close-on-click-modal="false" width="90%" @open="open" @opened="opened" @closed="close">
+            <div slot="title">
+                <div class="table-title">
+                    <div class="text">挑选商品</div>
+                    <div class="grey-line"></div>
+                    <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+                    <transition name="slide-fade">
+                        <div class="head-container" v-show="searchShow" @click.stop="">
+                            <el-form ref="formFilter" :model="formFilter" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
+                                <el-form-item label="商品名称" prop="title" label-width="">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.title"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品ID" prop="id">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="formFilter.id"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品分类" prop="typeCategory">
+                                    <el-cascader class="filter-item" :props="{ checkStrictly: true }" v-model="formFilter.typeCategory" placeholder="请选择" :options="typeList"></el-cascader>
+                                </el-form-item>
 
-                    <el-form-item label="商品状态" prop="status">
-                        <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
-                            <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="出售状态" prop="is_sale">
-                        <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
-                            <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="是否售罄" prop="is_store_shortage">
-                        <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
-                            <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="是否指定店铺" prop="allow_agent">
-                        <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
-                            <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="SKU编码" prop="storehouse_code" class="">
-                        <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
-                    </el-form-item>
+                                <el-form-item label="商品状态" prop="status">
+                                    <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择">
+                                        <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="出售状态" prop="is_sale">
+                                    <el-select class="filter-item" v-model="formFilter.is_sale" placeholder="请选择">
+                                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="是否售罄" prop="is_store_shortage">
+                                    <el-select class="filter-item" v-model="formFilter.is_store_shortage" placeholder="请选择">
+                                        <el-option v-for="item in shortageList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="是否指定店铺" prop="allow_agent">
+                                    <el-select class="filter-item" v-model="formFilter.allow_agent" placeholder="请选择">
+                                        <el-option v-for="item in agentList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="SKU编码" prop="storehouse_code" class="">
+                                    <el-input class="filter-item" v-model="formFilter.storehouse_code" placeholder="请输入"></el-input>
+                                </el-form-item>
 
-                    <el-form-item class="form-item-btn" label="">
-                        <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
-                        <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
-                        <el-popover placement="bottom" width="300" v-model="popperShow" trigger="click" popper-class="group-popper">
+                                <el-form-item class="form-item-btn" label="">
+                                    <el-button class="filter-btn" size="" type="" @click="resetForm('formFilter')">重置</el-button>
+                                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                    </transition>
+                    <div class="search-value">
+                        <template v-for="(item, i) in searchList">
+                            <div class="search-item" v-if="i <= showMaxIndex">
+                                {{ item.val }}
+                                <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                        <div class="search-value-clone" ref="searchConditionBox">
+                            <template v-for="(item, i) in searchList">
+                                <div class="search-item" :ref="'searchConditionItem' + i">
+                                    {{ item.val }}
+                                    <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                                </div>
+                            </template>
+                            <span style="width: 20px;display: inline-block">...</span>
+                        </div>
+                    </div>
+                    <div class="selected-goods-btn">
+                        <el-popover placement="bottom-end" width="300" trigger="click" popper-class="group-popper">
                             <div class="row-list">
                                 <div class="nodata" v-if="checkedList.length == 0">无数据</div>
                                 <div class="row-item" v-for="item in checkedList" :key="item.id">
@@ -62,160 +91,161 @@
                                     </div>
                                 </div>
                             </div>
-                            <el-button slot="reference" class="filter-btn" size="" style="margin-left:20px">已选商品</el-button>
+                            <el-button slot="reference" class="filter-btn" size="" type="success" style="margin-left:20px">已选商品</el-button>
                         </el-popover>
-                    </el-form-item>
-                </el-form>
+                    </div>
+                </div>
             </div>
+            <div class="app-container goods-list">
+                <el-table
+                        ref="multipleTable"
+                        :height="tableHeight"
+                        class="table"
+                        :data="list"
+                        v-loading.body="listLoading"
+                        :header-cell-style="$tableHeaderColor"
+                        element-loading-text="Loading"
+                        :default-expand-all="false"
+                        row-key="id"
+                >
+                    <el-table-column label="-" type="expand" width="60">
+                        <template slot-scope="props">
+                            <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
+                                <el-table-column width="55">
+                                    <template slot-scope="scope">
+                                        <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => imgChecked(value, scope.row, props.row)"></el-checkbox>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="状态" width="90">
+                                    <template slot-scope="scope">
+                                        <span v-show="scope.row.status == 1">已下架</span>
+                                        <span v-show="scope.row.status == 2">已上架</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU图片" width="120">
+                                    <template slot-scope="scope">
+                                        <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU名称">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.title }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="SKU编码">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.storehouse_code }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="售价(元)" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ formatMoney(scope.row.min_price) }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="实际销量" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.real_sales }}</span>
+                                    </template>
+                                </el-table-column>
 
-            <el-table
-                ref="multipleTable"
-                :height="$tableHeight"
-                class="table"
-                :data="list"
-                v-loading.body="listLoading"
-                :header-cell-style="$tableHeaderColor"
-                element-loading-text="Loading"
-                :default-expand-all="false"
-                row-key="id"
-            >
-                <el-table-column label="-" type="expand" width="60">
-                    <template slot-scope="props">
-                        <el-table class="sku-table" :data="props.row.goods_sku" :header-cell-style="$tableHeaderColor">
-                            <el-table-column width="55">
-                                <template slot-scope="scope">
-                                    <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => imgChecked(value, scope.row, props.row)"></el-checkbox>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="状态" width="90">
-                                <template slot-scope="scope">
-                                    <span v-show="scope.row.status == 1">已下架</span>
-                                    <span v-show="scope.row.status == 2">已上架</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="SKU图片" width="120">
-                                <template slot-scope="scope">
-                                    <img class="timg" :src="scope.row.sku_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.sku_img, 2, scope.row.skuImgIndex)" />
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="SKU名称">
-                                <template slot-scope="scope">
-                                    <span>{{ scope.row.title }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="SKU编码">
-                                <template slot-scope="scope">
-                                    <span>{{ scope.row.storehouse_code }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="售价(元)" width="90">
-                                <template slot-scope="scope">
-                                    <span>{{ formatMoney(scope.row.min_price) }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="实际销量" width="90">
-                                <template slot-scope="scope">
-                                    <span>{{ scope.row.real_sales }}</span>
-                                </template>
-                            </el-table-column>
+                                <el-table-column label="总库存" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.stock_total }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="可用库存" width="90">
+                                    <template slot-scope="scope">
+                                        <span>{{ scope.row.stock_available }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="是否售罄" width="90">
+                                    <template slot-scope="scope">
+                                        <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
+                                        <div class="type-tag type-blue" v-else>否</div>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="会员折扣" width="90">
+                                    <template slot-scope="scope">
+                                        <span v-if="scope.row.user_discount == 0">是</span>
+                                        <span v-else-if="scope.row.user_discount == 1">否</span>
+                                        <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </template>
+                    </el-table-column>
 
-                            <el-table-column label="总库存" width="90">
-                                <template slot-scope="scope">
-                                    <span>{{ scope.row.stock_total }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="可用库存" width="90">
-                                <template slot-scope="scope">
-                                    <span>{{ scope.row.stock_available }}</span>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="是否售罄" width="90">
-                                <template slot-scope="scope">
-                                    <div class="type-tag type-yellow" v-if="scope.row.stock_available == 0">售罄</div>
-                                    <div class="type-tag type-blue" v-else>否</div>
-                                </template>
-                            </el-table-column>
-                            <el-table-column label="会员折扣" width="90">
-                                <template slot-scope="scope">
-                                    <span v-if="scope.row.user_discount == 0">是</span>
-                                    <span v-else-if="scope.row.user_discount == 1">否</span>
-                                    <span v-else>{{ commUtil.numberMul(Number(scope.row.user_discount), 10) }}折</span>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                    </template>
-                </el-table-column>
-
-                <el-table-column label="" width="70">
-                    <template slot-scope="scope">
-                        <span>({{ scope.row.onsaleNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
-                    </template>
-                </el-table-column>
-                <el-table-column width="55">
-                    <template slot-scope="scope">
-                        <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => groupChecked(value, scope.row)"></el-checkbox>
-                    </template>
-                </el-table-column>
-                <el-table-column label="商品ID" width="80">
-                    <template slot-scope="scope">
+                    <el-table-column label="" width="70">
+                        <template slot-scope="scope">
+                            <span>({{ scope.row.onsaleNum || 0 }}/{{ scope.row.goods_sku.length }})</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column width="55">
+                        <template slot-scope="scope">
+                            <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => groupChecked(value, scope.row)"></el-checkbox>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="商品ID" width="80">
+                        <template slot-scope="scope">
                         <span>
                             {{ scope.row.id }}
                         </span>
-                    </template>
-                </el-table-column>
+                        </template>
+                    </el-table-column>
 
-                <el-table-column label="商品主图" width="120">
-                    <template slot-scope="scope">
-                        <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
-                    </template>
-                </el-table-column>
-                <el-table-column label="商品名称" width="">
-                    <template slot-scope="scope">
-                        {{ scope.row.title }}
-                    </template>
-                </el-table-column>
+                    <el-table-column label="商品主图" width="120">
+                        <template slot-scope="scope">
+                            <img class="timg" :src="scope.row.img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.img, 1, scope.$index)" />
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="商品名称" width="">
+                        <template slot-scope="scope">
+                            {{ scope.row.title }}
+                        </template>
+                    </el-table-column>
 
-                <el-table-column label="商品分类" width="150">
-                    <template slot-scope="scope">
-                        <span v-if="scope.row.type == 1">布料</span>
-                        <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
-                        <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="状态" width="150">
-                    <template slot-scope="scope">
-                        <div class="status">
-                            <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
-                            <span class="dot dot-green" v-if="scope.row.status == 2"></span>
+                    <el-table-column label="商品分类" width="150">
+                        <template slot-scope="scope">
+                            <span v-if="scope.row.type == 1">布料</span>
+                            <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
+                            <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="状态" width="150">
+                        <template slot-scope="scope">
+                            <div class="status">
+                                <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
+                                <span class="dot dot-green" v-if="scope.row.status == 2"></span>
 
-                            <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
+                                <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
                                 {{ scope.row.status == 1 ? '已下架' : '已上架' }}
                             </span>
-                        </div>
-                    </template>
-                </el-table-column>
-                <el-table-column label="出售状态" width="110">
-                    <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
-                </el-table-column>
-            </el-table>
-            <div class="pagination-container">
-                <el-pagination
-                    background
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="listQuery.page"
-                    :page-size="listQuery.limit"
-                    layout="total, prev, pager, next, jumper"
-                    :total="total"
-                >
-                </el-pagination>
+                            </div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="出售状态" width="110">
+                        <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
+                    </el-table-column>
+                </el-table>
+                <div class="pagination-container">
+                    <el-pagination
+                            background
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="listQuery.page"
+                            :page-size="listQuery.limit"
+                            layout="total, prev, pager, next, jumper"
+                            :total="total"
+                    >
+                    </el-pagination>
+                </div>
             </div>
-        </div>
-        <div slot="footer" class="dialog-footer">
-            <el-button @click="close">取 消</el-button>
-            <el-button type="primary" @click="save">确定</el-button>
-        </div>
-    </el-dialog>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="close">取 消</el-button>
+                <el-button type="primary" @click="save">确定</el-button>
+            </div>
+        </el-dialog>
+    </div>
 </template>
 
 <script lang="ts">
@@ -228,7 +258,9 @@ import commUtil from '@/utils/commUtil'
 import Vue from 'vue'
 export default Vue.extend({
     name: 'CheckList',
-    props: {},
+    props: {
+
+    },
     data() {
         return {
             commUtil,
@@ -284,7 +316,41 @@ export default Vue.extend({
                 typeCategory: [], //cache数据
                 discount_condition: 1
             },
-            popperShow: false //已选列表 popover显示
+            tableHeight: 'calc(100vh - 194px)',
+            popperShow: false, //已选列表 popover显示
+            searchShow: false,
+            searchList: [],
+            showMaxIndex: 0,
+        }
+    },
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchConditionBox) {
+                        return
+                    }
+                    let maxWidth = Number(window.getComputedStyle(this.$refs.searchConditionBox).width.replace('px', '')) - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchConditionItem' + i
+                        if (!this.$refs[el][0]) {
+                            return
+                        }
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
+                        }
+                    }
+                }.bind(this)
+            )
         }
     },
     created() {},
@@ -293,6 +359,7 @@ export default Vue.extend({
         formatMoney: formatMoney,
         open() {},
         opened() {
+            this.checkedList = []
             this.queryCategoryListAllInit()
             this.queryShopList()
             this.getList()
@@ -626,6 +693,7 @@ export default Vue.extend({
         // 搜索
         handleFilter() {
             this.listQuery.page = 1
+            this.setSearchValue()
             this.getList()
         },
         // 重置
@@ -664,39 +732,208 @@ export default Vue.extend({
             }
             if (goods_sku_ids.length == 0) {
                 this.checkedList = []
-                this.isShow = false
+                // this.isShow = false
+                this.$notify({
+                    title: '请选择商品',
+                    type: 'warning',
+                    duration: 3000
+                })
                 return
             }
-            let params = {
-                goods_sku_ids: goods_sku_ids
-            }
 
-            updateSkuDiscountBatch(params)
-                .then(res => {
-                    console.log('GOOGLE: res', res)
-                    if (res.code == 200) {
-                        this.$notify({
-                            title: '添加成功',
-                            type: 'success',
-                            duration: 3000
-                        })
-                        this.checkedList = []
-                        this.isShow = false
-                        this.$emit('add-success')
-                    } else {
-                        this.$notify({
-                            title: res.msg,
-                            type: 'warning',
-                            duration: 5000
-                        })
+            this.$emit('add-success', goods_sku_ids)
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = []
+            // 商品名称
+            if (this.formFilter['title']) {
+                let obj = {
+                    label: 'title',
+                    val: '商品名称:' + this.formFilter['title']
+                }
+                _search.push(obj)
+            }
+            // 商品id
+            if (this.formFilter['id']) {
+                let obj = {
+                    label: 'id',
+                    val: '商品ID:' + this.formFilter['id']
+                }
+                _search.push(obj)
+            }
+            // 级联选择 商品类型+分类
+            if (this.formFilter['typeCategory'].length == 1) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        let obj = {
+                            label: 'typeCategory',
+                            val: ev.label
+                        }
+                        _search.push(obj)
                     }
                 })
-                .catch(err => {})
-        }
+            } else if (this.formFilter['typeCategory'].length == 2) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            } else if (this.formFilter['typeCategory'].length == 3) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.formFilter['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _arr.forEach(ev => {
+                    if (ev.id == this.formFilter['typeCategory'][2]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            }
+            // 商品状态 status
+            if (this.formFilter['status']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.formFilter['status']) {
+                        let obj = {
+                            label: 'status',
+                            val: '商品状态:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 出售状态 is_sale
+            if (this.formFilter['is_sale']) {
+                this.saleStatusList.forEach(ev => {
+                    if (ev.value == this.formFilter['is_sale']) {
+                        let obj = {
+                            label: 'is_sale',
+                            val:'出售状态:' +  ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 是否售罄 is_store_shortage
+            if (this.formFilter['is_store_shortage']) {
+                this.shortageList.forEach(ev => {
+                    if (ev.value == this.formFilter['is_store_shortage']) {
+                        let obj = {
+                            label: 'is_store_shortage',
+                            val: '是否售罄:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 指定店铺 allow_agent
+            if (this.formFilter['allow_agent']) {
+                this.agentList.forEach(ev => {
+                    if (ev.value == this.formFilter['allow_agent']) {
+                        let obj = {
+                            label: 'allow_agent',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // SKU编码
+            if (this.formFilter['storehouse_code']) {
+                let obj = {
+                    label: 'storehouse_code',
+                    val: 'SKU编码:' + this.formFilter['storehouse_code']
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.formFilter, item.label, '')
+            if (item.label == 'typeCategory') {
+                this.$set(this.formFilter, 'typeCategory', [])
+                this.$set(this.formFilter, 'typeCategory', [])
+            }
+            this.handleFilter()
+        },
     }
 })
 </script>
 <style scoped="scoped" lang="less">
+    .table-title{
+        position: relative;
+        height: 36px;
+        .text {
+            margin-left: 24px;
+        }
+        .search {
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .grey-line {
+            margin: 0 20px;
+            width: 1px;
+            height: 26px;
+            background: #e6e6e6;
+        }
+        .head-container {
+            position: absolute;
+            top: 48px;
+            z-index: 9;
+            // transition: all 3s ease-in-out;
+            padding: 24px 24px 4px 24px;
+            // border: 1px solid #000;
+            border-radius: 2px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
+        }
+        .selected-goods-btn {
+            margin-right: 68px;
+            margin-left: auto;
+        }
+    }
+    /deep/.el-dialog {
+        top: 50%;
+        left: 50%;
+        margin: 0 !important;
+        transform: translate(-50%, -50%);
+    }
+    /deep/.el-dialog__body {
+        padding: 0 !important;
+    }
+    /deep/.el-dialog__header {
+        padding: 10px 0 !important;
+    }
+    /deep/.el-dialog__headerbtn {
+        top: 21px;
+    }
 .timg {
     width: 80px;
     height: 60px;
@@ -818,6 +1055,6 @@ export default Vue.extend({
     }
 }
 .table /deep/ .el-table__expanded-cell {
-    padding: 10px 0 0 115px !important;
+    padding: 0 0 0 115px !important;
 }
 </style>

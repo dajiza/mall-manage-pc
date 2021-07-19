@@ -1,6 +1,6 @@
 <template>
     <div class="dialog-container" @click="searchShow = false">
-        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened" @close="closed">
+        <el-dialog :visible.sync="isShow" :close-on-click-modal="false" width="90%" @open="open" @opened="opened" @close="closed">
             <div slot="title">
                 <div class="table-title">
                     <div class="text">{{title}}</div>
