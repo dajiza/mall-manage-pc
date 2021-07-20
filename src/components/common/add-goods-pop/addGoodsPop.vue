@@ -478,7 +478,7 @@ export default {
         handleAddItem(index, row) {
             let _arr = []
             _arr.push(row)
-            this.$emit('handleAddGoods', this.checkedList);
+            this.$emit('handleAddGoods', _arr);
         },
 
         // 添加选中

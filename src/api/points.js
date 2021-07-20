@@ -54,3 +54,6 @@ export const queryLogisticsAuto = params => post('/backend/points-order-logistic
 
 // 物流详情
 export const queryLogisticsDetail = params => post('/backend/points-order-logistics-status', params)
+
+// 新增积分优惠券 - 选择优惠券列表
+export const queryCouponSelectList = params => post('/backend/points-binding-coupon-list', params)

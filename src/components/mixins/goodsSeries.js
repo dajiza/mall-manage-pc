@@ -94,7 +94,8 @@ export const mixinsGoodsSeries = {
             isSort: false, // 是否启用排序
             allChecked: false,
             checked_goods_count: 0,
-            isIndeterminate: false
+            isIndeterminate: false,
+            isRefresh: false
         }
     },
     watch: {
@@ -259,6 +260,7 @@ export const mixinsGoodsSeries = {
         setDetailInfo(info) {
             this.$set(this.operationForm, 'title', info.goods_group.title)
             this.$set(this.operationForm, 'remark', info.goods_group.remark)
+            this.shopId = info.goods_group.shop_id
             this.$set(this.operationForm, 'shop_id', info.goods_group.shop_id ? Number(info.goods_group.shop_id) : '')
             this.checked_goods_list = []
             this.checked_goods_ids = []
@@ -313,68 +315,7 @@ export const mixinsGoodsSeries = {
                             shop_id: Number(this.operationForm.shop_id),
                             sort_type: this.sortValue,
                         },
-                        goods_group_relations: [
-                            {
-                                shop_goods_id: 153,
-                                sort: 0,
-                            },
-                            {
-                                shop_goods_id: 159,
-                                sort: 1,
-                            },
-                            {
-                                shop_goods_id: 234,
-                                sort: 2,
-                            },
-                            {
-                                shop_goods_id: 235,
-                                sort: 3,
-                            },
-                            {
-                                shop_goods_id: 237,
-                                sort: 4,
-                            },
-                            {
-                                shop_goods_id: 238,
-                                sort: 5,
-                            },
-                            {
-                                shop_goods_id: 241,
-                                sort: 6,
-                            },
-                            {
-                                shop_goods_id: 242,
-                                sort: 7,
-                            },
-                            {
-                                shop_goods_id: 233,
-                                sort: 8,
-                            },
-                            {
-                                shop_goods_id: 232,
-                                sort: 9,
-                            },
-                            {
-                                shop_goods_id: 236,
-                                sort: 10,
-                            },
-                            {
-                                shop_goods_id: 240,
-                                sort: 11,
-                            },
-                            {
-                                shop_goods_id: 239,
-                                sort: 12,
-                            },
-                            {
-                                shop_goods_id: 216,
-                                sort: 13,
-                            },
-                            {
-                                shop_goods_id: 157,
-                                sort: 14,
-                            },
-                        ]
+                        goods_group_relations: []
 
                     }
                     let selectedList = []
@@ -441,24 +382,148 @@ export const mixinsGoodsSeries = {
         },
 
         // 按钮-分页导航
-        handlePageChange(val) {
-            this.goodsPage = val
-            this.searchForm = _.cloneDeep(this.searchParams)
-            this.getShopGoodsList()
-        },
+        // handlePageChange(val) {
+        //     this.goodsPage = val
+        //     this.searchForm = _.cloneDeep(this.searchParams)
+        //     this.getShopGoodsList()
+        // },
 
         // 按钮-触发搜索 -- 存储搜索条件
         handleSearch(formName) {
-            this.goodsPage = 1
+            this.goodsInit()
             this.searchParams = _.cloneDeep(this.searchForm)
+            this.setSearchValue()
             this.getShopGoodsList()
         },
 
         // 重置
         resetForm(formName) {
             this.$refs['searchForm'].resetFields()
-            this.searchParams = _.cloneDeep(this.searchForm)
-            this.getShopGoodsList()
+            this.handleSearch()
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            const searchForm = {
+                goods_id: '',
+                    goods_name: '', // 商品名称
+                    other_id: '',
+                    goods_type: '',
+                    shop_goods_status: '',
+                    sku_name: '',
+                    sku_code: '',
+                    typeCategory: []
+            }
+            let _search = []
+            // 商品名称
+            if (this.searchParams['goods_name']) {
+                let obj = {
+                    label: 'goods_name',
+                    val: this.searchParams['goods_name']
+                }
+                _search.push(obj)
+            }
+            // 商品id
+            if (this.searchParams['goods_id']) {
+                let obj = {
+                    label: 'goods_id',
+                    val: this.searchParams['goods_id']
+                }
+                _search.push(obj)
+            }
+            // 级联选择 商品类型+分类
+            if (this.searchParams['typeCategory'].length == 1) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                        let obj = {
+                            label: 'typeCategory',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            } else if (this.searchParams['typeCategory'].length == 2) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchParams['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            } else if (this.searchParams['typeCategory'].length == 3) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchParams['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchParams['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchParams['typeCategory'][2]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            }
+            // 商品状态 shop_goods_status
+            if (this.searchParams['shop_goods_status']) {
+                this.statusList.forEach(ev => {
+                    if (ev.value == this.searchParams['shop_goods_status']) {
+                        let obj = {
+                            label: 'shop_goods_status',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // sku_name
+            if (this.searchParams['sku_name']) {
+                let obj = {
+                    label: 'sku_name',
+                    val: this.searchParams['sku_name']
+                }
+                _search.push(obj)
+            }
+            // SKU编码
+            if (this.searchParams['sku_code']) {
+                let obj = {
+                    label: 'sku_code',
+                    val: this.searchParams['sku_code']
+                }
+                _search.push(obj)
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.searchForm, item.label, '')
+            this.$set(this.searchParams, item.label, '')
+            if (item.label == 'typeCategory') {
+                this.$set(this.searchForm, 'typeCategory', [])
+                this.$set(this.searchParams, 'typeCategory', [])
+            }
+            this.handleSearch()
         },
 
         goodsInit() {
@@ -468,7 +533,11 @@ export const mixinsGoodsSeries = {
             this.imgList = []
             this.skuImgList = []
             this.previewIndex = 0
+            this.isRefresh = false
             this.is_all = false
+            this.isIndeterminate = false
+            this.searchShow = false
+            this.$refs['searchForm'].resetFields()
         },
 
         // 添加
@@ -591,7 +660,7 @@ export const mixinsGoodsSeries = {
             console.log('data', data)
             // 请求 店铺商品列表
             this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
-            this.isAdd = true
+            this.isRefresh = true
             this.goodsPage = 1
             this.getShopGoodsList()
         },
@@ -634,7 +703,8 @@ export const mixinsGoodsSeries = {
                 .then((res)=>{
                     rLoading.close()
                     if (res.code == 200) {
-                        if (this.isAdd) {
+                        if (this.isRefresh) {
+                            this.isRefresh = false
                             this.goodsData = []
                         }
                         this.pageTotal = res.data.total || 0
