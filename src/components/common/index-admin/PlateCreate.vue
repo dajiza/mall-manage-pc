@@ -182,7 +182,6 @@ export default {
             this.$nextTick(() => {
                 this.createPlate.ContentList = [...newItems]
                 this.activeImg = ''
-                console.log(this.createPlate.ContentList)
             })
         },
         addImg() {
@@ -279,7 +278,6 @@ export default {
                         return item
                     })
                     let plateStore = this.$store.state.plateStore
-                    console.log('输出 ~ plateStore', plateStore)
 
                     // if (this.createPlate.id == 0) {
                     //     // 新增

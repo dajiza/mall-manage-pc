@@ -221,7 +221,6 @@ export default {
                 advType = 4
                 link = parameter
             }
-            console.log('_link', link)
             this.$set(this.operationForm, 'link', link)
         }
     },
@@ -347,7 +346,6 @@ export default {
             this.dialogVisiblePic = false
         },
         handlePictureCardPreview(file) {
-            console.log('输出 ~ file', file)
             if (file.response) {
                 this.previewUrlList = [file.response.data.file_url]
             } else {

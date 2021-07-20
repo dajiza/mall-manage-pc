@@ -3,10 +3,9 @@
         <div class="caption">
             <!-- 还原 -->
 
-            <el-popover placement="right" trigger="click" class="revoke-popover" width="40" v-if="status == 1">
-                <div class="operate" style="cursor: pointer;" @click="revoke">
-                    还原
-                </div>
+            <el-popover placement="bottom" trigger="click" class="revoke-popover" width="" v-if="status == 1">
+                <el-button class="operate" size="mini" type="primary" @click="revoke">还 原</el-button>
+
                 <div class="text" slot="reference">
                     <div class="dot"></div>
                     有改动
