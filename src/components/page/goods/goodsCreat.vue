@@ -276,6 +276,11 @@
                             <span>{{ scope.row.attr_brand }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column :label="ATTR_NAME[11]" width="" property="11">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_code }}</span>
+                        </template>
+                    </el-table-column>
                     <el-table-column :label="ATTR_NAME[2]" width="" property="2" v-if="goods.type == 1">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_color }}</span>
@@ -309,11 +314,6 @@
                     <el-table-column :label="ATTR_NAME[9]" width="" property="9" v-if="goods.type == 3">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_piece }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column :label="ATTR_NAME[11]" width="" property="11">
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.attr_code }}</span>
                         </template>
                     </el-table-column>
 
