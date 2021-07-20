@@ -44,7 +44,7 @@ export default {
                 currentPage: 0, //当前页码
                 thresholdDistance: 30, //滑动判定距离
                 thresholdTime: 1000, //滑动判定时间
-                autoplay: 0, //自动滚动[ms]
+                autoplay: 2500, //自动滚动[ms]
                 loop: true, //循环滚动
                 renderPagination: (h, index) => {
                     if (this.list.ContentList.filter(e => e.status == 2).length > 1) {

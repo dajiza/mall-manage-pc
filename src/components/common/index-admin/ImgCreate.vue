@@ -208,6 +208,14 @@ export default {
                 // 商品详情
                 advType = 5
                 link = parameter.split('/packageAgent/article/article?id=')[1]
+            } else if (parameter.indexOf('/packageMainSecondary/couponReceive/couponReceive?id=') > -1) {
+                // 商品详情
+                advType = 6
+                link = parameter.split('/packageMainSecondary/couponReceive/couponReceive?id=')[1]
+            } else if (parameter.indexOf('/packageMainSecondary/series/series?id=') > -1) {
+                // 商品详情
+                advType = 7
+                link = parameter.split('/packageMainSecondary/series/series?id=')[1]
             } else {
                 // 自定义
                 advType = 4
