@@ -311,6 +311,12 @@
                             <span>{{ scope.row.attr_piece }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column :label="ATTR_NAME[11]" width="" property="11">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.attr_code }}</span>
+                        </template>
+                    </el-table-column>
+
                     <!-- <el-table-column :label="ATTR_NAME[8]" width="" property="8" v-if="goods.type == 2">
                         <template slot-scope="scope">
                             <span>{{ scope.row.attr_width }}</span>
@@ -488,11 +494,11 @@ export default {
 
 <style scoped src="./goodsCreat.less" lang="less"></style>
 <style lang="less">
-    .el-message-box {
-        width: 340px;
-    }
-    .el-message-box--center .el-message-box__content{
-        padding-left: 50px;
-        padding-right: 50px;
-    }
+.el-message-box {
+    width: 340px;
+}
+.el-message-box--center .el-message-box__content {
+    padding-right: 50px;
+    padding-left: 50px;
+}
 </style>

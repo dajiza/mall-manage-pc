@@ -281,7 +281,6 @@ export const mixinsGoods = {
                 queryConfigList({})
             ])
                 .then(res => {
-                    console.log('输出 ~ res', res)
                     let options = {}
                     if (res[0].code === 200) {
                         if (res[0].data) {
@@ -307,15 +306,15 @@ export const mixinsGoods = {
                         // 其他只显示品牌 单位两个属性
                         if (this.goods.type == 1) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id <= 6 && item.id != 4
+                                return (item.id <= 6 && item.id != 4) || item.id == 11
                             })
                         } else if (this.goods.type == 2) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1
+                                return item.id == 1 || item.id == 11
                             })
                         } else if (this.goods.type == 3) {
                             this.basicAttr = this.basicAttr.filter(item => {
-                                return item.id == 1 || item.id == 7 || item.id == 9
+                                return item.id == 1 || item.id == 7 || item.id == 9 || item.id == 11
                             })
                         }
                         this.consumeAttr = res[3].data.consume_attr
@@ -391,7 +390,6 @@ export const mixinsGoods = {
                 }
                 queryGoodsDetail(params)
                     .then(async res => {
-                        console.log('GOOGLE: goods', res)
                         // this.goods = res.data;
                         let data = _.cloneDeep(res.data)
                         // 详情
@@ -431,7 +429,6 @@ export const mixinsGoods = {
                         }
                         // 排序
                         data.imgs = data.imgs.sort((a, b) => a.sort - b.sort)
-                        console.log('输出 ~ data.imgs', data.imgs)
                         // format 图片
                         data.imgs = data.imgs.map(item => {
                             return {
@@ -457,11 +454,10 @@ export const mixinsGoods = {
                             skuItem['user_discount'] = commUtil.numberMul(Number(skuItem['user_discount']), 0.1) || 0
                             const attrList = skuItem['sku_attr_list']
                             let diyAttrIndex = 0
-                            console.log('输出 ~ attrList', attrList)
                             for (let j = 0; j < attrList.length; j++) {
                                 const attrItem = attrList[j]
                                 if (i == 0) {
-                                    if (attrItem.attr_id <= 9) {
+                                    if (attrItem.attr_id <= 9 || attrItem.attr_id == 11) {
                                         this.basicChecked.push(attrItem.attr_id)
                                     } else {
                                         this.attrDiyList.push({
@@ -472,7 +468,7 @@ export const mixinsGoods = {
                                     }
                                 }
 
-                                if (attrItem.attr_id > 9) {
+                                if (attrItem.attr_id > 9 && attrItem.attr_id != 11) {
                                     skuItem['attrDiyValue'][diyAttrIndex] = attrItem.attr_value
                                     diyAttrIndex++
                                 }
@@ -549,20 +545,15 @@ export const mixinsGoods = {
                     })
                     return myAttr
                 })
-                console.log('GOOGLE: this.attrDiyList', this.attrDiyList)
             }
         },
         getSku(pList) {
-            console.log('GOOGLE: pList', pList)
             // this.goods.sku_list = pList;
             // for (let i = 0; i < pList.length; i++) {
             //     const pItem = pList[i];
             //     let index = this.goods.sku_list.findIndex(item => pItem.storehouse_pid == item.storehouse_pid);
-            //     console.log('GOOGLE: index', index);
             //     if (index != -1) {
             //         pList.splice(index, 1);
-            //         console.log('GOOGLE: pList.length', pList.length);
-            //         console.log('GOOGLE: pList.i', i);
             //         i--;
             //     }
             // }
@@ -644,7 +635,6 @@ export const mixinsGoods = {
         // 单张图片上传成功回调 sku
         uploadImgSuccessSku(response, file, fileList, row) {
             // this.$refs.upload.clearFiles() //去掉文件列表
-            console.log('输出 ~ row', row)
             if (response.code === 200) {
                 this.$notify({
                     title: '替换成功',
@@ -666,12 +656,9 @@ export const mixinsGoods = {
         },
         // 图片上传前检测 首图
         beforeUpload(file) {
-            // console.log('输出 ~ file', file)
             // let imgSrc = window.URL.createObjectURL(file)
             // let img = new Image()
             // img.onload = function() {
-            //     console.log('输出 ~ img', img.width)
-            //     console.log('输出 ~ img', img.height)
             // }
             // img.src = imgSrc
 
@@ -767,10 +754,7 @@ export const mixinsGoods = {
         },
         // 图片上传成功回调 图片视频 其他五张
         uploadImgSuccessMultiple(response, file, fileList) {
-            console.log('GOOGLE: fileList', fileList)
-            console.log('GOOGLE: file', file)
             let status = fileList.every(item => item.type || (item.response && item.response.code == 200))
-            console.log('输出 ~ file: goodsCreat.vue ~ line 926 ~ status', status)
             if (status) {
                 this.$notify({
                     title: '上传成功',
@@ -892,7 +876,6 @@ export const mixinsGoods = {
         },
 
         submit() {
-            console.log('GOOGLE: goods', this.goods)
             const rLoading = this.openLoading()
 
             this.$refs['formRef'].validate(valid => {
@@ -1022,7 +1005,7 @@ export const mixinsGoods = {
                         rLoading.close()
                         return
                     }
-                    console.log('输出 ~ params.sku_list aa', params.sku_list)
+                    console.log('输出 ~ params.sku_list', params.sku_list)
                     for (let i = 0; i < params.sku_list.length; i++) {
                         const skuItem = params.sku_list[i]
                         skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100)
@@ -1040,13 +1023,14 @@ export const mixinsGoods = {
                             return
                         }
                         skuItem.attr_list = []
+
                         for (let j = 0; j < this.basicChecked.length; j++) {
                             const checkId = this.basicChecked[j]
                             let attrInfo = this.basicAttr.find(item => checkId == item.id)
                             if (!attrInfo) {
                                 continue
                             }
-                            // skuItem[ATTR[attrInfo.id]]
+
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
                                 attr_title: attrInfo.title, //属性名称
@@ -1057,7 +1041,9 @@ export const mixinsGoods = {
                         for (let j = 0; j < this.consumeChecked.length; j++) {
                             const checkId = this.consumeChecked[j]
                             let attrInfo = this.consumeAttr.find(item => checkId == item.id)
-                            console.log('输出 ~ this.consumeAttr', this.consumeAttr)
+                            console.log('输出 ~ attrInfo', attrInfo)
+                            console.log('输出 ~ skuItem[attrDiyValue][j]', skuItem['attrDiyValue'][j])
+
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id
@@ -1095,13 +1081,11 @@ export const mixinsGoods = {
                             }
                         }
                     }
-                    console.log('GOOGLE: params', params)
                     if (params.goods_id) {
                         // 编辑
                         params['id'] = params['goods_id']
                         updateGoods(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res)
                                 if (res.code === 200) {
                                     this.$notify({
                                         title: '商品编辑成功',
@@ -1132,7 +1116,6 @@ export const mixinsGoods = {
                         // 创建
                         creatGoods(params)
                             .then(res => {
-                                console.log('GOOGLE: res', res)
                                 if (res.code === 200) {
                                     this.$notify({
                                         title: '商品创建成功',
@@ -1183,7 +1166,6 @@ export const mixinsGoods = {
         //         })
         //     ])
         //         .then(res => {
-        //             console.log('GOOGLE: 1111', res);
         //             let options = {};
         //             if (res[0].code === 200) {
         //                 if (res[0].data) {
@@ -1294,7 +1276,6 @@ export const mixinsGoods = {
             })
         },
         onImportTemplate() {
-            console.log('content', this.content)
             if (this.content) {
                 const str = '导入模板会覆盖当前已编辑的信息，' + '\n' + '是否继续？'
                 this.$confirm(str, '', {
@@ -1306,9 +1287,7 @@ export const mixinsGoods = {
                     .then(() => {
                         this.queryTemplateList()
                     })
-                    .catch(() => {
-                        console.log('取消')
-                    })
+                    .catch(() => {})
             } else {
                 this.queryTemplateList()
             }
@@ -1318,10 +1297,8 @@ export const mixinsGoods = {
             queryDetailTemplateList({})
                 .then(res => {
                     rLoading.close()
-                    console.log('res', res)
                     this.templateList = res.data || []
                     this.importDialogShow = true
-                    console.log('this.list', this.list)
                 })
                 .catch(err => {
                     rLoading.close()
@@ -1334,19 +1311,15 @@ export const mixinsGoods = {
         },
         saveTemplate() {
             if (this.detailTemplateId) {
-                console.log('this.detailTemplateId', this.detailTemplateId)
                 const obj = this.templateList.filter(item => {
                     return item.detailId == this.detailTemplateId
                 })[0]
-                console.log('obj', obj)
                 this.content = ''
                 this.editContent = ''
                 this.$nextTick(() => {
                     this.editContent = obj.detail
                     this.content = this.editContent
                 })
-                console.log('this.editContent', this.editContent)
-                console.log('this.content', this.content)
                 this.importDialogShow = false
             } else {
                 this.$notify({

@@ -48,7 +48,8 @@ module.exports = {
         6: 'attr_pattern', //花纹
         7: 'attr_size', //成品布尺寸
         8: 'attr_width', //幅宽
-        9: 'attr_piece' //片数
+        9: 'attr_piece', //片数
+        11: 'attr_code' //编号
     },
     // 属性名称
     ATTR_NAME: {
@@ -60,7 +61,8 @@ module.exports = {
         6: '花纹', //花纹
         7: '尺寸', //尺寸
         8: '幅宽', //幅宽
-        9: '片数' //片数
+        9: '片数', //片数
+        11: '编号' //编号
     },
     // 积分记录
     POINTS_LOG_TYPE: {
