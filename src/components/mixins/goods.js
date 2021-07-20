@@ -457,6 +457,7 @@ export const mixinsGoods = {
                             skuItem['user_discount'] = commUtil.numberMul(Number(skuItem['user_discount']), 0.1) || 0
                             const attrList = skuItem['sku_attr_list']
                             let diyAttrIndex = 0
+                            console.log('输出 ~ attrList', attrList)
                             for (let j = 0; j < attrList.length; j++) {
                                 const attrItem = attrList[j]
                                 if (i == 0) {
@@ -1021,6 +1022,7 @@ export const mixinsGoods = {
                         rLoading.close()
                         return
                     }
+                    console.log('输出 ~ params.sku_list aa', params.sku_list)
                     for (let i = 0; i < params.sku_list.length; i++) {
                         const skuItem = params.sku_list[i]
                         skuItem.min_price = commUtil.numberMul(Number(skuItem.min_price), 100)
@@ -1051,9 +1053,11 @@ export const mixinsGoods = {
                                 attr_value: skuItem[ATTR[attrInfo.id]] //属性值
                             })
                         }
+                        console.log('输出 ~ this.consumeChecked', this.consumeChecked)
                         for (let j = 0; j < this.consumeChecked.length; j++) {
                             const checkId = this.consumeChecked[j]
                             let attrInfo = this.consumeAttr.find(item => checkId == item.id)
+                            console.log('输出 ~ this.consumeAttr', this.consumeAttr)
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id

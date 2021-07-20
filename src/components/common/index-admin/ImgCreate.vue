@@ -1,7 +1,7 @@
 <template>
     <div class="module">
         <div class="caption">
-            <div class="title" @click="navigatePlate(3)">
+            <div class="title" @click="navigatePlate(3, true)">
                 <span class="iconfont icon-fanhui"></span>
                 {{ operationForm.id ? '编辑图片' : '添加图片' }}
             </div>
@@ -26,7 +26,7 @@
                         :limit="1"
                     >
                         <i class="el-icon-plus"></i>
-                        <div class="tips">670*240px</div>
+                        <div class="tips">{{ adviceSize[addLayout.kind - 1].size }}</div>
                     </el-upload>
                 </el-form-item>
                 <el-form-item class="form-item" label="板块类型" prop="type">
@@ -73,8 +73,8 @@
             </el-form>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="navigatePlate(3)">取 消</el-button>
-            <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="operationForm.customId">删 除</el-button>
+            <el-button class="bottom-btn" type="" @click="navigatePlate(3, true)">取 消</el-button>
+            <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="!operationForm.isNew">删 除</el-button>
             <el-button class="bottom-btn" type="primary" @click="save">保 存</el-button>
         </div>
         <!--大图预览-->
@@ -84,8 +84,8 @@
 
 <script>
 import ElImageViewer from '@/components/common/image-viewer'
-import { cacheData, deleteLayoutContent } from '@/api/plate'
-import bus from '@/components/common/bus'
+import { deleteLayoutContent } from '@/api/plate'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
 import { getToken } from '@/utils/auth'
 export default {
@@ -93,17 +93,19 @@ export default {
     props: {},
     data() {
         return {
+            addLayout: this.$store.state.addLayout,
             // 创建模块
-            operationForm: {
-                link: '',
-                id: 0, //0新增 大于0修改
-                img: '', //
-                parameter: '', //
-                remarks: '', //
-                title: '', //
-                type: '', //类型：1.商品列表，2.商品详情，3.直播间，4.页面，5.自定义，6.优惠券领取，7.产品系列
-                status: 2 //内容显示状态：1不显示，2显示
-            },
+            operationForm: this.$store.state.addImg,
+            // operationForm: {
+            //     link: '',
+            //     id: 0, //0新增 大于0修改
+            //     img: '', //
+            //     parameter: '', //
+            //     remarks: '', //
+            //     title: '', //
+            //     type: '', //类型：1.商品列表，2.商品详情，3.直播间，4.页面，5.自定义，6.优惠券领取，7.产品系列
+            //     status: 2 //内容显示状态：1不显示，2显示
+            // },
 
             header: {},
             dialogVisiblePic: false,
@@ -122,6 +124,7 @@ export default {
                 require('@/assets/img/plate-icon3.png'),
                 require('@/assets/img/plate-icon4.png')
             ],
+            adviceSize: [{ size: '670*240px' }, { size: '750*360px' }, { size: '210*280px' }, { size: '600*280px' }, { size: '750*680px' }],
             plateType: [
                 {
                     type: 1,
@@ -183,9 +186,7 @@ export default {
         this.header['token'] = getToken()
     },
     mounted() {
-        if (cacheData.addImg) {
-            this.operationForm = _.cloneDeep(cacheData.addImg)
-            console.log('输出 ~ cacheData.addImg', cacheData.addImg)
+        if (!this.operationForm.isNew) {
             this.timg = [{ id: this.operationForm.id, url: this.operationForm.img }]
 
             let advType = this.operationForm.type,
@@ -218,7 +219,19 @@ export default {
     },
     methods: {
         // 跳转
-        navigatePlate(index) {
+        navigatePlate(index, cancel = false) {
+            // 未保存返回 则删除新增的
+            if (cancel) {
+                for (let i = 0; i < this.addLayout.ContentList.length; i++) {
+                    const element = this.addLayout.ContentList[i]
+                    if (element.customId == this.operationForm.customId) {
+                        if (element.isNew) {
+                            this.addLayout.ContentList.splice(i, 1)
+                        }
+                        break
+                    }
+                }
+            }
             this.$emit('navigatePlate', index)
         },
         // 删除图片
@@ -253,8 +266,11 @@ export default {
                             console.log('取消')
                         })
                 }
-                let index = cacheData.addPlate.ContentList.findIndex(item => item.customId == this.operationForm.customId)
-                cacheData.addPlate.ContentList.splice(index, 1)
+                let index = this.addLayout.ContentList.findIndex(item => item.customId == this.operationForm.customId)
+
+                this.addLayout.ContentList.splice(index, 1)
+                this.$store.commit('setAddLayout', this.addLayout)
+
                 this.navigatePlate(3)
             })
         },
@@ -293,6 +309,7 @@ export default {
                 })
                 this.upload_loading.close()
                 this.timg = fileList
+                this.operationForm.img = this.timg[0].response.data.file_url
             } else {
                 this.upload_loading.close()
                 this.$notify({
@@ -339,8 +356,7 @@ export default {
         save() {
             const rLoading = this.openLoading()
             // format
-            this.operationForm.img = this.timg.length > 0 ? (this.timg[0].id ? this.timg[0].url : this.timg[0].response.data.file_url) : ''
-            console.log('输出 ~ this.timg', this.timg)
+            // this.operationForm.img = this.timg.length > 0 ? (this.timg[0].id ? this.timg[0].url : this.timg[0].response.data.file_url) : ''
             let new_link = ''
             if (this.operationForm.type === 1) {
                 // 商品列表
@@ -368,20 +384,18 @@ export default {
             this.$refs['formRef'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
-                    if (cacheData.addImg) {
-                        for (let i = 0; i < cacheData.addPlate.ContentList.length; i++) {
-                            const element = cacheData.addPlate.ContentList[i]
-                            if (element.customId == this.operationForm.customId) {
-                                cacheData.addPlate.ContentList[i] = _.cloneDeep(this.operationForm)
-                                console.log('输出 ~ element', element)
-                                this.navigatePlate(4)
-                                break
-                            }
-                        }
-                        console.log('输出 ~ cacheData', cacheData.addPlate)
-                    } else {
-                        cacheData.addPlate.ContentList.push(_.cloneDeep(this.operationForm))
-                    }
+                    // if (!this.operationForm.isNew) {
+                    //     for (let i = 0; i < this.addLayout.ContentList.length; i++) {
+                    //         const element = this.addLayout.ContentList[i]
+                    //         if (element.customId == this.operationForm.customId) {
+                    //             this.addLayout.ContentList[i] = _.cloneDeep(this.operationForm)
+                    //             this.navigatePlate(4)
+                    //             break
+                    //         }
+                    //     }
+                    // } else {
+                    //     this.addLayout.ContentList.push(_.cloneDeep(this.operationForm))
+                    // }
 
                     this.navigatePlate(3)
                     rLoading.close()

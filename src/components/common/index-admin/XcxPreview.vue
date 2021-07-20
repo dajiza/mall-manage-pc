@@ -1,9 +1,9 @@
 <template>
     <div class="preview">
         <div class="box">
-            <index-component :type="5" :list="banner"></index-component>
+            <index-component :type="5" :list="banner" :id="banner.customId"></index-component>
             <!-- <index-component :type="5"></index-component> -->
-            <index-component v-for="item in plate" :list="item" :key="item.customId"></index-component>
+            <index-component :id="item.customId" v-for="item in plate.filter(e => e.status == 2)" :list="item" :key="item.customId"></index-component>
             <div class="sort-wrap">
                 <div class="sort-box">
                     <div class="sort-item active">
@@ -25,12 +25,12 @@
                 </div>
             </div>
             <div class="goods-list">
-                <div class="goods" v-for="item in 10">
-                    <img class="timg" src="../../../assets/img/img.jpg" alt="" />
-                    <div class="name">日本进口布料 QG玛…</div>
+                <div class="goods" v-for="item in goodsList" :key="item.id">
+                    <img class="timg" :src="item.goods_img" alt="" />
+                    <div class="name">{{ item.goods_name }}</div>
                     <div class="info">
-                        <div class="price">¥ 56</div>
-                        <div class="sales">236人付款</div>
+                        <div class="price">¥ {{ formatMoney(item.goods_price) }}</div>
+                        <div class="sales">{{ item.goods_sales }}人付款</div>
                     </div>
                 </div>
             </div>
@@ -39,8 +39,10 @@
 </template>
 
 <script>
-import { cacheData } from '@/api/plate'
-import bus from '@/components/common/bus'
+import { queryLayoutGoodsList } from '@/api/plate'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
+import { queryShopList } from '@/api/goods'
+import { formatMoney } from '@/plugin/tool'
 
 import IndexComponent from '@/components/common/index-admin/IndexComponent.vue'
 export default {
@@ -52,34 +54,87 @@ export default {
     // },
     data() {
         return {
-            plate: '',
-            banner: ''
+            plate: [],
+            banner: '',
+            shopActive: '',
+            goodsList: []
         }
     },
     components: {
         IndexComponent
     },
 
-    computed: {},
+    computed: {
+        ...mapState(['plateStore', 'scrollToId', 'shopActiveStore'])
+    },
+    watch: {
+        plateStore: {
+            handler(newValue, oldValue) {
+                let banner = newValue.layoutList.find(item => item.kind == 5) || {
+                    id: 0, //0新增 大于0修改
+                    kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
+                    ContentList: []
+                }
+                banner.ContentList = banner.ContentList || []
+                let newList = newValue.layoutList
+                    .filter(item => item.kind != 5)
+                    .sort((a, b) => {
+                        return a.sort - b.sort
+                    })
+                console.log('输出 ~ newList', newList)
 
-    created() {},
-    mounted() {
-        bus.$on('change-plate', plate => {
-            console.log('输出 ~ plate change', plate)
-            let banner = plate.layoutList.find(item => item.kind == 5) || {
-                id: 0, //0新增 大于0修改
-                kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
-                ContentList: []
+                this.plate = newList
+                this.banner = banner
+            },
+            deep: true
+        },
+        scrollToId: {
+            handler(newValue, oldValue) {
+                if (!newValue) {
+                    return
+                }
+                this.$nextTick(() => {
+                    console.log('输出 ~ newValue', newValue)
+                    document.getElementById(newValue).scrollIntoView()
+                })
             }
-            let newList = plate.layoutList.filter(item => item.kind != 5)
-            this.plate = newList
-            this.banner = banner
-        })
+        }
     },
-    destroyed() {
-        bus.$off('change-plate')
+    created() {},
+    async mounted() {
+        await this.queryShopList()
+        this.getGoodsList()
     },
-    methods: {}
+    destroyed() {},
+    methods: {
+        formatMoney: formatMoney,
+
+        // 代理店铺列表
+        queryShopList() {
+            return new Promise((resolve, reject) => {
+                queryShopList()
+                    .then(res => {
+                        this.shopActive = res.data[0]
+
+                        resolve(res)
+                    })
+                    .catch(err => {
+                        reject(err)
+                    })
+            })
+        },
+        getGoodsList() {
+            let params = {
+                limit: 20,
+                page: 1,
+                sort_field: 1,
+                shop_id: this.shopActive.id
+            }
+            queryLayoutGoodsList(params).then(res => {
+                this.goodsList = res.data.lists
+            })
+        }
+    }
 }
 </script>
 

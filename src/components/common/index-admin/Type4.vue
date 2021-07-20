@@ -7,9 +7,25 @@
             <div class="subtitle" v-if="list.showSubtitle == 2">{{ list.subtitle }}</div>
         </div>
         <div class="item">
-            <slider class="swiper" ref="slider" :options="options">
-                <slideritem v-for="item in list.ContentList" :key="item.customId" :style="item.style">
-                    <img class="banner" :src="item.img" alt="" />
+            <slider class="swiper" ref="slider" :options="options" :key="new Date().getTime()">
+                <slideritem
+                    v-for="item in list.ContentList.length > 0
+                        ? list.ContentList.filter(e => e.status == 2)
+                              .sort((a, b) => {
+                                  return a.sort - b.sort
+                              })
+                              .map(item => {
+                                  item.style = {
+                                      width: '244px',
+                                      'margin-right': '8px'
+                                  }
+                                  return item
+                              })
+                        : blankList"
+                    :key="item.customId"
+                    :style="item.style"
+                >
+                    <img class="banner" :src="item.img || placeholder" alt="" />
                 </slideritem>
                 <!-- 设置loading,可自定义 -->
                 <div slot="loading">loading...</div>
@@ -29,6 +45,8 @@ export default {
     },
     data() {
         return {
+            placeholder: require('@/assets/img/placeholder.png'),
+            blankList: [{ img: require('@/assets/img/placeholder.png') }],
             options: {
                 currentPage: 0, //当前页码
                 thresholdDistance: 30, //滑动判定距离
@@ -47,13 +65,13 @@ export default {
     watch: {},
     created() {},
     mounted() {
-        this.list.ContentList = this.list.ContentList.map(item => {
-            item.style = {
-                width: '244px',
-                'margin-right': '8px'
-            }
-            return item
-        })
+        // this.list.ContentList = this.list.ContentList.map(item => {
+        //     item.style = {
+        //         width: '244px',
+        //         'margin-right': '8px'
+        //     }
+        //     return item
+        // })
     },
     methods: {}
 }

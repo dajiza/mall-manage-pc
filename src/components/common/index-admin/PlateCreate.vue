@@ -1,7 +1,7 @@
 <template>
     <div class="module">
         <div class="caption">
-            <div class="title" @click="navigatePlate(1)">
+            <div class="title" @click="navigatePlate(1, true)">
                 <span class="iconfont icon-fanhui"></span>
                 {{ isBanner ? 'Banner' : TYPE[createPlate.kind] }}
             </div>
@@ -40,8 +40,8 @@
                                 </div>
                                 <div class="title">{{ item.title }}</div>
                                 <div class="visible">
-                                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="item.status = 1"></span>
-                                    <span class="iconfont icon-a-yincang1" v-else @click="item.status = 2"></span>
+                                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="setVisible(index, 1)"></span>
+                                    <span class="iconfont icon-a-yincang1" v-else @click="setVisible(index, 2)"></span>
                                 </div>
                                 <div class="handle">
                                     <span class="iconfont icon-tuozhuai"></span>
@@ -59,7 +59,7 @@
             </el-form>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="navigatePlate(1)">取 消</el-button>
+            <el-button class="bottom-btn" type="" @click="navigatePlate(1, true)">取 消</el-button>
             <el-button class="bottom-btn" type="danger" @click="deletePlate" v-if="!isBanner && createPlate.id">删 除</el-button>
             <el-button class="bottom-btn" type="" @click="edit" v-if="activeImg">编 辑</el-button>
             <el-button class="bottom-btn" type="primary" @click="save">确 认</el-button>
@@ -68,9 +68,9 @@
 </template>
 
 <script>
-import { cacheData, saveLayout, deleteLayout } from '@/api/plate'
+import { saveLayout, deleteLayout } from '@/api/plate'
 import draggable from 'vuedraggable'
-import bus from '@/components/common/bus'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
     name: 'Index-Init',
@@ -81,19 +81,9 @@ export default {
     // },
     data() {
         return {
-            isBanner: false,
             activeImg: '',
             // 创建模块
-            createPlate: {
-                // id: 0, //0新增 大于0修改
-                // shopId: this.shopActive.id,
-                // showSubtitle: 2, //副标题，1不显示 2显示
-                // showTitle: 2, //标题，1不显示 2显示
-                // status: 2, //模块显示状态：1 不显示 2显示
-                // subtitle: '', //副标题
-                // title: '', //标题
-                // ContentList: []
-            },
+            createPlate: this.$store.state.addLayout,
             rules: {
                 layoutName: [{ required: true, trigger: 'blur', message: '请输入名称' }],
                 title: [{ required: true, trigger: 'blur', message: '请输入大标题' }],
@@ -133,15 +123,15 @@ export default {
             }
         }
     },
+    computed: {
+        ...mapState(['isBanner'])
+    },
     components: {
         draggable
     },
     watch: {},
     created() {},
     mounted() {
-        this.createPlate = cacheData.addPlate
-        this.isBanner = cacheData.isBanner
-
         this.createPlate.ContentList = this.createPlate.ContentList.map((item, index) => {
             item.customId = 'old' + index
             return item
@@ -151,7 +141,20 @@ export default {
     },
     methods: {
         // 跳转
-        navigatePlate(index) {
+        navigatePlate(index, cancel = false) {
+            // 未保存返回 则删除新增的
+            // if (cancel) {
+            //     let plateStore = this.$store.state.plateStore
+            //     for (let i = 0; i < plateStore.layoutList.length; i++) {
+            //         const element = plateStore.layoutList[i]
+            //         if (element.customId == this.createPlate.customId) {
+            //             if (element.isNew) {
+            //                 plateStore.layoutList.splice(i, 1)
+            //             }
+            //             break
+            //         }
+            //     }
+            // }
             this.$emit('navigatePlate', index)
         },
 
@@ -172,7 +175,10 @@ export default {
             newItems.splice(newIndex, 0, currRow)
             // items结构发生变化触发transition-group的动画
             this.createPlate.ContentList = []
-
+            newItems = newItems.map((item, index) => {
+                item.sort = index
+                return item
+            })
             this.$nextTick(() => {
                 this.createPlate.ContentList = [...newItems]
                 this.activeImg = ''
@@ -180,18 +186,45 @@ export default {
             })
         },
         addImg() {
-            cacheData.addImg = false
-            this.navigatePlate(4)
+            let customId = 'new' + new Date().getTime()
+            let addImg = {
+                link: '',
+                id: 0, //0新增 大于0修改
+                img: '', //
+                parameter: '', //
+                remarks: '', //
+                title: '', //
+                type: '', //类型：1.商品列表，2.商品详情，3.直播间，4.页面，5.自定义，6.优惠券领取，7.产品系列
+                status: 2, //内容显示状态：1不显示，2显示
+                customId: customId,
+                isNew: true
+            }
+            this.createPlate.ContentList.push(addImg)
+            for (let i = 0; i < this.createPlate.ContentList.length; i++) {
+                const element = this.createPlate.ContentList[i]
+                if (element.customId == customId) {
+                    this.$store.commit('setAddImg', element)
+                    this.navigatePlate(4)
+                    break
+                }
+            }
+
+            // this.$store.commit('setAddImg', false)
+            // this.navigatePlate(4)
         },
         edit() {
             for (let i = 0; i < this.createPlate.ContentList.length; i++) {
                 const element = this.createPlate.ContentList[i]
                 if (element.customId == this.activeImg) {
-                    cacheData.addImg = _.cloneDeep(element)
+                    element.isNew = false
+                    this.$store.commit('setAddImg', element)
                     this.navigatePlate(4)
                     break
                 }
             }
+        },
+        setVisible(index, value) {
+            this.$set(this.createPlate.ContentList[index], 'status', value)
         },
         // 删除板块
         deletePlate() {
@@ -245,23 +278,25 @@ export default {
                         item.sort = index
                         return item
                     })
-                    if (this.createPlate.id == 0) {
-                        // 新增
-                        this.createPlate.customId = 'new' + new Date().getTime()
-                        cacheData.plate.layoutList.push(_.cloneDeep(this.createPlate))
-                    } else {
-                        // 编辑
+                    let plateStore = this.$store.state.plateStore
+                    console.log('输出 ~ plateStore', plateStore)
 
-                        for (let i = 0; i < cacheData.plate.layoutList.length; i++) {
-                            const element = cacheData.plate.layoutList[i]
-                            if (element.customId == this.createPlate.customId) {
-                                cacheData.plate.layoutList[i] = _.cloneDeep(this.createPlate)
-                                break
-                            }
-                        }
-                    }
-                    cacheData.plate.version.status = 1
-                    saveLayout(cacheData.plate).then(res => {
+                    // if (this.createPlate.id == 0) {
+                    //     // 新增
+                    //     this.createPlate.customId = 'new' + new Date().getTime()
+                    //     plateStore.layoutList.push(_.cloneDeep(this.createPlate))
+                    // } else {
+                    //     // 编辑
+                    //     for (let i = 0; i < plateStore.layoutList.length; i++) {
+                    //         const element = plateStore.layoutList[i]
+                    //         if (element.customId == this.createPlate.customId) {
+                    //             plateStore.layoutList[i] = _.cloneDeep(this.createPlate)
+                    //             break
+                    //         }
+                    //     }
+                    // }
+                    plateStore.version.status = 1
+                    saveLayout(plateStore).then(res => {
                         if (res.code === 200) {
                             this.$notify({
                                 title: '保存草稿成功',
@@ -277,7 +312,6 @@ export default {
                                 duration: 5000
                             })
                         }
-                        bus.$emit('change-plate', cacheData.plate)
                         rLoading.close()
                         this.navigatePlate(1)
                     })

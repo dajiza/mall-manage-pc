@@ -25,7 +25,7 @@
             </el-dropdown>
         </div>
         <div class="plate">
-            <div class="item" :class="['item', activePlate == 'banner' ? 'active' : '']" @click="plateChoose('banner')">
+            <div :class="['item', activePlate == 'banner' ? 'active' : '']" @click="plateChoose('banner')">
                 <div class="icon">
                     <img class="icon-img" :src="iconBanner" alt="" />
                 </div>
@@ -40,7 +40,7 @@
                     v-if="item.kind != 5"
                 >
                     <div class="icon">
-                        <img class="icon-img" :src="iconList[item.kind]" alt="" />
+                        <img class="icon-img" :src="iconList[item.kind - 1]" alt="" />
                     </div>
                     <div class="title">{{ item.layoutName }}</div>
                     <div class="visible">
@@ -67,8 +67,8 @@
 </template>
 
 <script>
-import { queryLayoutDetail, cacheData, saveLayout, recoverLayout } from '@/api/plate'
-import bus from '@/components/common/bus'
+import { queryLayoutDetail, saveLayout, recoverLayout } from '@/api/plate'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
 import { queryShopList } from '@/api/goods'
 import draggable from 'vuedraggable'
@@ -99,7 +99,6 @@ export default {
             iconBanner: require('@/assets/img/plate-banner.png'),
             iconAdd: require('@/assets/img/plate-add.png'),
             iconList: [
-                '',
                 require('@/assets/img/plate-icon1.png'),
                 require('@/assets/img/plate-icon2.png'),
                 require('@/assets/img/plate-icon3.png'),
@@ -133,10 +132,25 @@ export default {
             activePlate: ''
         }
     },
+
+    computed: {
+        ...mapState(['plateStore', 'addLayout'])
+        // plateStore: {
+        //     //get 和 set 都需要设置
+        //     get() {
+        //         return this.$store.state.plateStore
+        //     },
+        //     set(val) {
+        //         this.$store.state.plateStore = val
+        //     }
+        // }
+    },
     components: {
         draggable
     },
-    created() {},
+    created() {
+        this.$store.commit('setScrollToId', '')
+    },
     async mounted() {
         await this.queryShopList()
         this.getList()
@@ -152,7 +166,7 @@ export default {
             }
             queryLayoutDetail(params).then(res => {
                 console.log('输出 ~ res', res)
-                cacheData.plate = res.data || {
+                let plateStore = res.data || {
                     layoutList: [],
                     version: {
                         id: 0,
@@ -160,9 +174,9 @@ export default {
                         status: 2
                     }
                 }
-                this.status = cacheData.plate.version.status
-                this.versionId = cacheData.plate.version.id
-                cacheData.plate.layoutList = cacheData.plate.layoutList
+                this.status = plateStore.version.status
+                this.versionId = plateStore.version.id
+                plateStore.layoutList = plateStore.layoutList
                     .map((item, index) => {
                         item.customId = 'old' + index
                         return item
@@ -170,16 +184,11 @@ export default {
                     .sort((a, b) => {
                         return a.sort - b.sort
                     })
-                this.plate = cacheData.plate
-                bus.$emit('change-plate', cacheData.plate)
+                this.plate = plateStore
+                this.$store.commit('setPlateStore', plateStore)
             })
         },
-        // 代理店铺列表
-        queryShopList() {
-            queryShopList()
-                .then(res => {})
-                .catch(err => {})
-        },
+
         // 代理店铺列表
         queryShopList() {
             return new Promise((resolve, reject) => {
@@ -187,6 +196,7 @@ export default {
                     .then(res => {
                         this.shopList = res.data
                         this.shopActive = res.data[0]
+
                         resolve(res)
                     })
                     .catch(err => {
@@ -214,7 +224,8 @@ export default {
             this.$nextTick(() => {
                 this.plate.layoutList = [...newItems]
                 this.activePlate = ''
-                cacheData.plate = this.plate
+                this.$store.commit('setPlateStore', this.plate)
+
                 this.save(1)
             })
         },
@@ -226,6 +237,7 @@ export default {
         // 选择店铺
         handleCommandShop(shop) {
             this.shopActive = shop
+
             this.getList()
         },
         // 还原
@@ -255,7 +267,8 @@ export default {
         },
         // 跳转添加选择模块
         gotoPlatePick() {
-            cacheData.addPlate = {
+            let customId = 'new' + new Date().getTime()
+            let addLayout = {
                 id: 0, //0新增 大于0修改
                 kind: '', //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
                 shopId: this.shopActive.id,
@@ -265,10 +278,24 @@ export default {
                 subtitle: '', //副标题
                 title: '', //标题
                 layoutName: '', //板块名称
-                ContentList: []
+                ContentList: [],
+                customId: customId,
+                isNew: true,
+                sort: this.plate.layoutList.length + 1
             }
-            cacheData.isBanner = false
-            this.navigatePlate(2)
+            let plateStore = this.plateStore
+            plateStore.layoutList.push(addLayout)
+            this.$store.commit('setPlateStore', plateStore)
+
+            for (let i = 0; i < this.plate.layoutList.length; i++) {
+                const element = this.plate.layoutList[i]
+                if (element.customId == customId) {
+                    this.$store.commit('setAddLayout', element)
+                    this.$store.commit('setIsBanner', false)
+                    this.navigatePlate(2)
+                    break
+                }
+            }
         },
 
         plateChoose(id) {
@@ -276,49 +303,61 @@ export default {
         },
         edit() {
             if (this.activePlate == 'banner') {
-                cacheData.addPlate = {
-                    id: 0, //0新增 大于0修改
-                    kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
-                    shopId: this.shopActive.id,
-                    showSubtitle: 1, //副标题，1不显示 2显示
-                    showTitle: 1, //标题，1不显示 2显示
-                    status: 2, //模块显示状态：1 不显示 2显示
-                    subtitle: '', //副标题
-                    title: '', //标题
-                    layoutName: '', //板块名称
-                    ContentList: []
+                let bannerExist = this.plate.layoutList.find(item => item.kind == 5)
+                if (!bannerExist) {
+                    let customId = 'new' + new Date().getTime()
+                    let addLayout = {
+                        id: 0, //0新增 大于0修改
+                        kind: 5, //板块类型：1.有边距横图，2.无边距横图，3.三竖图，4.滑动图 5.Banner
+                        shopId: this.shopActive.id,
+                        showSubtitle: 1, //副标题，1不显示 2显示
+                        showTitle: 1, //标题，1不显示 2显示
+                        status: 2, //模块显示状态：1 不显示 2显示
+                        subtitle: '', //副标题
+                        title: '', //标题
+                        layoutName: '', //板块名称
+                        ContentList: [],
+                        customId: customId,
+                        isNew: true
+                    }
+                    let plateStore = this.plateStore
+                    plateStore.layoutList.push(addLayout)
+                    this.$store.commit('setPlateStore', plateStore)
                 }
                 for (let i = 0; i < this.plate.layoutList.length; i++) {
                     const element = this.plate.layoutList[i]
                     if (element.kind == 5) {
-                        cacheData.addPlate = _.cloneDeep(element)
+                        this.$store.commit('setAddLayout', element)
+                        this.$store.commit('setIsBanner', true)
                         break
                     }
                 }
-                cacheData.isBanner = true
+
                 this.navigatePlate(3)
             } else {
                 for (let i = 0; i < this.plate.layoutList.length; i++) {
                     const element = this.plate.layoutList[i]
                     if (element.customId == this.activePlate) {
-                        cacheData.addPlate = _.cloneDeep(element)
-                        cacheData.isBanner = false
+                        this.$store.commit('setAddLayout', element)
+                        this.$store.commit('setIsBanner', false)
                         this.navigatePlate(3)
                         break
                     }
                 }
             }
+            this.$store.commit('setScrollToId', this.addLayout.customId)
         },
         save(status = 2) {
-            console.log('输出 ~ status', status)
             const rLoading = this.openLoading()
             // 排序
-            cacheData.plate.layoutList = cacheData.plate.layoutList.map((item, index) => {
+            let plateStore = this.plateStore
+            plateStore.layoutList = plateStore.layoutList.map((item, index) => {
                 item.sort = index
                 return item
             })
-            cacheData.plate.version.status = status
-            saveLayout(cacheData.plate).then(res => {
+
+            plateStore.version.status = status
+            saveLayout(plateStore).then(res => {
                 if (res.code === 200) {
                     this.$notify({
                         title: status == 2 ? '发布成功' : '保存草稿成功',
@@ -385,6 +424,7 @@ export default {
         .item {
             display: flex;
             align-items: center;
+            flex-shrink: 0;
             margin-bottom: 10px;
             width: 290px;
             height: 80px;

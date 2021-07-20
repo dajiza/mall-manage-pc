@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { cacheData } from '@/api/plate'
+import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
 export default {
     name: 'Index-Init',
@@ -73,7 +73,9 @@ export default {
             addActiveType: ''
         }
     },
-
+    computed: {
+        // ...mapState(['addLayout'])
+    },
     watch: {},
     created() {},
     mounted() {},
@@ -93,8 +95,12 @@ export default {
                 })
                 return
             }
-            cacheData.addPlate.kind = this.addActiveType
+            let addLayout = this.$store.state.addLayout
+            addLayout.kind = this.addActiveType
+            this.$store.commit('setAddLayout', addLayout)
+
             this.navigatePlate(3)
+            this.$store.commit('setScrollToId', addLayout.customId)
         },
         // 添加模块 选择模块
         addChoose(type) {

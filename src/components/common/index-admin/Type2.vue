@@ -7,9 +7,16 @@
             <div class="subtitle" v-if="list.showSubtitle == 2">{{ list.subtitle }}</div>
         </div>
         <div class="item">
-            <slider class="swiper" ref="slider" :options="options">
-                <slideritem v-for="item in list.ContentList" :key="item.customId">
-                    <img class="banner" :src="item.img" alt="" />
+            <slider class="swiper" ref="slider" :options="options" :key="new Date().getTime()">
+                <slideritem
+                    v-for="item in list.ContentList.length > 0
+                        ? list.ContentList.filter(e => e.status == 2).sort((a, b) => {
+                              return a.sort - b.sort
+                          })
+                        : blankList"
+                    :key="item.customId"
+                >
+                    <img class="banner" :src="item.img || placeholder" alt="" />
                 </slideritem>
 
                 <!-- 设置loading,可自定义 -->
@@ -30,6 +37,9 @@ export default {
     },
     data() {
         return {
+            placeholder: require('@/assets/img/placeholder.png'),
+            blankList: [{ img: require('@/assets/img/placeholder.png') }],
+
             options: {
                 currentPage: 0, //当前页码
                 thresholdDistance: 30, //滑动判定距离
@@ -37,7 +47,7 @@ export default {
                 autoplay: 0, //自动滚动[ms]
                 loop: true, //循环滚动
                 renderPagination: (h, index) => {
-                    if (1) {
+                    if (this.list.ContentList.filter(e => e.status == 2).length > 1) {
                         return h('div', {
                             class: 'swiper-pagination-bullet'
                         })

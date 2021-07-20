@@ -741,6 +741,10 @@ export default {
                         // tag_names: item.tag_names,
                         // category_name: item.category_name,
                         attrDiyValue: ['', '', ''],
+                        // 2021.7.19新增三字段
+                        attr_code: item.attr_code,
+                        is_pro_sale: item.is_pro_sale,
+                        pro_sale_msg: item.pro_sale_msg,
                         attr_list: [
                             // {
                             //     attr_id: item.attr_brand,

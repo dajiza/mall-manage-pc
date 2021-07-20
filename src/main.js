@@ -28,6 +28,8 @@ import * as echarts from 'echarts'
 import 'xe-utils'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
+import store from './store/store'
+
 // import NP from 'number-precision';
 // Vue.prototype.$NP = NP;
 require('video.js/dist/video-js.css')
@@ -223,5 +225,6 @@ window.addEventListener("visibilitychange",function(){ //这个方法是监测�
 
 new Vue({
     router,
+    store,
     render: h => h(App)
 }).$mount('#app')

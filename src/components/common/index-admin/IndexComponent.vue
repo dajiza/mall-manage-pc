@@ -34,7 +34,7 @@ export default {
     watch: {},
     created() {},
     mounted() {
-        console.log('输出 ~ list', this.list)
+        // console.log('输出 ~ list', this.list)
     },
     methods: {}
 }

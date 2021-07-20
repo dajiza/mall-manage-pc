@@ -6,7 +6,17 @@
             <div class="subtitle" v-if="list.showSubtitle == 2">{{ list.subtitle }}</div>
         </div>
         <div class="item">
-            <img v-for="item in list.ContentList" :key="item.customId" class="banner" :src="item.img" alt="" />
+            <img
+                v-for="item in list.ContentList.length > 0
+                    ? list.ContentList.filter(e => e.status == 2).sort((a, b) => {
+                          return a.sort - b.sort
+                      })
+                    : blankList"
+                :key="item.customId"
+                class="banner"
+                :src="item.img || placeholder"
+                alt=""
+            />
         </div>
     </div>
 </template>
@@ -20,11 +30,21 @@ export default {
         }
     },
     data() {
-        return {}
+        return {
+            placeholder: require('@/assets/img/placeholder.png'),
+            blankList: [{ img: require('@/assets/img/placeholder.png') }]
+        }
     },
     components: {},
 
-    watch: {},
+    watch: {
+        list: {
+            handler(newValue, oldValue) {
+                // this.$forceUpdate()
+            },
+            deep: true
+        }
+    },
     created() {},
     mounted() {},
     methods: {}
