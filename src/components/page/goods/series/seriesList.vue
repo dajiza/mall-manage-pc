@@ -45,6 +45,7 @@
                 <el-button style="margin-right: 24px" type="primary" @click="handleAdd" v-hasPermission="'mall-backend-goods-series-create'">新增</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
+                <el-table-column prop="id" label="系列ID" width="100"></el-table-column>
                 <el-table-column prop="title" label="系列名称"></el-table-column>
                 <el-table-column prop="shop_name" label="可用店铺" width="180">
                     <template slot-scope="scope">{{backShopName(scope.row.shop_id)}}</template>
