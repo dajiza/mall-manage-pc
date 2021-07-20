@@ -63,7 +63,7 @@ export const mixinsGoodsSeries = {
             tableHeight: 'calc(100vh - 254px)',
             goods_loading: false,
             goodsPage: 1,
-            limit: 10,
+            limit: 20,
             pageTotal: 0,
             dialogVisiblePic: false,
             previewUrlList: [],
@@ -295,7 +295,6 @@ export const mixinsGoodsSeries = {
                         this.setDetailInfo(data)
                     })
                     .catch(err => {
-                        // console.log('err', err);
                         // reject(err.data)
                     })
             })
@@ -306,14 +305,13 @@ export const mixinsGoodsSeries = {
             this.$refs['operationForm'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
-                    console.log('goodsData===307', this.goodsData)
                     let params = {
                         goods_group: {
                             id: 0,
                             title: this.operationForm.title,
                             remark: this.operationForm.remark,
                             shop_id: Number(this.operationForm.shop_id),
-                            sort_type: this.sortValue,
+                            sort_type: this.sortValue || 0,
                         },
                         goods_group_relations: []
 
@@ -381,17 +379,9 @@ export const mixinsGoodsSeries = {
                 })
         },
 
-        // 按钮-分页导航
-        // handlePageChange(val) {
-        //     this.goodsPage = val
-        //     this.searchForm = _.cloneDeep(this.searchParams)
-        //     this.getShopGoodsList()
-        // },
-
         // 按钮-触发搜索 -- 存储搜索条件
         handleSearch(formName) {
             this.goodsInit()
-            this.$refs['searchForm'].resetFields()
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
             this.getShopGoodsList()
@@ -405,16 +395,6 @@ export const mixinsGoodsSeries = {
 
         // 设置显示的搜索条件
         setSearchValue() {
-            const searchForm = {
-                goods_id: '',
-                    goods_name: '', // 商品名称
-                    other_id: '',
-                    goods_type: '',
-                    shop_goods_status: '',
-                    sku_name: '',
-                    sku_code: '',
-                    typeCategory: []
-            }
             let _search = []
             // 商品名称
             if (this.searchParams['goods_name']) {
@@ -434,7 +414,7 @@ export const mixinsGoodsSeries = {
             }
             // 级联选择 商品类型+分类
             if (this.searchParams['typeCategory'].length == 1) {
-                this.typeList.forEach(ev => {
+                this.categoryData.forEach(ev => {
                     if (ev.value == this.searchParams['typeCategory'][0]) {
                         let obj = {
                             label: 'typeCategory',
@@ -445,7 +425,7 @@ export const mixinsGoodsSeries = {
                 })
             } else if (this.searchParams['typeCategory'].length == 2) {
                 let showValue = ''
-                this.typeList.forEach(ev => {
+                this.categoryData.forEach(ev => {
                     if (ev.value == this.searchParams['typeCategory'][0]) {
                         showValue = ev.label
                     }
@@ -463,7 +443,7 @@ export const mixinsGoodsSeries = {
                 })
             } else if (this.searchParams['typeCategory'].length == 3) {
                 let showValue = ''
-                this.typeList.forEach(ev => {
+                this.categoryData.forEach(ev => {
                     if (ev.value == this.searchParams['typeCategory'][0]) {
                         showValue = ev.label
                     }
@@ -657,7 +637,6 @@ export const mixinsGoodsSeries = {
 
         // 确定添加 商品
         sureAddGoods(data){
-            console.log('data', data)
             // 请求 店铺商品列表
             this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
             this.isRefresh = true
@@ -695,7 +674,7 @@ export const mixinsGoodsSeries = {
             }
             params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
             params['shop_id'] = this.shopId
-            params['sort'] = this.sortValue
+            params['sort'] = this.sortValue || 0
             this.is_loading = true
             this.skuImgList = []
             this.imgList = []
@@ -750,7 +729,6 @@ export const mixinsGoodsSeries = {
                 .catch()
         },
         goodsOpenSKU(i,bol) {
-            console.log('bol', bol)
             let obj = _.cloneDeep(this.goodsData[i])
             obj['open'] = bol
             this.$set(this.goodsData, i, obj)
@@ -758,41 +736,32 @@ export const mixinsGoodsSeries = {
         // 商品选中/取消
         goodsChecked(value,row, index) {
             const bol = row.goodsIsChecked
-            console.log('bol', bol)
             this.$nextTick(()=>{
                 let obj = _.cloneDeep(row)
                 obj['goodsIsChecked'] = value
                 this.$set(this.goodsData, index, obj)
-                console.log('this.goodsData', this.goodsData)
+
                 this.checked_goods_count = this.goodsData.filter(item=>{return item.goodsIsChecked}).length
                 this.isIndeterminate = this.checked_goods_count > 0 && this.checked_goods_count < this.goodsData.length
-                console.log('checked_goods_count', this.checked_goods_count)
             })
-
-            // console.log('this.goodsData', this.goodsData)
         },
 
         goodsAllChecked(bol) {
             this.allChecked = bol
             this.goodsData.forEach((ev, i)=>{
                 ev['goodsIsChecked'] = bol
-                // this.goodsChecked(bol, ev, i)
             })
             this.$nextTick(()=>{
                 this.checked_goods_count = this.goodsData.filter(item=>{return item.goodsIsChecked}).length
                 this.isIndeterminate = this.checked_goods_count > 0 && this.checked_goods_count < this.goodsData.length
             })
-
-            console.log('this.goodsData', this.goodsData)
         },
 
         shopChange() {
             this.shopId = this.operationForm.shop_id
-            console.log('this.shopId', this.shopId)
         },
         //
         sortTypeChange() {
-            console.log('sortValue', this.sortValue)
             if(this.sortValue == 6) {
                 this.isSort = true
             } else {
@@ -830,7 +799,6 @@ export const mixinsGoodsSeries = {
         end(e) {
             let oldIndex = e.oldIndex
             let newIndex = e.newIndex
-            console.log('e', e)
             let currRow = this.goodsData[oldIndex]
             let newItems = [...this.goodsData]
             // 删除老的节点
@@ -841,7 +809,6 @@ export const mixinsGoodsSeries = {
             this.$nextTick(() => {
                 this.goodsData = [...newItems]
                 this.activeImg = ''
-                console.log('goodsData====701', this.goodsData)
             })
         },
 
