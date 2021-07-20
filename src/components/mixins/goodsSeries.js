@@ -431,7 +431,7 @@ export const mixinsGoodsSeries = {
                     }
                 })
 
-                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                let _arr = this.cate_group_list.concat(this.cate_other_list)
                 _arr.forEach(ev => {
                     if (ev.id == this.searchParams['typeCategory'][1]) {
                         showValue = showValue + '/' + ev.name
@@ -449,7 +449,7 @@ export const mixinsGoodsSeries = {
                     }
                 })
 
-                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                let _arr = this.cate_group_list.concat(this.cate_other_list)
                 _arr.forEach(ev => {
                     if (ev.id == this.searchParams['typeCategory'][1]) {
                         showValue = showValue + '/' + ev.name
