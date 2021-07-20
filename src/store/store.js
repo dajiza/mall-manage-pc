@@ -7,7 +7,8 @@ export default new Vuex.Store({
         addLayout: {}, //添加板块的数据
         addImg: {}, //添加图片的数据
         isBanner: false, //添加的是否是Banner
-        scrollToId: '' //视图滚动到的id
+        scrollToId: '', //视图滚动到的id
+        shopIdStore: '' //选中的店铺
     },
     mutations: {
         setPlateStore(state, value) {
@@ -24,6 +25,9 @@ export default new Vuex.Store({
         },
         setScrollToId(state, value) {
             state.scrollToId = value
+        },
+        setShopIdStore(state, value) {
+            state.shopIdStore = value
         }
     }
 })

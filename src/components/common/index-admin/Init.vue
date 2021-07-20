@@ -134,7 +134,7 @@ export default {
     },
 
     computed: {
-        ...mapState(['plateStore', 'addLayout'])
+        ...mapState(['plateStore', 'addLayout', 'shopIdStore'])
         // plateStore: {
         //     //get 和 set 都需要设置
         //     get() {
@@ -195,7 +195,12 @@ export default {
                 queryShopList()
                     .then(res => {
                         this.shopList = res.data
-                        this.shopActive = res.data[0]
+                        if (!this.shopIdStore) {
+                            this.shopActive = res.data[0]
+                            this.$store.commit('setShopIdStore', res.data[0])
+                        } else {
+                            this.shopActive = this.shopIdStore
+                        }
 
                         resolve(res)
                     })
@@ -237,6 +242,7 @@ export default {
         // 选择店铺
         handleCommandShop(shop) {
             this.shopActive = shop
+            this.$store.commit('setShopIdStore', shop)
 
             this.getList()
         },
