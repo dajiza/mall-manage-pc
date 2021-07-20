@@ -189,8 +189,8 @@
                             </div>
 
                         </draggable>
-                        <div class="is-all" v-if="goodsData.length > 0 && is_all">没有更多了</div>
-                        <div class="empty-list" v-if="goodsData.length < 1">暂无商品</div>
+                        <div class="is-all tip-text" v-if="goodsData.length > 0 && is_all">没有更多了</div>
+                        <div class="empty-list tip-text" v-if="goodsData.length < 1">暂无商品</div>
                     </div>
                 </div>
             </div>

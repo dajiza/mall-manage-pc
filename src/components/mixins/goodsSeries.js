@@ -391,6 +391,7 @@ export const mixinsGoodsSeries = {
         // 按钮-触发搜索 -- 存储搜索条件
         handleSearch(formName) {
             this.goodsInit()
+            this.$refs['searchForm'].resetFields()
             this.searchParams = _.cloneDeep(this.searchForm)
             this.setSearchValue()
             this.getShopGoodsList()
@@ -537,7 +538,6 @@ export const mixinsGoodsSeries = {
             this.is_all = false
             this.isIndeterminate = false
             this.searchShow = false
-            this.$refs['searchForm'].resetFields()
         },
 
         // 添加
@@ -611,7 +611,7 @@ export const mixinsGoodsSeries = {
                             }
                         })
                         this.checked_goods_list = newCheckedGoodsList
-                        tipText = "已移除,可到'未添加'列表查看"
+                        tipText = "已移除"
                         this.$notify({
                             title: tipText,
                             message: '',
@@ -671,7 +671,6 @@ export const mixinsGoodsSeries = {
                 console.log('请先选择店铺')
                 return
             }
-            const rLoading = this.openLoading()
             let params = _.cloneDeep(this.searchParams)
             params['limit'] = this.limit
             params['page'] = this.goodsPage
@@ -690,15 +689,18 @@ export const mixinsGoodsSeries = {
                 params['other_id'] = 0
             }
             params['goods_ids'] = []
-            if (this.checked_goods_list.length > 0) {
-                params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
+            if (this.checked_goods_list.length < 1) {
+                this.goodsInit()
+                return false
             }
+            params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
             params['shop_id'] = this.shopId
             params['sort'] = this.sortValue
             this.is_loading = true
             this.skuImgList = []
             this.imgList = []
             let skuImgIndex = 0
+            const rLoading = this.openLoading()
             queryShopGoodsList(params)
                 .then((res)=>{
                     rLoading.close()
