@@ -11,10 +11,10 @@
             <el-form class="create-plate" label-position="top" :model="createPlate" :rules="rules" ref="formRef">
                 <template v-if="!isBanner">
                     <el-form-item label="">
-                        <el-checkbox v-model="createPlate.showTitle" :true-label="2" :false-label="1">显示大标题</el-checkbox>
+                        <el-checkbox v-model="createPlate.showTitle" :true-label="2" :false-label="1" @change="onChangeTitle">显示大标题</el-checkbox>
                     </el-form-item>
                     <el-form-item label="">
-                        <el-checkbox v-model="createPlate.showSubtitle" :true-label="2" :false-label="1">显示小标题</el-checkbox>
+                        <el-checkbox v-model="createPlate.showSubtitle" :true-label="2" :false-label="1" @change="onChangeSubTitle">显示小标题</el-checkbox>
                     </el-form-item>
                     <el-form-item label="板块名称" prop="layoutName">
                         <el-input style="width:280px" placeholder="板块名称" v-model="createPlate.layoutName"></el-input>
@@ -168,6 +168,16 @@ export default {
             this.activeImgId = id || 0
         },
 
+        onChangeTitle(e) {
+            if (e == 1) {
+                this.createPlate.showSubtitle = 1
+            }
+        },
+        onChangeSubTitle(e) {
+            if (e == 2) {
+                this.createPlate.showTitle = 2
+            }
+        },
         end(e) {
             let oldIndex = e.oldIndex
             let newIndex = e.newIndex
