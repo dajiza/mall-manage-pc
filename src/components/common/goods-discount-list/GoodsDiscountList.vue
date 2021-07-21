@@ -181,6 +181,12 @@
                         </template>
                     </el-table-column>
                     <el-table-column width="55">
+                        <template slot="header" slot-scope="scope">
+                            <el-checkbox v-model="checkAll"
+                                         :indeterminate="0 < list.filter(item=>item.checked).length && list.filter(item=>item.checked).length < list.length"
+                                         @change="value => handleCheckCurrentPage(value)"
+                            ></el-checkbox>
+                        </template>
                         <template slot-scope="scope">
                             <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => groupChecked(value, scope.row)"></el-checkbox>
                         </template>
@@ -321,6 +327,7 @@ export default Vue.extend({
             searchShow: false,
             searchList: [],
             showMaxIndex: 0,
+            checkAll: false,
         }
     },
     watch: {
@@ -592,6 +599,33 @@ export default Vue.extend({
             }
             this.refreshSelection()
         },
+        handleCheckCurrentPage(bol) {
+            this.list.forEach((ev)=>{
+                ev['checked'] = bol
+                ev['imgCheckdList'] = []
+                ev.goods_sku.forEach((sku)=>{
+                    sku['checked'] = bol
+                    if(bol) {
+                        ev['imgCheckdList'].push(sku)
+                    }
+                })
+            })
+            let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+            console.log('checkedListCopy', checkedListCopy)
+            this.checkedList = checkedListCopy.filter(item=>item.checked)
+            console.log('checkedList', this.checkedList)
+            this.setCheckAll()
+        },
+
+        setCheckAll() {
+            let check_num = 0
+            check_num = this.list.filter(item => item.checked).length
+            if (this.list.length > 0 && check_num == this.list.length) {
+                this.checkAll = true
+            } else {
+                this.checkAll = false
+            }
+        },
         // 监听goods选中
         groupChecked(val, group) {
             console.log('输出 ~ group', group.id)
@@ -689,6 +723,7 @@ export default Vue.extend({
                     }
                 }
             }
+            this.setCheckAll()
         },
         // 搜索
         handleFilter() {
@@ -883,6 +918,16 @@ export default Vue.extend({
                 this.$set(this.formFilter, 'typeCategory', [])
             }
             this.handleFilter()
+        },
+
+        uniqueArr(arr1,arr2) {
+            console.log('arr1', arr1)
+            console.log('arr2', arr2)
+            //合并两个数组
+            let newArr = [...arr1,...arr2]
+            //去重
+            const res = new Map();
+            return newArr.filter((arr) => !res.has(arr.id) && res.set(arr.id, 1));
         },
     }
 })

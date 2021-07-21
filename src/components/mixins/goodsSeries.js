@@ -639,6 +639,8 @@ export const mixinsGoodsSeries = {
         sureAddGoods(data){
             // 请求 店铺商品列表
             this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
+            console.log('this.checked_goods_list===642', this.checked_goods_list )
+            this.checked_goods_ids = this.checked_goods_list.map(item=>{return item.id})
             this.isRefresh = true
             this.goodsPage = 1
             this.getShopGoodsList()
@@ -670,6 +672,7 @@ export const mixinsGoodsSeries = {
             params['goods_ids'] = []
             if (this.checked_goods_list.length < 1) {
                 this.goodsInit()
+                this.setCheckAll()
                 return false
             }
             params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
@@ -712,6 +715,7 @@ export const mixinsGoodsSeries = {
                                 skuImgIndex++
                             }
                         })
+                        this.setCheckAll()
                         let that = this
                         setTimeout(()=>{
                             that.is_loading = false
@@ -743,22 +747,36 @@ export const mixinsGoodsSeries = {
 
                 this.checked_goods_count = this.goodsData.filter(item=>{return item.goodsIsChecked}).length
                 this.isIndeterminate = this.checked_goods_count > 0 && this.checked_goods_count < this.goodsData.length
+                this.setCheckAll()
             })
         },
 
         goodsAllChecked(bol) {
-            this.allChecked = bol
             this.goodsData.forEach((ev, i)=>{
                 ev['goodsIsChecked'] = bol
             })
             this.$nextTick(()=>{
                 this.checked_goods_count = this.goodsData.filter(item=>{return item.goodsIsChecked}).length
                 this.isIndeterminate = this.checked_goods_count > 0 && this.checked_goods_count < this.goodsData.length
+                this.allChecked = bol && this.checked_goods_count == this.goodsData.length
             })
+        },
+
+        setCheckAll() {
+            this.checked_goods_count = this.goodsData.filter(item=>{return item.goodsIsChecked}).length
+            this.isIndeterminate = this.checked_goods_count > 0 && this.checked_goods_count < this.goodsData.length
+            this.allChecked = this.goodsData.length > 0 && this.checked_goods_count == this.goodsData.length
+            // this.filterGoods()
         },
 
         shopChange() {
             this.shopId = this.operationForm.shop_id
+            // 切换店铺 清空已选商品列表
+            if (this.checked_goods_ids.length > 0) {
+                this.checked_goods_ids = []
+                this.checked_goods_list = []
+                this.goodsInit()
+            }
         },
         //
         sortTypeChange() {

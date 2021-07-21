@@ -839,11 +839,12 @@ export default {
         },
 
         filterGoods() {
-            this.checkedList.forEach((goods, i) => {
-                if (goods['checkNum'] < 1) {
-                    this.checkedList.splice(i, 1)
-                }
-            })
+            // this.checkedList.forEach((goods, i) => {
+            //     if (goods['checkNum'] < 1) {
+            //         this.checkedList.splice(i, 1)
+            //     }
+            // })
+            this.checkedList = this.checkedList.filter(item=>{return item.checkNum > 0})
         },
         // sku选中/取消
         skuChecked(bol, row, index, goods_detail, goods_index) {

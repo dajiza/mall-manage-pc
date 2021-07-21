@@ -1082,11 +1082,10 @@ export default {
 
         filterGoods() {
             this.checkedList.forEach((goods)=>{
+                goods['checkNum'] = 0
                 goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
-                if (goods['checkNum'] < 1) {
-                    this.checkedList.splice(i, 1)
-                }
             })
+            this.checkedList = this.checkedList.filter(item=>{return item.checkNum > 0})
         },
         // sku选中/取消
         skuChecked(bol, row, index, goods_detail, goods_index) {

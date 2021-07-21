@@ -3,7 +3,7 @@
         <el-dialog :visible.sync="isShow" :close-on-click-modal="false" width="90%" @open="open" @opened="opened" @close="closed">
             <div slot="title">
                 <div class="table-title">
-                    <div class="text">{{title}}123</div>
+                    <div class="text">{{title}}</div>
                     <div class="grey-line"></div>
                     <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
                     <transition name="slide-fade">
@@ -180,6 +180,12 @@
                         </template>
                     </el-table-column>
                     <el-table-column label="" width="35">
+                        <template slot="header" slot-scope="scope">
+                            <el-checkbox v-model="checkAll"
+                                         :indeterminate="0 < list.filter(item=>item.goodsIsChecked).length && list.filter(item=>item.goodsIsChecked).length < list.length"
+                                         @change="value => handleCheckCurrentPage(value)"
+                            ></el-checkbox>
+                        </template>
                         <template slot-scope="scope">
                             <el-checkbox
                                     v-model="scope.row.goodsIsChecked"
@@ -335,7 +341,8 @@
                 searchList: [],
                 showMaxIndex: 0,
                 checkedList: [], // 选中商品列表
-                labelKey: 1
+                labelKey: 1,
+                checkAll: false
             }
         },
         components: {
@@ -408,7 +415,7 @@
             },
             open() {},
             opened() {
-                console.log('checked', this.checked)
+                console.log('checked=======418', this.checked)
                 ++this.labelKey
                 this.checkedList = []
                 this.listQuery.page = 1
@@ -543,6 +550,7 @@
                         }
                         this.list = goods_list
                         this.total = res.data.total
+                        this.setCheckAll()
                         rLoading.close()
                     })
                     .catch(err => {
@@ -692,6 +700,7 @@
                         })
                     }
                 }
+                this.setCheckAll()
             },
 
             // 已选图片显示/关闭
@@ -779,15 +788,56 @@
                     }
                     let goodsSku = _.cloneDeep(row)
                     // 判断 当前操作的商品 是否在 已选商品列表中
-                    if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
+                    if (checkedGoodsIds.indexOf(goodsSku.id) == -1 && bol) {
                         this.checkedList.push(goodsSku)
-                    } else if (checkedGoodsIds.indexOf(goodsSku.id) > -1) {
+                    } else if (checkedGoodsIds.indexOf(goodsSku.id) > -1 && !bol) {
                         let index = checkedGoodsIds.indexOf(goodsSku.goods_id)
-                        this.$set(this.checkedList, index, goodsSku)
+                        this.checkedList.splice(index,1)
+
+                        // this.$set(this.checkedList, index, goodsSku)
+                        console.log('checkedList======795', this.checkedList)
                     }
                 }
-            }
-        }
+            },
+
+            handleCheckCurrentPage(bol) {
+                this.list.forEach((ev)=>{
+                    if(!ev.isDisabled){
+                        ev['goodsIsChecked'] = bol
+                        ev.shop_skus.forEach((sku)=>{
+                            if(!ev.isDisabled){
+                                sku['skuIsChecked'] = bol
+                            }
+                        })
+                    }
+                })
+                let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+                console.log('checkedListCopy', checkedListCopy)
+                this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+                console.log('checkedList', this.checkedList)
+                this.setCheckAll()
+            },
+
+            setCheckAll() {
+                let check_num = 0
+                check_num = this.list.filter(item => item.goodsIsChecked).length
+                if (this.list.length > 0 && check_num == this.list.length) {
+                    this.checkAll = true
+                } else {
+                    this.checkAll = false
+                }
+                // this.filterGoods()
+            },
+            uniqueArr(arr1,arr2) {
+                console.log('arr1', arr1)
+                console.log('arr2', arr2)
+                //合并两个数组
+                let newArr = [...arr1,...arr2]
+                //去重
+                const res = new Map();
+                return newArr.filter((arr) => !res.has(arr.goods_id) && res.set(arr.goods_id, 1));
+            },
+        },
     }
 </script>
 

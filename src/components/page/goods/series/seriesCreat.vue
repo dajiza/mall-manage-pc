@@ -14,7 +14,7 @@
                     <el-input class="w300" type="textarea" :rows="5" placeholder="请输入名称" v-model="operationForm.remark" />
                 </el-form-item>
                 <el-form-item class="form-item" label="可用店铺:" prop="shop_id">
-                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" @change="shopChange">
+                    <el-select class="w300" filterable placeholder="请选择店铺" v-model="operationForm.shop_id" :disabled="operationTitle == '编辑系列'" @change="shopChange">
                         <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -82,7 +82,7 @@
                 <el-select class="sort-select" v-model="sortValue" placeholder="请选择" clearable @change="sortTypeChange">
                     <el-option v-for="state in sortOptions" :key="state.id" :value="state.id" :label="state.name" />
                 </el-select>
-                <el-button type="primary" style="margin-left: auto;" @click="handleDelCate">批量移除</el-button>
+                <el-button type="primary" style="margin-left: auto;" :disabled="checked_goods_count == 0" @click="handleDelCate">批量移除</el-button>
                 <el-button style="margin-right: 30px" type="success" @click="handleAdd">添加</el-button>
             </div>
             <div class="divider"></div>

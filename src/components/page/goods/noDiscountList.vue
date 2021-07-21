@@ -96,7 +96,7 @@
                 </template>
             </el-table-column>
             <!-- 折扣值：0正常折扣，1无折扣，(0,1)为其他折扣 -->
-            <el-table-column label="会员折扣" width="90">
+            <el-table-column label="折扣" width="90">
                 <template slot-scope="scope">
                     <span v-if="scope.row.user_discount == 100">否</span>
                     <span v-else-if="scope.row.user_discount == 0">是</span>
