@@ -220,7 +220,7 @@ export default {
                         },
                         {
                             name: '/mall-backend-sales-index-admin',
-                            display_name: '模块管理'
+                            display_name: '编辑首页'
                         }
                     ]
                 },

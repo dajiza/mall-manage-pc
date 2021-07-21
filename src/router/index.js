@@ -280,7 +280,7 @@ export default new Router({
                 {
                     path: '/mall-backend-sales-index-admin',
                     component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/index-admin/indexAdmin.vue'),
-                    meta: { title: '模块管理', name: 'indexAdmin' }
+                    meta: { title: '编辑首页', name: 'indexAdmin' }
                 },
                 {
                     path: '/mall-backend-commission',

@@ -74,7 +74,7 @@
         </div>
         <div class="bottom">
             <el-button class="bottom-btn" type="" @click="navigatePlate(3, true)">取 消</el-button>
-            <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="!operationForm.isNew">删 除</el-button>
+            <!-- <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="!operationForm.isNew">删 除</el-button> -->
             <el-button class="bottom-btn" type="primary" @click="save">保 存</el-button>
         </div>
         <!--大图预览-->
@@ -246,8 +246,7 @@ export default {
             this.$confirm('确认删除该图片', '', {
                 confirmButtonText: '确认',
                 cancelButtonText: '取消',
-                type: 'warning',
-                center: true
+                type: 'warning'
             }).then(() => {
                 if (this.operationForm.id) {
                     // 已保存过

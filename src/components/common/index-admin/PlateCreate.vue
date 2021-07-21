@@ -27,13 +27,14 @@
                     </el-form-item>
                 </template>
                 <el-form-item label="内容">
+                    <div class="tip" v-if="createPlate.kind == 4">建议添加至少2张图片</div>
                     <div class="img-list">
                         <draggable @end="end" animation="300">
                             <div
                                 :class="['item', activeImg == item.customId ? 'active' : '']"
                                 v-for="(item, index) in createPlate.ContentList"
                                 :key="item.customId"
-                                @click="imgChoose(item.customId)"
+                                @click="imgChoose(item.customId, item.id)"
                             >
                                 <div class="icon">
                                     <img class="icon-img" :src="item.img" alt="" />
@@ -60,7 +61,9 @@
         </div>
         <div class="bottom">
             <el-button class="bottom-btn" type="" @click="navigatePlate(1, true)">取 消</el-button>
-            <el-button class="bottom-btn" type="danger" @click="deletePlate" v-if="!isBanner && createPlate.id">删 除</el-button>
+            <!-- <el-button class="bottom-btn" type="danger" @click="deletePlate" v-if="!isBanner && createPlate.id">删 除</el-button> -->
+            <el-button class="bottom-btn" type="danger" @click="deleteImg" v-if="activeImg">删 除</el-button>
+
             <el-button class="bottom-btn" type="" @click="edit" v-if="activeImg">编 辑</el-button>
             <el-button class="bottom-btn" type="primary" @click="save">确 认</el-button>
         </div>
@@ -68,7 +71,7 @@
 </template>
 
 <script>
-import { saveLayout, deleteLayout } from '@/api/plate'
+import { saveLayout, deleteLayoutContent } from '@/api/plate'
 import draggable from 'vuedraggable'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
@@ -81,7 +84,8 @@ export default {
     // },
     data() {
         return {
-            activeImg: '',
+            activeImg: '', //选中图片的customId
+            activeImgId: '', //选中图片的接口id
             // 创建模块
             createPlate: this.$store.state.addLayout,
             rules: {
@@ -159,8 +163,9 @@ export default {
         },
 
         // 添加模块 选择模块
-        imgChoose(customId) {
+        imgChoose(customId, id) {
             this.activeImg = customId
+            this.activeImgId = id || 0
         },
 
         end(e) {
@@ -225,36 +230,43 @@ export default {
         setVisible(index, value) {
             this.$set(this.createPlate.ContentList[index], 'status', value)
         },
-        // 删除板块
-        deletePlate() {
-            this.$confirm('确认删除该板块', '', {
+        // 删除图片
+        deleteImg() {
+            this.$confirm('确认删除该图片', '', {
                 confirmButtonText: '确认',
                 cancelButtonText: '取消',
-                type: 'warning',
-                center: true
+                type: 'warning'
             }).then(() => {
-                deleteLayout({ layoutId: this.createPlate.id })
-                    .then(res => {
-                        if (res.code === 200) {
-                            this.$notify({
-                                title: '删除成功',
-                                message: '',
-                                type: 'success',
-                                duration: 3000
-                            })
-                            this.navigatePlate(1)
-                        } else {
-                            this.$notify({
-                                title: res.msg,
-                                message: '',
-                                type: 'error',
-                                duration: 5000
-                            })
-                        }
-                    })
-                    .catch(() => {
-                        console.log('取消')
-                    })
+                if (this.activeImgId) {
+                    // 已保存过
+                    deleteLayoutContent({ contentId: this.activeImgId })
+                        .then(res => {
+                            if (res.code === 200) {
+                                this.$notify({
+                                    title: '删除成功',
+                                    message: '',
+                                    type: 'success',
+                                    duration: 3000
+                                })
+                            } else {
+                                this.$notify({
+                                    title: res.msg,
+                                    message: '',
+                                    type: 'error',
+                                    duration: 5000
+                                })
+                            }
+                        })
+                        .catch(() => {
+                            console.log('取消')
+                        })
+                }
+                let index = this.createPlate.ContentList.findIndex(item => item.customId == this.activeImg)
+
+                this.createPlate.ContentList.splice(index, 1)
+                // this.$store.commit('setAddLayout', this.addLayout)
+
+                // this.navigatePlate(3)
             })
         },
         save() {
@@ -481,5 +493,9 @@ export default {
 }
 .el-form--label-top /deep/ .el-form-item__label {
     padding: 0;
+}
+.tip {
+    font-size: 12px;
+    color: rgba(136, 136, 136, 0.85);
 }
 </style>

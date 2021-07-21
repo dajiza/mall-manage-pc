@@ -34,7 +34,7 @@
                 <div
                     :class="['item', activePlate == item.customId ? 'active' : '']"
                     v-for="item in plate.layoutList"
-                    @click="plateChoose(item.customId)"
+                    @click="plateChoose(item.customId, item.id)"
                     :key="item.customId"
                     v-if="item.kind != 5"
                 >
@@ -59,14 +59,15 @@
             </div>
         </div>
         <div class="bottom">
-            <el-button class="bottom-btn" type="" @click="edit" v-if="activePlate">编辑</el-button>
+            <el-button class="bottom-btn" type="danger" @click="deletePlate" v-if="activePlateId">删 除</el-button>
+            <el-button class="bottom-btn" type="" @click="edit" v-if="activePlate">编 辑</el-button>
             <el-button class="bottom-btn" type="primary" @click="save(2)">发 布</el-button>
         </div>
     </div>
 </template>
 
 <script>
-import { queryLayoutDetail, saveLayout, recoverLayout } from '@/api/plate'
+import { queryLayoutDetail, saveLayout, recoverLayout, deleteLayout } from '@/api/plate'
 import { mapGetters, mapState, mapMutations, mapActions } from 'vuex'
 
 import { queryShopList } from '@/api/goods'
@@ -74,7 +75,6 @@ import draggable from 'vuedraggable'
 
 export default {
     name: 'Index-Init',
-
     props: {
         // init: {
         //     type: Boolean
@@ -128,7 +128,8 @@ export default {
                 4: '滑动横图'
             },
             // 选中的板块
-            activePlate: ''
+            activePlate: '', //customId
+            activePlateId: '' //接口的id
         }
     },
 
@@ -303,8 +304,42 @@ export default {
             }
         },
 
-        plateChoose(id) {
-            this.activePlate = id
+        plateChoose(customId, id) {
+            this.activePlate = customId
+            this.activePlateId = id || 0
+
+            this.$store.commit('setScrollToId', customId)
+        },
+        // 删除板块
+        deletePlate() {
+            this.$confirm('确认删除该板块', '', {
+                confirmButtonText: '确认',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                deleteLayout({ layoutId: this.activePlateId })
+                    .then(res => {
+                        if (res.code === 200) {
+                            this.$notify({
+                                title: '删除成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            })
+                            this.getList()
+                        } else {
+                            this.$notify({
+                                title: res.msg,
+                                message: '',
+                                type: 'error',
+                                duration: 5000
+                            })
+                        }
+                    })
+                    .catch(() => {
+                        console.log('取消')
+                    })
+            })
         },
         edit() {
             if (this.activePlate == 'banner') {
@@ -353,6 +388,21 @@ export default {
             this.$store.commit('setScrollToId', this.addLayout.customId)
         },
         save(status = 2) {
+            if (status == 2) {
+                this.$confirm('确认发布', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.saveLayoutFun(status)
+                    })
+                    .catch(() => {})
+            } else {
+                this.saveLayoutFun(status)
+            }
+        },
+        saveLayoutFun(status) {
             const rLoading = this.openLoading()
             // 排序
             let plateStore = this.plateStore

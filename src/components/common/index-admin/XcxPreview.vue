@@ -1,6 +1,6 @@
 <template>
     <div class="preview">
-        <div class="box">
+        <div class="box" id="box">
             <index-component :type="5" :list="banner" :id="banner.customId"></index-component>
             <!-- <index-component :type="5"></index-component> -->
             <index-component :id="item.customId" v-for="item in plate.filter(e => e.status == 2)" :list="item" :key="item.customId"></index-component>
@@ -95,7 +95,11 @@ export default {
                 }
                 this.$nextTick(() => {
                     console.log('输出 ~ newValue', newValue)
-                    document.getElementById(newValue).scrollIntoView()
+                    if (newValue == 'banner') {
+                        document.getElementById(this.banner.customId).scrollIntoView()
+                    } else {
+                        document.getElementById(newValue).scrollIntoView()
+                    }
                 })
             }
         }
