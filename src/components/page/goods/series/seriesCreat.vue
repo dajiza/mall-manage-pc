@@ -91,7 +91,7 @@
                     <div class="th-box">
                         <div class="sort-box" v-show="isSort"></div>
                         <div class="check-box-all">
-                            <el-checkbox :indeterminate="isIndeterminate" v-model="allChecked" @change="value => goodsAllChecked(value)"></el-checkbox>
+                            <el-checkbox :indeterminate="isIndeterminate" :disabled="goodsData.length < 1" v-model="allChecked" @change="value => goodsAllChecked(value)"></el-checkbox>
                         </div>
                         <div class="goods-id">商品ID</div>
                         <div class="goods-img">主图</div>

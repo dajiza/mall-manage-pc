@@ -183,6 +183,7 @@
                     <el-table-column width="55">
                         <template slot="header" slot-scope="scope">
                             <el-checkbox v-model="checkAll"
+                                         :disabled="list.length < 1"
                                          :indeterminate="0 < list.filter(item=>item.checked).length && list.filter(item=>item.checked).length < list.length"
                                          @change="value => handleCheckCurrentPage(value)"
                             ></el-checkbox>
