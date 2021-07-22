@@ -1,5 +1,5 @@
 import { queryShopList, queryCategoryListAll } from '@/api/goods'
-import { updateGoodsSeries, queryGoodsSeriesDetail } from '@/api/goodsSeries'
+import { updateGoodsSeries, queryGoodsSeriesDetail, deleteGoods, querySeriesShopGoodsList } from '@/api/goodsSeries';
 import { queryShopGoodsList } from '@/api/live'
 import { formatMoney } from '@/plugin/tool'
 import { ATTR, ATTR_NAME } from '@/plugin/constant'
@@ -63,7 +63,7 @@ export const mixinsGoodsSeries = {
             tableHeight: 'calc(100vh - 254px)',
             goods_loading: false,
             goodsPage: 1,
-            limit: 20,
+            limit: 10,
             pageTotal: 0,
             dialogVisiblePic: false,
             previewUrlList: [],
@@ -263,16 +263,23 @@ export const mixinsGoodsSeries = {
             this.shopId = info.goods_group.shop_id
             this.$set(this.operationForm, 'shop_id', info.goods_group.shop_id ? Number(info.goods_group.shop_id) : '')
             this.checked_goods_list = []
-            this.checked_goods_ids = []
-            if (this.operationTitle === '编辑系列') {
-                const list = info.goods_relations.list || []
-                if(list.length > 0) {
-                    this.checked_goods_list = list
-                    this.checked_goods_ids  = list.map(item=>{return item.id})
-                    this.getShopGoodsList()
+            this.checked_goods_ids = info.shop_goods_ids || []
+            this.isSort = false
+            if (info.goods_group.sort_type > 0) {
+                this.sortValue = info.goods_group.sort_type
+                if(this.sortValue == 6) {
+                    this.isSort = true
                 }
-            } else {
-                this.$set(this.operationForm, 'title', '')
+            }
+            if (this.operationTitle === '编辑系列') {
+                console.log('编辑')
+                this.getShopGoodsList()
+                // const list = info.goods_relations.list || []
+                // if(list.length > 0) {
+                //     this.checked_goods_list = list
+                //     this.checked_goods_ids  = list.map(item=>{return item.id})
+                //     this.getShopGoodsList()
+                // }
             }
         },
 
@@ -314,9 +321,21 @@ export const mixinsGoodsSeries = {
                             sort_type: this.sortValue || 0,
                         },
                         goods_group_relations: []
-
                     }
                     let selectedList = []
+                    if (this.sortValue != 6) {
+                        console.log('this.checked_goods_ids', this.checked_goods_ids)
+                        if (this.checked_goods_ids.length > 0) {
+                            this.checked_goods_ids.forEach((ev,i)=>{
+                                selectedList.push({
+                                    shop_goods_id: ev,
+                                    sort: i + 1
+                                })
+                            })
+                        }
+                    } else {
+
+                    }
                     if(this.goodsData.length > 0) {
                         this.goodsData.forEach((ev,i)=>{
                             selectedList.push({
@@ -563,16 +582,17 @@ export const mixinsGoodsSeries = {
         addOrDelSuccess(list, type) {
             if (list.length > 0) {
                 let new_goods_list = []
+                let relation_ids = []
                 list.forEach(ev => {
                     new_goods_list.push(ev.id)
+                    relation_ids.push(ev.relation_id)
                 })
-                let tipText = ''
                 let num = new_goods_list.length
-                let del_text = ''
+                let del_text = num > 1 ? '确定将' + num + '件商品移除吗？' : '确定将该商品移除吗？'
                 if (num > 1) {
                     del_text = '确定将' + num + '件商品移除吗？'
                 } else {
-                    del_text = '确定将该件商品移除吗？'
+                    del_text = '确定将该商品移除吗？'
                 }
                 this.$confirm(del_text, '', {
                     customClass: 'message-delete',
@@ -584,22 +604,51 @@ export const mixinsGoodsSeries = {
                             return new_goods_list.indexOf(item) == -1
                         })
                         this.checked_goods_ids = new_arr
-                        let newCheckedGoodsList  = []
-                        this.checked_goods_list.forEach((ev)=>{
-                            if(this.checked_goods_ids.includes(ev.id)) {
-                                newCheckedGoodsList.push(ev)
-                            }
-                        })
-                        this.checked_goods_list = newCheckedGoodsList
-                        tipText = "已移除"
-                        this.$notify({
-                            title: tipText,
-                            message: '',
-                            type: 'success',
-                            duration: 3000
-                        })
-                        this.goodsInit()
-                        this.getShopGoodsList()
+                        // let newCheckedGoodsList  = []
+                        // this.checked_goods_list.forEach((ev)=>{
+                        //     if(this.checked_goods_ids.includes(ev.id)) {
+                        //         newCheckedGoodsList.push(ev)
+                        //     }
+                        // })
+                        // this.checked_goods_list = newCheckedGoodsList
+                        const rLoading = this.openLoading()
+                        const params = {
+                            relation_ids: relation_ids
+                        }
+                        console.log('params', params)
+                        if (this.operationTitle == '编辑系列') {
+                            deleteGoods(params)
+                                .then(res => {
+                                    rLoading.close()
+                                    if (res.code === 200) {
+                                        this.$notify({
+                                            title: '移除成功',
+                                            message: '',
+                                            type: 'success',
+                                            duration: 3000
+                                        })
+                                        this.goodsInit()
+                                        this.getShopGoodsList()
+                                    } else {
+                                        this.$notify({
+                                            title: res.msg,
+                                            message: '',
+                                            type: 'error',
+                                            duration: 5000
+                                        })
+                                    }
+                                })
+                                .catch(() => {})
+                        } else {
+                            this.$notify({
+                                title: '移除成功',
+                                message: '',
+                                type: 'success',
+                                duration: 3000
+                            })
+                            this.goodsInit()
+                            this.getShopGoodsList()
+                        }
                     })
                     .catch(() => {})
             } else {
@@ -638,9 +687,13 @@ export const mixinsGoodsSeries = {
         // 确定添加 商品
         sureAddGoods(data){
             // 请求 店铺商品列表
-            this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
-            console.log('this.checked_goods_list===642', this.checked_goods_list )
-            this.checked_goods_ids = this.checked_goods_list.map(item=>{return item.id})
+            // this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
+            // console.log('this.checked_goods_list===642', this.checked_goods_list )
+            // this.checked_goods_ids = this.checked_goods_list.map(item=>{return item.id})
+            console.log('data', data)
+            const add_ids = data.map(item => {return item.id})
+            this.checked_goods_ids  = Array.from(new Set(this.checked_goods_ids.concat(add_ids)));
+            console.log('this.checked_goods_ids', this.checked_goods_ids)
             this.isRefresh = true
             this.goodsPage = 1
             this.getShopGoodsList()
@@ -669,21 +722,23 @@ export const mixinsGoodsSeries = {
             if (params['goods_type'] == 1) {
                 params['other_id'] = 0
             }
-            params['goods_ids'] = []
-            if (this.checked_goods_list.length < 1) {
+            params['shop_goods_ids'] = []
+            console.log('checked_goods_ids',this.checked_goods_ids)
+            if (this.checked_goods_ids.length < 1) {
                 this.goodsInit()
                 this.setCheckAll()
                 return false
             }
-            params['goods_ids'] = this.checked_goods_list.map(item=>{return item.goods_id})
+            params['shop_goods_ids'] = this.checked_goods_ids
             params['shop_id'] = this.shopId
             params['sort'] = this.sortValue || 0
+            params['group_id'] = this.$route.query.id ? Number(this.$route.query.id) : 0
             this.is_loading = true
             this.skuImgList = []
             this.imgList = []
             let skuImgIndex = 0
             const rLoading = this.openLoading()
-            queryShopGoodsList(params)
+            querySeriesShopGoodsList(params)
                 .then((res)=>{
                     rLoading.close()
                     if (res.code == 200) {
@@ -692,7 +747,7 @@ export const mixinsGoodsSeries = {
                             this.goodsData = []
                         }
                         this.pageTotal = res.data.total || 0
-                        const new_list = res.data.lists || []
+                        const new_list = res.data.list || []
                         this.goodsData = this.goodsData.concat(new_list)
                         if (this.goodsData.length == this.pageTotal) {
                             this.is_all = true
@@ -785,7 +840,7 @@ export const mixinsGoodsSeries = {
             } else {
                 this.isSort = false
             }
-            if(this.goodsData.length > 0) {
+            if(this.goodsData.length > 0 && this.sortValue < 6) {
                 this.goodsInit()
                 this.getShopGoodsList()
             }

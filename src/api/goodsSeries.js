@@ -11,3 +11,11 @@ export const deleteGoodsSeries = params => post('/backend/goods-group-del', para
 
 // 商品系列详情
 export const queryGoodsSeriesDetail = params => post('/backend/goods-group-data', params)
+
+// 商品移除
+export const deleteGoods = params => post('/backend/goods-group-goods-del', params)
+
+// 店铺商品列表 - 系列
+export const querySeriesShopGoodsList = params => post('/backend/goods-group-goods-list', params)
+
+

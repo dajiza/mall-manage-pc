@@ -79,7 +79,7 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-select class="sort-select" v-model="sortValue" placeholder="请选择" clearable @change="sortTypeChange">
+                <el-select class="sort-select" v-model="sortValue" placeholder="请选择" @change="sortTypeChange">
                     <el-option v-for="state in sortOptions" :key="state.id" :value="state.id" :label="state.name" />
                 </el-select>
                 <el-button type="primary" style="margin-left: auto;" :disabled="checked_goods_count == 0" @click="handleDelCate">批量移除</el-button>
@@ -117,7 +117,7 @@
                                     </div>
                                     <div class="goods-id">
                                         <el-checkbox :key="goods.id" v-model="goods.goodsIsChecked" @change="value => goodsChecked(value, goods, i)"></el-checkbox>
-                                        <span style="margin-left: 8px">{{goods.id}}</span>
+                                        <span style="margin-left: 8px">{{goods.goods_id}}</span>
                                     </div>
                                     <div class="goods-img">
                                         <img class="timg" :src="goods.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(goods.goods_img, 1, i)" />

@@ -196,7 +196,7 @@
                     </el-table-column>
                     <el-table-column label="商品ID" width="80">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.id }}</span>
+                            <span>{{ scope.row.goods_id }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="主图" width="120">
@@ -478,7 +478,6 @@
             },
 
             getList() {
-                const rLoading = this.openLoading()
                 let params = _.cloneDeep(this.searchParams)
                 // params['sku_is_store_shortage'] = 1;
                 params['limit'] = this.listQuery.limit
@@ -498,6 +497,7 @@
                     params['other_id'] = 0
                 }
                 params['shop_id'] = this.shopId
+                const rLoading = this.openLoading()
                 queryShopGoodsList(params)
                     .then(res => {
                         if (res.data.lists == null || res.data.lists.length == 0) {
