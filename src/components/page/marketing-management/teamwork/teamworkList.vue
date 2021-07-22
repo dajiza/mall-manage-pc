@@ -72,7 +72,9 @@
             </el-table-column>
             <el-table-column label="报名人数" width="100">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.join_num }}/{{ scope.row.limit_num }}</span>
+                    <span>
+                        {{ scope.row.join_num }}<span v-if="scope.row.limit_num != 0">/{{ scope.row.limit_num }}</span>
+                    </span>
                 </template>
             </el-table-column>
             <el-table-column label="模式" width="80">
