@@ -158,7 +158,7 @@ export const mixinsPromotion = {
             cateKey: 1,
             categoryData: [],
             goodsData: [],
-            tableHeight: 'calc(100vh - 374px)',
+            tableHeight: 'calc(100vh - 334px)',
             goods_loading: false,
             goodsPage: 1,
             goodsLimit: 10,
