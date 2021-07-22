@@ -1,5 +1,5 @@
 <template>
-    <div class="preview">
+    <div class="preview" ondragstart="return false">
         <div class="box" id="box">
             <index-component :type="5" :list="banner" :id="banner.customId"></index-component>
             <!-- <index-component :type="5"></index-component> -->

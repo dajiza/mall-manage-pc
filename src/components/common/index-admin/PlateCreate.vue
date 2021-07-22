@@ -41,11 +41,15 @@
                                 </div>
                                 <div class="title">{{ item.title }}</div>
                                 <div class="visible">
-                                    <span class="iconfont icon-yincang" v-if="item.status == 2" @click="setVisible(index, 1)"></span>
-                                    <span class="iconfont icon-a-yincang1" v-else @click="setVisible(index, 2)"></span>
+                                    <el-tooltip class="" :content="item.status == 2 ? '显示' : '隐藏'">
+                                        <span class="iconfont icon-yincang" v-if="item.status == 2" @click="setVisible(index, 1)"></span>
+                                        <span class="iconfont icon-a-yincang1" v-else @click="setVisible(index, 2)"></span>
+                                    </el-tooltip>
                                 </div>
                                 <div class="handle">
-                                    <span class="iconfont icon-tuozhuai"></span>
+                                    <el-tooltip class="" content="拖动排序">
+                                        <span class="iconfont icon-tuozhuai"></span>
+                                    </el-tooltip>
                                 </div>
                             </div>
                         </draggable>
