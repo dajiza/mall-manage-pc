@@ -57,6 +57,9 @@ export const mixinsGoodsSeries = {
             shopId: -1,
             cate_other_list: [], // 其它分类
             cate_group_list: [], // 布组分类
+            cate_other_list_copy: [],
+            cate_group_list_copy: [],
+            // group
             cateKey: 1,
             categoryData: [],
             goodsData: [],
@@ -187,6 +190,7 @@ export const mixinsGoodsSeries = {
                 queryCategoryListAll({ type: 2 })
             ])
                 .then(res => {
+                    console.log('res[2]', res[2])
                     if (res[0].code === 200) {
                         if (res[0].data) {
                             this.shopList = res[0].data || []
@@ -196,13 +200,16 @@ export const mixinsGoodsSeries = {
                     if (res[1].code === 200) {
                         // 分类其它
                         if (res[1].data) {
-                            this.cate_other_list = res[1].data
+                            this.cate_other_list = _.cloneDeep(res[1].data)
+                            this.cate_other_list_copy = _.cloneDeep(res[1].data)
                         }
                     }
                     if (res[2].code === 200) {
                         // 分类布组
                         if (res[2].data) {
-                            this.cate_group_list = res[2].data
+                            this.cate_group_list = _.cloneDeep(res[2].data)
+                            this.cate_group_list_copy = _.cloneDeep(res[2].data)
+                            console.log('res[2].data', res[2].data)
                         }
                     }
                     this.creatCategoryData()
@@ -540,6 +547,7 @@ export const mixinsGoodsSeries = {
         handleAdd() {
             if (this.operationForm.shop_id) {
                 this.shopId = this.operationForm.shop_id
+                console.log('cate_group_list', this.cate_group_list)
                 this.$refs.goodsList.show()
             } else {
                 this.$notify({

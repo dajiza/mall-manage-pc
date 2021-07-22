@@ -206,8 +206,8 @@
         <addShopGoods
                 ref="goodsList"
                 title="挑选商品"
-                :categoryListOther="cate_other_list"
-                :categoryListClothGroup="cate_group_list"
+                :categoryListOther="cate_other_list_copy"
+                :categoryListClothGroup="cate_group_list_copy"
                 :checked="checked_goods_ids"
                 :shopId="shopId"
                 @check-goods="sureAddGoods"
