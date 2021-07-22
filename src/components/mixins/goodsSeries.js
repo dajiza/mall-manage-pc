@@ -165,7 +165,7 @@ export const mixinsGoodsSeries = {
             this.operationTitle = '复制系列'
         } else {
             this.operationTitle = '新增系列'
-            this.sortValue = 1
+            this.sortValue = 5
         }
         this.initData()
     },
