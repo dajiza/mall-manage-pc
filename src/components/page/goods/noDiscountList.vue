@@ -43,7 +43,13 @@
             <el-button class="batch-btn" size="" :disabled="checkedSkuIds.length < 1" type="primary" v-hasPermission="'mall-backend-goods-set-discount'" @click="handleBatchSetDis">批量设置折扣</el-button>
         </div>
         <el-table :data="list" v-loading.body="listLoading" :height="tableHeight" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="-" width="60">
+            <el-table-column label="" width="60">
+                <template slot="header" slot-scope="scope">
+                    <el-checkbox v-model="checkAll"
+                                 :indeterminate="indeterminate"
+                                 @change="value => handleCheckCurrentPage(value)"
+                    ></el-checkbox>
+                </template>
                 <template slot-scope="scope">
                     <el-checkbox v-model="scope.row.checked" :key="scope.row.id" @change="value => skuChecked(value, scope.row, scope.$index)"></el-checkbox>
                 </template>
@@ -212,7 +218,9 @@ export default {
             previewIndex: 0,
             checkedSkuIds: [],
             isBatch: false, // 批量操作
-            isDel: false
+            isDel: false,
+            checkAll: false,
+            indeterminate: false,
         }
     },
     components: {
@@ -285,6 +293,7 @@ export default {
                         this.$set(this.listQuery,'page', newPage)
                         this.getList()
                     }
+                    this.setCheckAll()
                 })
                 .catch(err => {})
         },
@@ -547,6 +556,39 @@ export default {
         },
         closePreview() {
             this.dialogVisiblePic = false
+        },
+        handleCheckCurrentPage(bol) {
+            // indeterminate
+            this.list.forEach((ev)=>{
+                ev['checked'] = bol
+                if (bol) {
+                    if (this.checkedSkuIds.indexOf(ev.id) > -1) {
+
+                    } else {
+                        this.checkedSkuIds.push(ev.id)
+                    }
+                } else {
+                    if (this.checkedSkuIds.indexOf(ev.id) > -1) {
+                        const index = this.checkedSkuIds.indexOf(ev.id)
+                        this.checkedSkuIds.splice(index, 1)
+                    }
+                }
+            })
+            this.setCheckAll()
+        },
+        setCheckAll() {
+            const checkNum = this.list.filter(item=> {return item.checked}).length
+            console.log('checkNum', checkNum)
+            if (checkNum > 0 && checkNum == this.list.length) {
+                this.checkAll = true
+                this.indeterminate = false
+            } else if (checkNum > 0 && checkNum < this.list.length) {
+                this.checkAll = false
+                this.indeterminate = true
+            } else if (checkNum == 0){
+                this.checkAll = false
+                this.indeterminate = false
+            }
         }
     }
 }

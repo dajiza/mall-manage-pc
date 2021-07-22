@@ -63,7 +63,7 @@ export const mixinsGoodsSeries = {
             tableHeight: 'calc(100vh - 254px)',
             goods_loading: false,
             goodsPage: 1,
-            limit: 10,
+            limit: 5,
             pageTotal: 0,
             dialogVisiblePic: false,
             previewUrlList: [],
@@ -323,29 +323,19 @@ export const mixinsGoodsSeries = {
                         goods_group_relations: []
                     }
                     let selectedList = []
-                    if (this.sortValue != 6) {
-                        console.log('this.checked_goods_ids', this.checked_goods_ids)
-                        if (this.checked_goods_ids.length > 0) {
-                            this.checked_goods_ids.forEach((ev,i)=>{
-                                selectedList.push({
-                                    shop_goods_id: ev,
-                                    sort: i + 1
-                                })
+
+                    selectedList =  this.goodsData.map((item,i)=> {return { shop_goods_id: item.id, sort: i + 1 }})
+                    console.log('selectedList', selectedList)
+                    const ids =  this.goodsData.map(item=> {return item.id})
+                    this.checked_goods_ids.forEach((ev, i)=>{
+                        if(!ids.includes(ev)) {
+                            selectedList.push({
+                                shop_goods_id: ev,
+                                sort: selectedList.length + 1
                             })
                         }
-                    } else {
-
-                    }
-                    if(this.goodsData.length > 0) {
-                        this.goodsData.forEach((ev,i)=>{
-                            selectedList.push({
-                                shop_goods_id: ev.id,
-                                sort: i + 1
-                            })
-                        })
-                    }
+                    })
                     params['goods_group_relations'] = selectedList
-
                     if (this.operationTitle === '编辑系列') {
                         params['goods_group']['id'] = Number(this.$route.query.id)
                         // 请求编辑
