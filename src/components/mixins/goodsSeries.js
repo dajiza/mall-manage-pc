@@ -63,7 +63,7 @@ export const mixinsGoodsSeries = {
             tableHeight: 'calc(100vh - 254px)',
             goods_loading: false,
             goodsPage: 1,
-            limit: 5,
+            limit: 100,
             pageTotal: 0,
             dialogVisiblePic: false,
             previewUrlList: [],
