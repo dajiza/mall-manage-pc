@@ -276,7 +276,7 @@ export const mixinsGoodsSeries = {
                 }
             }
             if (this.operationTitle === '编辑系列') {
-                console.log('编辑')
+                // console.log('编辑')
                 this.getShopGoodsList()
             }
         },
