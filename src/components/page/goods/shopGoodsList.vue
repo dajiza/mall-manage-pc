@@ -219,8 +219,13 @@
         </div>
 
         <!-- 店铺上下架 -->
-        <el-dialog :visible.sync="dialogVisibleShelf" title="店铺上下架" width="618px" :show-close="false">
+        <el-dialog :visible.sync="dialogVisibleShelf" :title="dialogTitle" width="718px" :show-close="false">
             <el-table ref="shelfTable" :data="shelfSku" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                <el-table-column  label="SKU状态" width="100">
+                    <template slot-scope="scope">
+                        <span :class="scope.row.sku_status == 2 ? 'text-blue':'text-red'">{{ scope.row.sku_status == 2 ?'已上架':'已下架' }}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="SKU图片" width="">
                     <template slot-scope="scope">
                         <img class="timg" :src="scope.row.sku_sku_img + '!upyun520/fw/300'" alt="" />
@@ -238,7 +243,7 @@
                 </el-table-column>
                 <el-table-column label="售价(元)" width="">
                     <template slot-scope="scope">
-                        <el-input v-model="scope.row.price" @change="value => onChangePrice(value, scope)" placeholder="请输入内容" style="width:100px"></el-input>
+                        <el-input :disabled="dialogTitle == '店铺上下架' && scope.row.sku_status != 2" v-model="scope.row.price" @change="value => onChangePrice(value, scope)" placeholder="请输入内容" style="width:100px"></el-input>
                     </template>
                 </el-table-column>
             </el-table>
@@ -349,7 +354,8 @@ export default {
 
             dialogVisibleShelf: false,
 
-            shelfSku: []
+            shelfSku: [],
+            dialogTitle: '店铺上下架'
         }
     },
     components: {
@@ -750,13 +756,14 @@ export default {
 
         // sku修改价格 打开弹窗
         async changePrice(goods, sku) {
-            let skuList = _.cloneDeep(goods.shop_skus)
+            let skuList = _.cloneDeep([sku])
             skuList = skuList.map((item, index) => {
                 item.price = item.price != 0 ? item.price : item.sku_min_price
                 item.price = item.price / 100
                 return item
             })
             this.shelfSku = _.cloneDeep(skuList)
+            this.dialogTitle = '修改价格'
             this.dialogVisibleShelf = true
             this.editSkuPrice = true
         },
@@ -773,6 +780,7 @@ export default {
                 return item
             })
             this.shelfSku = _.cloneDeep(skuList)
+            this.dialogTitle = '店铺上下架'
             this.dialogVisibleShelf = true
             this.editSkuPrice = false
             this.edidGoodsId = goods.goods_id
@@ -862,7 +870,8 @@ export default {
                     })
                     .catch(err => {})
             } else {
-                let skus = shelfSku.map(item => {
+                const newList = shelfSku.filter(item=>{return item.sku_status == 2})
+                let skus = newList.map(item => {
                     return {
                         id: item.sku_id,
                         price: commUtil.numberMul(Number(item.price), 100)
