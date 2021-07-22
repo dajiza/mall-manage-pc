@@ -79,7 +79,7 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-select class="sort-select" v-model="sortValue" placeholder="请选择" @change="sortTypeChange">
+                <el-select class="sort-select" v-model="sortValue" placeholder="请选择排序方式" @change="sortTypeChange">
                     <el-option v-for="state in sortOptions" :key="state.id" :value="state.id" :label="state.name" />
                 </el-select>
                 <el-button type="primary" style="margin-left: auto;" :disabled="checked_goods_count == 0" @click="handleDelCate">批量移除</el-button>

@@ -95,7 +95,10 @@ export const mixinsGoodsSeries = {
             allChecked: false,
             checked_goods_count: 0,
             isIndeterminate: false,
-            isRefresh: false
+            isRefresh: false,
+            sortLimit: 999999,
+            sortList: [],
+            isFirst: true
         }
     },
     watch: {
@@ -162,6 +165,7 @@ export const mixinsGoodsSeries = {
             this.operationTitle = '复制系列'
         } else {
             this.operationTitle = '新增系列'
+            this.sortValue = 1
         }
         this.initData()
     },
@@ -274,12 +278,6 @@ export const mixinsGoodsSeries = {
             if (this.operationTitle === '编辑系列') {
                 console.log('编辑')
                 this.getShopGoodsList()
-                // const list = info.goods_relations.list || []
-                // if(list.length > 0) {
-                //     this.checked_goods_list = list
-                //     this.checked_goods_ids  = list.map(item=>{return item.id})
-                //     this.getShopGoodsList()
-                // }
             }
         },
 
@@ -312,6 +310,15 @@ export const mixinsGoodsSeries = {
             this.$refs['operationForm'].validate(valid => {
                 // 验证表单内容
                 if (valid) {
+                    if (this.sortValue < 1) {
+                        this.$notify({
+                            title: '请选择排序方式',
+                            message: '',
+                            type: 'warning',
+                            duration: 5000
+                        })
+                        return
+                    }
                     let params = {
                         goods_group: {
                             id: 0,
@@ -325,7 +332,7 @@ export const mixinsGoodsSeries = {
                     let selectedList = []
 
                     selectedList =  this.goodsData.map((item,i)=> {return { shop_goods_id: item.id, sort: i + 1 }})
-                    console.log('selectedList', selectedList)
+                    // console.log('selectedList', selectedList)
                     const ids =  this.goodsData.map(item=> {return item.id})
                     this.checked_goods_ids.forEach((ev, i)=>{
                         if(!ids.includes(ev)) {
@@ -594,18 +601,11 @@ export const mixinsGoodsSeries = {
                             return new_goods_list.indexOf(item) == -1
                         })
                         this.checked_goods_ids = new_arr
-                        // let newCheckedGoodsList  = []
-                        // this.checked_goods_list.forEach((ev)=>{
-                        //     if(this.checked_goods_ids.includes(ev.id)) {
-                        //         newCheckedGoodsList.push(ev)
-                        //     }
-                        // })
-                        // this.checked_goods_list = newCheckedGoodsList
                         const rLoading = this.openLoading()
                         const params = {
                             relation_ids: relation_ids
                         }
-                        console.log('params', params)
+                        // console.log('params', params)
                         if (this.operationTitle == '编辑系列') {
                             deleteGoods(params)
                                 .then(res => {
@@ -676,14 +676,10 @@ export const mixinsGoodsSeries = {
 
         // 确定添加 商品
         sureAddGoods(data){
-            // 请求 店铺商品列表
-            // this.checked_goods_list = this.unique(this.checked_goods_list.concat(data));
-            // console.log('this.checked_goods_list===642', this.checked_goods_list )
-            // this.checked_goods_ids = this.checked_goods_list.map(item=>{return item.id})
-            console.log('data', data)
+            // console.log('data', data)
             const add_ids = data.map(item => {return item.id})
-            this.checked_goods_ids  = Array.from(new Set(this.checked_goods_ids.concat(add_ids)));
-            console.log('this.checked_goods_ids', this.checked_goods_ids)
+            this.checked_goods_ids  = Array.from(new Set(add_ids.concat(this.checked_goods_ids)));
+            // console.log('this.checked_goods_ids', this.checked_goods_ids)
             this.isRefresh = true
             this.goodsPage = 1
             this.getShopGoodsList()
@@ -692,7 +688,7 @@ export const mixinsGoodsSeries = {
         // 请求店铺商品列表
         getShopGoodsList() {
             if(!this.shopId) {
-                console.log('请先选择店铺')
+                // console.log('请先选择店铺')
                 return
             }
             let params = _.cloneDeep(this.searchParams)
@@ -713,7 +709,6 @@ export const mixinsGoodsSeries = {
                 params['other_id'] = 0
             }
             params['shop_goods_ids'] = []
-            console.log('checked_goods_ids',this.checked_goods_ids)
             if (this.checked_goods_ids.length < 1) {
                 this.goodsInit()
                 this.setCheckAll()
@@ -728,6 +723,12 @@ export const mixinsGoodsSeries = {
             this.imgList = []
             let skuImgIndex = 0
             const rLoading = this.openLoading()
+            if (this.sortValue == 6) {
+                params['page'] = 1
+                params['limit'] = 99999
+                this.goodsData = []
+            }
+            // this.sortList
             querySeriesShopGoodsList(params)
                 .then((res)=>{
                     rLoading.close()
@@ -738,7 +739,32 @@ export const mixinsGoodsSeries = {
                         }
                         this.pageTotal = res.data.total || 0
                         const new_list = res.data.list || []
-                        this.goodsData = this.goodsData.concat(new_list)
+
+                        if ( this.sortValue == 6 ) {
+                            if (this.isFirst && this.operationTitle == '编辑系列') {
+                                this.goodsData = new_list
+                                this.checked_goods_ids = this.goodsData.map(item=>{return item.id})
+                                this.isFirst = false
+                            } else {
+                                this.sortList = this.checked_goods_ids.map((item, i)=>{return {id:item, sortIndex:i+1}})
+                                new_list.forEach((event)=>{
+                                    event['sortIndex'] = 0
+                                    this.sortList.forEach((ev)=>{
+                                        if (ev.id == event.id) {
+                                            event['sortIndex'] = ev.sortIndex
+                                        }
+                                    })
+                                })
+                                this.goodsData = new_list.sort((a, b) => {
+                                    return a.sortIndex - b.sortIndex
+                                })
+                            }
+
+                        } else {
+                            this.goodsData = this.goodsData.concat(new_list)
+                        }
+
+
                         if (this.goodsData.length == this.pageTotal) {
                             this.is_all = true
                         }
@@ -856,7 +882,7 @@ export const mixinsGoodsSeries = {
             }
         },
         dragStart() {
-            console.log('goodsData====694', this.goodsData)
+            // console.log('goodsData====694', this.goodsData)
         },
 
         end(e) {
@@ -872,6 +898,8 @@ export const mixinsGoodsSeries = {
             this.$nextTick(() => {
                 this.goodsData = [...newItems]
                 this.activeImg = ''
+                this.checked_goods_ids = this.goodsData.map(item=>{return item.id})
+                // console.log('goodsData====886', this.goodsData)
             })
         },
 
