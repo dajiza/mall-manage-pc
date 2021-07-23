@@ -63,10 +63,10 @@ export default {
     margin-bottom: 8px;
     padding: 0 15px;
     width: 100%;
-    height: 97px;
+    height: 76px;
     .banner {
         width: 100%;
-        height: 97px;
+        height: 76px;
         border-radius: 5px;
     }
 }
