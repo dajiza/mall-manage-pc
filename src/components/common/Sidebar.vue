@@ -219,7 +219,7 @@ export default {
                             display_name: '促销管理'
                         },
                         {
-                            name: '/mall-backend-sales-index-admin',
+                            name: 'mall-backend-sales-index-admin',
                             display_name: '编辑首页'
                         }
                     ]
