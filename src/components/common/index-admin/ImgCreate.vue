@@ -124,7 +124,7 @@ export default {
                 require('@/assets/img/plate-icon3.png'),
                 require('@/assets/img/plate-icon4.png')
             ],
-            adviceSize: [{ size: '670*240px' }, { size: '750*360px' }, { size: '210*280px' }, { size: '600*280px' }, { size: '750*680px' }],
+            adviceSize: [{ size: '670*200px' }, { size: '750*360px' }, { size: '210*280px' }, { size: '600*280px' }, { size: '750*680px' }],
             plateType: [
                 {
                     type: 1,
