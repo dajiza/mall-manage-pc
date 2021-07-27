@@ -42,7 +42,9 @@
                     </div>
                     <div class="sheet w280">
                         <span class="label">报名人数：</span>
-                        <span class="value">{{ detail.join_num }} / {{ detail.limit_num }} </span>
+                        <span class="value">
+                            {{ detail.join_num }} <span v-if="detail.limit_num">/ {{ detail.limit_num }}</span>
+                        </span>
                     </div>
                     <div class="sheet w280">
                         <span class="label">团作模式：</span>

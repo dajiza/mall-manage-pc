@@ -91,7 +91,7 @@
             </el-table-column>
             <el-table-column label="店铺" width="100">
                 <template slot-scope="scope">
-                    <span>{{ shopList.find(item => item.id == scope.row.shop_id).shop_name }}</span>
+                    <span>{{ scope.row.shop_id ? shopList.find(item => item.id == scope.row.shop_id).shop_name : '' }}</span>
                 </template>
             </el-table-column>
             <el-table-column label="老师昵称" width="100">
