@@ -905,8 +905,8 @@ export default {
             this.formOrder.shop_admin_ids.splice(adminShopIndex, 1)
         },
         async updateOrder(row) {
-            row.shop_admin_ids = row.admins.map(item => item.id)
-            row.adminList = row.admins.map(item => ({ id: item.id, phone: item.phone, name: item.nick_name }))
+            row.shop_admin_ids = row.admins ? row.admins.map(item => item.id) : []
+            row.adminList = row.admins ? row.admins.map(item => ({ id: item.id, phone: item.phone, name: item.nick_name })) : []
             this.shopIdSelected = row.id
             await this.queryUserList('1')
             this.formOrder = _.cloneDeep(row)
