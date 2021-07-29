@@ -49,6 +49,7 @@ module.exports = {
         7: 'attr_size', //成品布尺寸
         8: 'attr_width', //幅宽
         9: 'attr_piece', //片数
+        10: 'attr_weight', //重量
         11: 'attr_code' //编号
     },
     // 属性名称
@@ -62,6 +63,7 @@ module.exports = {
         7: '尺寸', //尺寸
         8: '幅宽', //幅宽
         9: '片数', //片数
+        10: '重量', //重量
         11: '编号' //编号
     },
     // 积分记录

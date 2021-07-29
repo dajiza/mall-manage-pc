@@ -318,6 +318,7 @@ export const mixinsGoods = {
                             })
                         }
                         this.consumeAttr = res[3].data.consume_attr
+                        console.log('输出 ~ this.consumeAttr', this.consumeAttr)
                     }
                     if (res[4].code === 200) {
                         this.shopList = res[4].data
@@ -1043,7 +1044,9 @@ export const mixinsGoods = {
                             let attrInfo = this.consumeAttr.find(item => checkId == item.id)
                             console.log('输出 ~ attrInfo', attrInfo)
                             console.log('输出 ~ skuItem[attrDiyValue][j]', skuItem['attrDiyValue'][j])
-
+                            if (!attrInfo) {
+                                continue
+                            }
                             // skuItem[ATTR[attrInfo.id]]
                             skuItem.attr_list.push({
                                 attr_id: attrInfo.id, //属性id

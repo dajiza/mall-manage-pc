@@ -30,6 +30,7 @@
                         <template slot="title">
                             <i class="iconfont" :class="item.icon"></i>
                             <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
+                            <span class="count-box-point"></span>
                         </template>
                         <template v-for="subItem in item.subs">
                             <el-menu-item :index="subItem.name" :key="subItem.index">{{ subItem.display_name }}</el-menu-item>
@@ -40,6 +41,7 @@
                     <el-menu-item :index="item.name" :key="item.name">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
+                        <span class="count-box" v-if="item.count">{{ count }}</span>
                     </el-menu-item>
                 </template>
             </template>
@@ -499,6 +501,32 @@ export default {
     /* width: 64px; */
     background: #ffffff !important;
     box-shadow: 2px 0 6px 0 rgba(0, 21, 41, 0.12) !important;
+}
+.count-box {
+    position: absolute;
+    left: 170px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 16px;
+    background: #ff4d4f;
+    color: #fff;
+    text-align: center;
+    line-height: 16px;
+    font-size: 13px;
+    font-weight: 400;
+    border-radius: 8px;
+    padding: 0 4px;
+    min-width: 16px;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+.count-box-point {
+    width: 6px;
+    height: 6px;
+    border-radius: 8px;
+    background: #ff4d4f;
+    display: inline-block;
+    margin-left: 6px;
 }
 .sidebar > ul::-webkit-scrollbar {
     width: 0;
