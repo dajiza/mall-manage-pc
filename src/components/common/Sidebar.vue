@@ -30,7 +30,7 @@
                         <template slot="title">
                             <i class="iconfont" :class="item.icon"></i>
                             <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
-                            <span class="count-box-point"></span>
+                            <!-- <span class="count-box-point"></span> -->
                         </template>
                         <template v-for="subItem in item.subs">
                             <el-menu-item :index="subItem.name" :key="subItem.index">{{ subItem.display_name }}</el-menu-item>
@@ -41,7 +41,7 @@
                     <el-menu-item :index="item.name" :key="item.name">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
-                        <span class="count-box" v-if="item.count">{{ count }}</span>
+                        <!-- <span class="count-box" v-if="item.count">{{ count }}</span> -->
                     </el-menu-item>
                 </template>
             </template>
