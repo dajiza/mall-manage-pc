@@ -399,8 +399,8 @@ export default {
                 params['discount_end_start'] = ''
                 params['discount_end_end'] = ''
             }
-            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 1)
-            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 1)
+            params['consumption_min'] = params['consumption_min'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_min']), 100)
+            params['consumption_max'] = params['consumption_max'] == '' ? -1 : commUtil.numberMul(Number(params['consumption_max']), 100)
             params['shop_id'] = params['shop_id'] == '' ? -1 : params['shop_id']
 
             params['limit'] = this.listQuery.limit
