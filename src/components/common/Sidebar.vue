@@ -221,7 +221,12 @@ export default {
                         {
                             name: 'mall-backend-sales-index-admin',
                             display_name: '编辑首页'
-                        }
+                        },
+                        {
+                            name: 'mall-backend-look',
+                            display_name: '看看'
+                        },
+
                     ]
                 },
                 {

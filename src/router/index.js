@@ -283,6 +283,31 @@ export default new Router({
                     meta: { title: '编辑首页', name: 'indexAdmin' }
                 },
                 {
+                    path: '/mall-backend-look',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/look.vue'),
+                    meta: { title: '看看', name: 'look' }
+                },
+                {
+                    path: '/mall-backend-look-audit-list',
+                    component: () => import(/* webpackChunkName: "look-audit-list" */ '../components/page/marketing-management/look/lookAuditList.vue'),
+                    meta: { title: '看看审核列表', name: 'lookAuditList' }
+                },
+                {
+                    path: '/mall-backend-look-creat',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
+                    meta: { title: '看看新增', name: 'lookCreate' }
+                },
+                {
+                    path: '/mall-backend-look-update',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
+                    meta: { title: '看看编辑', name: 'lookUpdate' }
+                },
+                {
+                    path: '/mall-backend-look-audit',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
+                    meta: { title: '看看审核', name: 'lookAudit' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }

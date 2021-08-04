@@ -1,0 +1,1262 @@
+<template>
+    <div class="dialog-container" @click="searchShow = false">
+        <el-dialog :visible.sync="isShow" width="90%" @open="open" @opened="opened" :close-on-click-modal="false" @close="closed">
+            <div slot="title">
+                <div class="table-title">
+                    <div class="text">挑选商品</div>
+                    <div class="grey-line"></div>
+                    <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
+                    <transition name="slide-fade">
+                        <div class="head-container" v-show="searchShow" @click.stop="">
+                            <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
+                                <el-form-item label="商品名称" prop="goods_name" label-width="">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_name" @keyup.enter.native="handleFilter()"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品ID" prop="goods_id">
+                                    <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_id" @keyup.enter.native="handleFilter()"></el-input>
+                                </el-form-item>
+                                <el-form-item label="商品分类" prop="typeCategory">
+                                    <el-cascader
+                                            class="filter-item"
+                                            :props="{ checkStrictly: true }"
+                                            v-model="searchForm.typeCategory"
+                                            placeholder="请选择"
+                                            :options="typeList"
+                                    ></el-cascader>
+                                </el-form-item>
+                                <!--<el-form-item label="出售状态" prop="is_sale">
+                                    <el-select class="filter-item" v-model="searchForm.is_sale" placeholder="请选择">
+                                        <el-option v-for="item in saleStatusList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>-->
+                                <el-form-item label="是否售罄" prop="goods_is_store_shortage">
+                                    <el-select class="filter-item" v-model="searchForm.goods_is_store_shortage" placeholder="请选择">
+                                        <el-option v-for="item in soldOutList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="SKU名称" prop="sku_name" class="">
+                                    <el-input class="filter-item" v-model="searchForm.sku_name" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
+                                </el-form-item>
+                                <el-form-item label="SKU编码" prop="sku_code" class="">
+                                    <el-input class="filter-item" v-model="searchForm.sku_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
+                                </el-form-item>
+                                <!--<el-form-item label="会员折扣" prop="discount_condition" v-show="false">
+                                    <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
+                                        <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                                    </el-select>
+                                </el-form-item>-->
+                                <el-form-item class="form-item-btn" label="">
+                                    <el-button class="filter-btn" size="" type="" @click="resetForm('searchForm')">重置</el-button>
+                                    <el-button class="filter-btn" size="" type="primary" @click="handleFilter">搜索</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                    </transition>
+                    <div class="search-value">
+                        <template v-for="(item, i) in searchList">
+                            <div class="search-item" v-if="i <= showMaxIndex">
+                                {{ item.val }}
+                                <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
+                            </div>
+                        </template>
+                        <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
+                        <div class="search-value-clone" ref="searchConditionBox">
+                            <template v-for="(item, i) in searchList">
+                                <div class="search-item" :ref="'searchConditionItem' + i">
+                                    {{ item.val }}
+                                    <span class="tags-li-icon"><i class="el-icon-close"></i></span>
+                                </div>
+                            </template>
+                            <span style="width: 20px;display: inline-block">...</span>
+                        </div>
+                    </div>
+                    <div class="selected-goods-btn">
+                        <el-popover placement="bottom-end" width="300" trigger="click" popper-class="group-popper">
+                            <div class="row-list">
+                                <div class="nodata" v-if="checkedList.length == 0">无数据</div>
+                                <div class="row-item" v-for="item in checkedList" :key="item.id">
+                                    <template v-if="item.shop_skus.length > 0 && !item.isDisabled">
+                                        <div class="item-content">
+                                            <span class="iconfont icon-plus" v-show="!item.open" @click="triggerImg(item)"></span>
+                                            <span class="iconfont icon-minus" v-show="item.open" @click="triggerImg(item)"></span>
+                                            <div class="name">{{ item.goods_title }}</div>
+                                            <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelection(item)"></i>
+                                        </div>
+                                        <div class="son" v-show="item.open">
+                                            <template v-for="(sku, sku_i) in item.shop_skus">
+                                                <div class="son-item" v-if="sku.skuIsChecked && !sku.isDisabled">
+                                                    <img alt="" class="son-timg" :src="sku.sku_sku_img + '!upyun520/fw/300'" @click="openPreview(item.sku_sku_img, 3, sku_i)" />
+                                                    <div class="name">{{ sku.sku_title }}</div>
+                                                    <i class="el-icon-error row-delete" v-if="!item.isDisabled" @click="cancelSelectionImg(item, sku)"></i>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <el-button slot="reference" class="filter-btn" size="" type="success" style="margin-left:20px">已选商品</el-button>
+                        </el-popover>
+                    </div>
+                </div>
+            </div>
+            <div class="" @click="searchShow = false">
+                <template>
+                    <el-table
+                            ref="multipleTable"
+                            :height="tableHeight"
+                            class="table"
+                            :data="list"
+                            v-loading.body="listLoading"
+                            :header-cell-style="$tableHeaderColor"
+                            element-loading-text="Loading"
+                            :default-expand-all="false"
+                            row-key="id"
+                            :cell-class-name="goodsTable"
+                            :cell-style="{ background: '#fff' }"
+                            key="tableKey"
+                    >
+                        <template>
+                            <el-table-column label="-" type="expand" width="55">
+                                <template slot-scope="props">
+                                    <el-table class="sku-table" :data="props.row.shop_skus" :header-cell-style="$tableHeaderColor">
+                                        <el-table-column label="" width="50">
+                                            <template slot-scope="scope">
+                                                <el-checkbox
+                                                        v-model="scope.row.skuIsChecked"
+                                                        :disabled="scope.row.isDisabled"
+                                                        @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
+                                                ></el-checkbox>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="状态" width="90">
+                                            <template slot-scope="scope">
+                                                <span class="text-red" v-show="scope.row.status == 1">已下架</span>
+                                                <span class="text-blue" v-show="scope.row.status == 2">已上架</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU图片" width="120">
+                                            <template slot-scope="scope">
+                                                <img
+                                                        class="timg"
+                                                        :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
+                                                        alt=""
+                                                        @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
+                                                />
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU名称">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.sku_title }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="SKU编码">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.sku_storehouse_code }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="实际销量" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.real_sales }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="售价(元)" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ formatMoney(scope.row.price) }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="总库存" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.product_storage_data.stock_total }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="可用库存" width="90">
+                                            <template slot-scope="scope">
+                                                <span>{{ scope.row.product_storage_data.stock_available }}</span>
+                                            </template>
+                                        </el-table-column>
+                                        <el-table-column label="是否售罄" width="90">
+                                            <template slot-scope="scope">
+                                                <div class="type-tag type-yellow" v-if="scope.row.sku_is_store_shortage == 2">售罄</div>
+                                                <div class="type-tag type-blue" v-else>否</div>
+                                            </template>
+                                        </el-table-column>
+                                    </el-table>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="" width="70">
+                                <template slot-scope="scope">
+                                    <span>({{ scope.row.checkNum || 0 }}/{{ scope.row.shop_skus.length }})</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="" width="35">
+                                <template slot="header" slot-scope="scope">
+                                    <el-checkbox v-model="checkAll"
+                                                 :indeterminate="0 < pageCheckSkuCount && pageCheckSkuCount < pageSkuCount"
+                                                 @change="value => handleCheckCurrentPage(value)"
+                                    ></el-checkbox>
+                                </template>
+                                <template slot-scope="scope">
+                                    <el-checkbox
+                                            v-model="scope.row.goodsIsChecked"
+                                            :disabled="scope.row.isDisabled"
+                                            :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length"
+                                            @change="value => goodsChecked(value, scope.row, scope.$index)"
+                                    ></el-checkbox>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品ID" width="80">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.id }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="主图" width="120">
+                                <template slot-scope="scope">
+                                    <img class="timg" :src="scope.row.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(scope.row.goods_img, 1, scope.$index)" />
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品名称">
+                                <template slot-scope="scope">
+                                    <span>{{ scope.row.goods_title }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="商品分类" width="180">
+                                <template slot-scope="scope">
+                                    <span v-if="scope.row.goods_type == 1">布料</span>
+                                    <span v-if="scope.row.goods_type == 2"> 其他{{ categoryGenerate(scope.row.goods_category_id, 2) }} </span>
+                                    <span v-if="scope.row.goods_type == 3"> 布组{{ categoryGenerate(scope.row.goods_category_id, 3) }} </span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="状态" width="120">
+                                <template slot-scope="scope">
+                                    <div class="status">
+                                        <span class="dot dot-grey" v-if="scope.row.status == 1"></span>
+                                        <span class="dot dot-green" v-if="scope.row.status == 2"></span>
+
+                                        <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
+                                    {{ scope.row.status == 1 ? '已下架' : '已上架' }}
+                                </span>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <!--<el-table-column label="出售状态" width="110">
+                                <template slot-scope="scope">{{ scope.row.is_sale == 1 ? '可出售' : '不可售' }}</template>
+                            </el-table-column>-->
+                        </template>
+                    </el-table>
+                </template>
+                <div class="pagination-container">
+                    <el-pagination
+                            background
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                            :current-page="listQuery.page"
+                            :page-size="listQuery.limit"
+                            layout="total, prev, pager, next, jumper"
+                            :total="total"
+                            key="tableKey"
+                    >
+                    </el-pagination>
+                </div>
+            </div>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="handleOnAdd" :disabled="checkedList.length < 1">添加</el-button>
+            </div>
+        </el-dialog>
+        <!--大图预览-->
+        <el-image-viewer v-if="dialogVisiblePic" :on-close="closePreview" :url-list="previewUrlList" :initial-index="previewIndex" />
+    </div>
+</template>
+
+<script>
+import { queryShopGoodsList } from '@/api/live'
+import { formatMoney } from '@/plugin/tool'
+import ElImageViewer from '@/components/common/image-viewer'
+import EmptyList from '@/components/common/empty-list/EmptyList'
+import { construct } from '@/utils/json-tree'
+import commUtil from '@/utils/commUtil'
+export default {
+    name: 'CheckList',
+    props: {
+        checked: {
+            type: Array,
+            default: []
+        },
+        shopId: {
+            type: Number,
+            default: -1
+        },
+        cateOtherList: {
+            type: Array,
+            default: []
+        },
+        cateGroupList: {
+            type: Array,
+            default: []
+        },
+        tableKey: 0,
+    },
+    data() {
+        return {
+            tableHeight: 'calc(100vh - 224px)',
+            list: [],
+            total: 0,
+            listLoading: false,
+            listQuery: {
+                page: 1,
+                addPage: 1,
+                limit: 10
+            },
+            isShow: false,
+            searchForm: {
+                goods_id: '',
+                goods_name: '',
+                sku_name: '',
+                sku_code: '',
+                goods_is_store_shortage: '',
+                shop_goods_status: 2, //1下架；2上架；
+                other_id: '',
+                goods_type: '',
+                typeCategory: [] //cache数据
+            },
+            searchParams: {},
+            searchShow: false, //搜索表单显示
+            // 类型 1 布料  2其他 3成品布
+            typeList: [
+                { value: 1, label: '布料' },
+                { value: 2, label: '其他' },
+                { value: 3, label: '布组' }
+            ],
+            // 售罄 1是 2不是
+            soldOutList: [
+                { value: 1, label: '否' },
+                { value: 2, label: '是' }
+            ],
+            categoryList: [],
+            categoryListOther: [], // 其他分类
+            categoryListClothGroup: [], //布组分类
+            // 是否上架：1下架；2上架
+            statusList: [
+                { value: 1, label: '下架' },
+                { value: 2, label: '上架' }
+            ],
+            saleStatusList: [
+                { value: 1, label: '可出售' },
+                { value: 2, label: '不可售' }
+            ],
+            // 会员折扣搜索下拉列表 //是否折扣：1正常折扣，2不是折扣，3其他折扣
+            discountList: [
+                { label: '是', value: 1 },
+                { label: '否', value: 2 },
+                { label: '其他', value: 3 }
+            ],
+            // 图片预览
+            dialogVisiblePic: false,
+            previewUrlList: [],
+            previewIndex: 0,
+            timgList: [], //主图预览列表
+            skuImgList: [], //sku图预览列表
+            checkImgList: [], // 选中图片列表
+            checkedSkuIds: [], // 初始选中的sku id集合
+            searchList: [],
+            showMaxIndex: 0,
+            checkedList: [], // 选中商品列表
+
+            labelKey: 1,
+            addCount: 0,
+            allAddList: [], // 全部已添加 不分页
+            addList:[],
+            checkAll: false,
+            pageSkuCount: 0,
+            pageCheckSkuCount: 0
+        }
+    },
+    components: {
+        ElImageViewer,
+        EmptyList
+    },
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchConditionBox) {
+                        return
+                    }
+                    let maxWidth = window.getComputedStyle(this.$refs.searchConditionBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchConditionItem' + i
+                        if (!this.$refs[el][0]) {
+                            return
+                        }
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
+                        }
+                    }
+                }.bind(this)
+            )
+        },
+        checked: {
+            handler(newValue, oldValue) {
+                console.log('newValue', newValue)
+                this.checkedSkuIds = _.cloneDeep(newValue)
+                if(this.isShow){
+                    this.listQuery.page = 1
+                    this.getList()
+                }
+            },
+            deep: true
+        },
+    },
+    computed: {
+        backGoodsOtherName: function() {
+            return data => {
+                let _name = ''
+                this.categoryListOther.forEach(ev => {
+                    if (ev.id == data) {
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        },
+        backGoodsCategoryName: function() {
+            return data => {
+                let _name = ''
+                this.categoryListClothGroup.forEach(ev => {
+                    if (ev.id == data) {
+                        _name = ' > ' + ev.name
+                    }
+                })
+                return _name
+            }
+        }
+    },
+    created() {},
+    mounted() {},
+    methods: {
+        formatMoney: formatMoney,
+        goodsTable(row) {
+            if (row.columnIndex == 2) {
+                return 'checkboxColumn'
+            }
+        },
+        open() {},
+        opened() {
+            this.categoryListOther = _.cloneDeep(this.cateOtherList)
+            this.categoryListClothGroup = _.cloneDeep(this.cateGroupList)
+            ++this.labelKey
+            this.checkedList = []
+            this.addList = []
+            this.addCount = 0
+            this.listQuery.addPage = 1
+            this.listQuery.page = 1
+            this.searchShow = false
+            this.$refs['searchForm'].resetFields()
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.setSearchValue()
+            this.checkedSkuIds = _.cloneDeep(this.checked) // 已选sku ID集合
+            this.creatCategoryData()
+            this.resetForm('searchForm')
+            console.log('this.checkedSkuIds=======469', this.checkedSkuIds)
+        },
+        closed() {
+            this.searchShow = false
+        },
+        //  刷新显示列表的checkbox显示状态
+        refreshSelection(ids) {
+            this.list.forEach(goods_item => {
+                goods_item.shop_skus.forEach((sku_item, i) => {
+                    if (ids.indexOf(sku_item.id) > -1) {
+                        sku_item.skuIsChecked = false
+                    }
+                })
+                goods_item['checkNum'] = goods_item.shop_skus.filter(item => item.skuIsChecked).length
+                if (goods_item['checkNum'] < 1) {
+                    goods_item['goodsIsChecked'] = false
+                }
+            })
+            this.$nextTick(() => {
+                this.setCheckAll()
+            })
+        },
+
+        // 生成类型 分类 级联列表
+        creatCategoryData() {
+            this.typeList = [
+                { value: 1, label: '布料', children: null },
+                {
+                    value: 2,
+                    label: '其他',
+                    children: construct(this.categoryListOther, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
+                    })
+                },
+                {
+                    value: 3,
+                    label: '布组',
+                    children: construct(this.categoryListClothGroup, {
+                        id: 'id',
+                        pid: 'parent_id',
+                        children: 'children'
+                    }).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                            children: item.children
+                                ? item.children.map(son => {
+                                      return { label: son.name, value: son.id }
+                                  })
+                                : null
+                        }
+                    })
+                }
+            ]
+        },
+        // 生成类目显示 修复部分类目被删导数据错误问题
+        categoryGenerate: function(id, type) {
+            if (id == 0) {
+                return ''
+            }
+            if (type == 2) {
+                let cate = this.categoryListOther.find(item => item.id == id)
+
+                return cate ? '> ' + cate.name : ''
+            } else {
+                let cate = this.categoryListClothGroup.find(item => item.id == id)
+                return cate ? '> ' + cate.name : ''
+            }
+        },
+
+        // 未添加
+        getList() {
+            const rLoading = this.openLoading()
+            let params = _.cloneDeep(this.searchParams)
+            // params['sku_is_store_shortage'] = 1;
+            params['limit'] = this.listQuery.limit
+            params['page'] = this.listQuery.page
+            params['goods_id'] = Number(this.searchParams.goods_id)
+            if (params['typeCategory'].length == 1) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = ''
+            } else if (params['typeCategory'].length == 2) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][1]
+            } else if (params['typeCategory'].length == 3) {
+                params['goods_type'] = params['typeCategory'][0]
+                params['other_id'] = params['typeCategory'][2]
+            }
+            if (params['goods_type'] == 1) {
+                params['other_id'] = 0
+            }
+            params['shop_id'] = this.shopId
+            params['shop_goods_status'] = 2
+            queryShopGoodsList(params)
+                .then(res => {
+                    if (res.data.lists == null || res.data.lists.length == 0) {
+                        this.list = res.data.lists || []
+                        this.total = res.data.total || 0
+                        rLoading.close()
+                        return
+                    }
+                    // 生成主图 sku图预览列表
+                    this.timgList = []
+                    this.skuImgList = []
+                    let goods_list = []
+                    let new_sku_ids = [] // 新加sku id集合
+                    this.checkedList.forEach(goods_item => {
+                        goods_item.shop_skus.forEach(sku_item => {
+                            if (sku_item.skuIsChecked) {
+                                new_sku_ids.push(sku_item.sku_id)
+                            }
+                        })
+                    })
+                    console.log('this.checkedList', this.checkedList)
+                    console.log('this.checkedSkuIds', this.checkedSkuIds)
+                    this.pageSkuCount = 0
+                    if (res.data.lists && res.data.lists.length > 0) {
+                        _.cloneDeep(res.data.lists).forEach(ev => {
+                            let goods = _.cloneDeep(ev)
+                            this.timgList.push(goods.goods_img)
+                            goods.shop_skus.forEach((sku, sku_i) => {
+                                this.pageSkuCount++
+                                this.skuImgList.push(sku.sku_sku_img)
+                                sku['skuIsChecked'] = false
+                                sku['isDisabled'] = false
+                                if (this.checkedSkuIds.indexOf(sku.sku_id) > -1) {
+                                    sku['skuIsChecked'] = true
+                                    sku['isDisabled'] = true
+                                }
+                                if (new_sku_ids.indexOf(sku.sku_id) > -1) {
+                                    sku['skuIsChecked'] = true
+                                }
+                            })
+                            goods['goodsIsChecked'] = false
+                            goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
+                            goods['skuDisabledNum'] = goods.shop_skus.filter(item => item.isDisabled).length
+                            if (goods['checkNum'] > 0) {
+                                goods['goodsIsChecked'] = true
+                            }
+                            goods['isDisabled'] = false
+                            if (goods['skuDisabledNum'] > 0 && goods['skuDisabledNum'] == goods.shop_skus.length) {
+                                goods['isDisabled'] = true
+                                // goods.shop_skus.forEach((sku, sku_i) => {
+                                //     sku['isDisabled'] = true
+                                // })
+                            }
+
+                            goods_list.push(goods)
+                        })
+                    }
+                    this.list = goods_list
+                    this.total = res.data.total
+                    this.setCheckAll()
+                    rLoading.close()
+                })
+                .catch(err => {
+                    rLoading.close()
+                })
+        },
+
+        // 换购-已添加SKU列表 分页处理
+        addListPagination() {
+            this.imgList = []
+            this.previewIndex = 0
+            const startNum = (this.listQuery.addPage - 1) * this.listQuery.limit,
+                  endNum = this.listQuery.addPage * this.listQuery.limit
+            this.addList = this.allAddList.slice(startNum,endNum)
+            this.addList.forEach(item => {
+                this.imgList.push(item.goods_img)
+            })
+        },
+
+        // 搜索
+        handleFilter() {
+            this.listQuery.page = 1
+            this.listQuery.addPage = 1
+            this.searchShow = false
+            this.searchParams = _.cloneDeep(this.searchForm)
+            this.setSearchValue()
+            this.getList()
+        },
+
+        // 重置
+        resetForm(formName) {
+            this.$refs[formName].resetFields()
+            this.handleFilter()
+        },
+
+        // 设置显示的搜索条件
+        setSearchValue() {
+            let _search = []
+            // id
+            // if (this.searchParams['id']) {
+            //     let obj = {
+            //         label: 'id',
+            //         val: this.searchParams['id']
+            //     }
+            //     _search.push(obj)
+            // }
+            // 上下架状态 status
+            // if (this.searchParams['status']) {
+            //     this.statusList.forEach(ev => {
+            //         if (ev.value == this.searchParams['status']) {
+            //             let obj = {
+            //                 label: 'status',
+            //                 val: ev.label
+            //             }
+            //             _search.push(obj)
+            //         }
+            //     })
+            // }
+            // 商品名称
+            if (this.searchForm['goods_name']) {
+                let obj = {
+                    label: 'goods_name',
+                    val: this.searchForm['goods_name']
+                }
+                _search.push(obj)
+            }
+            // sku名称
+            if (this.searchForm['sku_name']) {
+                let obj = {
+                    label: 'sku_name',
+                    val: this.searchForm['sku_name']
+                }
+                _search.push(obj)
+            }
+            // sku编码
+            if (this.searchForm['sku_code']) {
+                let obj = {
+                    label: 'sku_code',
+                    val: this.searchForm['sku_code']
+                }
+                _search.push(obj)
+            }
+            // 是否售罄
+            if (this.searchForm['goods_is_store_shortage']) {
+                this.soldOutList.forEach(ev => {
+                    if (ev.value == this.searchForm['goods_is_store_shortage']) {
+                        let obj = {
+                            label: 'goods_is_store_shortage',
+                            val: '售罄:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // 级联选择 商品类型+分类
+            if (this.searchForm['typeCategory'].length == 1) {
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
+                        let obj = {
+                            label: 'typeCategory',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            } else if (this.searchForm['typeCategory'].length == 2) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchForm['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            } else if (this.searchForm['typeCategory'].length == 3) {
+                let showValue = ''
+                this.typeList.forEach(ev => {
+                    if (ev.value == this.searchForm['typeCategory'][0]) {
+                        showValue = ev.label
+                    }
+                })
+
+                let _arr = this.categoryListClothGroup.concat(this.categoryListOther)
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchForm['typeCategory'][1]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _arr.forEach(ev => {
+                    if (ev.id == this.searchForm['typeCategory'][2]) {
+                        showValue = showValue + '/' + ev.name
+                    }
+                })
+                _search.push({
+                    label: 'typeCategory',
+                    val: showValue
+                })
+            }
+            this.searchList = _.cloneDeep(_search)
+        },
+
+        // 清除单个搜索条件
+        closeSearchItem(item, i) {
+            this.$set(this.searchForm, item.label, '')
+            this.$set(this.searchParams, item.label, '')
+            if (item.label == 'typeCategory') {
+                this.$set(this.searchForm, 'typeCategory', [])
+                this.$set(this.searchParams, 'typeCategory', [])
+            }
+            this.handleFilter()
+        },
+
+        // 已选商品删除商品
+        cancelSelection(group) {
+            for (let i = 0; i < this.checkedList.length; i++) {
+                const element = this.checkedList[i]
+                if (group.id == element.id) {
+                    this.checkedList.splice(i, 1)
+                    const ids = element.shop_skus.map(item => {
+                        return item.id
+                    })
+                    this.refreshSelection(ids)
+                }
+            }
+        },
+
+        // 已选商品删除sku
+        cancelSelectionImg(goods, sku) {
+            for (let i = 0; i < this.checkedList.length; i++) {
+                const element = this.checkedList[i]
+                if (goods.id == element.id) {
+                    for (let j = 0; j < element.shop_skus.length; j++) {
+                        const skuElement = element.shop_skus[j]
+                        if (sku.id == skuElement.id) {
+                            element.shop_skus.splice(j, 1)
+                            const ids = [sku.id]
+                            this.refreshSelection(ids)
+                        }
+                    }
+                    // 没有选中图片时 删除组
+                    if (element.shop_skus.length == 0) {
+                        this.checkedList.splice(i, 1)
+                    }
+                }
+            }
+        },
+
+        // 已选图片显示/关闭
+        triggerImg(goods) {
+            goods.open = !goods.open
+            this.$forceUpdate()
+        },
+
+        // 分页方法
+        handleSizeChange(val) {
+            this.listQuery.limit = val
+            this.getList()
+        },
+        handleCurrentChange(val) {
+            this.listQuery.page = val
+            this.getList()
+        },
+
+        show() {
+            this.isShow = true
+        },
+        close() {
+            this.isShow = false
+        },
+        async handleOnAdd() {
+            let sku_arr = []
+            console.log('this.checkedList', this.checkedList)
+            console.log('this.checkedList.length', this.checkedList.length)
+            this.checkedList.forEach(goods_item => {
+                goods_item.shop_skus.forEach(sku_item => {
+                    if (sku_item.skuIsChecked && !sku_item.isDisabled) {
+                        sku_item['goods_title'] = goods_item.goods_title
+                        sku_item['goods_img'] = goods_item.goods_img
+                        sku_arr.push(sku_item)
+                    }
+                })
+            })
+            console.log('sku_arr', sku_arr)
+            if (sku_arr.length < 1) {
+                this.$notify({
+                    title: '请挑选商品',
+                    type: 'warning',
+                    duration: 5000
+                })
+                return
+            }
+            this.$emit('addSku', _.cloneDeep(sku_arr))
+            this.checkedList = []
+        },
+
+
+
+        closeAddGoods() {
+            this.searchShow = false
+        },
+
+        gotoDetail(id) {
+            this.close()
+            this.$router.push({
+                name: 'goods-preview',
+                query: {
+                    id: id
+                }
+            })
+        },
+
+        // 关闭大图预览
+        closePreview() {
+            this.dialogVisiblePic = false
+        },
+        // type 1主图 2sku图 3 已选中sku
+        openPreview(img, type, index) {
+            if (type == 1) {
+                this.previewUrlList = this.timgList
+            } else if (type == 2) {
+                this.previewUrlList = this.skuImgList
+            } else if (type == 3) {
+                let _list = []
+                img.forEach(item => {
+                    _list.push(item.sku_img)
+                })
+                this.previewUrlList = _list
+                // return
+            }
+            this.previewIndex = index
+            this.dialogVisiblePic = true
+        },
+
+        filterGoods() {
+            this.checkedList.forEach((goods)=>{
+                goods['checkNum'] = 0
+                goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
+            })
+            this.checkedList = this.checkedList.filter(item=>{return item.checkNum > 0})
+        },
+        // sku选中/取消
+        skuChecked(bol, row, index, goods_detail, goods_index) {
+            goods_detail.shop_skus.forEach((ev, i) => {
+                if (!ev.isDisabled) {
+                    // ev['skuIsChecked'] = false
+                }
+            })
+            row['skuIsChecked'] = bol
+            goods_detail['checkNum'] = goods_detail.shop_skus.filter(item => item.skuIsChecked).length
+            if (goods_detail['checkNum'] < 1) {
+                goods_detail['goodsIsChecked'] = false
+            } else {
+                goods_detail['goodsIsChecked'] = true
+            }
+
+            let checkedGoodsIds = [] // 选中商品id集合
+            if (this.checkedList.length > 0) {
+                checkedGoodsIds = this.checkedList.map(item => {
+                    return item.id
+                })
+            }
+            let goodsSku = _.cloneDeep(goods_detail)
+            // 判断 当前操作的sku 所属商品 是否在 已选商品列表中
+            if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
+                this.checkedList.push(goodsSku)
+            } else if (checkedGoodsIds.indexOf(goodsSku.id) > -1) {
+                let index = checkedGoodsIds.indexOf(goodsSku.id)
+                this.$set(this.checkedList, index, goodsSku)
+            }
+            this.setCheckAll()
+
+        },
+        // 选中/取消 当前页 所有
+        handleCheckCurrentPage(bol) {
+            this.list.forEach((ev)=>{
+                if(!ev.isDisabled){
+                    ev['goodsIsChecked'] = bol
+                    ev.shop_skus.forEach((sku)=>{
+                        if(!ev.isDisabled){
+                            sku['skuIsChecked'] = bol
+                        }
+                    })
+                }
+            })
+            let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+            console.log('checkedListCopy', checkedListCopy)
+            this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+            console.log('checkedList', this.checkedList)
+            this.setCheckAll()
+        },
+        uniqueArr(arr1,arr2) {
+            console.log('arr1', arr1)
+            console.log('arr2', arr2)
+            //合并两个数组
+            let newArr = [...arr1,...arr2]
+            //去重
+            const res = new Map();
+            return newArr.filter((arr) => !res.has(arr.goods_id) && res.set(arr.goods_id, 1));
+        },
+        setCheckAll() {
+            this.pageCheckSkuCount = 0
+            console.log('this.pageSkuCount', this.pageSkuCount)
+            let pageCheckSku = 0
+            this.list.forEach((goods)=>{
+                goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
+                pageCheckSku = pageCheckSku + goods['checkNum']
+            })
+            this.pageCheckSkuCount = pageCheckSku
+            console.log('pageCheckSku', pageCheckSku)
+            if(pageCheckSku == this.pageSkuCount) {
+                this.checkAll = true
+            } else {
+                this.checkAll = false
+            }
+            console.log('checkedList', this.checkedList)
+
+            this.filterGoods()
+        },
+
+        // 商品选中/取消
+        goodsChecked(bol, row, index) {
+            if (row.shop_skus && row.shop_skus.length > 1) {
+                // row['goodsIsChecked'] = false
+                row.shop_skus.forEach((ev, i) => {
+                    if (!ev['isDisabled']) {
+                        ev['skuIsChecked'] = bol
+                    }
+                })
+            } else if (row.shop_skus && row.shop_skus.length == 1) {
+                if (!row.isDisabled) {
+                    row['goodsIsChecked'] = bol
+                    row.shop_skus.forEach((ev, i) => {
+                        if (!ev['isDisabled']) {
+                            ev['skuIsChecked'] = bol
+                        }
+                    })
+                }
+            }
+            let sku_checked_num = row.shop_skus.filter(item => item.skuIsChecked).length
+            row['checkNum'] = sku_checked_num
+            let checkedGoodsIds = [] // 选中商品id集合
+            if (this.checkedList.length > 0) {
+                checkedGoodsIds = this.checkedList.map(item => {
+                    return item.id
+                })
+            }
+            let goodsSku = _.cloneDeep(row)
+            // 判断 当前操作的商品 是否在 已选商品列表中
+            if (checkedGoodsIds.indexOf(goodsSku.id) == -1) {
+                this.checkedList.push(goodsSku)
+            } else if (checkedGoodsIds.indexOf(goodsSku.id) > -1) {
+                let index = checkedGoodsIds.indexOf(goodsSku.id)
+                this.$set(this.checkedList, index, goodsSku)
+            }
+            this.setCheckAll()
+        },
+
+        onTabClick() {
+            this.searchList = []
+            this.listQuery.addPage = 1
+            this.listQuery.page = 1
+            this.resetForm('searchForm')
+        },
+    }
+}
+</script>
+
+<style scoped="scoped" lang="less">
+    /deep/.el-dialog__body {
+        padding: 60px 24px !important;
+    }
+.app-container{
+    margin-top: 20px;
+}
+.tabs {
+    margin-left: 30px;
+    & /deep/ .el-tabs__header {
+        margin: 0;
+    }
+    & /deep/ .el-tabs__nav {
+        height: 56px;
+        z-index: 2003;
+    }
+    & /deep/ .el-tabs__item {
+        line-height: 56px;
+    }
+}
+.el-tabs__active-bar{
+    z-index: 2004;
+}
+/deep/.el-dialog {
+    top: 50%;
+    left: 50%;
+    margin: 0 !important;
+    transform: translate(-50%, -50%);
+}
+/deep/.el-dialog__body {
+    padding: 0 !important;
+}
+/deep/.el-dialog__header {
+    padding: 10px 0 !important;
+    box-sizing: border-box;
+    height: 57px;
+}
+/deep/.el-dialog__headerbtn {
+    top: 21px;
+}
+.table-title {
+    position: relative;
+    height: 36px;
+    .text {
+        margin-left: 24px;
+    }
+    .search {
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .grey-line {
+        margin: 0 20px;
+        width: 1px;
+        height: 26px;
+        background: #e6e6e6;
+    }
+    .head-container {
+        position: absolute;
+        top: 48px;
+        z-index: 9;
+        // transition: all 3s ease-in-out;
+        padding: 24px 24px 4px 24px;
+        // border: 1px solid #000;
+        border-radius: 2px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.12);
+    }
+    .selected-goods-btn {
+        margin-right: 68px;
+        margin-left: auto;
+    }
+}
+.timg {
+    width: 80px;
+    height: 60px;
+}
+
+.row-list {
+    max-height: 400px;
+    width: 300px;
+    .nodata {
+        padding: 12px;
+    }
+    .row-item {
+        // border-bottom: 1px solid #e8e8e8;
+
+        .item-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            height: 50px;
+            border-bottom: 1px solid #e8e8e8;
+            .iconfont {
+                margin-right: 16px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+        }
+        &:last-child {
+            border-bottom: none;
+        }
+        .row-delete {
+            cursor: pointer;
+        }
+        .name {
+            overflow: hidden;
+            padding-right: 10px;
+            width: 250px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .son-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 0 12px 0 46px;
+            height: 50px;
+            border-bottom: 1px solid #e8e8e8;
+            .son-timg {
+                margin-right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+    }
+}
+.item {
+    display: flex;
+    margin-bottom: 10px;
+    min-height: 50px;
+    .check {
+        color: rgba(0, 0, 0, 0.65);
+        font-weight: 400;
+        font-size: 14px;
+    }
+    .check-all {
+        margin-right: 120px;
+    }
+    .check-city {
+        margin-bottom: 20px;
+    }
+}
+.gotoDetail {
+    color: #1890ff;
+    cursor: pointer;
+}
+.sku-table {
+    box-sizing: border-box;
+    margin-left: 120px;
+    max-width: calc(100% - 120px);
+}
+.table /deep/ .el-table__expand-icon > .el-icon {
+    margin-top: -10px;
+}
+.table /deep/ .el-table__expand-icon--expanded {
+    transform: rotate(0deg);
+}
+.table /deep/ .el-icon-arrow-right:before {
+    color: #1890ff;
+    content: '\e61a';
+    font-size: 19px;
+    font-family: 'iconfont';
+}
+.table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+    color: #6d7278;
+    content: '\e617';
+}
+
+.cursor {
+    cursor: pointer;
+}
+.table /deep/ .el-table__body tr:hover > td {
+    background-color: #fff !important;
+}
+.table .sku-table /deep/ .el-table__body tr:hover > td {
+    background-color: #f6faff !important;
+}
+.table /deep/ .el-table__expanded-cell {
+    padding: 0 !important;
+}
+/deep/ .el-table-column--selection .cell {
+    padding-right: 12px;
+    padding-left: 12px;
+}
+/deep/.el-image-viewer__wrapper {
+    z-index: 99999 !important;
+}
+.type-tag {
+    // display: block;
+    padding: 0 11px;
+    min-width: 50px;
+    width: fit-content;
+    height: 26px;
+    border-radius: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    word-break: keep-all;
+    font-weight: 400;
+    line-height: 26px;
+    text-align: center;
+    &.type-red {
+        background-color: #ff4d4f;
+    }
+    &.type-purple {
+        background-color: #a151ff;
+    }
+    &.type-yellow {
+        background-color: #faad14;
+    }
+    &.type-blue {
+        background-color: #1890ff;
+    }
+}
+</style>
