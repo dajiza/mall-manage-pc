@@ -1,5 +1,5 @@
 import { queryShopList, queryCategoryListAll } from '@/api/goods'
-import { queryTutorialSave, queryTutorialDetail, updateApproveStatus, queryAuthorList, addTutorialAuthor,queryMaterialSKUList } from '@/api/look'
+import { queryTutorialSave, queryTutorialDetail, updateApproveStatus, queryAuthorList, addTutorialAuthor,queryMaterialSKUList } from '@/api/tutorial'
 import { formatMoney } from '@/plugin/tool'
 import { ATTR, ATTR_NAME } from '@/plugin/constant'
 import bus from '@/components/common/bus'
@@ -498,7 +498,7 @@ export const mixinsLook = {
                         setTimeout(()=>{
                             bus.$emit('close_current_tags')
                             that.$router.push({
-                                path: 'mall-backend-look'
+                                path: 'mall-backend-tutorial'
                             }).then(r => {})
                         },1000)
                     } else {
@@ -1004,7 +1004,7 @@ export const mixinsLook = {
                         }
                         setTimeout(()=>{
                             bus.$emit('close_current_tags')
-                            this.$router.push('/mall-backend-look')
+                            this.$router.push('/mall-backend-tutorial')
                         },1000)
 
                         // this.getPromotionGoods()

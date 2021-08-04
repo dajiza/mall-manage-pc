@@ -87,7 +87,7 @@
                 </el-table-column>
                 <el-table-column label="操作" width="120">
                     <template slot-scope="scope">
-                        <el-button type="text" class="marginLeft0 marginRight15" v-hasPermission="'mall-backend-sales-promotion-update'" @click="handleEditOrCopy(scope.$index, scope.row, 'audit')">审核</el-button>
+                        <el-button type="text" class="marginLeft0 marginRight15" v-hasPermission="'mall-backend-tutorial-audit'" @click="handleEditOrCopy(scope.$index, scope.row, 'audit')">审核</el-button>
                     </template>
                 </el-table-column>
                 <template slot="empty">
@@ -112,9 +112,9 @@
 
 <script>
 
-    import { updateAccessStatus, queryTutorialList } from '@/api/look'
+    import { updateAccessStatus, queryTutorialList } from '@/api/tutorial'
     import EmptyList from '../../../common/empty-list/EmptyList'
-    import './look.less'
+    import './tutorial.less'
     import { queryShopList } from '@/api/goods'
     import IssueRecord from '../../../common/issue-record/IssueRecord.vue'
     import ElImageViewer from '../../..//common/image-viewer'
@@ -481,14 +481,14 @@
             // 审核
             handleEditOrCopy(index, row, status) {
                 this.$router.push({
-                    path: '/mall-backend-look-audit',
+                    path: '/mall-backend-tutorial-audit',
                     query: { id: row.tutorial.id, status }
                 })
             },
 
             // 待审核列表
             handleGoAudit() {
-                this.$router.push('/mall-backend-look-audit-list')
+                this.$router.push('/mall-backend-tutorial-audit-list')
             },
 
             // 查看大图

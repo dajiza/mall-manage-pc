@@ -65,9 +65,9 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
-                <el-button style="margin-right: 5px;position: relative" @click="handleGoAudit" v-hasPermission="'mall-backend-look-audit-list'">待审核
-                <span class="pending-count" :class="[pendingCount > 9 && pendingCount < 100 ? 'w26':'', pendingCount > 99 ? 'w32':'']" v-if="pendingCount > 0">{{pendingCount > 99 ? '99+': pendingCount}}</span></el-button>
-                <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-sales-promotion-create'">新增</el-button>
+                <el-button style="margin-right: 5px;position: relative" @click="handleGoAudit" v-hasPermission="'mall-backend-tutorial-audit-list'">待审核
+                <span class="pending-count" :class="[pendingCount > 9 && pendingCount < 100 ? 'w26':'', pendingCount > 99 ? 'w32':'']" v-hasPermission="'mall-backend-tutorial-audit-list'" v-if="pendingCount > 0">{{pendingCount > 99 ? '99+': pendingCount}}</span></el-button>
+                <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-tutorial-creat'">新增</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
                 <el-table-column label="图片" width="128">
@@ -100,12 +100,12 @@
                 </el-table-column>
                 <el-table-column label="操作" width="120">
                     <template slot-scope="scope">
-                        <el-button type="text" class="marginLeft0 marginRight15" v-hasPermission="'mall-backend-sales-promotion-update'" @click="handleEditOrCopy(scope.$index, scope.row, 'edit')">编辑</el-button>
+                        <el-button type="text" class="marginLeft0 marginRight15" v-hasPermission="'mall-backend-tutorial-update'" @click="handleEditOrCopy(scope.$index, scope.row, 'edit')">编辑</el-button>
                         <el-button
                                 type="text"
                                 class="marginLeft0"
                                 :class="{ 'delete-color': scope.row.tutorial.access_status > 1 }"
-                                v-hasPermission="'mall-backend-promotion-statu'"
+                                v-hasPermission="'mall-backend-tutorial-access-status'"
                                 @click="handleChangeStatus(scope.$index, scope.row)"
                         >{{ scope.row.tutorial.access_status > 1 ? '隐藏' : '显示' }}</el-button>
                     </template>
@@ -132,9 +132,9 @@
 
 <script>
 
-import { updateAccessStatus, queryTutorialList } from '@/api/look'
+import { updateAccessStatus, queryTutorialList } from '@/api/tutorial'
 import EmptyList from '../../../common/empty-list/EmptyList'
-import './look.less'
+import './tutorial.less'
 import { queryShopList } from '@/api/goods'
 import IssueRecord from '../../../common/issue-record/IssueRecord.vue'
 import ElImageViewer from '../../..//common/image-viewer'
@@ -526,20 +526,20 @@ export default {
         },
         // 新增
         handleAdd() {
-            this.$router.push({ path: '/mall-backend-look-creat' })
+            this.$router.push({ path: '/mall-backend-tutorial-creat' })
         },
 
         // 编辑
         handleEditOrCopy(index, row, status) {
             this.$router.push({
-                path: '/mall-backend-look-update',
+                path: '/mall-backend-tutorial-update',
                 query: { id: row.tutorial.id, status }
             })
         },
 
         // 待审核列表
         handleGoAudit() {
-            this.$router.push('/mall-backend-look-audit-list')
+            this.$router.push('/mall-backend-tutorial-audit-list')
         },
 
         // 查看大图

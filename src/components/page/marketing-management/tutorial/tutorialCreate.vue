@@ -255,7 +255,7 @@
 </template>
 <script>
     import { mixinsLook } from '../../../mixins/lookCreate'
-    import './look.less'
+    import './tutorial.less'
     export default {
         name: 'promotionCreate',
         mixins: [mixinsLook],

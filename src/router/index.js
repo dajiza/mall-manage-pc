@@ -283,29 +283,29 @@ export default new Router({
                     meta: { title: '编辑首页', name: 'indexAdmin' }
                 },
                 {
-                    path: '/mall-backend-look',
-                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/look.vue'),
-                    meta: { title: '看看', name: 'look' }
+                    path: '/mall-backend-tutorial',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorial.vue'),
+                    meta: { title: '看看', name: 'tutorial' }
                 },
                 {
-                    path: '/mall-backend-look-audit-list',
-                    component: () => import(/* webpackChunkName: "look-audit-list" */ '../components/page/marketing-management/look/lookAuditList.vue'),
-                    meta: { title: '看看审核列表', name: 'lookAuditList' }
+                    path: '/mall-backend-tutorial-audit-list',
+                    component: () => import(/* webpackChunkName: "tutorial-audit-list" */ '../components/page/marketing-management/tutorial/tutorialAuditList.vue'),
+                    meta: { title: '看看审核列表', name: 'tutorialAuditList' }
                 },
                 {
-                    path: '/mall-backend-look-creat',
-                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
-                    meta: { title: '看看新增', name: 'lookCreate' }
+                    path: '/mall-backend-tutorial-creat',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看新增', name: 'tutorialCreate' }
                 },
                 {
-                    path: '/mall-backend-look-update',
-                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
-                    meta: { title: '看看编辑', name: 'lookUpdate' }
+                    path: '/mall-backend-tutorial-update',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看编辑', name: 'tutorialUpdate' }
                 },
                 {
-                    path: '/mall-backend-look-audit',
-                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/look/lookCreate.vue'),
-                    meta: { title: '看看审核', name: 'lookAudit' }
+                    path: '/mall-backend-tutorial-audit',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看审核', name: 'tutorialAudit' }
                 },
                 {
                     path: '/mall-backend-commission',

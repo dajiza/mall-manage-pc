@@ -223,7 +223,7 @@ export default {
                             display_name: '编辑首页'
                         },
                         {
-                            name: 'mall-backend-look',
+                            name: 'mall-backend-tutorial',
                             display_name: '看看'
                         },
 
