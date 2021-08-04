@@ -79,7 +79,7 @@
                     <span>{{ scope.row.user_id }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="所属店铺">
+            <el-table-column label="所属店铺" width="130">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
@@ -89,7 +89,7 @@
                     <span>{{ scope.row.nick_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="客户微信头像">
+            <el-table-column label="客户微信头像" min-width="110">
                 <template slot-scope="scope">
                     <img class="timg" :src="scope.row.avatar_url || avatar" alt="" />
                 </template>
@@ -104,12 +104,12 @@
                     <span>{{ formatMoney(scope.row.consumption) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="首次登录时间" width="200">
+            <el-table-column label="首次登录时间" width="180">
                 <template slot-scope="scope">
                     <span>{{ $moment(scope.row.first_login_time).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="上次登录时间" width="200">
+            <el-table-column label="上次登录时间" width="180">
                 <template slot-scope="scope">
                     <span>{{ $moment(scope.row.last_login_time).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
@@ -129,13 +129,16 @@
                     <span>{{ scope.row.points }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" width="160">
+            <el-table-column label="操作" width="220">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)">
                         {{ scope.row.discount_end_at ? '修改' : '设置' }}会员
                     </el-button>
                     <el-button class="text-blud opt-btn" type="text" size="small" @click="openLog(scope.row)">
                         积分记录
+                    </el-button>
+                    <el-button class="text-blud opt-btn" type="text" size="small" @click="openWalletLog(scope.row)">
+                        钱包记录
                     </el-button>
                 </template>
             </el-table-column>
@@ -190,7 +193,7 @@
                 </el-tabs>
                 <span class="iconfont icon-close" @click="dialogVisibleLog = false"></span>
             </div>
-            <el-table :height="tableHeight" :data="listLog" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+            <el-table :height="dialogTableHeight" :data="listLog" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
                 <el-table-column label="原因" width="120">
                     <template slot-scope="scope">
                         <span>{{ POINTS_LOG_TYPE[scope.row.type] }}</span>
@@ -220,20 +223,65 @@
                 </el-pagination>
             </div>
         </el-dialog>
+
+        <!-- 钱包记录 -->
+        <el-dialog class="dialog-log" :visible.sync="dialogVisibleWalletLog" title="" width="628px">
+            <div class="tabs-and-add">
+                <div class="dialog-log-title">可提现金额：{{ formatMoney(AvailableAmount) }}元</div>
+                <span class="iconfont icon-close" @click="dialogVisibleWalletLog = false"></span>
+            </div>
+            <div class="row-line"></div>
+            <el-table :height="dialogTableHeight" :data="walletLogList" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
+                <el-table-column label="类型">
+                    <template slot-scope="scope">
+                        <span>{{ WALLET_LOG_TYPE[scope.row.platform] }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="时间" width="200">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.created_at_txt }}</span>
+                    </template>
+                </el-table-column>
+                <!--<el-table-column label="状态" width="120">
+                    <template slot-scope="scope">
+                        <span>{{ WALLET_LOG_STATUS[scope.row.platform] }}</span>
+                    </template>
+                </el-table-column>-->
+                <el-table-column label="金额" width="120">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.type > 1 ? '-' : '+' }} {{ formatMoney(scope.row.money) }}</span>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--<div class="pagination-container">
+                <el-pagination
+                        background
+                        @size-change="handleSizeChangeLog"
+                        @current-change="handleCurrentChangeLog"
+                        :current-page="listQueryLog.page"
+                        :page-size="listQueryLog.limit"
+                        layout="total, prev, pager, next, jumper"
+                        :total="totalLog"
+                >
+                </el-pagination>
+            </div>-->
+        </el-dialog>
     </div>
 </template>
 <script>
 import { queryDiscountList, updateUserDiscount } from '@/api/discount'
-import { queryCustomerList, queryPointsLogList } from '@/api/customer'
+import { queryCustomerList, queryPointsLogList, queryCommissionLog } from '@/api/customer'
 import { formatMoney } from '@/plugin/tool'
 import { queryShopList } from '@/api/goods'
 import commUtil from '@/utils/commUtil'
-import { POINTS_LOG_TYPE } from '@/plugin/constant'
+import { POINTS_LOG_TYPE, WALLET_LOG_TYPE, WALLET_LOG_STATUS } from '@/plugin/constant'
 export default {
     name: 'customer-list',
     data() {
         return {
             POINTS_LOG_TYPE,
+            WALLET_LOG_TYPE,
+            WALLET_LOG_STATUS,
             commUtil,
             avatar: require('@/assets/img/wx.jpeg'),
             list: null,
@@ -257,6 +305,7 @@ export default {
                 discount_end_end: '' // 不搜索为空
             },
             tableHeight: 'calc(100vh - 194px)',
+            dialogTableHeight: 'calc(100vh - 294px)',
             searchShow: false,
             searchList: [],
             showMaxIndex: 0,
@@ -347,7 +396,10 @@ export default {
                         }
                     }
                 ]
-            }
+            },
+            dialogVisibleWalletLog: false, // 钱包
+            walletLogList: [],
+            AvailableAmount: 0
         }
     },
     watch: {
@@ -523,6 +575,35 @@ export default {
             this.dialogVisibleLog = true
             this.queryPointsList()
         },
+        openWalletLog(row) {
+            this.listLog = []
+            this.listQueryLog.page = 1
+            this.activeLog = '1'
+            this.userIdLog = row.user_id
+            this.AvailableAmount = row.withdrawal_amount
+            this.dialogVisibleWalletLog = true
+            this.queryWalletLog()
+        },
+        queryWalletLog() {
+            let params = {
+                user_id: this.userIdLog
+            }
+            queryCommissionLog(params).then(res => {
+                if (res.code === 200) {
+                    this.walletLogList = res.data || []
+                } else {
+                    this.walletLogList = []
+                    this.$notify({
+                        title: res.msg,
+                        message: '',
+                        type: 'error',
+                        duration: 5000
+                    })
+                }
+                // this.totalLog = res.data.total
+            })
+        },
+
         queryPointsList() {
             let params = {
                 limit: this.listQueryLog.limit,
@@ -722,15 +803,31 @@ export default {
 }
 </style>
 <style lang="less">
+    .el-dialog {
+        top: 50%;
+        left: 50%;
+        margin: 0 !important;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+    }
 .dialog-log {
     .el-dialog__header {
         display: none;
     }
     .el-dialog__body {
-        padding: 0 !important;
+        padding: 0 0 20px !important;
     }
     .tabs-and-add {
         position: relative;
+        .dialog-log-title{
+            height: 56px;
+            line-height: 56px;
+            text-indent: 25px;
+            font-size: 16px;
+            font-family: PingFangSC-Regular, PingFang SC;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.85);
+        }
         .icon-close {
             position: absolute;
             top: 18px;
@@ -750,6 +847,11 @@ export default {
             padding-right: 40px;
             padding-left: 24px;
         }
+    }
+    .row-line{
+        height: 1px;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.06);
     }
 }
 </style>

@@ -271,6 +271,14 @@
                     <el-input class="dialog-item" placeholder="请输入" style="width:190px" v-model="formCommission.additional_rate"></el-input>
                     <span class="order-unit">%</span>
                 </el-form-item>
+                <el-form-item label="看看提成比例" prop="tutorial_rate">
+                    <el-input class="dialog-item" placeholder="请输入" style="width:190px" v-model="formCommission.tutorial_rate"></el-input>
+                    <span class="order-unit">%</span>
+                </el-form-item>
+                <el-form-item label="看看分享有效期" prop="tutorial_days" label-width="120">
+                    <el-input class="dialog-item" placeholder="请输入" style="width:180px" v-model.number="formCommission.tutorial_days"></el-input>
+                    <span class="order-unit">天</span>
+                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="handleCloseCommission">取 消</el-button>
@@ -390,7 +398,23 @@ export default {
                         },
                         trigger: 'change'
                     }
-                ]
+                ],
+                tutorial_rate: [
+                    { required: true, message: '请输入内容', trigger: 'change' },
+                    {
+                        min: 0,
+                        max: 40,
+                        message: '看看0-40%',
+                        type: 'number',
+                        transform(value) {
+                            return Number(value)
+                        },
+                        trigger: 'change'
+                    }
+                ],
+                tutorial_days: [
+                    { required: true, message: '请输入内容', trigger: 'change' }
+                ],
             },
             uploadImgUrl: '',
             dialogTitle: '新增店铺',
@@ -928,6 +952,8 @@ export default {
                 if (valid) {
                     this.formCommission.basic_rate = Number(this.formCommission.basic_rate)
                     this.formCommission.additional_rate = Number(this.formCommission.additional_rate)
+                    this.formCommission.tutorial_rate = Number(this.formCommission.tutorial_rate)
+                    this.formCommission.tutorial_days = Number(this.formCommission.tutorial_days)
                     updateShop(this.formCommission)
                         .then(res => {
                             if (res.code == 200) {

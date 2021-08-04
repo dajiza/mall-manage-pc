@@ -285,3 +285,25 @@ a {
 .el-popover {
     min-width: 0;
 }
+.select-creat {
+    .el-select-dropdown__item {
+        display: flex;
+    }
+    .el-select-dropdown__item:before {
+        display: block;
+        flex-basis: 64px;
+        width: 64px;
+        height: 34px;
+        background: url(../assets/img/selectadd.png) no-repeat;
+        background-position-y: 7px;
+        background-size: 64px 20px;
+        content: '';
+    }
+    .option-normal {
+        display: block;
+    }
+    .option-normal:before {
+        display: inline;
+        background: none;
+    }
+}

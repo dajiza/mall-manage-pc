@@ -283,6 +283,31 @@ export default new Router({
                     meta: { title: '编辑首页', name: 'indexAdmin' }
                 },
                 {
+                    path: '/mall-backend-tutorial',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorial.vue'),
+                    meta: { title: '看看', name: 'tutorial' }
+                },
+                {
+                    path: '/mall-backend-tutorial-audit-list',
+                    component: () => import(/* webpackChunkName: "tutorial-audit-list" */ '../components/page/marketing-management/tutorial/tutorialAuditList.vue'),
+                    meta: { title: '看看审核列表', name: 'tutorialAuditList' }
+                },
+                {
+                    path: '/mall-backend-tutorial-creat',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看新增', name: 'tutorialCreate' }
+                },
+                {
+                    path: '/mall-backend-tutorial-update',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看编辑', name: 'tutorialUpdate' }
+                },
+                {
+                    path: '/mall-backend-tutorial-audit',
+                    component: () => import(/* webpackChunkName: "parameter-setting" */ '../components/page/marketing-management/tutorial/tutorialCreate.vue'),
+                    meta: { title: '看看审核', name: 'tutorialAudit' }
+                },
+                {
                     path: '/mall-backend-commission',
                     component: () => import(/* webpackChunkName: "after-sale" */ '../components/page/money-management/commission.vue'),
                     meta: { title: '佣金统计' }
