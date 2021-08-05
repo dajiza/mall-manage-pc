@@ -525,7 +525,7 @@ export const mixinsLook = {
             })
             this.allCheckedSkuList.forEach((ev)=>{
                 this.materialList.forEach((item)=>{
-                    if (ev.skuId == item.skuId) {
+                    if (ev.sku_id == item.sku_id) {
                         ev['skuIsChecked'] = bol
                     }
                 })
@@ -538,7 +538,7 @@ export const mixinsLook = {
         skuChecked(bol, row, index) {
             row['skuIsChecked'] = bol
             this.allCheckedSkuList.forEach((ev)=>{
-                if (ev.skuId == row.skuId) {
+                if (ev.sku_id == row.sku_id) {
                     ev['skuIsChecked'] = bol
                 }
             })
@@ -631,7 +631,7 @@ export const mixinsLook = {
         // 移除成功
         addOrDelSuccess(list, type) {
             if (list.length > 0) {
-                let new_sku_ids =list.map(item => {return item.skuId})
+                let new_sku_ids =list.map(item => {return item.sku_id})
                 let tipText = ''
                 let num = new_sku_ids.length
                 let del_text = num > 1 ? '确定将' + num + '件材料移除吗？' : '确定将该材料移除吗？'
@@ -642,13 +642,16 @@ export const mixinsLook = {
                     .then(() => {
                         let new_arr = _.cloneDeep(this.allCheckedSkuList)
                         new_arr = new_arr.filter(function(item) {
-                            return new_sku_ids.indexOf(item.skuId) == -1
+                            return new_sku_ids.indexOf(item.sku_id) == -1
                         })
                         this.allCheckedSkuList = new_arr
                         if (this.allCheckedSkuList.length > 0) {
-                            this.checkedSkuIds = this.allCheckedSkuList.map(item => {return item.skuId})
+                            this.checkedSkuIds = this.allCheckedSkuList.map(item => {return item.sku_id})
                         }
                         tipText = "已移除"
+                        if (this.operationTitle == 'edit') {
+                            tipText = "已移除,保存后生效"
+                        }
                         this.$notify({
                             title: tipText,
                             message: '',

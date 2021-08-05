@@ -72,7 +72,7 @@
                         <span>{{ scope.row.tutorial.summary }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column prop="title" label="作者微信名" width="120">
+                <el-table-column prop="title" label="作者微信名" width="180">
                     <template slot-scope="scope">
                         <span>{{ scope.row.author.nick_name }}</span>
                     </template>

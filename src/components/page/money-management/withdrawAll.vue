@@ -24,6 +24,11 @@
                                 <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
+                        <el-form-item label="提现类型" prop="out_type">
+                            <el-select class="filter-item" v-model="formFilter.out_type" placeholder="请选择">
+                                <el-option v-for="item in withdrawTypeOptions" :key="item.id" :label="item.label" :value="item.id"> </el-option>
+                            </el-select>
+                        </el-form-item>
                         <el-form-item class="long-time" label="申请时间" prop="applyTime">
                             <el-date-picker
                                     class="filter-item"
@@ -77,7 +82,7 @@
             </div>
         </div>
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="操作" width="150">
+            <el-table-column label="操作" width="130">
                 <template slot-scope="scope">
                     <div v-hasPermission="'mall-backend-agent-update-status'">
                         <el-button class="text-blue" type="text" size="" v-if="scope.row.status == 1" @click.native="updateStatus(scope.row.id, 1)">
@@ -99,32 +104,37 @@
                     <div class="type-tag type-yellow" v-if="scope.row.status == 5">放款失败</div>
                 </template>
             </el-table-column>
+            <el-table-column label="提现类型" width="140">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.out_type == 1? '管理员提现':'普通用户提现'}}</span>
+                </template>
+            </el-table-column>
             <el-table-column label="管理员昵称" width="140">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="管理员手机号" width="160">
+            <el-table-column label="管理员手机号" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_phone }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="店铺名称">
+            <el-table-column label="店铺名称" min-width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请提现金额">
+            <el-table-column label="申请提现金额" width="106">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.money) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="申请时间" width="180">
+            <el-table-column label="申请时间" width="178">
                 <template slot-scope="scope">
                     <span>{{ scope.row.apply_time }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="到账时间" width="180">
+            <el-table-column label="到账时间" width="178">
                 <template slot-scope="scope">
                     <span>{{ scope.row.success_time }}</span>
                 </template>
@@ -199,12 +209,17 @@ export default {
                 success_time_gte: '', //到帐时间 大于等于
                 status: '', //1 待审核 2 审核通过 3 拒绝 4 放款成功 5放款失败 -1 搜索全部
                 applyTime: [], //暂存
-                successTime: [] //暂存
+                successTime: [], //暂存
+                out_type: ''
             },
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
             searchList:[],
             showMaxIndex: 0,
+            withdrawTypeOptions: [
+                {id: 1, label: '管理员提现'},
+                {id: 2, label: '普通用户提现'}
+            ]
         }
     },
     watch:{
@@ -389,7 +404,18 @@ export default {
                     }
                 })
             }
-
+            // 提现类型
+            if(this.formFilter['out_type']){
+                this.withdrawTypeOptions.forEach((ev)=>{
+                    if(ev.id == this.formFilter['out_type']){
+                        let obj = {
+                            label: 'out_type',
+                            val: ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
             // 申请时间 applyTime
             if(this.formFilter['applyTime'] && this.formFilter['applyTime'].length === 2){
                 let _ge_arr = (this.$moment(this.formFilter.applyTime[0]).format('YYYY-MM-DD ')).split('-');
