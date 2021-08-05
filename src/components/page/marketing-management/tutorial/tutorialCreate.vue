@@ -214,7 +214,17 @@
                                     <span class="tip-text">670*400px</span>
                                 </div>
                             </el-upload>
-                            <img class="tutorials-img" v-if="item.img_url" :src="item.img_url" @click="openPreview(item.img_url, 3, 0)"/>
+                            <div class="tutorials-img-wrap" v-if="item.img_url">
+                                <img class="tutorials-img" :src="item.img_url" @click="openPreview(item.img_url, 3, 0)"/>
+                                <div class="operate-box">
+                                    <div class="operate-icon-wrap" @click="openPreview(item.img_url, 3, 0)">
+                                        <i class="el-icon-zoom-in"></i>
+                                    </div>
+                                    <div style="margin-left: 20px" class="operate-icon-wrap" @click="handleDelTutorialsImg(item, i)">
+                                        <i class="el-icon-delete"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

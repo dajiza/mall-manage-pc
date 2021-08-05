@@ -942,6 +942,13 @@ export const mixinsLook = {
 
         },
 
+        // 删除
+        handleDelTutorialsImg(item, i) {
+            let _obj = _.cloneDeep(item)
+            _obj['img_url'] = ''
+            this.$set(this.tutorialsList, i, _obj)
+        },
+
         // 通过审核
         handleAgree() {
             this.changeStatus(2)
