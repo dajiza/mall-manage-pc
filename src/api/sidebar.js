@@ -31,7 +31,8 @@ export async function sidebarCount() {
     let withdrawCount = await queryWithdrawCount({
         page: 1,
         limit: 1,
-        shop_id: -1
+        shop_id: -1,
+        status: 1 // '1 待审核 2 审核通过 3 拒绝 4 放款成功 5放款失败'
     })
     // 积分商城
     let pointsOrderCount = (await queryPointsOrderCount()).data.reduce((prev, cur) => {

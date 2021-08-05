@@ -242,7 +242,7 @@ export default {
             delete params['applyTime']
             params['limit'] = this.listQuery.limit
             params['page'] = this.listQuery.page
-
+            params['status'] = 1 //'1 待审核 2 审核通过 3 拒绝 4 放款成功 5放款失败'
             console.log(params)
             queryWithdrawList(params)
                 .then(res => {

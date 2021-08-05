@@ -161,11 +161,9 @@ export const mixinsLook = {
         },
 
         brandKeyChange(inputKey) {
-            console.log('inputKey', inputKey)
             //inputKey为当前输入的数据
             //根据输入的数据请求，得到的结果作为渲染的下拉数据
             const list = this.userList.filter(item =>{ return item.nick_name.indexOf(inputKey) > -1})
-            console.log('list', list)
             if (list.length > 0) {
                 let add_list = list.filter(item => {return item.add_status == 2})
                 let not_add_list = list.filter(item => {return item.add_status != 2})
@@ -185,10 +183,8 @@ export const mixinsLook = {
             const array = document.getElementsByClassName('beforecontent');
             for (let index = 0; index < array.length; index++) {
                 const element = array[index];
-                // console.log('element', element)
                 let type = this.authorList[index].add_status;
                 if (type == 2) { // 已添加
-                     // console.log(element.childNodes)
                 } else {
                     // 未添加
                     // console.log('element.childNodes', element.childNodes[0])
@@ -210,9 +206,7 @@ export const mixinsLook = {
                         this.authorSelectKey++
                         this.userList = res.data || []
                         this.authorList = res.data.filter(item=>{return item.add_status == 2})
-                        console.log('this.authorList', this.authorList)
                         this.$nextTick(()=>{
-                            console.log('218', user_id)
                             if (user_id > 0) {
                                 this.$set(this.operationForm, 'author', user_id)
                             }
@@ -233,7 +227,6 @@ export const mixinsLook = {
 
         copyrightChange() {
             let _value = this.operationForm.author
-            console.log('_value', _value)
             if (!this.shopId) {
                 this.$notify({
                     title: '请先选择店铺',
@@ -244,21 +237,17 @@ export const mixinsLook = {
                 return
             }
             if (_value) {
-                console.log('_value',_value)
                 const filterList = this.userList.filter(item => {return item.user_id == _value})
-                console.log('filterList', filterList)
                 if (filterList.length > 0) {
                     const add_status = filterList[0].add_status
                     if (add_status == 2) {
-                        console.log('已添加')
+                        // 已添加
                     } else {
-                        console.log('未添加')
-                        console.log('添加作者')
+                        // 未添加 - 添加作者
                         let params = {
                             shop_id: this.shopId,
                             user_id: filterList[0].user_id
                         }
-                        console.log('params', params)
                         this.attrAdd(params)
                     }
                 } else {
@@ -319,7 +308,6 @@ export const mixinsLook = {
             } else {
                 this.tfile = []
             }
-            console.log('info.author.user_id', info.author.user_id)
             this.getAuthorList(info.author.user_id)
 
             if (info.material_list.length > 0) {
@@ -410,7 +398,7 @@ export const mixinsLook = {
                         })
                     })
                     params['show_img_list'] = imgArr
-                    console.log('this.allCheckedSkuList== 422', this.allCheckedSkuList)
+
                     this.allCheckedSkuList.forEach((ev)=>{
                         let obj = {
                             goods_id: ev.goods_id,
@@ -640,14 +628,24 @@ export const mixinsLook = {
                     type: 'warning'
                 })
                     .then(() => {
-                        let new_arr = _.cloneDeep(this.allCheckedSkuList)
-                        new_arr = new_arr.filter(function(item) {
-                            return new_sku_ids.indexOf(item.sku_id) == -1
+                        console.log('this.allCheckedSkuList== 630', this.allCheckedSkuList)
+                        let allCheckedCopy = _.cloneDeep(this.allCheckedSkuList),
+                            new_arr = []
+                        allCheckedCopy.forEach((ev)=>{
+                            if (new_sku_ids.indexOf(ev.sku_id) == -1) {
+                                new_arr.push(ev)
+                            }
                         })
-                        this.allCheckedSkuList = new_arr
-                        if (this.allCheckedSkuList.length > 0) {
+                        console.log('new_arr== 639', new_arr)
+                        if (new_arr.length > 0) {
+                            this.allCheckedSkuList = new_arr
                             this.checkedSkuIds = this.allCheckedSkuList.map(item => {return item.sku_id})
+                        } else {
+                            this.allCheckedSkuList = []
+                            this.checkedSkuIds = []
                         }
+                        console.log('this.allCheckedSkuList== 644', this.allCheckedSkuList)
+                        console.log('this.checkedSkuIds== 640', this.checkedSkuIds)
                         tipText = "已移除"
                         if (this.operationTitle == 'edit') {
                             tipText = "已移除,保存后生效"
@@ -683,10 +681,7 @@ export const mixinsLook = {
                 // this.previewUrlList.push(img)
             }
             this.previewIndex = index
-            console.log('this.previewUrlList', this.previewUrlList)
-            console.log('this.previewIndex', this.previewIndex)
             this.dialogVisiblePic = true
-
         },
 
         handlePictureCardPreview(file) {
@@ -754,7 +749,6 @@ export const mixinsLook = {
         },
         // 图片上传成功回调
         uploadImgSuccessMultiple(response, file, fileList) {
-            console.log('===========620')
             let status = fileList.every(item => (item.response && item.response.code == 200))
             if (status) {
                 this.$notify({
@@ -842,7 +836,7 @@ export const mixinsLook = {
             }
             let params = {
                 sku_ids: sku_ids,
-                // shopId: this.shopId
+                shop_id: this.shopId
             }
             this.skuPage = 1
             const rLoading = this.openLoading()

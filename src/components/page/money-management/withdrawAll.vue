@@ -160,7 +160,7 @@
     </div>
 </template>
 <script>
-import { queryWithdrawListAll, putWithdrawCheck } from '@/api/money'
+import { queryWithdrawList, queryWithdrawListAll, putWithdrawCheck } from '@/api/money'
 import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
 
@@ -281,7 +281,7 @@ export default {
             params['page'] = this.listQuery.page
 
             // console.log(params)
-            queryWithdrawListAll(params)
+            queryWithdrawList(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
                     this.list = res.data.lists
