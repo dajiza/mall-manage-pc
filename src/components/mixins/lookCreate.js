@@ -191,7 +191,7 @@ export const mixinsLook = {
                      // console.log(element.childNodes)
                 } else {
                     // 未添加
-                    console.log('element.childNodes', element.childNodes[0])
+                    // console.log('element.childNodes', element.childNodes[0])
                     element.childNodes[0].classList.add("not-add")
                 }
             }
@@ -259,10 +259,8 @@ export const mixinsLook = {
                             user_id: filterList[0].user_id
                         }
                         console.log('params', params)
-                        return;
                         this.attrAdd(params)
                     }
-                    return;
                 } else {
                     this.$notify({
                         title: '客户列表不存在该用户',
@@ -272,7 +270,6 @@ export const mixinsLook = {
                     })
                     this.$set(this.operationForm, 'author' , '')
                 }
-
             }
         },
 
