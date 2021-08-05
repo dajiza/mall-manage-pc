@@ -491,7 +491,7 @@ export const mixinsLook = {
                             title: res.msg,
                             message: '',
                             type: 'error',
-                            duration: 5000
+                            duration: 3000
                         })
                     }
                 })

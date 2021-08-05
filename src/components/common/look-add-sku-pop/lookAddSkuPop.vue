@@ -206,7 +206,7 @@
                             </el-table-column>
                             <el-table-column label="商品ID" width="80">
                                 <template slot-scope="scope">
-                                    <span>{{ scope.row.id }}</span>
+                                    <span>{{ scope.row.goods_id }}</span>
                                 </template>
                             </el-table-column>
                             <el-table-column label="主图" width="120">
@@ -669,26 +669,6 @@ export default {
         // 设置显示的搜索条件
         setSearchValue() {
             let _search = []
-            // id
-            // if (this.searchParams['id']) {
-            //     let obj = {
-            //         label: 'id',
-            //         val: this.searchParams['id']
-            //     }
-            //     _search.push(obj)
-            // }
-            // 上下架状态 status
-            // if (this.searchParams['status']) {
-            //     this.statusList.forEach(ev => {
-            //         if (ev.value == this.searchParams['status']) {
-            //             let obj = {
-            //                 label: 'status',
-            //                 val: ev.label
-            //             }
-            //             _search.push(obj)
-            //         }
-            //     })
-            // }
             // 商品名称
             if (this.searchForm['goods_name']) {
                 let obj = {
@@ -697,33 +677,13 @@ export default {
                 }
                 _search.push(obj)
             }
-            // sku名称
-            if (this.searchForm['sku_name']) {
+            // 商品Id
+            if (this.searchParams['goods_id']) {
                 let obj = {
-                    label: 'sku_name',
-                    val: this.searchForm['sku_name']
+                    label: 'goods_id',
+                    val: this.searchParams['goods_id']
                 }
                 _search.push(obj)
-            }
-            // sku编码
-            if (this.searchForm['sku_code']) {
-                let obj = {
-                    label: 'sku_code',
-                    val: this.searchForm['sku_code']
-                }
-                _search.push(obj)
-            }
-            // 是否售罄
-            if (this.searchForm['goods_is_store_shortage']) {
-                this.soldOutList.forEach(ev => {
-                    if (ev.value == this.searchForm['goods_is_store_shortage']) {
-                        let obj = {
-                            label: 'goods_is_store_shortage',
-                            val: '售罄:' + ev.label
-                        }
-                        _search.push(obj)
-                    }
-                })
             }
             // 级联选择 商品类型+分类
             if (this.searchForm['typeCategory'].length == 1) {
@@ -777,6 +737,34 @@ export default {
                     label: 'typeCategory',
                     val: showValue
                 })
+            }
+            // 是否售罄
+            if (this.searchForm['goods_is_store_shortage']) {
+                this.soldOutList.forEach(ev => {
+                    if (ev.value == this.searchForm['goods_is_store_shortage']) {
+                        let obj = {
+                            label: 'goods_is_store_shortage',
+                            val: '售罄:' + ev.label
+                        }
+                        _search.push(obj)
+                    }
+                })
+            }
+            // sku名称
+            if (this.searchForm['sku_name']) {
+                let obj = {
+                    label: 'sku_name',
+                    val: this.searchForm['sku_name']
+                }
+                _search.push(obj)
+            }
+            // sku编码
+            if (this.searchForm['sku_code']) {
+                let obj = {
+                    label: 'sku_code',
+                    val: this.searchForm['sku_code']
+                }
+                _search.push(obj)
             }
             this.searchList = _.cloneDeep(_search)
         },
