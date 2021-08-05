@@ -23,17 +23,20 @@
             <!-- <span class="icon iconfont icon-lingdang message" v-show="!collapse"></span>
             <div class="point" v-show="!collapse"></div> -->
         </div>
-        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router>
+        <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router @select="handleSelect">
             <template v-for="item in items">
                 <template v-if="item.subs">
                     <el-submenu :index="item.name" :key="item.name">
                         <template slot="title">
                             <i class="iconfont" :class="item.icon"></i>
                             <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
-                            <!-- <span class="count-box-point"></span> -->
+                            <span class="count-box-point" v-if="item.show"></span>
                         </template>
                         <template v-for="subItem in item.subs">
-                            <el-menu-item :index="subItem.name" :key="subItem.index">{{ subItem.display_name }}</el-menu-item>
+                            <el-menu-item :index="subItem.name" :key="subItem.index"
+                                >{{ subItem.display_name }}
+                                <span class="count-box" v-if="subItem.count">{{ subItem.count }}</span>
+                            </el-menu-item>
                         </template>
                     </el-submenu>
                 </template>
@@ -41,7 +44,6 @@
                     <el-menu-item :index="item.name" :key="item.name">
                         <i class="iconfont" :class="item.icon"></i>
                         <span class="marginLeft10" slot="title">{{ item.display_name }}</span>
-                        <!-- <span class="count-box" v-if="item.count">{{ count }}</span> -->
                     </el-menu-item>
                 </template>
             </template>
@@ -79,6 +81,7 @@
 <script>
 import bus from '../common/bus'
 import { editUserInfo } from '../../api/user'
+import { sidebarCount } from '../../api/sidebar'
 export default {
     data() {
         var validatePass2 = (rule, value, callback) => {
@@ -227,8 +230,7 @@ export default {
                         {
                             name: 'mall-backend-tutorial',
                             display_name: '看看'
-                        },
-
+                        }
                     ]
                 },
                 {
@@ -366,7 +368,9 @@ export default {
             this.items = newList
         }
     },
-    mounted() {},
+    mounted() {
+        this.queryCount()
+    },
     methods: {
         // 用户名下拉菜单选择事件
         handleCommand(command) {
@@ -384,6 +388,68 @@ export default {
                 this.user_info = JSON.parse(localStorage.getItem('login_user_info'))
                 this.changePasswordVisible = true
             }
+        },
+        // 菜单点击激活回调
+        handleSelect(key, keyPath) {
+            this.queryCount()
+        },
+        // 获取统计数量
+        async queryCount() {
+            console.log('输出 ~ 获取sidebar统计')
+            let count = await sidebarCount()
+
+            for (let i = 0; i < this.items.length; i++) {
+                const element = this.items[i]
+                if (element.display_name == '商品管理') {
+                    this.$set(this.items[i], 'show', count.commentCount > 0 ? true : false)
+                    for (let j = 0; j < element.subs.length; j++) {
+                        const elementSub = element.subs[j]
+                        if (elementSub.display_name == '评论管理') {
+                            this.$set(this.items[i].subs[j], 'count', count.commentCount)
+                        }
+                    }
+                }
+                if (element.display_name == '订单管理') {
+                    for (let j = 0; j < element.subs.length; j++) {
+                        const elementSub = element.subs[j]
+                        if (elementSub.display_name == '售后处理申请') {
+                            this.$set(this.items[i].subs[j], 'count', count.afterSaleCount)
+                        }
+                    }
+                }
+                if (element.display_name == '营销管理') {
+                    for (let j = 0; j < element.subs.length; j++) {
+                        const elementSub = element.subs[j]
+                        this.$set(this.items[i], 'show', count.courseCount + count.pointsOrderCount + count.tutorialCount > 0 ? true : false)
+                        if (elementSub.display_name == '团作列表') {
+                            this.$set(this.items[i].subs[j], 'count', count.courseCount)
+                        }
+                        if (elementSub.display_name == '积分商城') {
+                            this.$set(this.items[i].subs[j], 'count', count.pointsOrderCount)
+                        }
+                        if (elementSub.display_name == '看看') {
+                            this.$set(this.items[i].subs[j], 'count', count.tutorialCount)
+                        }
+                    }
+                }
+                if (element.display_name == '资金管理') {
+                    for (let j = 0; j < element.subs.length; j++) {
+                        const elementSub = element.subs[j]
+                        this.$set(this.items[i], 'show', count.withdrawCount > 0 ? true : false)
+                        if (elementSub.display_name == '提现管理') {
+                            this.$set(this.items[i].subs[j], 'count', count.withdrawCount)
+                        }
+                    }
+                }
+            }
+            //        count: {
+            // commentCount: 0,
+            // orderCount: 0,
+            // withdrawCount: 0,
+            // courseCount: 0,
+            // pointsOrderCount: 0
+            // tutorialCount: 0
+            //        }
         },
         // 侧边栏折叠
         collapseChage() {
