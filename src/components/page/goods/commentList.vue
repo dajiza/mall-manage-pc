@@ -203,7 +203,7 @@ import { queryShopList } from '@/api/goods'
 import ElImageViewer from '@/components/common/image-viewer'
 
 import { formatMoney } from '@/plugin/tool'
-
+import bus from '@/components/common/bus'
 export default {
     data() {
         return {
@@ -527,6 +527,8 @@ export default {
                                     duration: 2000
                                 })
                                 this.getList()
+                                // 改变侧边栏提示数字
+                                bus.$emit('changSidebarCount')
                             } else {
                                 this.$notify({
                                     title: res.msg,

@@ -271,13 +271,13 @@ export default {
     created() {
         bus.$on('refreshTutorialList', target => {
             // console.log(target);
+            this.getUnReviewedCount()
             if(target==='add'){
                 this.$set(this.pageInfo, 'pageIndex', 1);
                 this.resetForm('searchForm')
             } else {
                 this.getListData()
             }
-
         });
     },
     mounted() {

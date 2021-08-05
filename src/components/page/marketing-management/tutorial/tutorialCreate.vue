@@ -220,7 +220,7 @@
                                     <div class="operate-icon-wrap" @click="openPreview(item.img_url, 3, 0)">
                                         <i class="el-icon-zoom-in"></i>
                                     </div>
-                                    <div style="margin-left: 20px" class="operate-icon-wrap" @click="handleDelTutorialsImg(item, i)">
+                                    <div style="margin-left: 20px" class="operate-icon-wrap" v-if="operationTitle !== 'audit'" @click="handleDelTutorialsImg(item, i)">
                                         <i class="el-icon-delete"></i>
                                     </div>
                                 </div>
