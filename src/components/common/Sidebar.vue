@@ -424,10 +424,10 @@ export default {
                 if (element.display_name == '营销管理') {
                     for (let j = 0; j < element.subs.length; j++) {
                         const elementSub = element.subs[j]
-                        this.$set(this.items[i], 'show', count.courseCount + count.pointsOrderCount + count.tutorialCount > 0 ? true : false)
-                        if (elementSub.display_name == '团作列表') {
-                            this.$set(this.items[i].subs[j], 'count', count.courseCount)
-                        }
+                        this.$set(this.items[i], 'show', count.pointsOrderCount + count.tutorialCount > 0 ? true : false)
+                        // if (elementSub.display_name == '团作列表') {
+                        //     this.$set(this.items[i].subs[j], 'count', count.courseCount)
+                        // }
                         if (elementSub.display_name == '积分商城') {
                             this.$set(this.items[i].subs[j], 'count', count.pointsOrderCount)
                         }

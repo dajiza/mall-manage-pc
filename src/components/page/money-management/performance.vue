@@ -28,18 +28,18 @@
                     </el-form>
                 </div>
             </transition>
-            <div class="search-value" >
-                <template v-for="(item,i) in searchList">
+            <div class="search-value">
+                <template v-for="(item, i) in searchList">
                     <div class="search-item" v-if="i <= showMaxIndex">
-                        {{item.val}}
-                        <span class="tags-li-icon" @click="closeSearchItem(item,i)"><i class="el-icon-close"></i></span>
+                        {{ item.val }}
+                        <span class="tags-li-icon" @click="closeSearchItem(item, i)"><i class="el-icon-close"></i></span>
                     </div>
                 </template>
                 <span style="width: 20px;display: inline-block" v-if="searchList.length > 0 && showMaxIndex < searchList.length - 1">...</span>
                 <div class="search-value-clone" ref="searchValueBox">
-                    <template v-for="(item,i) in searchList">
-                        <div class="search-item" :ref="'searchItem'+ i">
-                            {{item.val}}
+                    <template v-for="(item, i) in searchList">
+                        <div class="search-item" :ref="'searchItem' + i">
+                            {{ item.val }}
                             <span class="tags-li-icon"><i class="el-icon-close"></i></span>
                         </div>
                     </template>
@@ -68,24 +68,27 @@
                     <span>{{ formatMoney(scope.row.sales_count) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="累计佣金">
+            <el-table-column label="累计佣金 店铺/顾客" width="160">
                 <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.commission_count) }}</span>
+                    <span>{{ formatMoney(scope.row.commission_count) }}</span> /
+                    <span>{{ formatMoney(scope.row.customer_commission_count) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="总资产">
+            <!-- <el-table-column label="总资产">
                 <template slot-scope="scope">
                     <span>{{ formatMoney(scope.row.total_assets) }}</span>
                 </template>
-            </el-table-column>
-            <el-table-column label="待入账">
+            </el-table-column> -->
+            <el-table-column label="待入账 店铺/顾客" width="160">
                 <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.waiting_confirm) }}</span>
+                    <span>{{ formatMoney(scope.row.waiting_confirm) }}</span> /
+                    <span>{{ formatMoney(scope.row.customer_waiting_confirm) }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="可提现">
+            <el-table-column label="可提现 店铺/顾客" width="160">
                 <template slot-scope="scope">
-                    <span>{{ formatMoney(scope.row.can_withdraw) }}</span>
+                    <span>{{ formatMoney(scope.row.can_withdraw) }}</span> /
+                    <span>{{ formatMoney(scope.row.customer_can_withdraw) }}</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -151,34 +154,36 @@ export default {
             },
             tableHeight: 'calc(100vh - 144px)',
             searchShow: false,
-            searchList:[],
-            showMaxIndex: 0,
+            searchList: [],
+            showMaxIndex: 0
         }
     },
-    watch:{
-        'searchList':function() {
-            this.$nextTick(function() {
-                if (!this.$refs.searchValueBox) {
-                    return;
-                }
-                let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '')  - 20;
-                let showWidth = 0;
-                for(let i=0; i<this.searchList.length; i++){
-                    let el = 'searchItem' + i;
-                    let _width = this.$refs[el][0].offsetWidth;
-                    showWidth = showWidth + Math.ceil(Number(_width)) + 8;
-                    if(showWidth > maxWidth){
-                        this.showMaxIndex = i-1;
-                        // console.log('this.showMaxIndex', this.showMaxIndex)
-                        return;
+    watch: {
+        searchList: function() {
+            this.$nextTick(
+                function() {
+                    if (!this.$refs.searchValueBox) {
+                        return
                     }
-                    if(i == this.searchList.length - 1){
-                        if(showWidth <= maxWidth - 20){
-                            this.showMaxIndex = this.searchList.length - 1;
+                    let maxWidth = window.getComputedStyle(this.$refs.searchValueBox).width.replace('px', '') - 20
+                    let showWidth = 0
+                    for (let i = 0; i < this.searchList.length; i++) {
+                        let el = 'searchItem' + i
+                        let _width = this.$refs[el][0].offsetWidth
+                        showWidth = showWidth + Math.ceil(Number(_width)) + 8
+                        if (showWidth > maxWidth) {
+                            this.showMaxIndex = i - 1
+                            // console.log('this.showMaxIndex', this.showMaxIndex)
+                            return
+                        }
+                        if (i == this.searchList.length - 1) {
+                            if (showWidth <= maxWidth - 20) {
+                                this.showMaxIndex = this.searchList.length - 1
+                            }
                         }
                     }
-                }
-            }.bind(this));
+                }.bind(this)
+            )
         }
     },
     created() {},
@@ -220,28 +225,28 @@ export default {
         },
         // 搜索
         handleFilter() {
-            this.listQuery.page = 1;
-            this.searchShow = false;
-            this.setSearchValue();
+            this.listQuery.page = 1
+            this.searchShow = false
+            this.setSearchValue()
             this.getList()
         },
         // 重置
         resetForm(formName) {
             console.log(this.$refs[formName].model)
             this.$refs[formName].resetFields()
-            this.formFilter.sale_count_lte = '';
-            this.formFilter.sale_count_gte = '';
-            this.searchShow = false;
+            this.formFilter.sale_count_lte = ''
+            this.formFilter.sale_count_gte = ''
+            this.searchShow = false
             this.handleFilter()
         },
 
         // 设置显示的搜索条件
         setSearchValue() {
-            let _search = [];
+            let _search = []
             // 获佣店铺 shop_id
-            if(this.formFilter['shop_id']){
-                this.shopList.forEach((ev)=>{
-                    if(ev.id == this.formFilter['shop_id']){
+            if (this.formFilter['shop_id']) {
+                this.shopList.forEach(ev => {
+                    if (ev.id == this.formFilter['shop_id']) {
                         let obj = {
                             label: 'shop_id',
                             val: ev.shop_name
@@ -251,7 +256,7 @@ export default {
                 })
             }
             // 代理姓名 agent_name
-            if(this.formFilter['agent_name']){
+            if (this.formFilter['agent_name']) {
                 let obj = {
                     label: 'agent_name',
                     val: this.formFilter['agent_name']
@@ -260,21 +265,21 @@ export default {
             }
 
             // 总销售额 sale_count_gte sale_count_lte sale_count
-            if(this.formFilter['sale_count_gte'] || this.formFilter['sale_count_lte']){
+            if (this.formFilter['sale_count_gte'] || this.formFilter['sale_count_lte']) {
                 let obj = {}
-                if(this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']){
+                if (this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']) {
                     obj = {
                         label: 'sale_count',
                         val: this.formFilter['sale_count_gte'] + ' - ' + this.formFilter['sale_count_lte']
                     }
                 }
-                if(this.formFilter['sale_count_gte'] && !this.formFilter['sale_count_lte']){
+                if (this.formFilter['sale_count_gte'] && !this.formFilter['sale_count_lte']) {
                     obj = {
                         label: 'sale_count',
                         val: this.formFilter['sale_count_gte']
                     }
                 }
-                if(!this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']){
+                if (!this.formFilter['sale_count_gte'] && this.formFilter['sale_count_lte']) {
                     obj = {
                         label: 'sale_count',
                         val: this.formFilter['sale_count_lte']
@@ -288,12 +293,12 @@ export default {
 
         // 清除单个搜索条件
         closeSearchItem(item, i) {
-            this.$set(this.formFilter,item.label, '');
-            if(item.label == 'sale_count'){
-                this.$set(this.formFilter, 'sale_count_gte', '');
-                this.$set(this.formFilter, 'sale_count_lte', '');
+            this.$set(this.formFilter, item.label, '')
+            if (item.label == 'sale_count') {
+                this.$set(this.formFilter, 'sale_count_gte', '')
+                this.$set(this.formFilter, 'sale_count_lte', '')
             }
-            this.handleFilter();
+            this.handleFilter()
         },
         // 分页方法
         handleSizeChange(val) {

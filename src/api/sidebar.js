@@ -7,10 +7,10 @@ export async function sidebarCount() {
     console.log('输出 ~ data', data)
     return {
         commentCount: data.shop_comment_not_approve_count || 0, //商品评论待审核总数
-        afterSaleCount: data.commission_not_approve_count || 0, //售后处理申请总数
+        afterSaleCount: data.order_apply_count || 0, //售后处理申请总数
         courseCount: data.course_not_approve_count || 0, //团作待审核总数
         pointsOrderCount: data.points_redeem_count || 0, //积分商城兑换订单
-        withdrawCount: data.order_apply_count || 0, //提现管理总数
+        withdrawCount: data.commission_not_approve_count || 0, //提现管理总数
         tutorialCount: data.tutorial_not_approve_count || 0 //看看待审核总数
     }
 }
