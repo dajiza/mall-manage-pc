@@ -163,7 +163,7 @@
 import { queryWithdrawList, queryWithdrawListAll, putWithdrawCheck } from '@/api/money'
 import { queryShopList } from '@/api/goods'
 import { formatMoney } from '@/plugin/tool'
-
+import bus from '@/components/common/bus'
 export default {
     name: 'agent-list',
     data() {
@@ -323,6 +323,8 @@ export default {
                                     duration: 5000
                                 })
                                 this.reload()
+                                // 改变侧边栏提示数字
+                                bus.$emit('changSidebarCount')
                             } else {
                                 this.$notify({
                                     title: res.msg,

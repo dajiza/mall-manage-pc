@@ -350,6 +350,10 @@ export default {
             this.collapse = msg
             bus.$emit('collapse-content', msg)
         })
+        // 通过审核、拒绝审核 侧边栏提示数字改变
+        bus.$on('changSidebarCount', msg => {
+            this.queryCount()
+        })
         this.is_admin = localStorage.getItem('is_admin')
         if (this.is_admin > 0) {
             this.items = this.all_menu

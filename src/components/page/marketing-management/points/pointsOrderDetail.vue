@@ -552,6 +552,8 @@
                                     this.showPrint = true
                                     // 通知订单列表刷新
                                     bus.$emit('refreshPointOrderList', 'sandSuccess');
+                                    // 改变侧边栏提示数字
+                                    bus.$emit('changSidebarCount');
                                     // 请求新的物流详情
                                     // this.getSdInfo()
                                 } else {

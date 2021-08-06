@@ -577,6 +577,44 @@
                         margin-right: 60px;
                     }
                     .right-box{
+                        .tutorials-img-wrap{
+                            width: 200px;
+                            height: 120px;
+                            position: relative;
+                            .operate-box{
+                                position: absolute;
+                                width: 100%;
+                                height: 100%;
+                                left: 0;
+                                top: 0;
+                                cursor: default;
+                                text-align: center;
+                                color: #fff;
+                                opacity: 0;
+                                font-size: 20px;
+                                background-color: rgba(0,0,0,.5);
+                                -webkit-transition: opacity .3s;
+                                transition: opacity .3s;
+                                z-index: 11;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                .operate-icon-wrap{
+                                    width: 40px;
+                                    height: 40px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                }
+                            }
+                            &:hover{
+                                .operate-box{
+                                    opacity: 1;
+                                }
+                            }
+                        }
+
                         .tutorials-img{
                             cursor: pointer;
                             width: 200px;

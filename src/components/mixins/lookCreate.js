@@ -479,7 +479,7 @@ export const mixinsLook = {
                             type: 'success',
                             duration: 3000
                         })
-                        bus.$emit('refreshTutorialList', type);
+                        bus.$emit('refreshTutorialList', type)
                         setTimeout(()=>{
                             bus.$emit('close_current_tags')
                             that.$router.push({
@@ -942,6 +942,13 @@ export const mixinsLook = {
 
         },
 
+        // 删除
+        handleDelTutorialsImg(item, i) {
+            let _obj = _.cloneDeep(item)
+            _obj['img_url'] = ''
+            this.$set(this.tutorialsList, i, _obj)
+        },
+
         // 通过审核
         handleAgree() {
             this.changeStatus(2)
@@ -994,11 +1001,12 @@ export const mixinsLook = {
                             // 拒绝
                         } else {
                             // 通过审核
-                            bus.$emit('refreshTutorialList', 'add');
                         }
+                        bus.$emit('refreshTutorialList', 'add');
+                        bus.$emit('changSidebarCount');
                         setTimeout(()=>{
                             bus.$emit('close_current_tags')
-                            this.$router.push('/mall-backend-tutorial')
+                            this.$router.push('/mall-backend-tutorial-audit-list')
                         },1000)
 
                         // this.getPromotionGoods()
