@@ -24,8 +24,8 @@
                                 <el-option v-for="item in statusList" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="提现类型" prop="out_type">
-                            <el-select class="filter-item" v-model="formFilter.out_type" placeholder="请选择">
+                        <el-form-item label="提现类型" prop="out_model">
+                            <el-select class="filter-item" v-model="formFilter.out_model" placeholder="请选择">
                                 <el-option v-for="item in withdrawTypeOptions" :key="item.id" :label="item.label" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
@@ -106,7 +106,7 @@
             </el-table-column>
             <el-table-column label="提现类型" width="140">
                 <template slot-scope="scope">
-                    <span>{{ scope.row.out_type == 1? '管理员提现':'普通用户提现'}}</span>
+                    <span>{{ scope.row.out_model == 1? '管理员提现':'普通用户提现'}}</span>
                 </template>
             </el-table-column>
             <el-table-column label="管理员昵称" width="140">
@@ -210,7 +210,7 @@ export default {
                 status: '', //1 待审核 2 审核通过 3 拒绝 4 放款成功 5放款失败 -1 搜索全部
                 applyTime: [], //暂存
                 successTime: [], //暂存
-                out_type: ''
+                out_model: ''
             },
             tableHeight: 'calc(100vh - 194px)',
             searchShow: false,
@@ -407,11 +407,11 @@ export default {
                 })
             }
             // 提现类型
-            if(this.formFilter['out_type']){
+            if(this.formFilter['out_model']){
                 this.withdrawTypeOptions.forEach((ev)=>{
-                    if(ev.id == this.formFilter['out_type']){
+                    if(ev.id == this.formFilter['out_model']){
                         let obj = {
-                            label: 'out_type',
+                            label: 'out_model',
                             val: ev.label
                         }
                         _search.push(obj)
