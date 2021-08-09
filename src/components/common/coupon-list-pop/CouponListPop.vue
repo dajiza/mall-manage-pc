@@ -18,7 +18,7 @@
                                         <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
                                     </el-select>
                                 </el-form-item>
-                                <el-form-item label="优惠券状态" prop="status" class="">
+                                <!--<el-form-item label="优惠券状态" prop="status" class="">
                                     <el-select class="filter-item" v-model="formFilter.status" placeholder="请选择" clearable>
                                         <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
                                     </el-select>
@@ -27,7 +27,7 @@
                                     <el-select class="filter-item" v-model="formFilter.shop_id" placeholder="请选择" clearable>
                                         <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                                     </el-select>
-                                </el-form-item>
+                                </el-form-item>-->
                                 <el-form-item label="优惠券面额" prop="coupon_amount" class="">
                                     <el-input class="filter-item" v-model="formFilter.coupon_amount" placeholder="请输入"></el-input>
                                 </el-form-item>
@@ -72,7 +72,11 @@
                         </template>
                     </el-table-column>
                     <el-table-column prop="title" label="优惠券名称" width="170"></el-table-column>
-                    <el-table-column prop="shop_name" label="可用店铺"></el-table-column>
+                    <el-table-column label="可用店铺">
+                        <template slot-scope="scope">
+                            {{ shopName }}
+                        </template>
+                    </el-table-column>
                     <el-table-column prop="type" label="优惠券类型" width="90">
                         <template slot-scope="scope">
                             {{ scope.row.type > 1 ? '折扣' : '满减' }}
@@ -134,7 +138,7 @@ import commUtil from '@/utils/commUtil'
 import { formatMoney } from '@/plugin/tool'
 export default {
     name: 'CheckList',
-    props: ['couponId','getWay'],
+    props: ['shopId', 'shopName','couponId','getWay'],
 
     data() {
         return {
@@ -238,6 +242,7 @@ export default {
         formatMoney: formatMoney,
         open() {},
         opened() {
+            console.log('shopId', this.shopId)
             this.checkedId = Number(this.couponId)
             this.get_way = Number(this.getWay)
             this.queryShopList()
@@ -250,8 +255,8 @@ export default {
                 title: this.formFilter.title,
             }
             params['type'] = this.formFilter['type'] ? this.formFilter['type'] : 0
-            params['status'] = this.formFilter['status'] > 0 ? this.formFilter['status'] : 0
-            params['shopId'] = this.formFilter['shop_id'] ? this.formFilter['shop_id'] : 0
+            params['status'] = 1
+            params['shopId'] = Number(this.shopId)
             if (params['couponAmount']) {
                 params['couponAmount'] = commUtil.numberMul(Number(this.formFilter['coupon_amount']), 100)
             } else {

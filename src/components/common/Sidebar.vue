@@ -200,6 +200,30 @@ export default {
                             display_name: '广告管理'
                         },
                         {
+                            name: 'mall-backend-teamwork-list',
+                            display_name: '团作列表'
+                        },
+
+                        {
+                            name: 'mall-backend-points-shop-list',
+                            display_name: '积分商城'
+                        },
+                        {
+                            name: 'mall-backend-tutorial',
+                            display_name: '看看'
+                        }
+                    ]
+                },
+                {
+                    icon: 'iconfont icon-coupons',
+                    name: 'mall-backend-page-activity',
+                    display_name: '页面活动',
+                    subs: [
+                        {
+                            name: 'mall-backend-sales-index-admin',
+                            display_name: '编辑首页'
+                        },
+                        {
                             name: 'mall-backend-activity',
                             display_name: '活动管理'
                         },
@@ -208,29 +232,13 @@ export default {
                             display_name: '页面管理'
                         },
                         {
-                            name: 'mall-backend-teamwork-list',
-                            display_name: '团作列表'
-                        },
-                        {
                             name: 'mall-backend-page-share',
                             display_name: '小程序分享页'
-                        },
-                        {
-                            name: 'mall-backend-points-shop-list',
-                            display_name: '积分商城'
                         },
                         {
                             name: 'mall-backend-sales-promotion',
                             display_name: '促销管理'
                         },
-                        {
-                            name: 'mall-backend-sales-index-admin',
-                            display_name: '编辑首页'
-                        },
-                        {
-                            name: 'mall-backend-tutorial',
-                            display_name: '看看'
-                        }
                     ]
                 },
                 {
@@ -249,14 +257,7 @@ export default {
                         {
                             name: 'mall-backend-withdraw',
                             display_name: '提现管理'
-                        }
-                    ]
-                },
-                {
-                    icon: 'iconfont icon-user-add',
-                    name: 'mall-backend-agent-management',
-                    display_name: '代理管理',
-                    subs: [
+                        },
                         {
                             name: 'mall-backend-agent-list',
                             display_name: '代理管理'
@@ -267,6 +268,21 @@ export default {
                         }
                     ]
                 },
+                // {
+                //     icon: 'iconfont icon-user-add',
+                //     name: 'mall-backend-agent-management',
+                //     display_name: '代理管理',
+                //     subs: [
+                //         {
+                //             name: 'mall-backend-agent-list',
+                //             display_name: '代理管理'
+                //         },
+                //         {
+                //             name: 'mall-backend-shop-list',
+                //             display_name: '店铺管理'
+                //         }
+                //     ]
+                // },
                 {
                     icon: 'iconfont icon-users',
                     name: 'mall-backend-customer-management',

@@ -17,11 +17,11 @@
                                     <el-option v-for="state in typeOptions" :key="state.id" :value="state.id" :label="state.name" />
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="优惠券状态" prop="status" class="">
+                           <!-- <el-form-item label="优惠券状态" prop="status" class="">
                                 <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
                                     <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
                                 </el-select>
-                            </el-form-item>
+                            </el-form-item>-->
                             <el-form-item label="可用店铺" prop="shop_id" class="">
                                 <el-select class="filter-item" v-model="searchForm.shop_id" placeholder="请选择" clearable>
                                     <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
@@ -60,6 +60,10 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
+                <el-radio-group v-model="useStatus" class="tabs-nav" @change="handleTabClick">
+                    <el-radio-button label="1">已启用</el-radio-button>
+                    <el-radio-button label="2">已停用</el-radio-button>
+                </el-radio-group>
                 <el-button style="margin-right: 24px" type="primary" @click="handleAdd" v-hasPermission="'mall-backend-coupon-create'">新增优惠券</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
@@ -136,7 +140,7 @@
                 </el-table-column>
                 <el-table-column prop="id" label="ID" width="50"></el-table-column>
                 <el-table-column prop="title" label="优惠券名称" width="170"></el-table-column>
-                <el-table-column prop="shop_name" label="可用店铺"></el-table-column>
+                <el-table-column prop="shop_name" label="可用店铺" min-width="100"></el-table-column>
                 <el-table-column prop="status" label="状态" width="85">
                     <template slot-scope="scope">
                         <span class="order-status" :class="statusClass(scope.row.status)">{{ scope.row.status > 1 ? '已停用' : '已启用' }}</span>
@@ -291,14 +295,12 @@ export default {
             searchForm: {
                 title: '', // 优惠券名称
                 type: '', // 优惠券类型
-                status: '', // 优惠券状态
                 shop_id: '', // 优惠券店铺
                 coupon_amount: '' // 优惠券面额
             },
             searchParams: {
                 title: '', // 优惠券名称
                 type: '', // 优惠券类型
-                status: '', // 优惠券状态
                 shop_id: '', // 优惠券店铺
                 coupon_amount: '' // 优惠券面额
             },
@@ -361,7 +363,8 @@ export default {
                 {id:3, name: '积分商城'},
                 {id:4, name: '促销满券赠送'},
                 {id:5, name: '后台导入'}
-            ]
+            ],
+            useStatus: 1, // 启用状态
         }
     },
     components: {
@@ -457,7 +460,7 @@ export default {
                 limit: this.pageInfo.pageSize,
                 title: this.searchParams.title,
                 type: this.searchParams.type ? this.searchParams.type : -1,
-                status: this.searchParams.status > 0 ? this.searchParams.status : -1,
+                status: Number(this.useStatus),
                 shop_id: this.searchParams.shop_id ? this.searchParams.shop_id : -1,
                 get_way: this.searchParams.get_way || 0,
                 coupon_amount: -1
@@ -497,7 +500,10 @@ export default {
                 })
                 .catch(err => {})
         },
-
+        handleTabClick() {
+            console.log('useStatus',this.useStatus)
+            this.resetForm('searchForm')
+        },
         // 按钮 - 重置
         resetForm(formName) {
             this.$refs[formName].resetFields()
@@ -886,3 +892,21 @@ export default {
     }
 }
 </script>
+<style scoped lang="less">
+    .tabs-nav{
+        margin-right: 20px;
+    }
+    .tabs-nav /deep/ .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+        background: #fff;
+        color: #1890ff;
+        border-color: #1890ff;
+        -webkit-box-shadow: -1px 0 0 0 #1890ff;
+        box-shadow: -1px 0 0 0 #1890ff;
+    }
+    .tabs-nav /deep/ .el-radio-button:first-child .el-radio-button__inner{
+        border-radius: 2px 0 0 2px;
+    }
+    .tabs-nav /deep/ .el-radio-button:last-child .el-radio-button__inner{
+        border-radius: 0 2px 2px 0;
+    }
+</style>

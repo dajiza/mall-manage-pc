@@ -68,8 +68,8 @@
                 <el-button type="primary" size="large" @click="save" v-hasPermission="'mall-backend-points-coupon-creat'">保存</el-button>
             </div>
         </div>
-        <!-- 商品添加 -->
-        <coupon-list ref="couponList" getWay="3" @add-success="getCoupon" :couponId="activeCoupon.length > 0 ? activeCoupon[0].id : ''"></coupon-list>
+        <!-- 优惠券添加 -->
+        <coupon-list ref="couponList" getWay="3" @add-success="getCoupon" :shopId="shopId" :shopName="shopName" :couponId="activeCoupon.length > 0 ? activeCoupon[0].id : ''"></coupon-list>
     </div>
 </template>
 <script>
@@ -85,6 +85,7 @@ export default {
     data() {
         return {
             id: '',
+            shopId: 0,
             shopName: '',
 
             list: [{}],
@@ -142,10 +143,10 @@ export default {
         this.uploadImgUrl = process.env.VUE_APP_BASE_API + '/backend/upload-file'
         this.header['token'] = getToken()
         // this.getDetail()
+        this.shopId = Number(this.$route.query.shopId)
     },
     async mounted() {
         await this.queryShopList()
-        this.shopId = Number(this.$route.query.shopId)
         this.shopName = this.shopId ? this.shopList.find(item => item.id == this.shopId).shop_name : ''
         this.id = Number(this.$route.query.id)
         if (this.id != 0) {

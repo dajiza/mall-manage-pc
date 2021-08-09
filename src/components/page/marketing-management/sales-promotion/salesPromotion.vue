@@ -22,11 +22,11 @@
                                     <el-option v-for="state in shopOptions" :key="state.id" :value="state.id" :label="state.shop_name" />
                                 </el-select>
                             </el-form-item>
-                            <el-form-item label="状态" prop="status" class="">
+                            <!--<el-form-item label="状态" prop="status" class="">
                                 <el-select class="filter-item" v-model="searchForm.status" placeholder="请选择" clearable>
                                     <el-option v-for="state in statusOptions" :key="state.id" :value="state.id" :label="state.name" />
                                 </el-select>
-                            </el-form-item>
+                            </el-form-item>-->
                             <el-form-item label="促销时间" prop="adv_time" class="long-time">
                                 <el-date-picker
                                     class="filter-item"
@@ -67,6 +67,10 @@
                         <span style="width: 20px;display: inline-block">...</span>
                     </div>
                 </div>
+                <el-radio-group v-model="useStatus" class="tabs-nav" @change="handleTabClick">
+                    <el-radio-button label="2">已上架</el-radio-button>
+                    <el-radio-button label="1">已下架</el-radio-button>
+                </el-radio-group>
                 <el-button type="primary" style="margin-right: 24px" @click="handleAdd" v-hasPermission="'mall-backend-sales-promotion-create'">新增</el-button>
             </div>
             <el-table v-loading="loading" :data="tableData" ref="multipleTable" class="order-list-table" :height="tableHeight" :header-cell-style="$tableHeaderColor">
@@ -215,6 +219,7 @@ export default {
                     }
                 ]
             },
+            useStatus: 2,
         }
     },
     components: {
@@ -345,7 +350,7 @@ export default {
                 end_time = time_end.getTime() / 1000
             }
             let params = {
-                status: this.searchParams.status > 0 ? this.searchParams.status : 0,
+                status: Number(this.useStatus),
                 pi: this.pageInfo.pageIndex,
                 ps: this.pageInfo.pageSize,
                 shopId: this.searchParams.shop_id ? this.searchParams.shop_id : 0,
@@ -382,7 +387,10 @@ export default {
                 })
                 .catch(() => {})
         },
-
+        handleTabClick() {
+            console.log('useStatus',this.useStatus)
+            this.resetForm('searchForm')
+        },
         // 代理店铺列表
         queryShopList() {
             queryShopList()
@@ -599,3 +607,21 @@ export default {
     }
 }
 </script>
+<style scoped lang="less">
+    .tabs-nav{
+        margin-right: 20px;
+    }
+    .tabs-nav /deep/ .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+        background: #fff;
+        color: #1890ff;
+        border-color: #1890ff;
+        -webkit-box-shadow: -1px 0 0 0 #1890ff;
+        box-shadow: -1px 0 0 0 #1890ff;
+    }
+    .tabs-nav /deep/ .el-radio-button:first-child .el-radio-button__inner{
+        border-radius: 2px 0 0 2px;
+    }
+    .tabs-nav /deep/ .el-radio-button:last-child .el-radio-button__inner{
+        border-radius: 0 2px 2px 0;
+    }
+</style>
