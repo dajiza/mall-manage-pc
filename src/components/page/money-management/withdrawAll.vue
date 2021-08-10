@@ -16,7 +16,7 @@
                         <el-form-item label="昵称" prop="shop_admin_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_name"></el-input>
                         </el-form-item>
-                        <el-form-item label="管理员手机号" prop="shop_admin_phone">
+                        <el-form-item label="手机号" prop="shop_admin_phone">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_phone"></el-input>
                         </el-form-item>
                         <el-form-item label="状态" prop="status">
@@ -114,7 +114,7 @@
                     <span>{{ scope.row.shop_admin_name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="管理员手机号" width="120">
+            <el-table-column label="手机号" width="120">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_phone }}</span>
                 </template>
@@ -386,7 +386,7 @@ export default {
                 }
                 _search.push(obj)
             }
-            // 管理员手机号 shop_admin_phone
+            // 手机号 shop_admin_phone
             if(this.formFilter['shop_admin_phone']){
                 let obj = {
                     label: 'shop_admin_phone',
