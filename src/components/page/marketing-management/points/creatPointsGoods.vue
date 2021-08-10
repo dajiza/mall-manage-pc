@@ -194,14 +194,16 @@ export default {
             queryPointsGoodsDetail(params)
                 .then(res => {
                     console.log('GOOGLE: res', res)
-                    this.tfile = res.data.medias.map(item => {
-                        return {
-                            url: item.link,
-                            sort: item.sort,
-                            id: item.id,
-                            type: item.type
-                        }
-                    })
+                    if (res.data.medias && res.data.medias.length > 0) {
+                        this.tfile = res.data.medias.map(item => {
+                            return {
+                                url: item.link,
+                                sort: item.sort,
+                                id: item.id,
+                                type: item.type
+                            }
+                        })
+                    }
                     res.data.attrList = JSON.parse(res.data.attrs)
                     res.data.price = res.data.price / 100
                     this.goods = _.cloneDeep(res.data)
