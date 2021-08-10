@@ -13,7 +13,7 @@
                                 <el-option v-for="item in shopList" :key="item.id" :label="item.shop_name" :value="item.id"> </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="管理员昵称" prop="shop_admin_name">
+                        <el-form-item label="昵称" prop="shop_admin_name">
                             <el-input class="filter-item" placeholder="请输入" v-model="formFilter.shop_admin_name"></el-input>
                         </el-form-item>
                         <el-form-item label="管理员手机号" prop="shop_admin_phone">
@@ -109,7 +109,7 @@
                     <span>{{ scope.row.out_model == 1? '管理员提现':'普通用户提现'}}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="管理员昵称" width="140">
+            <el-table-column label="昵称" width="140">
                 <template slot-scope="scope">
                     <span>{{ scope.row.shop_admin_name }}</span>
                 </template>
@@ -378,7 +378,7 @@ export default {
                     }
                 })
             }
-            // 管理员昵称 shop_admin_name
+            // 昵称 shop_admin_name
             if(this.formFilter['shop_admin_name']){
                 let obj = {
                     label: 'shop_admin_name',
