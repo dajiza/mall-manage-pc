@@ -146,7 +146,7 @@
         </div>
 
         <!-- 设置会员 -->
-        <el-dialog :visible.sync="dialogVisibleMember" title="设置批发" width="360px">
+        <el-dialog :visible.sync="dialogVisibleMember" title="设置折扣" width="360px">
             <el-form ref="formMember" :model="formMember" class="form-member" :inline="true" :rules="rulesMember" size="small" label-position="left">
                 <el-form-item label="批发折扣" prop="discount_id" class="">
                     <el-select class="filter-item" v-model="formMember.discount_id" placeholder="请选择" filterable style="width:220px">
