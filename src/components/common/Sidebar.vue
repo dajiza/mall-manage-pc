@@ -430,7 +430,7 @@ export default {
                     }
                 }
                 if (element.display_name == '订单管理') {
-                    this.$set(this.items[i], 'show', count.commentCount > 0 ? true : false)
+                    this.$set(this.items[i], 'show', count.afterSaleCount > 0 ? true : false)
                     for (let j = 0; j < element.subs.length; j++) {
                         const elementSub = element.subs[j]
                         if (elementSub.display_name == '售后处理申请') {
