@@ -139,7 +139,7 @@ export default new Router({
                 {
                     path: '/mall-backend-agent-list',
                     component: () => import(/* webpackChunkName: "customer" */ '../components/page/agent/agentList.vue'),
-                    meta: { title: '会员折扣配置' }
+                    meta: { title: '批发折扣配置' }
                 },
                 {
                     path: '/mall-backend-shop-list',

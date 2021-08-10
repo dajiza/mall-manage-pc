@@ -263,7 +263,7 @@
                         </div>
                     </template>
                 </el-table-column>
-                <el-table-column prop="off_1" label="会员折扣(元)" width="120" :resizable="true" v-if="back_field_show('会员折扣(元)')">
+                <el-table-column prop="off_1" label="批发折扣(元)" width="120" :resizable="true" v-if="back_field_show('批发折扣(元)')">
                     <template slot-scope="scope">
                         <span>{{scope.row.off_2/100 | rounding}}</span>
                     </template>
@@ -907,7 +907,7 @@
                     {name:'促销优惠(元)', is_show: true},
                     {name:'优惠券(元)', is_show: true},
                     {name:'改价(元)', is_show: true},
-                    {name:'会员折扣(元)', is_show: true, is_new: true},
+                    {name:'批发折扣(元)', is_show: true, is_new: true},
                     {name:'实付(元)', is_show: true},
                     {name:'退款金额(元)', is_show: true},
                     {name:'佣金(元)', is_show: true}

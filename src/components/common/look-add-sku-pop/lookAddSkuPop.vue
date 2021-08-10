@@ -8,7 +8,15 @@
                     <i class="el-icon-search search" @click.stop="searchShow = !searchShow"></i>
                     <transition name="slide-fade">
                         <div class="head-container" v-show="searchShow" @click.stop="">
-                            <el-form ref="searchForm" :model="searchForm" class="form-filter" :inline="true" size="small" label-position="left" @keydown.enter.native="handleFilter()">
+                            <el-form
+                                ref="searchForm"
+                                :model="searchForm"
+                                class="form-filter"
+                                :inline="true"
+                                size="small"
+                                label-position="left"
+                                @keydown.enter.native="handleFilter()"
+                            >
                                 <el-form-item label="商品名称" prop="goods_name" label-width="">
                                     <el-input class="filter-item" placeholder="请输入" v-model="searchForm.goods_name" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
@@ -17,11 +25,11 @@
                                 </el-form-item>
                                 <el-form-item label="商品分类" prop="typeCategory">
                                     <el-cascader
-                                            class="filter-item"
-                                            :props="{ checkStrictly: true }"
-                                            v-model="searchForm.typeCategory"
-                                            placeholder="请选择"
-                                            :options="typeList"
+                                        class="filter-item"
+                                        :props="{ checkStrictly: true }"
+                                        v-model="searchForm.typeCategory"
+                                        placeholder="请选择"
+                                        :options="typeList"
                                     ></el-cascader>
                                 </el-form-item>
                                 <!--<el-form-item label="出售状态" prop="is_sale">
@@ -40,7 +48,7 @@
                                 <el-form-item label="SKU编码" prop="sku_code" class="">
                                     <el-input class="filter-item" v-model="searchForm.sku_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
-                                <!--<el-form-item label="会员折扣" prop="discount_condition" v-show="false">
+                                <!--<el-form-item label="批发折扣" prop="discount_condition" v-show="false">
                                     <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
                                         <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                                     </el-select>
@@ -102,18 +110,18 @@
             <div class="" @click="searchShow = false">
                 <template>
                     <el-table
-                            ref="multipleTable"
-                            :height="tableHeight"
-                            class="table"
-                            :data="list"
-                            v-loading.body="listLoading"
-                            :header-cell-style="$tableHeaderColor"
-                            element-loading-text="Loading"
-                            :default-expand-all="false"
-                            row-key="id"
-                            :cell-class-name="goodsTable"
-                            :cell-style="{ background: '#fff' }"
-                            key="tableKey"
+                        ref="multipleTable"
+                        :height="tableHeight"
+                        class="table"
+                        :data="list"
+                        v-loading.body="listLoading"
+                        :header-cell-style="$tableHeaderColor"
+                        element-loading-text="Loading"
+                        :default-expand-all="false"
+                        row-key="id"
+                        :cell-class-name="goodsTable"
+                        :cell-style="{ background: '#fff' }"
+                        key="tableKey"
                     >
                         <template>
                             <el-table-column label="-" type="expand" width="55">
@@ -122,9 +130,9 @@
                                         <el-table-column label="" width="50">
                                             <template slot-scope="scope">
                                                 <el-checkbox
-                                                        v-model="scope.row.skuIsChecked"
-                                                        :disabled="scope.row.isDisabled"
-                                                        @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
+                                                    v-model="scope.row.skuIsChecked"
+                                                    :disabled="scope.row.isDisabled"
+                                                    @change="value => skuChecked(value, scope.row, scope.$index, props.row, props.$index)"
                                                 ></el-checkbox>
                                             </template>
                                         </el-table-column>
@@ -137,10 +145,10 @@
                                         <el-table-column label="SKU图片" width="120">
                                             <template slot-scope="scope">
                                                 <img
-                                                        class="timg"
-                                                        :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
-                                                        alt=""
-                                                        @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
+                                                    class="timg"
+                                                    :src="scope.row.sku_sku_img + '!upyun520/fw/300'"
+                                                    alt=""
+                                                    @click="openPreview(scope.row.sku_sku_img, 2, scope.row.skuImgIndex)"
                                                 />
                                             </template>
                                         </el-table-column>
@@ -190,17 +198,18 @@
                             </el-table-column>
                             <el-table-column label="" width="35">
                                 <template slot="header" slot-scope="scope">
-                                    <el-checkbox v-model="checkAll"
-                                                 :indeterminate="0 < pageCheckSkuCount && pageCheckSkuCount < pageSkuCount"
-                                                 @change="value => handleCheckCurrentPage(value)"
+                                    <el-checkbox
+                                        v-model="checkAll"
+                                        :indeterminate="0 < pageCheckSkuCount && pageCheckSkuCount < pageSkuCount"
+                                        @change="value => handleCheckCurrentPage(value)"
                                     ></el-checkbox>
                                 </template>
                                 <template slot-scope="scope">
                                     <el-checkbox
-                                            v-model="scope.row.goodsIsChecked"
-                                            :disabled="scope.row.isDisabled"
-                                            :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length"
-                                            @change="value => goodsChecked(value, scope.row, scope.$index)"
+                                        v-model="scope.row.goodsIsChecked"
+                                        :disabled="scope.row.isDisabled"
+                                        :indeterminate="0 < scope.row.checkNum && scope.row.checkNum < scope.row.shop_skus.length"
+                                        @change="value => goodsChecked(value, scope.row, scope.$index)"
                                     ></el-checkbox>
                                 </template>
                             </el-table-column>
@@ -233,8 +242,8 @@
                                         <span class="dot dot-green" v-if="scope.row.status == 2"></span>
 
                                         <span :class="[scope.row.status == 1 ? 'text-grey' : '', 'status-text']">
-                                    {{ scope.row.status == 1 ? '已下架' : '已上架' }}
-                                </span>
+                                            {{ scope.row.status == 1 ? '已下架' : '已上架' }}
+                                        </span>
                                     </div>
                                 </template>
                             </el-table-column>
@@ -246,14 +255,14 @@
                 </template>
                 <div class="pagination-container">
                     <el-pagination
-                            background
-                            @size-change="handleSizeChange"
-                            @current-change="handleCurrentChange"
-                            :current-page="listQuery.page"
-                            :page-size="listQuery.limit"
-                            layout="total, prev, pager, next, jumper"
-                            :total="total"
-                            key="tableKey"
+                        background
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="listQuery.page"
+                        :page-size="listQuery.limit"
+                        layout="total, prev, pager, next, jumper"
+                        :total="total"
+                        key="tableKey"
                     >
                     </el-pagination>
                 </div>
@@ -294,7 +303,7 @@ export default {
             type: Array,
             default: []
         },
-        tableKey: 0,
+        tableKey: 0
     },
     data() {
         return {
@@ -365,7 +374,7 @@ export default {
             labelKey: 1,
             addCount: 0,
             allAddList: [], // 全部已添加 不分页
-            addList:[],
+            addList: [],
             checkAll: false,
             pageSkuCount: 0,
             pageCheckSkuCount: 0
@@ -405,16 +414,16 @@ export default {
             )
         },
         checked: {
-            handler(newValue, oldValue) {
+            handler(newValue, oldValue) {
                 console.log('newValue', newValue)
                 this.checkedSkuIds = _.cloneDeep(newValue)
-                if(this.isShow){
+                if (this.isShow) {
                     this.listQuery.page = 1
                     this.getList()
                 }
             },
-            deep: true
-        },
+            deep: true
+        }
     },
     computed: {
         backGoodsOtherName: function() {
@@ -643,8 +652,8 @@ export default {
             this.imgList = []
             this.previewIndex = 0
             const startNum = (this.listQuery.addPage - 1) * this.listQuery.limit,
-                  endNum = this.listQuery.addPage * this.listQuery.limit
-            this.addList = this.allAddList.slice(startNum,endNum)
+                endNum = this.listQuery.addPage * this.listQuery.limit
+            this.addList = this.allAddList.slice(startNum, endNum)
             this.addList.forEach(item => {
                 this.imgList.push(item.goods_img)
             })
@@ -863,8 +872,6 @@ export default {
             this.checkedList = []
         },
 
-
-
         closeAddGoods() {
             this.searchShow = false
         },
@@ -902,11 +909,13 @@ export default {
         },
 
         filterGoods() {
-            this.checkedList.forEach((goods)=>{
+            this.checkedList.forEach(goods => {
                 goods['checkNum'] = 0
                 goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
             })
-            this.checkedList = this.checkedList.filter(item=>{return item.checkNum > 0})
+            this.checkedList = this.checkedList.filter(item => {
+                return item.checkNum > 0
+            })
         },
         // sku选中/取消
         skuChecked(bol, row, index, goods_detail, goods_index) {
@@ -938,46 +947,45 @@ export default {
                 this.$set(this.checkedList, index, goodsSku)
             }
             this.setCheckAll()
-
         },
         // 选中/取消 当前页 所有
         handleCheckCurrentPage(bol) {
-            this.list.forEach((ev)=>{
-                if(!ev.isDisabled){
+            this.list.forEach(ev => {
+                if (!ev.isDisabled) {
                     ev['goodsIsChecked'] = bol
-                    ev.shop_skus.forEach((sku)=>{
-                        if(!ev.isDisabled){
+                    ev.shop_skus.forEach(sku => {
+                        if (!ev.isDisabled) {
                             sku['skuIsChecked'] = bol
                         }
                     })
                 }
             })
-            let checkedListCopy = this.uniqueArr( _.cloneDeep(this.list),_.cloneDeep(this.checkedList))
+            let checkedListCopy = this.uniqueArr(_.cloneDeep(this.list), _.cloneDeep(this.checkedList))
             console.log('checkedListCopy', checkedListCopy)
-            this.checkedList = checkedListCopy.filter(item=>item.goodsIsChecked)
+            this.checkedList = checkedListCopy.filter(item => item.goodsIsChecked)
             console.log('checkedList', this.checkedList)
             this.setCheckAll()
         },
-        uniqueArr(arr1,arr2) {
+        uniqueArr(arr1, arr2) {
             console.log('arr1', arr1)
             console.log('arr2', arr2)
             //合并两个数组
-            let newArr = [...arr1,...arr2]
+            let newArr = [...arr1, ...arr2]
             //去重
-            const res = new Map();
-            return newArr.filter((arr) => !res.has(arr.goods_id) && res.set(arr.goods_id, 1));
+            const res = new Map()
+            return newArr.filter(arr => !res.has(arr.goods_id) && res.set(arr.goods_id, 1))
         },
         setCheckAll() {
             this.pageCheckSkuCount = 0
             console.log('this.pageSkuCount', this.pageSkuCount)
             let pageCheckSku = 0
-            this.list.forEach((goods)=>{
+            this.list.forEach(goods => {
                 goods['checkNum'] = goods.shop_skus.filter(item => item.skuIsChecked).length
                 pageCheckSku = pageCheckSku + goods['checkNum']
             })
             this.pageCheckSkuCount = pageCheckSku
             console.log('pageCheckSku', pageCheckSku)
-            if(pageCheckSku == this.pageSkuCount) {
+            if (pageCheckSku == this.pageSkuCount) {
                 this.checkAll = true
             } else {
                 this.checkAll = false
@@ -1030,16 +1038,16 @@ export default {
             this.listQuery.addPage = 1
             this.listQuery.page = 1
             this.resetForm('searchForm')
-        },
+        }
     }
 }
 </script>
 
 <style scoped="scoped" lang="less">
-    /deep/.el-dialog__body {
-        padding: 60px 24px !important;
-    }
-.app-container{
+/deep/.el-dialog__body {
+    padding: 60px 24px !important;
+}
+.app-container {
     margin-top: 20px;
 }
 .tabs {
@@ -1055,7 +1063,7 @@ export default {
         line-height: 56px;
     }
 }
-.el-tabs__active-bar{
+.el-tabs__active-bar {
     z-index: 2004;
 }
 /deep/.el-dialog {

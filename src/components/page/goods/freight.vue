@@ -4,7 +4,7 @@
             运费模板
             <el-radio-group v-model="type" class="tab-way" size="mini" @change="onTabClick">
                 <el-radio-button :label="1">普通用户</el-radio-button>
-                <el-radio-button :label="2">会员用户</el-radio-button>
+                <el-radio-button :label="2">批发用户</el-radio-button>
             </el-radio-group>
             <el-button size="mini" type="primary" :disabled="type == 2 && list != null" @click="gotoCreat" icon="el-icon-plus" v-hasPermission="'mall-backend-freight-creat'">
                 新增模板

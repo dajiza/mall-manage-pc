@@ -44,7 +44,7 @@
                                 <el-form-item label="SKU编码" prop="sku_code" class="">
                                     <el-input class="filter-item" v-model="searchForm.sku_code" placeholder="请输入" @keyup.enter.native="handleFilter()"></el-input>
                                 </el-form-item>
-                                <!--<el-form-item label="会员折扣" prop="discount_condition" v-show="false">
+                                <!--<el-form-item label="批发折扣" prop="discount_condition" v-show="false">
                                     <el-select class="filter-item" v-model="searchForm.discount_condition" placeholder="请选择">
                                         <el-option v-for="item in discountList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                                     </el-select>

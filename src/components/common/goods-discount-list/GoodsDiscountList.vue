@@ -164,7 +164,7 @@
                                         <div class="type-tag type-blue" v-else>否</div>
                                     </template>
                                 </el-table-column>
-                                <el-table-column label="会员折扣" width="90">
+                                <el-table-column label="批发折扣" width="90">
                                     <template slot-scope="scope">
                                         <span v-if="scope.row.user_discount == 0">是</span>
                                         <span v-else-if="scope.row.user_discount == 1">否</span>

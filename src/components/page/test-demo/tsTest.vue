@@ -25,7 +25,7 @@
                             <div class="separator">-</div>
                             <el-input class="filter-item" placeholder="累计上限" v-model="formFilter.consumption_max"></el-input>
                         </el-form-item>
-                        <el-form-item label="会员折扣" prop="discount_id">
+                        <el-form-item label="批发折扣" prop="discount_id">
                             <el-select class="filter-item" v-model="formFilter.discount_id" placeholder="请选择" filterable>
                                 <el-option v-for="item in discountList" :key="item.id" :label="item.discount" :value="item.id"></el-option>
                             </el-select>
@@ -114,12 +114,12 @@
                     <span>{{ $moment(scope.row.last_login_time).format('YYYY-MM-DD HH:mm:ss') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="会员折扣" width="140">
+            <el-table-column label="批发折扣" width="140">
                 <template slot-scope="scope">
                     <span>{{ scope.row.discount_value ? commUtil.numberMul(Number(scope.row.discount_value), 10) + '折' : '' }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="会员时间" width="120">
+            <el-table-column label="批发时间" width="120">
                 <template slot-scope="scope" v-if="scope.row.discount_end_at">
                     <span>{{ $moment(scope.row.discount_start_at).format('YYYY-MM-DD') }}至{{ $moment(scope.row.discount_end_at).format('YYYY-MM-DD') }}</span>
                 </template>
@@ -127,7 +127,7 @@
             <el-table-column label="操作" width="160">
                 <template slot-scope="scope">
                     <el-button class="text-blud opt-btn" type="text" size="small" v-hasPermission="'mall-backend-user-discount-update'" @click="setMember(scope.row)"
-                        >{{ scope.row.discount_end_at ? '修改' : '设置' }}会员</el-button
+                        >{{ scope.row.discount_end_at ? '修改' : '设置' }}批发</el-button
                     >
                 </template>
             </el-table-column>
@@ -146,9 +146,9 @@
         </div>
 
         <!-- 设置会员 -->
-        <el-dialog :visible.sync="dialogVisibleMember" title="设置会员" width="360px">
+        <el-dialog :visible.sync="dialogVisibleMember" title="设置批发" width="360px">
             <el-form ref="formMember" :model="formMember" class="form-member" :inline="true" :rules="rulesMember" size="small" label-position="left">
-                <el-form-item label="会员折扣" prop="discount_id" class="">
+                <el-form-item label="批发折扣" prop="discount_id" class="">
                     <el-select class="filter-item" v-model="formMember.discount_id" placeholder="请选择" filterable style="width:220px">
                         <el-option v-for="item in discountList" :key="item.id" :label="item.discount" :value="item.id"></el-option>
                     </el-select>
@@ -443,7 +443,7 @@ export default Vue.extend({
                             console.log('GOOGLE: res', res)
                             if (res.code == 200) {
                                 this.$notify({
-                                    title: '会员设置成功',
+                                    title: '批发设置成功',
                                     type: 'success',
                                     duration: 3000
                                 })

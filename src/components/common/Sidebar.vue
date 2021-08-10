@@ -238,7 +238,7 @@ export default {
                         {
                             name: 'mall-backend-sales-promotion',
                             display_name: '促销管理'
-                        },
+                        }
                     ]
                 },
                 {
@@ -294,7 +294,7 @@ export default {
                         },
                         {
                             name: 'mall-backend-discount-setup',
-                            display_name: '会员折扣配置'
+                            display_name: '批发折扣配置'
                         }
                     ]
                 },

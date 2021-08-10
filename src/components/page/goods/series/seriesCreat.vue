@@ -8,7 +8,7 @@
             <div class="divider"></div>
             <div class="form-content">
                 <el-form-item class="form-item" label="系列名称:" prop="title">
-                    <el-input class="w300" placeholder="请输入名称" v-model="operationForm.title"/>
+                    <el-input class="w300" placeholder="请输入名称" v-model="operationForm.title" />
                 </el-form-item>
                 <el-form-item class="form-item" label="备注:" prop="remark">
                     <el-input class="w300" type="textarea" :rows="5" placeholder="请输入名称" v-model="operationForm.remark" />
@@ -35,12 +35,12 @@
                             </el-form-item>
                             <el-form-item label="商品分类" prop="typeCategory">
                                 <el-cascader
-                                        :key="'add-goods-cate' + cateKey"
-                                        class="filter-item"
-                                        :props="{ checkStrictly: true }"
-                                        v-model="searchForm.typeCategory"
-                                        placeholder="请选择"
-                                        :options="categoryData"
+                                    :key="'add-goods-cate' + cateKey"
+                                    class="filter-item"
+                                    :props="{ checkStrictly: true }"
+                                    v-model="searchForm.typeCategory"
+                                    placeholder="请选择"
+                                    :options="categoryData"
                                 ></el-cascader>
                             </el-form-item>
                             <el-form-item label="商品状态" prop="shop_goods_status">
@@ -91,7 +91,12 @@
                     <div class="th-box">
                         <div class="sort-box" v-show="isSort"></div>
                         <div class="check-box-all">
-                            <el-checkbox :indeterminate="isIndeterminate" :disabled="goodsData.length < 1" v-model="allChecked" @change="value => goodsAllChecked(value)"></el-checkbox>
+                            <el-checkbox
+                                :indeterminate="isIndeterminate"
+                                :disabled="goodsData.length < 1"
+                                v-model="allChecked"
+                                @change="value => goodsAllChecked(value)"
+                            ></el-checkbox>
                         </div>
                         <div class="goods-id">商品ID</div>
                         <div class="goods-img">主图</div>
@@ -103,7 +108,7 @@
                     </div>
                     <div class="goods-list table" ref="listUl" @scroll="handleScroll">
                         <draggable :disabled="!isSort" @start="dragStart" @end="end" animation="300">
-                            <div class="goods-item-wrap" v-for="(goods, i) in goodsData" :key="goods.id + '_'+ goods.goodsIsChecked">
+                            <div class="goods-item-wrap" v-for="(goods, i) in goodsData" :key="goods.id + '_' + goods.goodsIsChecked">
                                 <div class="goods-item">
                                     <div class="sort-box" v-show="isSort">
                                         <div class="tuozhuai-wrap">
@@ -117,13 +122,13 @@
                                     </div>
                                     <div class="goods-id">
                                         <el-checkbox :key="goods.id" v-model="goods.goodsIsChecked" @change="value => goodsChecked(value, goods, i)"></el-checkbox>
-                                        <span style="margin-left: 8px">{{goods.goods_id}}</span>
+                                        <span style="margin-left: 8px">{{ goods.goods_id }}</span>
                                     </div>
                                     <div class="goods-img">
                                         <img class="timg" :src="goods.goods_img + '!upyun520/fw/300'" alt="" @click="openPreview(goods.goods_img, 1, i)" />
                                     </div>
-                                    <div class="goods-name">{{goods.goods_title}}</div>
-                                    <div class="real-sale w88">{{goods.real_sales}}</div>
+                                    <div class="goods-name">{{ goods.goods_title }}</div>
+                                    <div class="real-sale w88">{{ goods.real_sales }}</div>
                                     <div class="goods-cate w88">
                                         <span v-if="goods.goods_type == 1">布料</span>
                                         <span v-if="goods.goods_type == 2"> 其他{{ backGoodsOtherName(goods.goods_category_id) }} </span>
@@ -133,8 +138,8 @@
                                         <span class="dot dot-grey" v-if="goods.status == 1"></span>
                                         <span class="dot dot-green" v-if="goods.status == 2"></span>
                                         <span :class="[goods.status == 1 ? 'text-grey' : '', 'status-text']">
-                                    {{ goods.status == 1 ? '已下架' : '已上架' }}
-                                </span>
+                                            {{ goods.status == 1 ? '已下架' : '已上架' }}
+                                        </span>
                                     </div>
                                     <div class="operation-box w100">
                                         <el-button type="text" class="marginLeft0 marginRight15 delete-color" @click="handleDelItem(i, goods)">移除</el-button>
@@ -152,10 +157,10 @@
                                             <div class="sku-col-item w88">总库存</div>
                                             <div class="sku-col-item w88">可用库存</div>
                                             <div class="sku-col-item w88">是否售罄</div>
-                                            <div class="sku-col-item w88">会员折扣</div>
+                                            <div class="sku-col-item w88">批发折扣</div>
                                             <div class="sku-col-item w100">预售/正常</div>
                                         </div>
-                                        <div class="sku-item-wrap" v-for="(sku, sku_i) in goods.shop_skus" :key="sku.id + '_'+ goods.goodsIsChecked">
+                                        <div class="sku-item-wrap" v-for="(sku, sku_i) in goods.shop_skus" :key="sku.id + '_' + goods.goodsIsChecked">
                                             <div class="sku-item">
                                                 <div class="sku-col-item sku-status">
                                                     <span class="text-red" v-show="sku.status == 1">已下架</span>
@@ -163,31 +168,30 @@
                                                 </div>
                                                 <div class="sku-col-item sku-img">
                                                     <img
-                                                            class="timg"
-                                                            :src="sku.sku_sku_img + '!upyun520/fw/300'"
-                                                            alt=""
-                                                            @click="openPreview(sku.sku_sku_img, 2, sku.skuImgIndex)"
+                                                        class="timg"
+                                                        :src="sku.sku_sku_img + '!upyun520/fw/300'"
+                                                        alt=""
+                                                        @click="openPreview(sku.sku_sku_img, 2, sku.skuImgIndex)"
                                                     />
                                                 </div>
-                                                <div class="sku-name">{{sku.sku_title}}</div>
-                                                <div class="sku-col-item sku-code">{{sku.sku_storehouse_code}}</div>
-                                                <div class="sku-col-item sku-real-sales">{{sku.sku_real_sales}}</div>
+                                                <div class="sku-name">{{ sku.sku_title }}</div>
+                                                <div class="sku-col-item sku-code">{{ sku.sku_storehouse_code }}</div>
+                                                <div class="sku-col-item sku-real-sales">{{ sku.sku_real_sales }}</div>
                                                 <div class="sku-col-item w88">{{ formatMoney(sku.sku_min_price) }}</div>
-                                                <div class="sku-col-item w88">{{sku.product_storage_data.stock_total}}{{sku.sku_attr_unit}}</div>
-                                                <div class="sku-col-item w88">{{sku.product_storage_data.stock_available}}{{sku.sku_attr_unit}}</div>
-                                                <div class="sku-col-item w88">{{sku.sku_is_store_shortage == 2 ? '是' : '否'}}</div>
+                                                <div class="sku-col-item w88">{{ sku.product_storage_data.stock_total }}{{ sku.sku_attr_unit }}</div>
+                                                <div class="sku-col-item w88">{{ sku.product_storage_data.stock_available }}{{ sku.sku_attr_unit }}</div>
+                                                <div class="sku-col-item w88">{{ sku.sku_is_store_shortage == 2 ? '是' : '否' }}</div>
                                                 <div class="sku-col-item w88">
                                                     <span v-if="sku.sku_user_discount == 0">是</span>
                                                     <span v-else-if="sku.sku_user_discount == 1">否</span>
                                                     <span v-else>{{ commUtil.numberMul(Number(sku.sku_user_discount), 0.1) }}折</span>
-                                        </div>
+                                                </div>
                                                 <div class="sku-col-item w100">{{ sku.sku_is_pro_sale == 2 ? '正常' : '预售' }}</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         </draggable>
                         <div class="is-all tip-text" v-if="goodsData.length > 0 && is_all">没有更多了</div>
                         <div class="empty-list tip-text" v-if="goodsData.length < 1">暂无商品</div>
@@ -204,15 +208,14 @@
 
         <!-- 添加商品 -->
         <addShopGoods
-                ref="goodsList"
-                title="挑选商品"
-                :categoryListOther="cate_other_list_copy"
-                :categoryListClothGroup="cate_group_list_copy"
-                :checked="checked_goods_ids"
-                :shopId="shopId"
-                @check-goods="sureAddGoods"
+            ref="goodsList"
+            title="挑选商品"
+            :categoryListOther="cate_other_list_copy"
+            :categoryListClothGroup="cate_group_list_copy"
+            :checked="checked_goods_ids"
+            :shopId="shopId"
+            @check-goods="sureAddGoods"
         ></addShopGoods>
-
     </div>
 </template>
 <script>
@@ -224,9 +227,7 @@ export default {
     data() {
         return {}
     },
-    components: {
-
-    },
+    components: {},
     created() {},
     methods: {}
 }
@@ -245,41 +246,41 @@ export default {
 }
 </style>
 <style lang="less" scoped>
-    .table /deep/ .el-table__expand-icon > .el-icon {
-        margin-top: -10px;
-    }
-    .table /deep/ .el-table__expand-icon--expanded {
-        transform: rotate(0deg);
-    }
-    .table /deep/ .el-icon-arrow-right:before {
-        color: #1890ff;
-        content: '\e61a';
-        font-size: 19px;
-        font-family: 'iconfont';
-    }
-    .table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
-        color: #6d7278;
-        content: '\e617';
-    }
-    .table /deep/ .el-table__expanded-cell {
-        padding: 0 !important;
-    }
-    /deep/ .el-table-column--selection .cell {
-        padding-right: 12px;
-        padding-left: 12px;
-    }
-    .sku-table {
-        box-sizing: border-box;
-        margin-left: 120px;
-        max-width: calc(100% - 120px);
-    }
-    .table .sku-table /deep/ .el-table__body tr:hover > td {
-        background-color: #f6faff !important;
-    }
-    .cursor {
-        cursor: pointer;
-    }
-    .table /deep/ .el-table__body tr:hover > td {
-        background-color: #fff !important;
-    }
+.table /deep/ .el-table__expand-icon > .el-icon {
+    margin-top: -10px;
+}
+.table /deep/ .el-table__expand-icon--expanded {
+    transform: rotate(0deg);
+}
+.table /deep/ .el-icon-arrow-right:before {
+    color: #1890ff;
+    content: '\e61a';
+    font-size: 19px;
+    font-family: 'iconfont';
+}
+.table /deep/ .el-table__expand-icon--expanded .el-icon-arrow-right:before {
+    color: #6d7278;
+    content: '\e617';
+}
+.table /deep/ .el-table__expanded-cell {
+    padding: 0 !important;
+}
+/deep/ .el-table-column--selection .cell {
+    padding-right: 12px;
+    padding-left: 12px;
+}
+.sku-table {
+    box-sizing: border-box;
+    margin-left: 120px;
+    max-width: calc(100% - 120px);
+}
+.table .sku-table /deep/ .el-table__body tr:hover > td {
+    background-color: #f6faff !important;
+}
+.cursor {
+    cursor: pointer;
+}
+.table /deep/ .el-table__body tr:hover > td {
+    background-color: #fff !important;
+}
 </style>

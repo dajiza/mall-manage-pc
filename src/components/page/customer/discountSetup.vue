@@ -2,12 +2,12 @@
     <div class="app-container" @click.stop="searchShow = false">
         <div class="table-title">
             <div class="line"></div>
-            <div class="text">会员折扣配置</div>
+            <div class="text">批发折扣配置</div>
             <el-button class="add-btn" type="primary" size="mini" v-hasPermission="'mall-backend-discount-create'" @click="creatDiscount">新增</el-button>
         </div>
 
         <el-table :height="tableHeight" :data="list" v-loading.body="listLoading" :header-cell-style="$tableHeaderColor" element-loading-text="Loading" fit>
-            <el-table-column label="会员折扣" width="">
+            <el-table-column label="批发折扣" width="">
                 <template slot-scope="scope">
                     <span>{{ commUtil.numberMul(Number(scope.row.discount_value), 0.1) }}折</span>
                 </template>
@@ -38,9 +38,9 @@
         </div>
 
         <!-- 设置会员 -->
-        <el-dialog :visible.sync="dialogVisibleCreat" :title="dialogTitle + '会员折扣'" width="380px" @closed="closeDialog">
+        <el-dialog :visible.sync="dialogVisibleCreat" :title="dialogTitle + '批发折扣'" width="380px" @closed="closeDialog">
             <el-form class="form-creat" :inline="true" size="small" label-position="left">
-                <el-form-item label="会员折扣" class="">
+                <el-form-item label="批发折扣" class="">
                     <el-input class="" placeholder="请输入" v-model="discountValue" style="width:250px"></el-input>
                 </el-form-item>
             </el-form>
